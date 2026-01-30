@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { subMonths } from "date-fns";
+import { DateRange } from "react-day-picker";
 import {
   BarChart3,
   TrendingUp,
@@ -9,7 +11,6 @@ import {
   FileText,
   Award,
   Download,
-  Calendar,
 } from "lucide-react";
 import {
   AreaChart,
@@ -32,18 +33,13 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import {
   rfqTrendsData,
   responseTimesData,
@@ -51,6 +47,8 @@ import {
   quoteSuccessData,
   categoryDistributionData,
   analyticsStats,
+  filterDataByDateRange,
+  calculateFilteredStats,
 } from "@/data/analytics";
 
 const rfqChartConfig = {
@@ -76,14 +74,14 @@ const successChartConfig = {
 interface StatCardProps {
   title: string;
   value: string | number;
-  change: number;
+  change?: number;
   icon: React.ElementType;
   prefix?: string;
   suffix?: string;
 }
 
 function StatCard({ title, value, change, icon: Icon, prefix = "", suffix = "" }: StatCardProps) {
-  const isPositive = change >= 0;
+  const isPositive = change !== undefined && change >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
 
   return (
@@ -100,17 +98,19 @@ function StatCard({ title, value, change, icon: Icon, prefix = "", suffix = "" }
               <p className="text-2xl font-bold">
                 {prefix}{typeof value === "number" ? value.toLocaleString() : value}{suffix}
               </p>
-              <div className="flex items-center gap-1 text-sm">
-                <TrendIcon
-                  className={`h-4 w-4 ${
-                    isPositive ? "text-success" : "text-destructive"
-                  }`}
-                />
-                <span className={isPositive ? "text-success" : "text-destructive"}>
-                  {isPositive ? "+" : ""}{change}%
-                </span>
-                <span className="text-muted-foreground">vs last period</span>
-              </div>
+              {change !== undefined && (
+                <div className="flex items-center gap-1 text-sm">
+                  <TrendIcon
+                    className={`h-4 w-4 ${
+                      isPositive ? "text-success" : "text-destructive"
+                    }`}
+                  />
+                  <span className={isPositive ? "text-success" : "text-destructive"}>
+                    {isPositive ? "+" : ""}{change}%
+                  </span>
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
+              )}
             </div>
             <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
               <Icon className="h-6 w-6 text-primary" />
@@ -123,7 +123,27 @@ function StatCard({ title, value, change, icon: Icon, prefix = "", suffix = "" }
 }
 
 export default function AnalyticsPage() {
-  const [timeRange, setTimeRange] = useState("12m");
+  // Default to last 12 months
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: subMonths(new Date(), 12),
+    to: new Date(),
+  });
+
+  // Filter data based on date range
+  const filteredRfqData = useMemo(() => {
+    return filterDataByDateRange(rfqTrendsData, dateRange?.from, dateRange?.to);
+  }, [dateRange]);
+
+  const filteredSavingsData = useMemo(() => {
+    return filterDataByDateRange(costSavingsData, dateRange?.from, dateRange?.to);
+  }, [dateRange]);
+
+  // Calculate dynamic stats
+  const dynamicStats = useMemo(() => {
+    return calculateFilteredStats(filteredRfqData, filteredSavingsData);
+  }, [filteredRfqData, filteredSavingsData]);
+
+  const dataPointsCount = filteredRfqData.length;
 
   return (
     <DashboardLayout>
@@ -146,17 +166,10 @@ export default function AnalyticsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[140px]">
-                <Calendar className="h-4 w-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="3m">Last 3 months</SelectItem>
-                <SelectItem value="6m">Last 6 months</SelectItem>
-                <SelectItem value="12m">Last 12 months</SelectItem>
-              </SelectContent>
-            </Select>
+            <DateRangePicker
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -164,11 +177,20 @@ export default function AnalyticsPage() {
           </div>
         </motion.div>
 
+        {/* Date Range Info */}
+        {dateRange?.from && dateRange?.to && (
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              {dataPointsCount} data point{dataPointsCount !== 1 ? "s" : ""} in selected range
+            </Badge>
+          </div>
+        )}
+
         {/* Stats Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Total RFQs"
-            value={analyticsStats.totalRFQs}
+            value={dynamicStats.totalRFQs}
             change={analyticsStats.rfqGrowth}
             icon={FileText}
           />
@@ -181,14 +203,14 @@ export default function AnalyticsPage() {
           />
           <StatCard
             title="Total Savings"
-            value={analyticsStats.totalSavings}
+            value={dynamicStats.totalSavings}
             change={analyticsStats.savingsGrowth}
             icon={DollarSign}
             prefix="$"
           />
           <StatCard
             title="Award Rate"
-            value={analyticsStats.awardRate}
+            value={dynamicStats.awardRate}
             change={analyticsStats.awardGrowth}
             icon={Award}
             suffix="%"
@@ -215,56 +237,67 @@ export default function AnalyticsPage() {
                   <CardTitle>RFQ Activity Over Time</CardTitle>
                   <CardDescription>
                     Track the lifecycle of your RFQs from creation to award
+                    {filteredRfqData.length < rfqTrendsData.length && (
+                      <span className="ml-2 text-primary">
+                        (Showing {filteredRfqData.length} of {rfqTrendsData.length} months)
+                      </span>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ChartContainer config={rfqChartConfig} className="h-[400px] w-full">
-                    <AreaChart data={rfqTrendsData}>
-                      <defs>
-                        <linearGradient id="colorCreated" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="colorQuoted" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
-                        </linearGradient>
-                        <linearGradient id="colorAwarded" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="month" className="text-muted-foreground" />
-                      <YAxis className="text-muted-foreground" />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Legend />
-                      <Area
-                        type="monotone"
-                        dataKey="created"
-                        stroke="hsl(var(--chart-1))"
-                        fillOpacity={1}
-                        fill="url(#colorCreated)"
-                        strokeWidth={2}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="quoted"
-                        stroke="hsl(var(--chart-2))"
-                        fillOpacity={1}
-                        fill="url(#colorQuoted)"
-                        strokeWidth={2}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="awarded"
-                        stroke="hsl(var(--chart-3))"
-                        fillOpacity={1}
-                        fill="url(#colorAwarded)"
-                        strokeWidth={2}
-                      />
-                    </AreaChart>
-                  </ChartContainer>
+                  {filteredRfqData.length > 0 ? (
+                    <ChartContainer config={rfqChartConfig} className="h-[400px] w-full">
+                      <AreaChart data={filteredRfqData}>
+                        <defs>
+                          <linearGradient id="colorCreated" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="colorQuoted" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="colorAwarded" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="month" className="text-muted-foreground" />
+                        <YAxis className="text-muted-foreground" />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Legend />
+                        <Area
+                          type="monotone"
+                          dataKey="created"
+                          stroke="hsl(var(--chart-1))"
+                          fillOpacity={1}
+                          fill="url(#colorCreated)"
+                          strokeWidth={2}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="quoted"
+                          stroke="hsl(var(--chart-2))"
+                          fillOpacity={1}
+                          fill="url(#colorQuoted)"
+                          strokeWidth={2}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="awarded"
+                          stroke="hsl(var(--chart-3))"
+                          fillOpacity={1}
+                          fill="url(#colorAwarded)"
+                          strokeWidth={2}
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  ) : (
+                    <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+                      No data available for the selected date range
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
@@ -322,53 +355,64 @@ export default function AnalyticsPage() {
                   <CardTitle>Cost Savings Analysis</CardTitle>
                   <CardDescription>
                     Compare target spend vs actual spend and track your savings
+                    {filteredSavingsData.length < costSavingsData.length && (
+                      <span className="ml-2 text-primary">
+                        (Showing {filteredSavingsData.length} of {costSavingsData.length} months)
+                      </span>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ChartContainer config={savingsChartConfig} className="h-[400px] w-full">
-                    <AreaChart data={costSavingsData}>
-                      <defs>
-                        <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.4} />
-                          <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="month" className="text-muted-foreground" />
-                      <YAxis
-                        className="text-muted-foreground"
-                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                      />
-                      <ChartTooltip
-                        content={<ChartTooltipContent />}
-                        formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
-                      />
-                      <Legend />
-                      <Line
-                        type="monotone"
-                        dataKey="targetSpend"
-                        stroke="hsl(var(--muted-foreground))"
-                        strokeWidth={2}
-                        strokeDasharray="5 5"
-                        dot={false}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="actualSpend"
-                        stroke="hsl(var(--chart-1))"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="savings"
-                        stroke="hsl(var(--chart-3))"
-                        fillOpacity={1}
-                        fill="url(#colorSavings)"
-                        strokeWidth={2}
-                      />
-                    </AreaChart>
-                  </ChartContainer>
+                  {filteredSavingsData.length > 0 ? (
+                    <ChartContainer config={savingsChartConfig} className="h-[400px] w-full">
+                      <AreaChart data={filteredSavingsData}>
+                        <defs>
+                          <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="month" className="text-muted-foreground" />
+                        <YAxis
+                          className="text-muted-foreground"
+                          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                        />
+                        <ChartTooltip
+                          content={<ChartTooltipContent />}
+                          formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+                        />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="targetSpend"
+                          stroke="hsl(var(--muted-foreground))"
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          dot={false}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="actualSpend"
+                          stroke="hsl(var(--chart-1))"
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="savings"
+                          stroke="hsl(var(--chart-3))"
+                          fillOpacity={1}
+                          fill="url(#colorSavings)"
+                          strokeWidth={2}
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  ) : (
+                    <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+                      No data available for the selected date range
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
