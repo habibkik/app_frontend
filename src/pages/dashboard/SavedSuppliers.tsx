@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bookmark,
@@ -23,6 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -58,6 +59,8 @@ import { useSavedSuppliers } from "@/contexts/SavedSuppliersContext";
 import { ContactSupplierModal } from "@/components/suppliers/ContactSupplierModal";
 import { SupplierDetailModal } from "@/components/suppliers/SupplierDetailModal";
 import { SupplierNotesTagsModal } from "@/components/suppliers/SupplierNotesTagsModal";
+import { BulkActionsToolbar } from "@/components/suppliers/BulkActionsToolbar";
+import { BulkTagAssignModal } from "@/components/suppliers/BulkTagAssignModal";
 import { Supplier, mockSuppliers } from "@/data/suppliers";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -82,6 +85,10 @@ export default function SavedSuppliersPage() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [notesTagsSupplier, setNotesTagsSupplier] = useState<Supplier | null>(null);
   const [isNotesTagsModalOpen, setIsNotesTagsModalOpen] = useState(false);
+  
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkTagModalOpen, setIsBulkTagModalOpen] = useState(false);
 
   // Get all available tags
   const allTags = getAllTags();
@@ -138,6 +145,11 @@ export default function SavedSuppliersPage() {
 
   const handleRemove = (supplier: Supplier) => {
     removeSupplier(supplier.id);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(supplier.id);
+      return next;
+    });
     toast({
       title: "Supplier Removed",
       description: `${supplier.name} has been removed from your saved suppliers.`,
@@ -174,6 +186,41 @@ export default function SavedSuppliersPage() {
       });
     }
   };
+
+  // Bulk selection handlers
+  const toggleSelection = useCallback((supplierId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(supplierId)) {
+        next.delete(supplierId);
+      } else {
+        next.add(supplierId);
+      }
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(filteredSuppliers.map((s) => s.id)));
+  }, [filteredSuppliers]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const handleBulkRemove = useCallback(() => {
+    const count = selectedIds.size;
+    selectedIds.forEach((id) => removeSupplier(id));
+    setSelectedIds(new Set());
+    toast({
+      title: "Suppliers Removed",
+      description: `${count} supplier(s) have been removed from your saved list.`,
+    });
+  }, [selectedIds, removeSupplier, toast]);
+
+  const handleBulkTagComplete = useCallback(() => {
+    clearSelection();
+  }, [clearSelection]);
 
   return (
     <DashboardLayout>
@@ -331,6 +378,18 @@ export default function SavedSuppliersPage() {
           </div>
         </div>
 
+        {/* Bulk Actions Toolbar */}
+        <AnimatePresence>
+          <BulkActionsToolbar
+            selectedCount={selectedIds.size}
+            totalCount={filteredSuppliers.length}
+            onSelectAll={selectAll}
+            onClearSelection={clearSelection}
+            onBulkTag={() => setIsBulkTagModalOpen(true)}
+            onBulkRemove={handleBulkRemove}
+          />
+        </AnimatePresence>
+
         {/* Content */}
         {filteredSuppliers.length > 0 ? (
           viewMode === "grid" ? (
@@ -338,6 +397,7 @@ export default function SavedSuppliersPage() {
               <AnimatePresence mode="popLayout">
                 {filteredSuppliers.map((supplier, index) => {
                   const metadata = getSupplierMetadata(supplier.id);
+                  const isSelected = selectedIds.has(supplier.id);
                   return (
                     <motion.div
                       key={supplier.id}
@@ -347,10 +407,15 @@ export default function SavedSuppliersPage() {
                       transition={{ delay: index * 0.05 }}
                       layout
                     >
-                      <Card className="group hover:shadow-lg transition-all duration-200 hover:border-primary/30">
+                      <Card className={`group hover:shadow-lg transition-all duration-200 hover:border-primary/30 ${isSelected ? "ring-2 ring-primary border-primary" : ""}`}>
                         <CardContent className="p-5">
-                          {/* Header */}
-                          <div className="flex items-start gap-4 mb-3">
+                          {/* Selection Checkbox + Header */}
+                          <div className="flex items-start gap-3 mb-3">
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => toggleSelection(supplier.id)}
+                              className="mt-1"
+                            />
                             <div
                               className="h-14 w-14 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0 cursor-pointer"
                               onClick={() => handleViewDetails(supplier)}
@@ -478,6 +543,18 @@ export default function SavedSuppliersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-[40px]">
+                      <Checkbox
+                        checked={selectedIds.size === filteredSuppliers.length && filteredSuppliers.length > 0}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            selectAll();
+                          } else {
+                            clearSelection();
+                          }
+                        }}
+                      />
+                    </TableHead>
                     <TableHead>Supplier</TableHead>
                     <TableHead>Tags</TableHead>
                     <TableHead>Notes</TableHead>
@@ -489,14 +566,21 @@ export default function SavedSuppliersPage() {
                   <AnimatePresence mode="popLayout">
                     {filteredSuppliers.map((supplier) => {
                       const metadata = getSupplierMetadata(supplier.id);
+                      const isSelected = selectedIds.has(supplier.id);
                       return (
                         <motion.tr
                           key={supplier.id}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
-                          className="group"
+                          className={`group ${isSelected ? "bg-primary/5" : ""}`}
                         >
+                          <TableCell>
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => toggleSelection(supplier.id)}
+                            />
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
@@ -662,6 +746,14 @@ export default function SavedSuppliersPage() {
           supplier={notesTagsSupplier}
           open={isNotesTagsModalOpen}
           onOpenChange={setIsNotesTagsModalOpen}
+        />
+
+        {/* Bulk Tag Assignment Modal */}
+        <BulkTagAssignModal
+          selectedIds={Array.from(selectedIds)}
+          open={isBulkTagModalOpen}
+          onOpenChange={setIsBulkTagModalOpen}
+          onComplete={handleBulkTagComplete}
         />
       </div>
     </DashboardLayout>
