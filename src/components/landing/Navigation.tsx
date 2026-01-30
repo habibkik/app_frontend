@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { HeroButton } from "@/components/ui/hero-button";
@@ -58,11 +59,11 @@ const Navigation = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="hidden md:flex items-center gap-4"
           >
-            <HeroButton variant="ghost" size="sm">
-              Sign In
+            <HeroButton variant="ghost" size="sm" asChild>
+              <Link to="/login">Sign In</Link>
             </HeroButton>
-            <HeroButton variant="primary" size="sm">
-              Get Started
+            <HeroButton variant="primary" size="sm" asChild>
+              <Link to="/signup">Get Started</Link>
             </HeroButton>
           </motion.div>
 
@@ -97,11 +98,11 @@ const Navigation = () => {
                   </a>
                 ))}
                 <div className="pt-4 space-y-3">
-                  <HeroButton variant="ghost" size="default" className="w-full">
-                    Sign In
+                  <HeroButton variant="ghost" size="default" className="w-full" asChild>
+                    <Link to="/login">Sign In</Link>
                   </HeroButton>
-                  <HeroButton variant="primary" size="default" className="w-full">
-                    Get Started
+                  <HeroButton variant="primary" size="default" className="w-full" asChild>
+                    <Link to="/signup">Get Started</Link>
                   </HeroButton>
                 </div>
               </div>
