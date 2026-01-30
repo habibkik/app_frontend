@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ProtectedRoute, PublicRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -35,33 +36,34 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
             
-            {/* Dashboard routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
+            {/* Protected Dashboard routes */}
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             
             {/* Buyer mode pages */}
-            <Route path="/dashboard/suppliers" element={<Suppliers />} />
-            <Route path="/dashboard/rfqs" element={<RFQs />} />
-            <Route path="/dashboard/conversations" element={<Conversations />} />
-            <Route path="/dashboard/saved" element={<SavedSuppliers />} />
+            <Route path="/dashboard/suppliers" element={<ProtectedRoute><Suppliers /></ProtectedRoute>} />
+            <Route path="/dashboard/rfqs" element={<ProtectedRoute><RFQs /></ProtectedRoute>} />
+            <Route path="/dashboard/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
+            <Route path="/dashboard/saved" element={<ProtectedRoute><SavedSuppliers /></ProtectedRoute>} />
             
             {/* Producer mode pages */}
-            <Route path="/dashboard/bom" element={<BOM />} />
-            <Route path="/dashboard/components" element={<Components />} />
-            <Route path="/dashboard/feasibility" element={<Feasibility />} />
-            <Route path="/dashboard/gtm" element={<GTM />} />
+            <Route path="/dashboard/bom" element={<ProtectedRoute><BOM /></ProtectedRoute>} />
+            <Route path="/dashboard/components" element={<ProtectedRoute><Components /></ProtectedRoute>} />
+            <Route path="/dashboard/feasibility" element={<ProtectedRoute><Feasibility /></ProtectedRoute>} />
+            <Route path="/dashboard/gtm" element={<ProtectedRoute><GTM /></ProtectedRoute>} />
             
             {/* Seller mode pages */}
-            <Route path="/dashboard/market" element={<MarketIntelligence />} />
-            <Route path="/dashboard/pricing" element={<Pricing />} />
-            <Route path="/dashboard/campaigns" element={<Campaigns />} />
-            <Route path="/dashboard/website" element={<WebsiteBuilder />} />
+            <Route path="/dashboard/market" element={<ProtectedRoute><MarketIntelligence /></ProtectedRoute>} />
+            <Route path="/dashboard/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+            <Route path="/dashboard/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
+            <Route path="/dashboard/website" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
             
             {/* Shared pages */}
-            <Route path="/dashboard/analytics" element={<Analytics />} />
+            <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
