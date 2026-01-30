@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SupplierCard } from "@/components/suppliers/SupplierCard";
+import { SupplierDetailModal } from "@/components/suppliers/SupplierDetailModal";
 import { 
   SupplierFiltersPanel, 
   SupplierFilters, 
@@ -29,6 +30,8 @@ export default function SuppliersPage() {
   const [filters, setFilters] = useState<SupplierFilters>(defaultFilters);
   const [sortBy, setSortBy] = useState<SortOption>("rating");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter and sort suppliers
   const filteredSuppliers = useMemo(() => {
@@ -112,6 +115,11 @@ export default function SuppliersPage() {
       title: "Supplier Saved",
       description: `${supplier.name} has been added to your saved suppliers.`,
     });
+  };
+
+  const handleCardClick = (supplier: Supplier) => {
+    setSelectedSupplier(supplier);
+    setIsModalOpen(true);
   };
 
   const activeFilterCount =
@@ -296,6 +304,7 @@ export default function SuppliersPage() {
                       supplier={supplier}
                       onContact={handleContact}
                       onSave={handleSave}
+                      onClick={handleCardClick}
                     />
                   </motion.div>
                 ))}
@@ -319,6 +328,15 @@ export default function SuppliersPage() {
             )}
           </div>
         </div>
+
+        {/* Supplier Detail Modal */}
+        <SupplierDetailModal
+          supplier={selectedSupplier}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          onContact={handleContact}
+          onSave={handleSave}
+        />
       </div>
     </DashboardLayout>
   );
