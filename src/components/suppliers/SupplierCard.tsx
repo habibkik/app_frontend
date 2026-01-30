@@ -9,12 +9,16 @@ interface SupplierCardProps {
   supplier: Supplier;
   onContact: (supplier: Supplier) => void;
   onSave: (supplier: Supplier) => void;
+  onClick?: (supplier: Supplier) => void;
 }
 
-export function SupplierCard({ supplier, onContact, onSave }: SupplierCardProps) {
+export function SupplierCard({ supplier, onContact, onSave, onClick }: SupplierCardProps) {
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 hover:border-primary/30">
-      <CardContent className="p-5">
+    <Card 
+      className="group hover:shadow-lg transition-all duration-200 hover:border-primary/30 cursor-pointer"
+      onClick={() => onClick?.(supplier)}
+    >
+      <CardContent className="p-5" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
           {/* Logo */}
