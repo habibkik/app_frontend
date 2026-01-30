@@ -13,7 +13,10 @@ import {
   Grid3X3,
   List,
   Filter,
-  ExternalLink,
+  Tag,
+  StickyNote,
+  Edit3,
+  X,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,23 +49,42 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useSavedSuppliers } from "@/contexts/SavedSuppliersContext";
 import { ContactSupplierModal } from "@/components/suppliers/ContactSupplierModal";
 import { SupplierDetailModal } from "@/components/suppliers/SupplierDetailModal";
+import { SupplierNotesTagsModal } from "@/components/suppliers/SupplierNotesTagsModal";
 import { Supplier, mockSuppliers } from "@/data/suppliers";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 
 export default function SavedSuppliersPage() {
   const { toast } = useToast();
-  const { savedSuppliers, removeSupplier, isSupplierSaved, saveSupplier } = useSavedSuppliers();
+  const {
+    savedSuppliers,
+    removeSupplier,
+    isSupplierSaved,
+    saveSupplier,
+    getSupplierMetadata,
+    getAllTags,
+  } = useSavedSuppliers();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "rating" | "dateAdded">("dateAdded");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [contactSupplier, setContactSupplier] = useState<Supplier | null>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [notesTagsSupplier, setNotesTagsSupplier] = useState<Supplier | null>(null);
+  const [isNotesTagsModalOpen, setIsNotesTagsModalOpen] = useState(false);
+
+  // Get all available tags
+  const allTags = getAllTags();
 
   // Get saved suppliers from mock data (simulating persisted saves)
   const allSavedSuppliers = useMemo(() => {
@@ -73,6 +95,7 @@ export default function SavedSuppliersPage() {
   const filteredSuppliers = useMemo(() => {
     let result = [...allSavedSuppliers];
 
+    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -80,23 +103,38 @@ export default function SavedSuppliersPage() {
           s.name.toLowerCase().includes(query) ||
           s.industry.toLowerCase().includes(query) ||
           s.location.city.toLowerCase().includes(query) ||
-          s.location.country.toLowerCase().includes(query)
+          s.location.country.toLowerCase().includes(query) ||
+          getSupplierMetadata(s.id)?.notes?.toLowerCase().includes(query)
       );
     }
 
+    // Tag filter
+    if (selectedTag) {
+      result = result.filter((s) => {
+        const metadata = getSupplierMetadata(s.id);
+        return metadata?.tags.includes(selectedTag);
+      });
+    }
+
+    // Sort
     result.sort((a, b) => {
       switch (sortBy) {
         case "name":
           return a.name.localeCompare(b.name);
         case "rating":
           return b.rating - a.rating;
+        case "dateAdded": {
+          const dateA = getSupplierMetadata(a.id)?.savedAt || new Date(0);
+          const dateB = getSupplierMetadata(b.id)?.savedAt || new Date(0);
+          return dateB.getTime() - dateA.getTime();
+        }
         default:
           return 0;
       }
     });
 
     return result;
-  }, [allSavedSuppliers, searchQuery, sortBy]);
+  }, [allSavedSuppliers, searchQuery, sortBy, selectedTag, getSupplierMetadata]);
 
   const handleRemove = (supplier: Supplier) => {
     removeSupplier(supplier.id);
@@ -114,6 +152,11 @@ export default function SavedSuppliersPage() {
   const handleViewDetails = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
     setIsDetailModalOpen(true);
+  };
+
+  const handleOpenNotesTags = (supplier: Supplier) => {
+    setNotesTagsSupplier(supplier);
+    setIsNotesTagsModalOpen(true);
   };
 
   const handleSaveFromModal = (supplier: Supplier) => {
@@ -147,12 +190,12 @@ export default function SavedSuppliersPage() {
             <h1 className="text-2xl font-bold text-foreground">Saved Suppliers</h1>
           </div>
           <p className="text-muted-foreground">
-            Manage your bookmarked suppliers for quick access
+            Manage your bookmarked suppliers with notes and tags
           </p>
         </motion.div>
 
         {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -161,7 +204,7 @@ export default function SavedSuppliersPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{allSavedSuppliers.length}</p>
-                  <p className="text-sm text-muted-foreground">Saved Suppliers</p>
+                  <p className="text-sm text-muted-foreground">Saved</p>
                 </div>
               </div>
             </CardContent>
@@ -177,6 +220,19 @@ export default function SavedSuppliersPage() {
                     {allSavedSuppliers.filter((s) => s.verified).length}
                   </p>
                   <p className="text-sm text-muted-foreground">Verified</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-info/10 flex items-center justify-center">
+                  <Tag className="h-5 w-5 text-info" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{allTags.length}</p>
+                  <p className="text-sm text-muted-foreground">Tags</p>
                 </div>
               </div>
             </CardContent>
@@ -203,13 +259,40 @@ export default function SavedSuppliersPage() {
           </Card>
         </div>
 
+        {/* Tag Filter Pills */}
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted-foreground">Filter by tag:</span>
+            <Badge
+              variant={selectedTag === null ? "default" : "outline"}
+              className="cursor-pointer"
+              onClick={() => setSelectedTag(null)}
+            >
+              All
+            </Badge>
+            {allTags.map((tag) => (
+              <Badge
+                key={tag}
+                variant={selectedTag === tag ? "default" : "outline"}
+                className="cursor-pointer"
+                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+              >
+                {tag}
+                {selectedTag === tag && (
+                  <X className="h-3 w-3 ml-1" />
+                )}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         {/* Search and Controls */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search saved suppliers..."
+              placeholder="Search saved suppliers or notes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-11"
@@ -253,191 +336,112 @@ export default function SavedSuppliersPage() {
           viewMode === "grid" ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence mode="popLayout">
-                {filteredSuppliers.map((supplier, index) => (
-                  <motion.div
-                    key={supplier.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: index * 0.05 }}
-                    layout
-                  >
-                    <Card className="group hover:shadow-lg transition-all duration-200 hover:border-primary/30">
-                      <CardContent className="p-5">
-                        {/* Header */}
-                        <div className="flex items-start gap-4 mb-4">
-                          <div
-                            className="h-14 w-14 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0 cursor-pointer"
-                            onClick={() => handleViewDetails(supplier)}
-                          >
-                            <span className="text-lg font-bold text-primary-foreground">
-                              {supplier.logo}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3
-                                className="font-semibold text-foreground truncate cursor-pointer hover:text-primary"
-                                onClick={() => handleViewDetails(supplier)}
-                              >
-                                {supplier.name}
-                              </h3>
-                              {supplier.verified && (
-                                <BadgeCheck className="h-4 w-4 text-primary flex-shrink-0" />
-                              )}
-                            </div>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {supplier.location.city}, {supplier.location.country}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="grid grid-cols-3 gap-2 py-3 border-y border-border mb-4">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Star className="h-3.5 w-3.5 fill-warning text-warning" />
-                              <span className="font-semibold text-sm">{supplier.rating}</span>
-                            </div>
-                            <span className="text-xs text-muted-foreground">Rating</span>
-                          </div>
-                          <div className="text-center border-x border-border">
-                            <div className="flex items-center justify-center gap-1">
-                              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span className="font-semibold text-sm">{supplier.responseTime}</span>
-                            </div>
-                            <span className="text-xs text-muted-foreground">Response</span>
-                          </div>
-                          <div className="text-center">
-                            <span className="font-semibold text-sm">
-                              ${supplier.minOrderValue.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-muted-foreground block">Min. Order</span>
-                          </div>
-                        </div>
-
-                        {/* Industry Badge */}
-                        <div className="mb-4">
-                          <Badge variant="secondary">{supplier.industry}</Badge>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-2">
-                          <Button
-                            className="flex-1"
-                            size="sm"
-                            onClick={() => handleContact(supplier)}
-                          >
-                            <MessageSquare className="h-4 w-4 mr-2" />
-                            Contact
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm">
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Remove Supplier</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to remove {supplier.name} from your saved
-                                  suppliers? You can always save them again from the Supplier Search.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => handleRemove(supplier)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Remove
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Supplier</TableHead>
-                    <TableHead>Industry</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Rating</TableHead>
-                    <TableHead>Response Time</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <AnimatePresence mode="popLayout">
-                    {filteredSuppliers.map((supplier) => (
-                      <motion.tr
-                        key={supplier.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="group"
-                      >
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
-                              <span className="text-sm font-bold text-primary-foreground">
+                {filteredSuppliers.map((supplier, index) => {
+                  const metadata = getSupplierMetadata(supplier.id);
+                  return (
+                    <motion.div
+                      key={supplier.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ delay: index * 0.05 }}
+                      layout
+                    >
+                      <Card className="group hover:shadow-lg transition-all duration-200 hover:border-primary/30">
+                        <CardContent className="p-5">
+                          {/* Header */}
+                          <div className="flex items-start gap-4 mb-3">
+                            <div
+                              className="h-14 w-14 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0 cursor-pointer"
+                              onClick={() => handleViewDetails(supplier)}
+                            >
+                              <span className="text-lg font-bold text-primary-foreground">
                                 {supplier.logo}
                               </span>
                             </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="font-medium cursor-pointer hover:text-primary"
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3
+                                  className="font-semibold text-foreground truncate cursor-pointer hover:text-primary"
                                   onClick={() => handleViewDetails(supplier)}
                                 >
                                   {supplier.name}
-                                </span>
+                                </h3>
                                 {supplier.verified && (
-                                  <BadgeCheck className="h-4 w-4 text-primary" />
+                                  <BadgeCheck className="h-4 w-4 text-primary flex-shrink-0" />
                                 )}
+                              </div>
+                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {supplier.location.city}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Star className="h-3 w-3 fill-warning text-warning" />
+                                  {supplier.rating}
+                                </span>
                               </div>
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{supplier.industry}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-muted-foreground">
-                            {supplier.location.city}, {supplier.location.country}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 fill-warning text-warning" />
-                            <span>{supplier.rating}</span>
+
+                          {/* Tags */}
+                          {metadata?.tags && metadata.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {metadata.tags.slice(0, 3).map((tag) => (
+                                <Badge key={tag} variant="secondary" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {metadata.tags.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{metadata.tags.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Notes Preview */}
+                          {metadata?.notes && (
+                            <div className="mb-3 p-2 rounded-md bg-muted/50">
+                              <div className="flex items-start gap-2">
+                                <StickyNote className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                <p className="text-xs text-muted-foreground line-clamp-2">
+                                  {metadata.notes}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Industry Badge */}
+                          <div className="mb-4">
+                            <Badge variant="outline">{supplier.industry}</Badge>
                           </div>
-                        </TableCell>
-                        <TableCell>{supplier.responseTime}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
+
+                          {/* Actions */}
+                          <div className="flex gap-2">
                             <Button
-                              variant="ghost"
+                              className="flex-1"
                               size="sm"
                               onClick={() => handleContact(supplier)}
                             >
-                              <MessageSquare className="h-4 w-4" />
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Contact
                             </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleOpenNotesTags(supplier)}
+                                >
+                                  <Edit3 className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit notes & tags</TooltipContent>
+                            </Tooltip>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="sm">
+                                <Button variant="outline" size="sm">
                                   <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                               </AlertDialogTrigger>
@@ -446,7 +450,8 @@ export default function SavedSuppliersPage() {
                                   <AlertDialogTitle>Remove Supplier</AlertDialogTitle>
                                   <AlertDialogDescription>
                                     Are you sure you want to remove {supplier.name} from your saved
-                                    suppliers?
+                                    suppliers? Your notes and tags will be preserved if you save
+                                    them again.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -461,9 +466,145 @@ export default function SavedSuppliersPage() {
                               </AlertDialogContent>
                             </AlertDialog>
                           </div>
-                        </TableCell>
-                      </motion.tr>
-                    ))}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <Card>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead>Tags</TableHead>
+                    <TableHead>Notes</TableHead>
+                    <TableHead>Rating</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <AnimatePresence mode="popLayout">
+                    {filteredSuppliers.map((supplier) => {
+                      const metadata = getSupplierMetadata(supplier.id);
+                      return (
+                        <motion.tr
+                          key={supplier.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="group"
+                        >
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
+                                <span className="text-sm font-bold text-primary-foreground">
+                                  {supplier.logo}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className="font-medium cursor-pointer hover:text-primary"
+                                    onClick={() => handleViewDetails(supplier)}
+                                  >
+                                    {supplier.name}
+                                  </span>
+                                  {supplier.verified && (
+                                    <BadgeCheck className="h-4 w-4 text-primary" />
+                                  )}
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {supplier.industry}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {metadata?.tags.slice(0, 2).map((tag) => (
+                                <Badge key={tag} variant="secondary" className="text-xs">
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {metadata?.tags && metadata.tags.length > 2 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{metadata.tags.length - 2}
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {metadata?.notes ? (
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <span className="text-sm text-muted-foreground line-clamp-1 max-w-[200px]">
+                                    {metadata.notes}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-[300px]">
+                                  {metadata.notes}
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <span className="text-xs text-muted-foreground italic">
+                                No notes
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-warning text-warning" />
+                              <span>{supplier.rating}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleContact(supplier)}
+                              >
+                                <MessageSquare className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenNotesTags(supplier)}
+                              >
+                                <Edit3 className="h-4 w-4" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Remove Supplier</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to remove {supplier.name}?
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleRemove(supplier)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Remove
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </motion.tr>
+                      );
+                    })}
                   </AnimatePresence>
                 </TableBody>
               </Table>
@@ -480,14 +621,14 @@ export default function SavedSuppliersPage() {
                   <Bookmark className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <h3 className="font-semibold text-lg mb-2">
-                  {searchQuery ? "No suppliers found" : "No saved suppliers yet"}
+                  {searchQuery || selectedTag ? "No suppliers found" : "No saved suppliers yet"}
                 </h3>
                 <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-                  {searchQuery
-                    ? "Try adjusting your search to find saved suppliers."
+                  {searchQuery || selectedTag
+                    ? "Try adjusting your search or filters to find saved suppliers."
                     : "Save suppliers from the Supplier Search to access them quickly here."}
                 </p>
-                {!searchQuery && (
+                {!searchQuery && !selectedTag && (
                   <Link to="/dashboard/suppliers">
                     <Button>
                       <Search className="h-4 w-4 mr-2" />
@@ -514,6 +655,13 @@ export default function SavedSuppliersPage() {
           onOpenChange={setIsDetailModalOpen}
           onContact={handleContact}
           onSave={handleSaveFromModal}
+        />
+
+        {/* Notes & Tags Modal */}
+        <SupplierNotesTagsModal
+          supplier={notesTagsSupplier}
+          open={isNotesTagsModalOpen}
+          onOpenChange={setIsNotesTagsModalOpen}
         />
       </div>
     </DashboardLayout>
