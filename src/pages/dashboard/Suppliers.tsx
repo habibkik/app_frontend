@@ -14,6 +14,7 @@ import {
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SupplierCard } from "@/components/suppliers/SupplierCard";
 import { SupplierDetailModal } from "@/components/suppliers/SupplierDetailModal";
+import { ContactSupplierModal } from "@/components/suppliers/ContactSupplierModal";
 import { 
   SupplierFiltersPanel, 
   SupplierFilters, 
@@ -32,6 +33,8 @@ export default function SuppliersPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [contactSupplier, setContactSupplier] = useState<Supplier | null>(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Filter and sort suppliers
   const filteredSuppliers = useMemo(() => {
@@ -104,10 +107,8 @@ export default function SuppliersPage() {
   }, [searchQuery, filters, sortBy]);
 
   const handleContact = (supplier: Supplier) => {
-    toast({
-      title: "Contact Request Sent",
-      description: `Your inquiry has been sent to ${supplier.name}. They typically respond within ${supplier.responseTime}.`,
-    });
+    setContactSupplier(supplier);
+    setIsContactModalOpen(true);
   };
 
   const handleSave = (supplier: Supplier) => {
@@ -336,6 +337,13 @@ export default function SuppliersPage() {
           onOpenChange={setIsModalOpen}
           onContact={handleContact}
           onSave={handleSave}
+        />
+
+        {/* Contact Supplier Modal */}
+        <ContactSupplierModal
+          supplier={contactSupplier}
+          open={isContactModalOpen}
+          onOpenChange={setIsContactModalOpen}
         />
       </div>
     </DashboardLayout>
