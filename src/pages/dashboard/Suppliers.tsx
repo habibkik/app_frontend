@@ -21,12 +21,14 @@ import {
   defaultFilters 
 } from "@/components/suppliers/SupplierFilters";
 import { mockSuppliers, Supplier } from "@/data/suppliers";
+import { useSavedSuppliers } from "@/contexts/SavedSuppliersContext";
 import { useToast } from "@/hooks/use-toast";
 
 type SortOption = "rating" | "reviews" | "response" | "minOrder";
 
 export default function SuppliersPage() {
   const { toast } = useToast();
+  const { saveSupplier, removeSupplier, isSupplierSaved } = useSavedSuppliers();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<SupplierFilters>(defaultFilters);
   const [sortBy, setSortBy] = useState<SortOption>("rating");
@@ -112,10 +114,20 @@ export default function SuppliersPage() {
   };
 
   const handleSave = (supplier: Supplier) => {
-    toast({
-      title: "Supplier Saved",
-      description: `${supplier.name} has been added to your saved suppliers.`,
-    });
+    const isSaved = isSupplierSaved(supplier.id);
+    if (isSaved) {
+      removeSupplier(supplier.id);
+      toast({
+        title: "Supplier Removed",
+        description: `${supplier.name} has been removed from your saved suppliers.`,
+      });
+    } else {
+      saveSupplier(supplier);
+      toast({
+        title: "Supplier Saved",
+        description: `${supplier.name} has been added to your saved suppliers.`,
+      });
+    }
   };
 
   const handleCardClick = (supplier: Supplier) => {
