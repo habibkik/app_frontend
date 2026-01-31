@@ -10,9 +10,10 @@ interface SupplierCardProps {
   onContact: (supplier: Supplier) => void;
   onSave: (supplier: Supplier) => void;
   onClick?: (supplier: Supplier) => void;
+  onNameClick?: (supplier: Supplier) => void;
 }
 
-export function SupplierCard({ supplier, onContact, onSave, onClick }: SupplierCardProps) {
+export function SupplierCard({ supplier, onContact, onSave, onClick, onNameClick }: SupplierCardProps) {
   return (
     <Card 
       className="group hover:shadow-lg transition-all duration-200 hover:border-primary/30 cursor-pointer"
@@ -31,7 +32,13 @@ export function SupplierCard({ supplier, onContact, onSave, onClick }: SupplierC
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground truncate">
+              <h3 
+                className="font-semibold text-foreground truncate hover:text-primary cursor-pointer transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNameClick?.(supplier);
+                }}
+              >
                 {supplier.name}
               </h3>
               {supplier.verified && (
