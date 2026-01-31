@@ -8,6 +8,42 @@ interface CompetitorAnalysisRequest {
   competitorName?: string;
 }
 
+interface GeoLocation {
+  latitude: number;
+  longitude: number;
+  formattedAddress: string;
+  city: string;
+  state?: string;
+  country: string;
+  postalCode?: string;
+}
+
+interface BusinessContact {
+  email?: string;
+  phone?: string;
+  website?: string;
+  linkedIn?: string;
+}
+
+interface BusinessProfile {
+  companySize?: string;
+  yearEstablished?: number;
+  annualRevenue?: string;
+  certifications?: string[];
+  specializations?: string[];
+}
+
+interface MarketHeatMapRegion {
+  region: string;
+  demand: "high" | "medium" | "low";
+  competitorCount: number;
+  avgPrice: number;
+  growth: string;
+  opportunity: "excellent" | "good" | "moderate" | "saturated";
+  demandConcentration?: number;
+  geoLocation?: GeoLocation;
+}
+
 interface CompetitorAnalysisResult {
   success: boolean;
   data?: {
@@ -24,6 +60,11 @@ interface CompetitorAnalysisResult {
     weaknesses: string[];
     marketPosition: string;
     recommendations: string[];
+    geoLocation?: GeoLocation;
+    contact?: BusinessContact;
+    businessProfile?: BusinessProfile;
+    demandConcentration?: number;
+    marketHeatMap?: MarketHeatMapRegion[];
   };
   error?: string;
 }
@@ -77,7 +118,7 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a competitive intelligence analyst. Analyze businesses based on their website URL and provide strategic insights. Always respond with valid JSON matching this exact structure:
+            content: `You are a competitive intelligence analyst. Analyze businesses based on their website URL and provide strategic insights including geographic data and demand concentration. Always respond with valid JSON matching this exact structure:
 {
   "name": "Company Name",
   "summary": "2-3 sentence company overview",
@@ -90,8 +131,49 @@ Deno.serve(async (req) => {
   "strengths": ["strength1", "strength2", "strength3"],
   "weaknesses": ["weakness1", "weakness2"],
   "marketPosition": "market leader/challenger/niche player/new entrant",
-  "recommendations": ["recommendation1", "recommendation2", "recommendation3"]
-}`
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"],
+  "geoLocation": {
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "formattedAddress": "123 Business St, San Francisco, CA 94102, USA",
+    "city": "San Francisco",
+    "state": "California",
+    "country": "United States",
+    "postalCode": "94102"
+  },
+  "contact": {
+    "email": "info@company.com",
+    "phone": "+1-555-123-4567",
+    "website": "https://company.com"
+  },
+  "businessProfile": {
+    "companySize": "51-200",
+    "yearEstablished": 2015,
+    "annualRevenue": "$10M - $50M",
+    "certifications": ["ISO 9001"],
+    "specializations": ["SaaS", "Enterprise Software"]
+  },
+  "demandConcentration": 65,
+  "marketHeatMap": [
+    {
+      "region": "North America",
+      "demand": "high",
+      "competitorCount": 25,
+      "avgPrice": 199,
+      "growth": "+12%",
+      "opportunity": "good",
+      "demandConcentration": 45,
+      "geoLocation": {
+        "latitude": 37.0902,
+        "longitude": -95.7129,
+        "city": "Kansas City",
+        "country": "United States"
+      }
+    }
+  ]
+}
+
+IMPORTANT: Generate realistic GPS coordinates based on company headquarters location. Include demand concentration percentages showing where buyers are concentrated.`
           },
           {
             role: 'user',
@@ -104,12 +186,16 @@ Based on the domain name and typical business patterns, provide realistic compet
 - Competitive strengths and weaknesses
 - Market positioning
 - Recommendations for competing against them
+- Headquarters location with GPS coordinates
+- Business profile (company size, revenue, certifications)
+- Demand concentration by region (where their customers are)
+- Market heat map with regional opportunity data
 
 Return the analysis as JSON only, no additional text.`
           }
         ],
         temperature: 0.7,
-        max_tokens: 1500,
+        max_tokens: 2500,
       }),
     });
 
@@ -168,6 +254,11 @@ Return the analysis as JSON only, no additional text.`
         weaknesses: analysisData.weaknesses || [],
         marketPosition: analysisData.marketPosition || 'Unknown',
         recommendations: analysisData.recommendations || [],
+        geoLocation: analysisData.geoLocation,
+        contact: analysisData.contact,
+        businessProfile: analysisData.businessProfile,
+        demandConcentration: analysisData.demandConcentration,
+        marketHeatMap: analysisData.marketHeatMap,
       }
     };
 

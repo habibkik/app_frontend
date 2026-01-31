@@ -1,6 +1,6 @@
 /**
  * Competitor Display Component
- * Shows competitors identified from image analysis
+ * Shows competitors identified from image analysis with business profile
  */
 import { motion } from "framer-motion";
 import { 
@@ -9,12 +9,17 @@ import {
   DollarSign,
   Star,
   ExternalLink,
+  MapPin,
+  Mail,
+  Phone,
+  Globe,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { BusinessProfileCard } from "@/components/shared/BusinessProfileCard";
 import { cn } from "@/lib/utils";
 import type { CompetitorInfo } from "@/stores/analysisStore";
 
@@ -49,6 +54,15 @@ export function CompetitorDisplay({
     return sum + share;
   }, 0);
 
+  const getGoogleMapsUrl = (competitor: CompetitorInfo) => {
+    if (competitor.geoLocation) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        competitor.geoLocation.formattedAddress
+      )}`;
+    }
+    return null;
+  };
+
   return (
     <Card>
       <CardHeader className="pb-4">
@@ -66,6 +80,7 @@ export function CompetitorDisplay({
         {competitors.map((competitor, index) => {
           const shareValue = parseFloat(competitor.marketShare) || 0;
           const sharePercent = totalShare > 0 ? (shareValue / totalShare) * 100 : 0;
+          const mapsUrl = getGoogleMapsUrl(competitor);
           
           return (
             <motion.div
@@ -91,11 +106,59 @@ export function CompetitorDisplay({
                       <h4 className="font-semibold text-foreground">
                         {competitor.name}
                       </h4>
-                      <p className="text-xs text-muted-foreground">
-                        {competitor.marketShare} market share
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground">
+                          {competitor.marketShare} market share
+                        </p>
+                        {competitor.geoLocation && mapsUrl && (
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors"
+                          >
+                            <MapPin className="h-3 w-3" />
+                            {competitor.geoLocation.city}, {competitor.geoLocation.country}
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
+
+                  {/* Quick Contact Icons */}
+                  {competitor.contact && (
+                    <div className="flex items-center gap-2 mb-3">
+                      {competitor.contact.email && (
+                        <a 
+                          href={`mailto:${competitor.contact.email}`}
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title={competitor.contact.email}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </a>
+                      )}
+                      {competitor.contact.phone && (
+                        <a 
+                          href={`tel:${competitor.contact.phone}`}
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title={competitor.contact.phone}
+                        >
+                          <Phone className="h-4 w-4" />
+                        </a>
+                      )}
+                      {competitor.contact.website && (
+                        <a 
+                          href={competitor.contact.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title={competitor.contact.website}
+                        >
+                          <Globe className="h-4 w-4" />
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                   {/* Market Share Bar */}
                   <div className="mb-3">
@@ -112,6 +175,22 @@ export function CompetitorDisplay({
                       ${competitor.priceRange.min} - ${competitor.priceRange.max}
                     </span>
                   </div>
+
+                  {/* Business Profile Quick Info */}
+                  {competitor.businessProfile && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {competitor.businessProfile.yearEstablished && (
+                        <Badge variant="outline" className="text-xs">
+                          Est. {competitor.businessProfile.yearEstablished}
+                        </Badge>
+                      )}
+                      {competitor.businessProfile.companySize && (
+                        <Badge variant="outline" className="text-xs">
+                          {competitor.businessProfile.companySize} employees
+                        </Badge>
+                      )}
+                    </div>
+                  )}
 
                   {/* Strengths */}
                   <div className="flex flex-wrap gap-1.5">
@@ -137,6 +216,18 @@ export function CompetitorDisplay({
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
+
+              {/* Expandable Business Profile */}
+              {(competitor.geoLocation || competitor.contact || competitor.businessProfile) && (
+                <div className="mt-4">
+                  <BusinessProfileCard
+                    name={competitor.name}
+                    geoLocation={competitor.geoLocation}
+                    contact={competitor.contact}
+                    businessProfile={competitor.businessProfile}
+                  />
+                </div>
+              )}
             </motion.div>
           );
         })}
