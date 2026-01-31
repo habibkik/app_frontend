@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { DashboardLayout } from "@/features/dashboard";
 import { CreateRFQDialog } from "@/components/rfqs/CreateRFQDialog";
 import { mockRFQs, RFQItem, RFQStatus, statusConfig } from "@/data/rfqs";
 import { useToast } from "@/hooks/use-toast";

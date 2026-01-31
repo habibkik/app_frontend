@@ -1,5 +1,5 @@
 import { Factory } from "lucide-react";
-import { PlaceholderPage } from "@/components/dashboard/PlaceholderPage";
+import { PlaceholderPage } from "@/features/dashboard";
 
 export default function FeasibilityPage() {
   return (
