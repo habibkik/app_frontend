@@ -9,6 +9,13 @@ import type { DashboardMode } from "@/features/dashboard";
 // ============================================================
 // TYPES - Buyer Mode
 // ============================================================
+export interface DeliveryEstimate {
+  method: string;
+  cost: number;
+  days: string;
+  carrier?: string;
+}
+
 export interface SupplierMatch {
   id: string;
   name: string;
@@ -18,6 +25,19 @@ export interface SupplierMatch {
   leadTime: string;
   location: string;
   verified: boolean;
+  deliveryEstimates?: DeliveryEstimate[];
+}
+
+export interface SubstituteSupplier {
+  id: string;
+  name: string;
+  originalProduct: string;
+  substituteProduct: string;
+  similarity: number;
+  priceAdvantage: string;
+  location: string;
+  leadTime: string;
+  deliveryEstimates?: DeliveryEstimate[];
 }
 
 export interface SupplierDiscoveryResult {
@@ -32,6 +52,7 @@ export interface SupplierDiscoveryResult {
     similarity: number;
     priceAdvantage: string;
   }>;
+  substituteSuppliers?: SubstituteSupplier[];
   estimatedMarketPrice: { min: number; max: number };
   confidence: number;
 }
@@ -50,6 +71,29 @@ export interface IdentifiedComponent {
   confidence: number;
 }
 
+export interface ProducerCompetitor {
+  id: string;
+  name: string;
+  location: string;
+  productionCapacity: string;
+  priceRange: { min: number; max: number };
+  leadTime: string;
+  certifications: string[];
+  marketShare: string;
+  strengths: string[];
+}
+
+export interface SubstituteProducer {
+  id: string;
+  name: string;
+  substituteProduct: string;
+  similarity: number;
+  location: string;
+  priceAdvantage: string;
+  productionCapacity: string;
+  certifications: string[];
+}
+
 export interface BOMAnalysisResult {
   success: boolean;
   productName: string;
@@ -60,6 +104,8 @@ export interface BOMAnalysisResult {
   suggestedTags: string[];
   attributes: Record<string, string>;
   totalEstimatedCost: number;
+  competition?: ProducerCompetitor[];
+  substituteCompetition?: SubstituteProducer[];
   error?: string;
 }
 
@@ -73,6 +119,26 @@ export interface CompetitorInfo {
   strengths: string[];
 }
 
+export interface MarketHeatMapRegion {
+  region: string;
+  demand: "high" | "medium" | "low";
+  competitorCount: number;
+  avgPrice: number;
+  growth: string;
+  opportunity: "excellent" | "good" | "moderate" | "saturated";
+}
+
+export interface SubstituteCompetitor {
+  id: string;
+  name: string;
+  substituteProduct: string;
+  similarity: number;
+  priceRange: { min: number; max: number };
+  marketShare: string;
+  threat: "high" | "medium" | "low";
+  differentiators: string[];
+}
+
 export interface MarketAnalysisResult {
   productIdentification: {
     name: string;
@@ -80,6 +146,8 @@ export interface MarketAnalysisResult {
     attributes: Record<string, string>;
   };
   competitors: CompetitorInfo[];
+  substituteCompetitors?: SubstituteCompetitor[];
+  marketHeatMap?: MarketHeatMapRegion[];
   marketPriceRange: { min: number; max: number; average: number };
   pricingRecommendation: {
     suggested: number;

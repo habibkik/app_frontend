@@ -8,6 +8,10 @@ export { BOMExportActions } from "@/components/bom/BOMExportActions";
 export { BOMSupplierMatchModal } from "@/components/bom/BOMSupplierMatchModal";
 export { AIAnalysisPanel } from "@/components/bom/AIAnalysisPanel";
 
+// Competition Components
+export { ProducerCompetition } from "@/components/producer/ProducerCompetition";
+export { SubstituteProducers } from "@/components/producer/SubstituteProducers";
+
 // Component Supply Components
 export { ComponentCard } from "@/components/components/ComponentCard";
 export { SupplierQuoteList } from "@/components/components/SupplierQuoteList";

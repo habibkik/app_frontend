@@ -10,20 +10,25 @@ import {
   Sparkles,
   ArrowLeft,
   ImageIcon,
+  Truck,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SupplierMatchResults } from "./SupplierMatchResults";
 import { SubstituteProducts } from "./SubstituteProducts";
-import type { SupplierDiscoveryResult, SupplierMatch } from "@/stores/analysisStore";
+import { SubstituteSuppliers } from "./SubstituteSuppliers";
+import { DeliverySummary } from "./DeliveryEstimates";
+import type { SupplierDiscoveryResult, SupplierMatch, SubstituteSupplier } from "@/stores/analysisStore";
 
 interface ImageSupplierDiscoveryProps {
   result: SupplierDiscoveryResult;
   imagePreview?: string;
   onContactSupplier?: (supplier: SupplierMatch) => void;
   onViewSupplierDetails?: (supplier: SupplierMatch) => void;
+  onContactSubstituteSupplier?: (supplier: SubstituteSupplier) => void;
   onNewAnalysis?: () => void;
 }
 
@@ -32,9 +37,17 @@ export function ImageSupplierDiscovery({
   imagePreview,
   onContactSupplier,
   onViewSupplierDetails,
+  onContactSubstituteSupplier,
   onNewAnalysis,
 }: ImageSupplierDiscoveryProps) {
-  const { productIdentification, suggestedSuppliers, substitutes, estimatedMarketPrice, confidence } = result;
+  const { 
+    productIdentification, 
+    suggestedSuppliers, 
+    substitutes, 
+    substituteSuppliers,
+    estimatedMarketPrice, 
+    confidence 
+  } = result;
 
   return (
     <div className="space-y-6">
@@ -124,29 +137,71 @@ export function ImageSupplierDiscovery({
         </Card>
       </div>
 
-      {/* Supplier Matches */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <SupplierMatchResults
-          suppliers={suggestedSuppliers}
-          onContactSupplier={onContactSupplier}
-          onViewDetails={onViewSupplierDetails}
-        />
-      </motion.div>
+      {/* Tabbed Results */}
+      <Tabs defaultValue="suppliers" className="w-full">
+        <TabsList className="grid w-full max-w-lg grid-cols-3">
+          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
+          <TabsTrigger value="substitutes">Substitute Suppliers</TabsTrigger>
+          <TabsTrigger value="products">Alternative Products</TabsTrigger>
+        </TabsList>
 
-      {/* Substitute Products */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <SubstituteProducts
-          substitutes={substitutes}
-        />
-      </motion.div>
+        {/* Suppliers Tab */}
+        <TabsContent value="suppliers" className="mt-6 space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <SupplierMatchResults
+              suppliers={suggestedSuppliers}
+              onContactSupplier={onContactSupplier}
+              onViewDetails={onViewSupplierDetails}
+            />
+          </motion.div>
+          
+          {/* Delivery summary for each supplier */}
+          {suggestedSuppliers.some(s => s.deliveryEstimates?.length) && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Truck className="h-5 w-5 text-primary" />
+                  Delivery Cost Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {suggestedSuppliers.filter(s => s.deliveryEstimates?.length).map((supplier) => (
+                  <div key={supplier.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <span className="font-medium">{supplier.name}</span>
+                    <DeliverySummary estimates={supplier.deliveryEstimates} />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Substitute Suppliers Tab */}
+        <TabsContent value="substitutes" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <SubstituteSuppliers
+              suppliers={substituteSuppliers || []}
+              onContactSupplier={onContactSubstituteSupplier}
+            />
+          </motion.div>
+        </TabsContent>
+
+        {/* Alternative Products Tab */}
+        <TabsContent value="products" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <SubstituteProducts substitutes={substitutes} />
+          </motion.div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

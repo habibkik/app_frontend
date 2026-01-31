@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wrench, Sparkles, Filter, Search, ImageIcon } from "lucide-react";
+import { Wrench, Sparkles, Filter, Search, ImageIcon, Factory, Repeat2 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import { BOMExportActions } from "@/components/bom/BOMExportActions";
 import { AIAnalysisPanel } from "@/components/bom/AIAnalysisPanel";
 import { ContentGenerationPanel } from "@/components/bom/ContentGenerationPanel";
 import { UniversalImageUpload } from "@/components/shared/UniversalImageUpload";
+import { ProducerCompetition, SubstituteProducers } from "@/components/producer";
 import { mockBOMComponents, componentCategories, BOMComponent } from "@/data/bom";
 import { AnalyzedComponent } from "@/lib/ai-analysis-service";
 import { useAnalysisStore } from "@/stores/analysisStore";
@@ -44,6 +45,7 @@ export default function BOMPage() {
   const [supplierModalOpen, setSupplierModalOpen] = useState(false);
   const [confidence, setConfidence] = useState(87);
   const [activeTab, setActiveTab] = useState<string>("ai-results");
+  const [resultsTab, setResultsTab] = useState<string>("bom");
 
   // Check for pre-populated results from the analysis store
   useEffect(() => {
@@ -285,8 +287,24 @@ export default function BOMPage() {
                 </Card>
               )}
 
-              {/* Cost Summary */}
-              <BOMCostSummary components={components} confidence={confidence} />
+              {/* Results Tabs */}
+              <Tabs value={resultsTab} onValueChange={setResultsTab}>
+                <TabsList className="grid w-full max-w-lg grid-cols-3 mb-6">
+                  <TabsTrigger value="bom">BOM & Costs</TabsTrigger>
+                  <TabsTrigger value="competition">
+                    <Factory className="h-4 w-4 mr-1" />
+                    Competition
+                  </TabsTrigger>
+                  <TabsTrigger value="substitutes">
+                    <Repeat2 className="h-4 w-4 mr-1" />
+                    Substitutes
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* BOM Tab */}
+                <TabsContent value="bom" className="space-y-6">
+                  {/* Cost Summary */}
+                  <BOMCostSummary components={components} confidence={confidence} />
 
               {/* Main Content Grid */}
               <div className="grid gap-6 lg:grid-cols-3">
@@ -385,6 +403,32 @@ export default function BOMPage() {
                   />
                 </div>
               </div>
+                </TabsContent>
+
+                {/* Competition Tab */}
+                <TabsContent value="competition">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <ProducerCompetition 
+                      competitors={producerResults?.competition || []}
+                    />
+                  </motion.div>
+                </TabsContent>
+
+                {/* Substitutes Tab */}
+                <TabsContent value="substitutes">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <SubstituteProducers
+                      producers={producerResults?.substituteCompetition || []}
+                    />
+                  </motion.div>
+                </TabsContent>
+              </Tabs>
             </motion.div>
           )}
         </AnimatePresence>

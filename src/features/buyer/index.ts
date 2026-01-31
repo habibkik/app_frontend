@@ -1,6 +1,6 @@
 // Buyer feature barrel export
 
-// Components
+// Supplier Components
 export { SupplierCard } from "@/components/suppliers/SupplierCard";
 export { SupplierDetailModal } from "@/components/suppliers/SupplierDetailModal";
 export { SupplierFiltersPanel, type SupplierFilters, defaultFilters } from "@/components/suppliers/SupplierFilters";
@@ -10,6 +10,13 @@ export { BulkActionsToolbar } from "@/components/suppliers/BulkActionsToolbar";
 export { BulkTagAssignModal } from "@/components/suppliers/BulkTagAssignModal";
 export { CreateRFQDialog } from "@/components/rfqs/CreateRFQDialog";
 export { TypingIndicator } from "@/components/conversations/TypingIndicator";
+
+// Buyer Discovery Components
+export { SupplierMatchResults } from "@/components/buyer/SupplierMatchResults";
+export { SubstituteProducts } from "@/components/buyer/SubstituteProducts";
+export { ImageSupplierDiscovery } from "@/components/buyer/ImageSupplierDiscovery";
+export { SubstituteSuppliers } from "@/components/buyer/SubstituteSuppliers";
+export { DeliveryEstimates, DeliverySummary } from "@/components/buyer/DeliveryEstimates";
 
 // Pages
 export { default as SearchResultsPage } from "@/pages/dashboard/Suppliers";
