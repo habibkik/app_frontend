@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Loader2 } from "lucide-react";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
 import { MarketSearch } from "@/components/market/MarketSearch";
 import { AnalysisSummaryCard } from "@/components/market/AnalysisSummaryCard";

@@ -11,9 +11,7 @@ import {
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { useDashboardMode } from "@/contexts/DashboardModeContext";
-import { modeConfig } from "@/config/navigation";
+import { DashboardLayout, useDashboardMode, modeConfig } from "@/features/dashboard";
 
 function DashboardContent() {
   const { mode } = useDashboardMode();

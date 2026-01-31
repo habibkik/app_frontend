@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { DashboardLayout } from "@/features/dashboard";
 import { SupplierCard } from "@/components/suppliers/SupplierCard";
 import { SupplierDetailModal } from "@/components/suppliers/SupplierDetailModal";
 import { ContactSupplierModal } from "@/components/suppliers/ContactSupplierModal";

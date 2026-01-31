@@ -31,7 +31,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -53,7 +53,7 @@ import {
   analyticsStats,
   filterDataByDateRange,
   calculateFilteredStats,
-} from "@/data/analytics";
+} from "@/features/dashboard";
 
 const rfqChartConfig = {
   created: { label: "Created", color: "hsl(var(--chart-1))" },
