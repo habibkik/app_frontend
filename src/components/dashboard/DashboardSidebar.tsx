@@ -13,7 +13,9 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Badge } from "@/components/ui/badge";
 import { useDashboardMode } from "@/contexts/DashboardModeContext";
+import { useConversations } from "@/contexts/ConversationsContext";
 import { getNavigationForMode, modeConfig } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 
@@ -22,11 +24,21 @@ export function DashboardSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { mode } = useDashboardMode();
+  const { getTotalUnreadCount } = useConversations();
   
   const navigation = getNavigationForMode(mode);
   const currentConfig = modeConfig[mode];
+  const totalUnread = getTotalUnreadCount();
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Check if an item should show a badge
+  const getBadgeCount = (url: string): number => {
+    if (url === "/dashboard/conversations") {
+      return totalUnread;
+    }
+    return 0;
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -58,28 +70,50 @@ export function DashboardSidebar() {
             )}
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive(item.url)}
-                      tooltip={collapsed ? item.title : undefined}
-                    >
-                      <NavLink
-                        to={item.url}
-                        end={item.url === "/dashboard"}
-                        className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
-                          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        )}
-                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                {group.items.map((item) => {
+                  const badgeCount = getBadgeCount(item.url);
+                  return (
+                    <SidebarMenuItem key={item.url}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive(item.url)}
+                        tooltip={collapsed ? item.title : undefined}
                       >
-                        <item.icon className="h-4 w-4 flex-shrink-0" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                        <NavLink
+                          to={item.url}
+                          end={item.url === "/dashboard"}
+                          className={cn(
+                            "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+                            "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                          )}
+                          activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        >
+                          <div className="relative flex-shrink-0">
+                            <item.icon className="h-4 w-4" />
+                            {collapsed && badgeCount > 0 && (
+                              <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
+                                {badgeCount > 9 ? "9+" : badgeCount}
+                              </span>
+                            )}
+                          </div>
+                          {!collapsed && (
+                            <>
+                              <span className="flex-1">{item.title}</span>
+                              {badgeCount > 0 && (
+                                <Badge 
+                                  variant="destructive" 
+                                  className="h-5 min-w-[20px] px-1.5 text-[10px] font-medium"
+                                >
+                                  {badgeCount > 99 ? "99+" : badgeCount}
+                                </Badge>
+                              )}
+                            </>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
