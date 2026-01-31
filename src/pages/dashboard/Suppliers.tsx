@@ -546,6 +546,7 @@ export default function SuppliersPage() {
                           onContact={handleContact}
                           onSave={handleSave}
                           onClick={handleCardClick}
+                          onNameClick={handleCardClick}
                         />
                       </motion.div>
                     ))}
