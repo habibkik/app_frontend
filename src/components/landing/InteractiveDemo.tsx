@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   Repeat2,
   Bot,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,6 +56,18 @@ interface DemoAnalysisResult {
       price: number;
       location: string;
     }>;
+  }>;
+  substituteSuppliers: Array<{
+    name: string;
+    product: string;
+    price: number;
+    savings: string;
+  }>;
+  deliveryEstimates: Array<{
+    supplier: string;
+    method: string;
+    cost: number;
+    days: string;
   }>;
   estimatedPrice: { min: number; max: number };
   confidence: number;
@@ -162,7 +175,19 @@ export function InteractiveDemo() {
       if (error) throw new Error(error.message);
 
       if (data?.success && data?.data) {
-        setResult(data.data);
+        // Add mock data for new features if not present
+        const enrichedData = {
+          ...data.data,
+          substituteSuppliers: data.data.substituteSuppliers || [
+            { name: "AlternaTech", product: "Compatible Component", price: 42, savings: "15%" },
+            { name: "ValueParts Co", product: "Generic Alternative", price: 38, savings: "22%" },
+          ],
+          deliveryEstimates: data.data.deliveryEstimates || [
+            { supplier: "Top Supplier", method: "Express", cost: 45, days: "3-5 days" },
+            { supplier: "Top Supplier", method: "Standard", cost: 25, days: "7-10 days" },
+          ],
+        };
+        setResult(enrichedData);
         setAnalysisProgress(100);
         setAnalysisStep("Complete!");
       } else {
@@ -430,7 +455,50 @@ export function InteractiveDemo() {
                                 {result.substitutes[0]?.priceAdvantage} potential savings
                               </p>
                             </div>
-                            <TrendingDown className="h-4 w-4 text-emerald-600 ml-auto" />
+                            <TrendingDown className="h-4 w-4 text-primary ml-auto" />
+                          </div>
+                        )}
+
+                        {/* Substitute Suppliers */}
+                        {result.substituteSuppliers && result.substituteSuppliers.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Package className="h-4 w-4 text-primary" />
+                              <span className="text-sm font-medium text-foreground">
+                                Substitute Suppliers
+                              </span>
+                            </div>
+                            <div className="space-y-1.5">
+                              {result.substituteSuppliers.slice(0, 2).map((sub, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm"
+                                >
+                                  <div>
+                                    <span className="text-foreground font-medium">{sub.name}</span>
+                                    <p className="text-xs text-muted-foreground">{sub.product}</p>
+                                  </div>
+                                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
+                                    {sub.savings} savings
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Delivery Estimates */}
+                        {result.deliveryEstimates && result.deliveryEstimates.length > 0 && (
+                          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                            <Truck className="h-4 w-4 text-primary" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-foreground">
+                                Delivery Estimates
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                From ${result.deliveryEstimates[0]?.cost} • {result.deliveryEstimates[0]?.days}
+                              </p>
+                            </div>
                           </div>
                         )}
 
