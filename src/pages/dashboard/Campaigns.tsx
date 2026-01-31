@@ -1,20 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Megaphone, 
   Send, 
   Calendar,
   Plus,
-  ChevronRight,
   Sparkles,
+  Loader2,
+  Settings,
+  AlertCircle,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { DashboardLayout } from "@/features/dashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useSocialCredentials } from "@/hooks/useSocialCredentials";
+import { useSocialPosting } from "@/hooks/useSocialPosting";
 
 import { 
   PostComposer, 
@@ -26,57 +31,42 @@ import {
   type ScheduledPost,
 } from "@/components/campaigns";
 
-// Initialize platforms - these would come from Settings/SocialMediaSection in a real app
-const initialPlatforms: Platform[] = [
-  { id: "twitter", name: "Twitter / X", icon: "𝕏", connected: true },
-  { id: "facebook", name: "Facebook", icon: "f", connected: true },
-  { id: "instagram", name: "Instagram", icon: "📷", connected: false },
-  { id: "linkedin", name: "LinkedIn", icon: "in", connected: true },
-  { id: "tiktok", name: "TikTok", icon: "♪", connected: false },
-  { id: "youtube", name: "YouTube", icon: "▶", connected: false },
-  { id: "pinterest", name: "Pinterest", icon: "📌", connected: false },
-  { id: "threads", name: "Threads", icon: "@", connected: false },
-];
-
-// Sample scheduled posts
-const sampleScheduledPosts: ScheduledPost[] = [
-  {
-    id: "1",
-    content: "🚀 Excited to announce our new product line! Check out the latest innovations that will transform your workflow. #Innovation #NewProduct",
-    platforms: [
-      { id: "twitter", name: "Twitter / X", icon: "𝕏" },
-      { id: "linkedin", name: "LinkedIn", icon: "in" },
-    ],
-    scheduledAt: new Date(Date.now() + 86400000), // Tomorrow
-    status: "scheduled",
-    createdAt: new Date(),
-  },
-  {
-    id: "2",
-    content: "Behind the scenes look at our team working on something amazing! 🎬 Stay tuned for more updates.",
-    platforms: [
-      { id: "facebook", name: "Facebook", icon: "f" },
-    ],
-    scheduledAt: new Date(Date.now() + 172800000), // 2 days
-    status: "scheduled",
-    createdAt: new Date(),
-  },
-];
-
 export default function CampaignsPage() {
-  const { toast } = useToast();
+  const { platforms: connectedPlatforms, loading: loadingPlatforms, getConnectedPlatforms } = useSocialCredentials();
+  const { posting, publishPost } = useSocialPosting();
+  
   const [activeTab, setActiveTab] = useState("compose");
   
   // Post composer state
   const [postContent, setPostContent] = useState("");
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["twitter"]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [scheduleType, setScheduleType] = useState<"now" | "scheduled">("now");
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
   const [scheduledTime, setScheduledTime] = useState("12:00");
   
-  // Scheduled posts state
-  const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>(sampleScheduledPosts);
-  const [platforms] = useState<Platform[]>(initialPlatforms);
+  // Scheduled posts state (local for now - could be enhanced to use database)
+  const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
+
+  // Map social credentials platforms to campaign platforms format
+  const platforms: Platform[] = connectedPlatforms.map(p => ({
+    id: p.id,
+    name: p.name,
+    icon: p.icon,
+    connected: p.connected,
+  }));
+
+  // Filter to only platforms that support posting
+  const postingPlatforms = connectedPlatforms
+    .filter(p => p.features.posting)
+    .map(p => ({
+      id: p.id,
+      name: p.name,
+      icon: p.icon,
+      connected: p.connected,
+    }));
+
+  // Get connected platforms count
+  const connectedCount = getConnectedPlatforms().filter(p => p.features.posting).length;
 
   // Get selected platform for preview
   const previewPlatform = platforms.find(p => selectedPlatforms.includes(p.id)) || platforms[0];
@@ -89,67 +79,42 @@ export default function CampaignsPage() {
     );
   };
 
-  const handleCreatePost = () => {
-    if (!postContent.trim()) {
-      toast({
-        title: "Content required",
-        description: "Please write something before posting",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (selectedPlatforms.length === 0) {
-      toast({
-        title: "Select platforms",
-        description: "Please select at least one platform to post to",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (scheduleType === "scheduled" && !scheduledDate) {
-      toast({
-        title: "Schedule required",
-        description: "Please select a date to schedule your post",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Create new post
-    const newPost: ScheduledPost = {
-      id: Date.now().toString(),
-      content: postContent,
-      platforms: selectedPlatforms.map(id => {
-        const platform = platforms.find(p => p.id === id)!;
-        return { id: platform.id, name: platform.name, icon: platform.icon };
-      }),
-      scheduledAt: scheduleType === "now" 
-        ? new Date() 
-        : new Date(`${scheduledDate!.toDateString()} ${scheduledTime}`),
-      status: scheduleType === "now" ? "published" : "scheduled",
-      createdAt: new Date(),
-    };
-
+  const handleCreatePost = async () => {
     if (scheduleType === "now") {
-      toast({
-        title: "Post published!",
-        description: `Your post has been published to ${selectedPlatforms.length} platform(s)`,
-      });
+      // Publish immediately using the real posting hook
+      const result = await publishPost(postContent, selectedPlatforms);
+      
+      if (result.success) {
+        // Reset form on success
+        setPostContent("");
+        setSelectedPlatforms([]);
+        setScheduleType("now");
+        setScheduledDate(undefined);
+      }
     } else {
-      setScheduledPosts(prev => [newPost, ...prev]);
-      toast({
-        title: "Post scheduled!",
-        description: `Your post will be published on ${scheduledDate!.toLocaleDateString()} at ${scheduledTime}`,
-      });
-    }
+      // Schedule post for later
+      if (!scheduledDate) return;
 
-    // Reset form
-    setPostContent("");
-    setSelectedPlatforms(["twitter"]);
-    setScheduleType("now");
-    setScheduledDate(undefined);
+      const newPost: ScheduledPost = {
+        id: Date.now().toString(),
+        content: postContent,
+        platforms: selectedPlatforms.map(id => {
+          const platform = platforms.find(p => p.id === id)!;
+          return { id: platform.id, name: platform.name, icon: platform.icon };
+        }),
+        scheduledAt: new Date(`${scheduledDate.toDateString()} ${scheduledTime}`),
+        status: "scheduled",
+        createdAt: new Date(),
+      };
+
+      setScheduledPosts(prev => [newPost, ...prev]);
+      
+      // Reset form
+      setPostContent("");
+      setSelectedPlatforms([]);
+      setScheduleType("now");
+      setScheduledDate(undefined);
+    }
   };
 
   const handleDeletePost = (postId: string) => {
@@ -168,16 +133,33 @@ export default function CampaignsPage() {
     setScheduledPosts(prev => prev.filter(p => p.id !== post.id));
   };
 
-  const handlePublishNow = (postId: string) => {
+  const handlePublishNow = async (postId: string) => {
     const post = scheduledPosts.find(p => p.id === postId);
     if (post) {
-      setScheduledPosts(prev => prev.filter(p => p.id !== postId));
-      toast({
-        title: "Post published!",
-        description: `Your post has been published to ${post.platforms.length} platform(s)`,
-      });
+      const platformIds = post.platforms.map(p => p.id);
+      const result = await publishPost(post.content, platformIds);
+      
+      if (result.success) {
+        setScheduledPosts(prev => 
+          prev.map(p => p.id === postId ? { ...p, status: "published" as const } : p)
+        );
+      } else {
+        setScheduledPosts(prev => 
+          prev.map(p => p.id === postId ? { ...p, status: "failed" as const } : p)
+        );
+      }
     }
   };
+
+  if (loadingPlatforms) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -204,6 +186,23 @@ export default function CampaignsPage() {
           </Button>
         </div>
 
+        {/* No connected platforms warning */}
+        {connectedCount === 0 && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No platforms connected</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span>Connect your social media accounts in Settings to start posting.</span>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/dashboard/settings">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Go to Settings
+                </Link>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Main Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
@@ -226,6 +225,11 @@ export default function CampaignsPage() {
                     <CardTitle className="text-lg">Create Post</CardTitle>
                     <CardDescription>
                       Write your content and select platforms to publish
+                      {connectedCount > 0 && (
+                        <span className="ml-1">
+                          ({connectedCount} platform{connectedCount !== 1 ? "s" : ""} connected)
+                        </span>
+                      )}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -238,9 +242,9 @@ export default function CampaignsPage() {
 
                     <Separator />
 
-                    {/* Platform Selector */}
+                    {/* Platform Selector - using real connected platforms */}
                     <PlatformSelector
-                      platforms={platforms}
+                      platforms={postingPlatforms}
                       selectedPlatforms={selectedPlatforms}
                       onTogglePlatform={handleTogglePlatform}
                     />
@@ -262,9 +266,19 @@ export default function CampaignsPage() {
                       size="lg" 
                       className="w-full"
                       onClick={handleCreatePost}
-                      disabled={!postContent.trim() || selectedPlatforms.length === 0}
+                      disabled={
+                        !postContent.trim() || 
+                        selectedPlatforms.length === 0 || 
+                        posting ||
+                        (scheduleType === "scheduled" && !scheduledDate)
+                      }
                     >
-                      {scheduleType === "now" ? (
+                      {posting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Publishing...
+                        </>
+                      ) : scheduleType === "now" ? (
                         <>
                           <Send className="h-4 w-4 mr-2" />
                           Publish Now
@@ -284,19 +298,25 @@ export default function CampaignsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium">Preview</h3>
-                  {selectedPlatforms.length > 1 && (
+                  {selectedPlatforms.length > 1 && previewPlatform && (
                     <span className="text-xs text-muted-foreground">
                       Showing {previewPlatform.name}
                     </span>
                   )}
                 </div>
 
-                <PostPreview
-                  content={postContent}
-                  platformId={previewPlatform.id}
-                  platformName={previewPlatform.name}
-                  platformIcon={previewPlatform.icon}
-                />
+                {previewPlatform ? (
+                  <PostPreview
+                    content={postContent}
+                    platformId={previewPlatform.id}
+                    platformName={previewPlatform.name}
+                    platformIcon={previewPlatform.icon}
+                  />
+                ) : (
+                  <Card className="p-6 text-center text-muted-foreground">
+                    <p>Select a platform to see preview</p>
+                  </Card>
+                )}
 
                 {selectedPlatforms.length > 1 && (
                   <div className="flex flex-wrap gap-1">
@@ -306,7 +326,7 @@ export default function CampaignsPage() {
                       return (
                         <Button
                           key={id}
-                          variant={previewPlatform.id === id ? "secondary" : "ghost"}
+                          variant={previewPlatform?.id === id ? "secondary" : "ghost"}
                           size="sm"
                           className="text-xs"
                           onClick={() => setSelectedPlatforms([id, ...selectedPlatforms.filter(p => p !== id)])}
