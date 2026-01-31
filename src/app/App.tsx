@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "@/features/auth";
+import { SavedSuppliersProvider } from "@/contexts/SavedSuppliersContext";
+import { ConversationsProvider } from "@/contexts/ConversationsContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Router } from "./Router";
 
 const queryClient = new QueryClient();
@@ -11,15 +14,21 @@ const queryClient = new QueryClient();
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Router />
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <SavedSuppliersProvider>
+            <ConversationsProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Router />
+                </BrowserRouter>
+              </TooltipProvider>
+            </ConversationsProvider>
+          </SavedSuppliersProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
