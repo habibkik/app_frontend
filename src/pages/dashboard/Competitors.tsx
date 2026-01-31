@@ -80,6 +80,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductSupplierContactModal } from "@/components/suppliers/ProductSupplierContactModal";
+import { CompetitorDetailModal, type CompetitorData } from "@/components/seller/CompetitorDetailModal";
 
 // Types for product analysis
 interface ProductAnalysisResult {
@@ -137,7 +138,7 @@ const categoryTrends = [
   { category: "Power Supplies", you: 156, avgCompetitor: 162, change: -3.7 },
 ];
 
-// Mock competitor data
+// Mock competitor data with extended business profiles
 const mockCompetitors = [
   {
     id: "1",
@@ -154,6 +155,28 @@ const mockCompetitors = [
     tracking: true,
     lastUpdated: "2 hours ago",
     trend: "up" as const,
+    description: "Leading supplier of industrial components with 24/7 support and extensive product catalog. Specializes in servo motors and automation equipment.",
+    geoLocation: {
+      latitude: 37.7749,
+      longitude: -122.4194,
+      formattedAddress: "550 Market Street, San Francisco, CA 94104, USA",
+      city: "San Francisco",
+      state: "California",
+      country: "USA",
+    },
+    contact: {
+      email: "sales@techsupply.com",
+      phone: "+1-888-555-0123",
+      website: "https://techsupply.com",
+      linkedIn: "https://linkedin.com/company/techsupply",
+    },
+    businessProfile: {
+      companySize: "201-500",
+      yearEstablished: 2010,
+      annualRevenue: "$25M - $50M",
+      certifications: ["ISO 9001", "SOC 2", "CE Certified"],
+      specializations: ["Industrial Automation", "Servo Motors", "Fast Shipping"],
+    },
   },
   {
     id: "2",
@@ -170,6 +193,28 @@ const mockCompetitors = [
     tracking: true,
     lastUpdated: "1 hour ago",
     trend: "down" as const,
+    description: "Industrial equipment supplier focused on competitive pricing and bulk orders. Strong presence in hydraulics and pneumatics sectors.",
+    geoLocation: {
+      latitude: 41.8781,
+      longitude: -87.6298,
+      formattedAddress: "233 S Wacker Dr, Chicago, IL 60606, USA",
+      city: "Chicago",
+      state: "Illinois",
+      country: "USA",
+    },
+    contact: {
+      email: "info@industrialdirect.com",
+      phone: "+1-800-555-0456",
+      website: "https://industrialdirect.com",
+      linkedIn: "https://linkedin.com/company/industrial-direct",
+    },
+    businessProfile: {
+      companySize: "101-200",
+      yearEstablished: 2005,
+      annualRevenue: "$15M - $25M",
+      certifications: ["ISO 9001", "UL Listed"],
+      specializations: ["Hydraulic Systems", "Bulk Orders", "B2B Solutions"],
+    },
   },
   {
     id: "3",
@@ -186,6 +231,28 @@ const mockCompetitors = [
     tracking: true,
     lastUpdated: "30 min ago",
     trend: "stable" as const,
+    description: "Premium industrial parts distributor with global logistics network. Known for high-quality components and exceptional customer service.",
+    geoLocation: {
+      latitude: 40.7128,
+      longitude: -74.0060,
+      formattedAddress: "1 World Trade Center, New York, NY 10007, USA",
+      city: "New York",
+      state: "New York",
+      country: "USA",
+    },
+    contact: {
+      email: "global@globalparts.com",
+      phone: "+1-877-555-0789",
+      website: "https://globalparts.com",
+      linkedIn: "https://linkedin.com/company/globalparts-inc",
+    },
+    businessProfile: {
+      companySize: "501-1000",
+      yearEstablished: 1998,
+      annualRevenue: "$100M - $250M",
+      certifications: ["ISO 9001", "ISO 14001", "AS9100", "IATF 16949"],
+      specializations: ["Premium Components", "Global Logistics", "Technical Support"],
+    },
   },
   {
     id: "4",
@@ -202,6 +269,27 @@ const mockCompetitors = [
     tracking: false,
     lastUpdated: "5 hours ago",
     trend: "down" as const,
+    description: "Budget-focused industrial supplier offering competitive prices on common components. Best for cost-conscious buyers with flexible quality requirements.",
+    geoLocation: {
+      latitude: 33.4484,
+      longitude: -112.0740,
+      formattedAddress: "2901 N Central Ave, Phoenix, AZ 85012, USA",
+      city: "Phoenix",
+      state: "Arizona",
+      country: "USA",
+    },
+    contact: {
+      email: "orders@megatrade.com",
+      phone: "+1-866-555-0321",
+      website: "https://megatrade.com",
+    },
+    businessProfile: {
+      companySize: "51-100",
+      yearEstablished: 2015,
+      annualRevenue: "$5M - $15M",
+      certifications: ["ISO 9001"],
+      specializations: ["Budget Components", "Quick Delivery", "Online Sales"],
+    },
   },
 ];
 
@@ -241,10 +329,28 @@ export default function CompetitorsPage() {
   // Contact supplier modal state
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<ProductAnalysisResult['suppliers'][0] | null>(null);
+  
+  // Competitor detail modal state
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [detailCompetitor, setDetailCompetitor] = useState<CompetitorData | null>(null);
 
   const handleContactSupplier = (supplier: ProductAnalysisResult['suppliers'][0]) => {
     setSelectedSupplier(supplier);
     setContactModalOpen(true);
+  };
+
+  const handleViewCompetitorDetails = (competitor: typeof mockCompetitors[0]) => {
+    setDetailCompetitor(competitor as CompetitorData);
+    setDetailModalOpen(true);
+  };
+
+  const handleToggleTracking = (competitor: CompetitorData) => {
+    toast({
+      title: competitor.tracking ? "Tracking Stopped" : "Tracking Started",
+      description: competitor.tracking 
+        ? `No longer tracking ${competitor.name}` 
+        : `Now tracking ${competitor.name}`,
+    });
   };
 
   const filteredCompetitors = mockCompetitors.filter((c) =>
@@ -966,7 +1072,17 @@ export default function CompetitorsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewCompetitorDetails(competitor);
+                            }}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`https://${competitor.website}`, "_blank");
+                            }}>
                               <ExternalLink className="h-4 w-4 mr-2" />
                               Visit Website
                             </DropdownMenuItem>
@@ -1566,6 +1682,14 @@ export default function CompetitorsPage() {
           product={productAnalysisResult?.product || null}
           open={contactModalOpen}
           onOpenChange={setContactModalOpen}
+        />
+
+        {/* Competitor Detail Modal */}
+        <CompetitorDetailModal
+          competitor={detailCompetitor}
+          open={detailModalOpen}
+          onOpenChange={setDetailModalOpen}
+          onToggleTracking={handleToggleTracking}
         />
       </div>
     </DashboardLayout>

@@ -15,6 +15,7 @@ export { DemandIndicators } from "@/components/seller/DemandIndicators";
 export { ImageMarketAnalysis } from "@/components/seller/ImageMarketAnalysis";
 export { MarketHeatMap } from "@/components/seller/MarketHeatMap";
 export { SubstituteCompetitors } from "@/components/seller/SubstituteCompetitors";
+export { CompetitorDetailModal, type CompetitorData } from "@/components/seller/CompetitorDetailModal";
 
 // Pages
 export { default as MarketIntelligencePage } from "@/pages/dashboard/MarketIntelligence";
