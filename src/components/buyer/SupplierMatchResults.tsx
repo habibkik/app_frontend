@@ -1,6 +1,6 @@
 /**
  * Supplier Match Results Component
- * Displays AI-matched suppliers from image analysis
+ * Displays AI-matched suppliers from image analysis with business profile info
  */
 import { motion } from "framer-motion";
 import { 
@@ -12,12 +12,17 @@ import {
   ArrowRight,
   ExternalLink,
   CheckCircle2,
+  Building2,
+  Mail,
+  Phone,
+  Globe,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { BusinessProfileCard } from "@/components/shared/BusinessProfileCard";
 import { cn } from "@/lib/utils";
 import type { SupplierMatch } from "@/stores/analysisStore";
 
@@ -47,6 +52,15 @@ export function SupplierMatchResults({
       </Card>
     );
   }
+
+  const getGoogleMapsUrl = (supplier: SupplierMatch) => {
+    if (supplier.geoLocation) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        supplier.geoLocation.formattedAddress
+      )}`;
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(supplier.location)}`;
+  };
 
   return (
     <Card>
@@ -104,16 +118,59 @@ export function SupplierMatchResults({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
+                      <a 
+                        href={getGoogleMapsUrl(supplier)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 hover:text-primary transition-colors"
+                      >
                         <MapPin className="h-3.5 w-3.5" />
-                        {supplier.location}
-                      </span>
+                        {supplier.geoLocation 
+                          ? `${supplier.geoLocation.city}, ${supplier.geoLocation.country}`
+                          : supplier.location}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" />
                         {supplier.leadTime}
                       </span>
                     </div>
+
+                    {/* Quick Contact Icons */}
+                    {supplier.contact && (
+                      <div className="flex items-center gap-2 mt-2">
+                        {supplier.contact.email && (
+                          <a 
+                            href={`mailto:${supplier.contact.email}`}
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            title={supplier.contact.email}
+                          >
+                            <Mail className="h-4 w-4" />
+                          </a>
+                        )}
+                        {supplier.contact.phone && (
+                          <a 
+                            href={`tel:${supplier.contact.phone}`}
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            title={supplier.contact.phone}
+                          >
+                            <Phone className="h-4 w-4" />
+                          </a>
+                        )}
+                        {supplier.contact.website && (
+                          <a 
+                            href={supplier.contact.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            title={supplier.contact.website}
+                          >
+                            <Globe className="h-4 w-4" />
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -137,7 +194,28 @@ export function SupplierMatchResults({
                   <Badge variant="outline" className="text-xs">
                     ${supplier.priceRange.min} - ${supplier.priceRange.max}/unit
                   </Badge>
+                  {supplier.businessProfile?.yearEstablished && (
+                    <Badge variant="outline" className="text-xs">
+                      Est. {supplier.businessProfile.yearEstablished}
+                    </Badge>
+                  )}
+                  {supplier.businessProfile?.companySize && (
+                    <Badge variant="outline" className="text-xs">
+                      {supplier.businessProfile.companySize} employees
+                    </Badge>
+                  )}
                 </div>
+
+                {/* Certifications */}
+                {supplier.businessProfile?.certifications && supplier.businessProfile.certifications.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {supplier.businessProfile.certifications.slice(0, 4).map((cert) => (
+                      <Badge key={cert} variant="secondary" className="text-xs">
+                        {cert}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
@@ -161,6 +239,18 @@ export function SupplierMatchResults({
                 </Button>
               </div>
             </div>
+
+            {/* Expandable Business Profile */}
+            {(supplier.geoLocation || supplier.contact || supplier.businessProfile) && (
+              <div className="mt-4">
+                <BusinessProfileCard
+                  name={supplier.name}
+                  geoLocation={supplier.geoLocation}
+                  contact={supplier.contact}
+                  businessProfile={supplier.businessProfile}
+                />
+              </div>
+            )}
           </motion.div>
         ))}
       </CardContent>

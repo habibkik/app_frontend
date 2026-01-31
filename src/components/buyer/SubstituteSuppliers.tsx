@@ -1,6 +1,6 @@
 /**
  * Substitute Suppliers Component
- * Shows suppliers of alternative/substitute products for buyers
+ * Shows suppliers of alternative/substitute products for buyers with location data
  */
 import { motion } from "framer-motion";
 import { 
@@ -11,6 +11,9 @@ import {
   DollarSign,
   ArrowRight,
   TrendingDown,
+  ExternalLink,
+  Mail,
+  Globe,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -85,6 +88,15 @@ export function SubstituteSuppliers({
     );
   }
 
+  const getGoogleMapsUrl = (supplier: SubstituteSupplier) => {
+    if (supplier.geoLocation) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        supplier.geoLocation.formattedAddress
+      )}`;
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(supplier.location)}`;
+  };
+
   return (
     <Card>
       <CardHeader className="pb-4">
@@ -151,17 +163,53 @@ export function SubstituteSuppliers({
                       <Progress value={supplier.similarity} className="h-2" />
                     </div>
 
-                    {/* Details */}
+                    {/* Details with map link */}
                     <div className="flex flex-wrap gap-4 text-sm">
-                      <div className="flex items-center gap-1.5">
+                      <a 
+                        href={getGoogleMapsUrl(supplier)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                      >
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{supplier.location}</span>
-                      </div>
+                        <span>
+                          {supplier.geoLocation 
+                            ? `${supplier.geoLocation.city}, ${supplier.geoLocation.country}`
+                            : supplier.location}
+                        </span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-4 w-4 text-muted-foreground" />
                         <span>{supplier.leadTime}</span>
                       </div>
                     </div>
+
+                    {/* Quick Contact */}
+                    {supplier.contact && (
+                      <div className="flex items-center gap-2">
+                        {supplier.contact.email && (
+                          <a 
+                            href={`mailto:${supplier.contact.email}`}
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            title={supplier.contact.email}
+                          >
+                            <Mail className="h-4 w-4" />
+                          </a>
+                        )}
+                        {supplier.contact.website && (
+                          <a 
+                            href={supplier.contact.website}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            title={supplier.contact.website}
+                          >
+                            <Globe className="h-4 w-4" />
+                          </a>
+                        )}
+                      </div>
+                    )}
 
                     {/* Delivery Estimates */}
                     <DeliveryEstimatesList estimates={supplier.deliveryEstimates} />

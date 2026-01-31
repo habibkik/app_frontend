@@ -7,6 +7,42 @@ import { persist } from "zustand/middleware";
 import type { DashboardMode } from "@/features/dashboard";
 
 // ============================================================
+// TYPES - Geographic & Business Information
+// ============================================================
+export interface GeoLocation {
+  latitude: number;
+  longitude: number;
+  formattedAddress: string;
+  city: string;
+  state?: string;
+  country: string;
+  postalCode?: string;
+}
+
+export interface BusinessContact {
+  email?: string;
+  phone?: string;
+  website?: string;
+  linkedIn?: string;
+}
+
+export interface BusinessProfile {
+  companySize?: "1-10" | "11-50" | "51-200" | "201-500" | "500+";
+  yearEstablished?: number;
+  annualRevenue?: string;
+  employeeCount?: number;
+  certifications?: string[];
+  specializations?: string[];
+}
+
+export interface RegionalDemand {
+  region: string;
+  demandLevel: "high" | "medium" | "low";
+  concentration: number; // 0-100 percentage
+  geoLocation?: GeoLocation;
+}
+
+// ============================================================
 // TYPES - Buyer Mode
 // ============================================================
 export interface DeliveryEstimate {
@@ -26,6 +62,10 @@ export interface SupplierMatch {
   location: string;
   verified: boolean;
   deliveryEstimates?: DeliveryEstimate[];
+  // Enhanced geo & business data
+  geoLocation?: GeoLocation;
+  contact?: BusinessContact;
+  businessProfile?: BusinessProfile;
 }
 
 export interface SubstituteSupplier {
@@ -38,6 +78,9 @@ export interface SubstituteSupplier {
   location: string;
   leadTime: string;
   deliveryEstimates?: DeliveryEstimate[];
+  // Enhanced geo & business data
+  geoLocation?: GeoLocation;
+  contact?: BusinessContact;
 }
 
 export interface SupplierDiscoveryResult {
@@ -81,6 +124,11 @@ export interface ProducerCompetitor {
   certifications: string[];
   marketShare: string;
   strengths: string[];
+  // Enhanced geo & business data
+  geoLocation?: GeoLocation;
+  contact?: BusinessContact;
+  businessProfile?: BusinessProfile;
+  demandConcentration?: number; // 0-100 percentage
 }
 
 export interface SubstituteProducer {
@@ -92,6 +140,9 @@ export interface SubstituteProducer {
   priceAdvantage: string;
   productionCapacity: string;
   certifications: string[];
+  // Enhanced geo & business data
+  geoLocation?: GeoLocation;
+  contact?: BusinessContact;
 }
 
 export interface BOMAnalysisResult {
@@ -117,6 +168,10 @@ export interface CompetitorInfo {
   priceRange: { min: number; max: number };
   marketShare: string;
   strengths: string[];
+  // Enhanced geo & business data
+  geoLocation?: GeoLocation;
+  contact?: BusinessContact;
+  businessProfile?: BusinessProfile;
 }
 
 export interface MarketHeatMapRegion {
@@ -126,6 +181,9 @@ export interface MarketHeatMapRegion {
   avgPrice: number;
   growth: string;
   opportunity: "excellent" | "good" | "moderate" | "saturated";
+  // Enhanced geo data
+  geoLocation?: GeoLocation;
+  demandConcentration?: number; // 0-100 percentage
 }
 
 export interface SubstituteCompetitor {
@@ -137,6 +195,9 @@ export interface SubstituteCompetitor {
   marketShare: string;
   threat: "high" | "medium" | "low";
   differentiators: string[];
+  // Enhanced geo & business data
+  geoLocation?: GeoLocation;
+  contact?: BusinessContact;
 }
 
 export interface MarketAnalysisResult {
@@ -490,3 +551,68 @@ export const useHasResults = (mode: DashboardMode) => useAnalysisStore((s) => {
       return false;
   }
 });
+
+// ============================================================
+// HELPER - Get all entities with geo locations for map
+// ============================================================
+export interface MapEntity {
+  id: string;
+  name: string;
+  type: "supplier" | "competitor" | "producer";
+  geoLocation: GeoLocation;
+  matchScore?: number;
+  marketShare?: string;
+  demandConcentration?: number;
+  priceRange?: { min: number; max: number };
+}
+
+export const useMapEntities = (mode: DashboardMode): MapEntity[] => {
+  const buyerResults = useAnalysisStore((s) => s.buyerResults);
+  const producerResults = useAnalysisStore((s) => s.producerResults);
+  const sellerResults = useAnalysisStore((s) => s.sellerResults);
+
+  switch (mode) {
+    case "buyer": {
+      const suppliers = buyerResults?.suggestedSuppliers || [];
+      return suppliers
+        .filter((s) => s.geoLocation)
+        .map((s) => ({
+          id: s.id,
+          name: s.name,
+          type: "supplier" as const,
+          geoLocation: s.geoLocation!,
+          matchScore: s.matchScore,
+          priceRange: s.priceRange,
+        }));
+    }
+    case "producer": {
+      const competitors = producerResults?.competition || [];
+      return competitors
+        .filter((c) => c.geoLocation)
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          type: "producer" as const,
+          geoLocation: c.geoLocation!,
+          marketShare: c.marketShare,
+          demandConcentration: c.demandConcentration,
+          priceRange: c.priceRange,
+        }));
+    }
+    case "seller": {
+      const competitors = sellerResults?.competitors || [];
+      return competitors
+        .filter((c) => c.geoLocation)
+        .map((c, idx) => ({
+          id: `comp_${idx}`,
+          name: c.name,
+          type: "competitor" as const,
+          geoLocation: c.geoLocation!,
+          marketShare: c.marketShare,
+          priceRange: c.priceRange,
+        }));
+    }
+    default:
+      return [];
+  }
+};

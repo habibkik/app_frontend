@@ -1,6 +1,6 @@
 /**
  * Substitute Producers Component
- * Shows manufacturers producing alternative/substitute products
+ * Shows manufacturers producing alternative/substitute products with location data
  */
 import { motion } from "framer-motion";
 import { 
@@ -11,6 +11,8 @@ import {
   Award,
   TrendingUp,
   ExternalLink,
+  Mail,
+  Globe,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +46,15 @@ export function SubstituteProducers({
       </Card>
     );
   }
+
+  const getGoogleMapsUrl = (producer: SubstituteProducer) => {
+    if (producer.geoLocation) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        producer.geoLocation.formattedAddress
+      )}`;
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(producer.location)}`;
+  };
 
   return (
     <Card>
@@ -97,6 +108,32 @@ export function SubstituteProducers({
                     </Badge>
                   </div>
 
+                  {/* Quick Contact */}
+                  {producer.contact && (
+                    <div className="flex items-center gap-2 mb-3">
+                      {producer.contact.email && (
+                        <a 
+                          href={`mailto:${producer.contact.email}`}
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title={producer.contact.email}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </a>
+                      )}
+                      {producer.contact.website && (
+                        <a 
+                          href={producer.contact.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                          title={producer.contact.website}
+                        >
+                          <Globe className="h-4 w-4" />
+                        </a>
+                      )}
+                    </div>
+                  )}
+
                   {/* Similarity */}
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-sm mb-1">
@@ -106,12 +143,22 @@ export function SubstituteProducers({
                     <Progress value={producer.similarity} className="h-2" />
                   </div>
 
-                  {/* Stats */}
+                  {/* Stats with map link */}
                   <div className="flex flex-wrap gap-4 mb-3 text-sm">
-                    <div className="flex items-center gap-1.5">
+                    <a 
+                      href={getGoogleMapsUrl(producer)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 hover:text-primary transition-colors"
+                    >
                       <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{producer.location}</span>
-                    </div>
+                      <span>
+                        {producer.geoLocation 
+                          ? `${producer.geoLocation.city}, ${producer.geoLocation.country}`
+                          : producer.location}
+                      </span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
                     <div className="flex items-center gap-1.5">
                       <TrendingUp className="h-4 w-4 text-muted-foreground" />
                       <span>{producer.productionCapacity}</span>
