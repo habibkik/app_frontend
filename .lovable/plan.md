@@ -1,143 +1,172 @@
 
-
-# Competitor Detail Popup for Competitor Tracking Page
+# Enhanced Supplier Detail Popup with Business Information & Worker Profiles
 
 ## Overview
-Add a comprehensive popup modal that displays all business information for a competitor when clicking on their card in the Competitors page in the three dot in the top right corner of the box. This will be similar to the existing `BuyerSupplierDetailModal` but adapted for competitor data.
+This plan enhances the existing supplier detail popup in the "Browse All" section of Supplier Discovery to show comprehensive business information and LinkedIn profiles of workers at each supplier.
 
 ## What You'll Get
-When you click on any competitor in the "Competitors" card on the Competitor Tracking page:
-- A full-screen modal opens with all business details
-- Company overview with logo and tracking status
-- Tabbed interface showing:
-  - Overview (location, description)
-  - Contact (email, phone, website)
-  - Business Profile (company size, revenue, year established)
-  - Analysis (strengths, weaknesses, pricing strategy)
-- Quick action buttons for tracking and visiting website
+When you click on any supplier card in Browse All:
+- A comprehensive popup with all business information
+- **New Contact tab**: Email, phone, website, LinkedIn company page
+- **New Location info**: Full address with Google Maps integration
+- **Enhanced Business details**: Revenue, company size, year established
+- **New Team tab**: LinkedIn profiles of key employees at the supplier (sales reps, account managers, etc.)
+
+---
 
 ## Technical Implementation
 
-### 1. Create Competitor Detail Modal
-**New File**: `src/components/seller/CompetitorDetailModal.tsx`
+### 1. Enhance Supplier Data Type
+**File**: `src/data/suppliers.ts`
 
-A comprehensive dialog component with:
+Add new fields to the `Supplier` interface:
+
+```typescript
+export interface SupplierEmployee {
+  name: string;
+  role: string;
+  linkedIn: string;
+  avatar?: string;
+}
+
+export interface Supplier {
+  // ... existing fields ...
+  
+  // Geographic location with coordinates
+  geoLocation?: {
+    latitude: number;
+    longitude: number;
+    formattedAddress: string;
+    city: string;
+    state?: string;
+    country: string;
+  };
+  
+  // Contact information
+  contact?: {
+    email?: string;
+    phone?: string;
+    website?: string;
+    linkedIn?: string;
+  };
+  
+  // Business profile
+  businessProfile?: {
+    annualRevenue?: string;
+    companySize?: string;
+  };
+  
+  // Key employees/contacts
+  employees?: SupplierEmployee[];
+}
+```
+
+### 2. Update Mock Supplier Data
+**File**: `src/data/suppliers.ts`
+
+Enhance each mock supplier with the new data:
+
+```typescript
+{
+  id: "sup-001",
+  name: "TechParts Manufacturing Co.",
+  // ... existing fields ...
+  
+  geoLocation: {
+    latitude: 22.5431,
+    longitude: 114.0579,
+    formattedAddress: "Building 8, Tech Park, Nanshan District, Shenzhen 518057, China",
+    city: "Shenzhen",
+    state: "Guangdong",
+    country: "China",
+  },
+  contact: {
+    email: "sales@techparts.cn",
+    phone: "+86-755-8888-9999",
+    website: "https://techparts.cn",
+    linkedIn: "https://linkedin.com/company/techparts-manufacturing",
+  },
+  businessProfile: {
+    annualRevenue: "$50M - $100M",
+    companySize: "500-1000",
+  },
+  employees: [
+    {
+      name: "David Chen",
+      role: "Sales Director",
+      linkedIn: "https://linkedin.com/in/david-chen-techparts",
+    },
+    {
+      name: "Lisa Wang",
+      role: "Key Account Manager",
+      linkedIn: "https://linkedin.com/in/lisa-wang-techparts",
+    },
+    {
+      name: "Michael Liu",
+      role: "Technical Sales Engineer",
+      linkedIn: "https://linkedin.com/in/michael-liu-techparts",
+    },
+  ],
+}
+```
+
+### 3. Enhance Supplier Detail Modal
+**File**: `src/components/suppliers/SupplierDetailModal.tsx`
+
+Update the modal to include 4 tabs:
 
 ```text
 +------------------------------------------------------------------+
-|  [Logo]  Competitor Name           [Tracking Badge]   [X Close]  |
-|          website.com                                              |
+|  [Logo]  Supplier Name            [Verified Badge]    [X Close]  |
+|          Location • Industry                                      |
 +------------------------------------------------------------------+
 |                                                                   |
 |  +------------------+  +------------------+  +------------------+ |
-|  | Price Index      |  | Market Share     |  | Products         | |
-|  | 105              |  | 23%              |  | 1,250            | |
+|  | Rating           |  | Response Time    |  | Min. Order       | |
+|  | 4.8 ★            |  | < 12 hours       |  | $5,000           | |
 |  +------------------+  +------------------+  +------------------+ |
 |                                                                   |
-|  [Tabs: Overview | Contact | Business | Analysis]                 |
+|  [Tabs: Overview | Contact | Business | Team]                     |
 |                                                                   |
 |  === Overview Tab ===                                             |
 |  - Full Address with Google Maps link                             |
-|  - Business description                                           |
-|  - Last updated timestamp                                         |
+|  - About / Description                                            |
+|  - Specializations badges                                         |
+|  - Certifications list                                            |
 |                                                                   |
 |  === Contact Tab ===                                              |
-|  - Email (clickable mailto)                                       |
-|  - Phone (clickable tel)                                          |
+|  - Email (clickable mailto:)                                      |
+|  - Phone (clickable tel:)                                         |
 |  - Website (external link)                                        |
-|  - LinkedIn profile                                               |
+|  - Company LinkedIn page (external link)                          |
 |                                                                   |
 |  === Business Tab ===                                             |
 |  - Company Size                                                   |
 |  - Year Established                                               |
 |  - Annual Revenue                                                 |
-|  - Certifications                                                 |
+|  - Employee Count                                                 |
+|  - Industry Focus                                                 |
 |                                                                   |
-|  === Analysis Tab ===                                             |
-|  - Strengths (green badges)                                       |
-|  - Weaknesses (red badges)                                        |
-|  - Pricing strategy insights                                      |
-|  - Trend indicator                                                |
+|  === Team Tab (NEW) ===                                           |
+|  +----------------------------------------------------------+     |
+|  | [Avatar] David Chen                                       |     |
+|  |          Sales Director                                   |     |
+|  |          [LinkedIn Icon] View Profile →                   |     |
+|  +----------------------------------------------------------+     |
+|  | [Avatar] Lisa Wang                                        |     |
+|  |          Key Account Manager                              |     |
+|  |          [LinkedIn Icon] View Profile →                   |     |
+|  +----------------------------------------------------------+     |
+|  | [Avatar] Michael Liu                                      |     |
+|  |          Technical Sales Engineer                         |     |
+|  |          [LinkedIn Icon] View Profile →                   |     |
+|  +----------------------------------------------------------+     |
 |                                                                   |
 |  +----------------------+  +----------------------+               |
-|  |   Visit Website      |  |   Toggle Tracking    |               |
+|  |   Contact Supplier   |  |   Save               |               |
 |  +----------------------+  +----------------------+               |
 +------------------------------------------------------------------+
 ```
-
-### 2. Enhance Mock Competitor Data
-**Edit**: `src/pages/dashboard/Competitors.tsx`
-
-Add geographic and business profile data to the mock competitors:
-
-```typescript
-const mockCompetitors = [
-  {
-    id: "1",
-    name: "TechSupply Co",
-    website: "techsupply.com",
-    // ... existing fields ...
-    
-    // New fields
-    geoLocation: {
-      latitude: 37.7749,
-      longitude: -122.4194,
-      formattedAddress: "550 Market Street, San Francisco, CA 94104, USA",
-      city: "San Francisco",
-      state: "California",
-      country: "USA",
-    },
-    contact: {
-      email: "sales@techsupply.com",
-      phone: "+1-888-555-0123",
-      website: "https://techsupply.com",
-      linkedIn: "https://linkedin.com/company/techsupply",
-    },
-    businessProfile: {
-      companySize: "201-500",
-      yearEstablished: 2010,
-      annualRevenue: "$25M - $50M",
-      certifications: ["ISO 9001", "SOC 2"],
-      specializations: ["Industrial Equipment", "Fast Shipping"],
-    },
-    description: "Leading supplier of industrial components with 24/7 support and extensive product catalog.",
-  },
-  // ... similar updates for other competitors
-];
-```
-
-### 3. Add Modal State and Handler
-**Edit**: `src/pages/dashboard/Competitors.tsx`
-
-Add state for the detail modal:
-
-```typescript
-const [detailModalOpen, setDetailModalOpen] = useState(false);
-
-const handleViewCompetitorDetails = (competitor: typeof mockCompetitors[0]) => {
-  setSelectedCompetitor(competitor);
-  setDetailModalOpen(true);
-};
-```
-
-### 4. Update Competitor Cards to Open Modal
-**Edit**: `src/pages/dashboard/Competitors.tsx`
-
-Modify the competitor card click handler to open the modal:
-
-```typescript
-<motion.div
-  onClick={() => handleViewCompetitorDetails(competitor)}
-  className="cursor-pointer..."
->
-  {/* existing content */}
-</motion.div>
-```
-
-### 5. Export New Component
-**Edit**: `src/components/seller/index.ts`
-
-Export the new modal component.
 
 ---
 
@@ -145,19 +174,49 @@ Export the new modal component.
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/components/seller/CompetitorDetailModal.tsx` | Create | New modal component for competitor details |
-| `src/pages/dashboard/Competitors.tsx` | Edit | Add enhanced mock data, modal state, and click handler |
-| `src/components/seller/index.ts` | Edit | Export new CompetitorDetailModal |
-| `src/features/seller/index.ts` | Edit | Re-export CompetitorDetailModal |
+| `src/data/suppliers.ts` | Edit | Add SupplierEmployee interface and new fields to Supplier type |
+| `src/data/suppliers.ts` | Edit | Update mockSuppliers with contact, geo, businessProfile, and employees data |
+| `src/components/suppliers/SupplierDetailModal.tsx` | Edit | Add Contact tab with clickable links |
+| `src/components/suppliers/SupplierDetailModal.tsx` | Edit | Add Team tab with employee LinkedIn profiles |
+| `src/components/suppliers/SupplierDetailModal.tsx` | Edit | Enhance Overview tab with Google Maps link |
+
+---
+
+## Sample Employee Data Structure
+
+```json
+{
+  "employees": [
+    {
+      "name": "David Chen",
+      "role": "Sales Director",
+      "linkedIn": "https://linkedin.com/in/david-chen-techparts",
+      "avatar": "DC"
+    },
+    {
+      "name": "Lisa Wang",
+      "role": "Key Account Manager", 
+      "linkedIn": "https://linkedin.com/in/lisa-wang-techparts",
+      "avatar": "LW"
+    },
+    {
+      "name": "Michael Liu",
+      "role": "Technical Sales Engineer",
+      "linkedIn": "https://linkedin.com/in/michael-liu-techparts",
+      "avatar": "ML"
+    }
+  ]
+}
+```
 
 ---
 
 ## User Experience Flow
 
-1. User navigates to Competitor Tracking page
-2. User clicks on any competitor card in the "Competitors" section
-3. Detail modal opens with comprehensive business information
-4. User can browse tabs (Overview, Contact, Business, Analysis)
-5. User can click "Visit Website" or "Toggle Tracking" from the modal
-6. Modal closes and user returns to the competitor list
-
+1. User navigates to Supplier Discovery → Browse All tab
+2. User clicks on any supplier card
+3. Detail modal opens with enhanced information
+4. User can browse tabs (Overview, Contact, Business, Team)
+5. In **Contact tab**: User clicks email/phone/website to reach out
+6. In **Team tab**: User clicks LinkedIn profiles to connect with key people at the supplier
+7. User can click "Contact Supplier" to send an inquiry or "Save" to save for later
