@@ -12,3 +12,12 @@ export {
   useSavedSuppliers,
   type SupplierMetadata 
 } from "./savedSuppliersStore";
+export {
+  useAnalysisStore,
+  type SupplierMatch,
+  type SupplierDiscoveryResult,
+  type BOMAnalysisResult,
+  type CompetitorInfo,
+  type MarketAnalysisResult,
+  type AnalysisHistoryItem,
+} from "./analysisStore";
