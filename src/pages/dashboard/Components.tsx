@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Package, Search, Filter, LayoutGrid, List } from "lucide-react";
+import { Package, Search, Filter } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,12 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { ComponentCard } from "@/components/components/ComponentCard";
 import { SupplierQuoteList } from "@/components/components/SupplierQuoteList";
 import { ComparisonSummary } from "@/components/components/ComparisonSummary";
 import { CostComparisonChart } from "@/components/components/CostComparisonChart";
+import { SaveComparisonDialog } from "@/components/components/SaveComparisonDialog";
+import { LoadComparisonDialog } from "@/components/components/LoadComparisonDialog";
 import {
   mockComponentParts,
   getQuotesForComponent,
@@ -68,10 +68,33 @@ export default function ComponentsPage() {
     });
   };
 
+  const handleLoadComparison = (loadedSelections: ComparisonSelection[]) => {
+    // Merge loaded selections with current parts (in case parts changed)
+    const mergedSelections = mockComponentParts.map((part) => {
+      const loaded = loadedSelections.find((s) => s.componentId === part.id);
+      return loaded || { componentId: part.id, selectedQuoteId: null };
+    });
+    setSelections(mergedSelections);
+  };
+
   const getSelectedQuote = (componentId: string) => {
     const selection = selections.find((s) => s.componentId === componentId);
     return mockSupplierQuotes.find((q) => q.id === selection?.selectedQuoteId) || null;
   };
+
+  // Calculate totals for save dialog
+  const selectedQuotes = selections
+    .map((s) => mockSupplierQuotes.find((q) => q.id === s.selectedQuoteId))
+    .filter(Boolean);
+  
+  const totalCost = selections.reduce((sum, sel) => {
+    const part = mockComponentParts.find((p) => p.id === sel.componentId);
+    const quote = mockSupplierQuotes.find((q) => q.id === sel.selectedQuoteId);
+    if (!part || !quote) return sum;
+    return sum + quote.unitPrice * part.requiredQuantity;
+  }, 0);
+
+  const completionPercent = (selectedQuotes.length / mockComponentParts.length) * 100;
 
   return (
     <DashboardLayout>
@@ -92,6 +115,17 @@ export default function ComponentsPage() {
                 Compare suppliers and build optimal component packages
               </p>
             </div>
+          </div>
+
+          {/* Save/Load Actions */}
+          <div className="flex items-center gap-2">
+            <LoadComparisonDialog onLoad={handleLoadComparison} />
+            <SaveComparisonDialog
+              selections={selections}
+              totalCost={totalCost}
+              completionPercent={completionPercent}
+              onSave={() => {}}
+            />
           </div>
         </motion.div>
 
