@@ -271,6 +271,94 @@ For production, replace with your deployed backend URL.
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/miromind/analyze` | POST | Analyze product image with Claude Vision |
+| `/api/miromind/analyze` | POST | Analyze product image for BOM (Producer mode) |
+| `/api/miromind/analyze-for-sourcing` | POST | Analyze product for supplier discovery (Buyer mode) |
+| `/api/miromind/analyze-for-selling` | POST | Analyze product for market intelligence (Seller mode) |
 | `/api/miromind/generate-content` | POST | Generate marketing content |
 | `/api/miromind/health` | GET | Health check |
+
+---
+
+## New Endpoints for Multi-Mode Support
+
+### POST /api/miromind/analyze-for-sourcing (Buyer Mode)
+
+Analyzes a product image to find matching suppliers and alternatives.
+
+```javascript
+app.post('/api/miromind/analyze-for-sourcing', async (req, res) => {
+  try {
+    const { image, mimeType, context, systemPrompt } = req.body;
+
+    const userContent = [
+      {
+        type: 'image',
+        source: { type: 'base64', media_type: mimeType || 'image/jpeg', data: image },
+      },
+      {
+        type: 'text',
+        text: context 
+          ? `Analyze this product for sourcing. Context: ${context}` 
+          : 'Analyze this product image and identify sourcing requirements.',
+      },
+    ];
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }],
+    });
+
+    const textContent = response.content.find(c => c.type === 'text');
+    const jsonMatch = textContent?.text.match(/\{[\s\S]*\}/);
+    const result = JSON.parse(jsonMatch?.[0] || '{}');
+
+    res.json(result);
+  } catch (error) {
+    console.error('Sourcing analysis error:', error);
+    res.status(500).json({ error: 'Analysis failed', details: error.message });
+  }
+});
+```
+
+### POST /api/miromind/analyze-for-selling (Seller Mode)
+
+Analyzes a product image for market intelligence and competitive positioning.
+
+```javascript
+app.post('/api/miromind/analyze-for-selling', async (req, res) => {
+  try {
+    const { image, mimeType, context, systemPrompt } = req.body;
+
+    const userContent = [
+      {
+        type: 'image',
+        source: { type: 'base64', media_type: mimeType || 'image/jpeg', data: image },
+      },
+      {
+        type: 'text',
+        text: context 
+          ? `Analyze this product for market positioning. Context: ${context}` 
+          : 'Analyze this product for market intelligence and pricing strategy.',
+      },
+    ];
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userContent }],
+    });
+
+    const textContent = response.content.find(c => c.type === 'text');
+    const jsonMatch = textContent?.text.match(/\{[\s\S]*\}/);
+    const result = JSON.parse(jsonMatch?.[0] || '{}');
+
+    res.json(result);
+  } catch (error) {
+    console.error('Market analysis error:', error);
+    res.status(500).json({ error: 'Analysis failed', details: error.message });
+  }
+});
+```
