@@ -17,6 +17,7 @@ export { SubstituteProducts } from "@/components/buyer/SubstituteProducts";
 export { ImageSupplierDiscovery } from "@/components/buyer/ImageSupplierDiscovery";
 export { SubstituteSuppliers } from "@/components/buyer/SubstituteSuppliers";
 export { DeliveryEstimates, DeliverySummary } from "@/components/buyer/DeliveryEstimates";
+export { BuyerSupplierDetailModal } from "@/components/buyer/BuyerSupplierDetailModal";
 
 // Pages
 export { default as SearchResultsPage } from "@/pages/dashboard/Suppliers";
