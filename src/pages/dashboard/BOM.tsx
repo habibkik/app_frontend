@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Wrench, Sparkles, Filter, Search } from "lucide-react";
+import { Wrench, Sparkles, Filter, Search, ImageIcon } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -20,19 +21,55 @@ import { BOMSupplierMatchModal } from "@/components/bom/BOMSupplierMatchModal";
 import { BOMExportActions } from "@/components/bom/BOMExportActions";
 import { AIAnalysisPanel } from "@/components/bom/AIAnalysisPanel";
 import { ContentGenerationPanel } from "@/components/bom/ContentGenerationPanel";
+import { UniversalImageUpload } from "@/components/shared/UniversalImageUpload";
 import { mockBOMComponents, componentCategories, BOMComponent } from "@/data/bom";
 import { AnalyzedComponent } from "@/lib/ai-analysis-service";
+import { useAnalysisStore } from "@/stores/analysisStore";
 
 export default function BOMPage() {
+  const { 
+    producerResults, 
+    currentImage, 
+    clearResults 
+  } = useAnalysisStore();
+
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [hasAnalysis, setHasAnalysis] = useState(false);
   const [productName, setProductName] = useState("Analyzed Product");
+  const [productCategory, setProductCategory] = useState("Electronics");
   const [components, setComponents] = useState<BOMComponent[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
   const [selectedComponent, setSelectedComponent] = useState<BOMComponent | null>(null);
   const [supplierModalOpen, setSupplierModalOpen] = useState(false);
   const [confidence, setConfidence] = useState(87);
+  const [activeTab, setActiveTab] = useState<string>("ai-results");
+
+  // Check for pre-populated results from the analysis store
+  useEffect(() => {
+    if (producerResults && producerResults.success) {
+      const bomComponents: BOMComponent[] = producerResults.components.map((comp, index) => ({
+        id: `ai-comp-${index + 1}`,
+        name: comp.name,
+        category: comp.category,
+        quantity: comp.quantity,
+        unit: comp.unit,
+        unitCost: comp.estimatedUnitCost,
+        totalCost: comp.estimatedUnitCost * comp.quantity,
+        alternatives: Math.floor(Math.random() * 8) + 2,
+        matchedSuppliers: Math.floor(Math.random() * 15) + 5,
+        specifications: comp.specifications,
+        material: comp.material,
+      }));
+
+      setProductName(producerResults.productName);
+      setProductCategory(producerResults.productCategory);
+      setComponents(bomComponents);
+      setConfidence(producerResults.overallConfidence);
+      setHasAnalysis(true);
+      setActiveTab("ai-results");
+    }
+  }, [producerResults]);
 
   const handleAnalyze = async (files: File[]) => {
     setIsAnalyzing(true);
@@ -78,6 +115,12 @@ export default function BOMPage() {
   const handleViewSuppliers = (component: BOMComponent) => {
     setSelectedComponent(component);
     setSupplierModalOpen(true);
+  };
+
+  const handleNewAnalysis = () => {
+    setHasAnalysis(false);
+    setComponents([]);
+    clearResults("producer");
   };
 
   const filteredComponents = components.filter((c) => {
@@ -126,43 +169,80 @@ export default function BOMPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div className="grid gap-6 lg:grid-cols-3">
-                {/* Main Upload Area */}
-                <div className="lg:col-span-2">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-primary" />
-                        AI-Powered Product Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <BOMUploadZone onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
-                      
-                      {/* Features Preview */}
-                      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                        <FeatureCard
-                          title="Component Detection"
-                          description="AI identifies all components from product images and specs"
-                        />
-                        <FeatureCard
-                          title="Cost Estimation"
-                          description="Get accurate cost breakdowns with market pricing data"
-                        />
-                        <FeatureCard
-                          title="Supplier Matching"
-                          description="Find verified suppliers for each identified component"
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+                  <TabsTrigger value="ai-results" className="gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    AI Image Analysis
+                  </TabsTrigger>
+                  <TabsTrigger value="file-upload" className="gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    File Upload
+                  </TabsTrigger>
+                </TabsList>
 
-                {/* AI Vision Panel */}
-                <div className="lg:col-span-1">
-                  <AIAnalysisPanel onAnalysisComplete={handleAIAnalysisComplete} />
-                </div>
-              </div>
+                <TabsContent value="ai-results">
+                  <div className="max-w-2xl mx-auto">
+                    <div className="text-center mb-6">
+                      <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                        <Sparkles className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        AI-Powered BOM Generation
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        Upload a product image to automatically identify components,
+                        estimate costs, and generate a complete bill of materials.
+                      </p>
+                    </div>
+                    <UniversalImageUpload 
+                      onAnalysisComplete={() => {
+                        // Results will be picked up by useEffect
+                      }}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="file-upload">
+                  <div className="grid gap-6 lg:grid-cols-3">
+                    {/* Main Upload Area */}
+                    <div className="lg:col-span-2">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-primary" />
+                            Product Analysis from Files
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <BOMUploadZone onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+                          
+                          {/* Features Preview */}
+                          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                            <FeatureCard
+                              title="Component Detection"
+                              description="AI identifies all components from product images and specs"
+                            />
+                            <FeatureCard
+                              title="Cost Estimation"
+                              description="Get accurate cost breakdowns with market pricing data"
+                            />
+                            <FeatureCard
+                              title="Supplier Matching"
+                              description="Find verified suppliers for each identified component"
+                            />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* AI Vision Panel */}
+                    <div className="lg:col-span-1">
+                      <AIAnalysisPanel onAnalysisComplete={handleAIAnalysisComplete} />
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </motion.div>
           ) : (
             /* Analysis Results */
@@ -173,6 +253,38 @@ export default function BOMPage() {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-6"
             >
+              {/* Image Preview if from dashboard */}
+              {currentImage && (
+                <Card className="overflow-hidden">
+                  <div className="flex flex-col md:flex-row">
+                    <div className="md:w-48 flex-shrink-0 bg-muted/50 p-4">
+                      <img
+                        src={`data:image/jpeg;base64,${currentImage}`}
+                        alt="Analyzed product"
+                        className="w-full h-32 object-contain rounded-lg"
+                      />
+                    </div>
+                    <div className="flex-1 p-4 flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-foreground">{productName}</h3>
+                        <p className="text-sm text-muted-foreground">{productCategory}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge variant="secondary">
+                            {components.length} components
+                          </Badge>
+                          <Badge variant="outline">
+                            {confidence}% confidence
+                          </Badge>
+                        </div>
+                      </div>
+                      <Button variant="outline" onClick={handleNewAnalysis}>
+                        Analyze New Product
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
               {/* Cost Summary */}
               <BOMCostSummary components={components} confidence={confidence} />
 
@@ -186,16 +298,15 @@ export default function BOMPage() {
                         <CardTitle>
                           {productName} - Components ({filteredComponents.length})
                         </CardTitle>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setHasAnalysis(false);
-                            setComponents([]);
-                          }}
-                        >
-                          New Analysis
-                        </Button>
+                        {!currentImage && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleNewAnalysis}
+                          >
+                            New Analysis
+                          </Button>
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -260,7 +371,7 @@ export default function BOMPage() {
                 <div className="lg:col-span-1">
                   <ContentGenerationPanel
                     productName={productName}
-                    productCategory="Electronics"
+                    productCategory={productCategory}
                     components={components.map((c) => ({
                       name: c.name,
                       category: c.category,
