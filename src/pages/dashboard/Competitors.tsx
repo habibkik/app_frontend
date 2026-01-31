@@ -36,6 +36,8 @@ import {
   ShieldCheck,
   Repeat2,
   ArrowRight,
+  Mail,
+  FileText,
 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -77,6 +79,7 @@ import {
   AreaChart,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
+import { ProductSupplierContactModal } from "@/components/suppliers/ProductSupplierContactModal";
 
 // Types for product analysis
 interface ProductAnalysisResult {
@@ -234,6 +237,15 @@ export default function CompetitorsPage() {
   const [productAnalysisResult, setProductAnalysisResult] = useState<ProductAnalysisResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
+  
+  // Contact supplier modal state
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] = useState<ProductAnalysisResult['suppliers'][0] | null>(null);
+
+  const handleContactSupplier = (supplier: ProductAnalysisResult['suppliers'][0]) => {
+    setSelectedSupplier(supplier);
+    setContactModalOpen(true);
+  };
 
   const filteredCompetitors = mockCompetitors.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1400,13 +1412,23 @@ export default function CompetitorsPage() {
                               </Badge>
                             </div>
                           </div>
-                          <div className="flex sm:flex-col gap-2 sm:w-28">
-                            <Button size="sm" className="flex-1 sm:w-full">
+                          <div className="flex sm:flex-col gap-2 sm:w-32">
+                            <Button 
+                              size="sm" 
+                              className="flex-1 sm:w-full gap-1"
+                              onClick={() => handleContactSupplier(supplier)}
+                            >
+                              <Mail className="h-3.5 w-3.5" />
                               Contact
-                              <ArrowRight className="h-3.5 w-3.5 ml-1" />
                             </Button>
-                            <Button variant="outline" size="sm" className="flex-1 sm:w-full">
-                              Details
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1 sm:w-full gap-1"
+                              onClick={() => handleContactSupplier(supplier)}
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                              RFQ
                             </Button>
                           </div>
                         </div>
@@ -1463,11 +1485,66 @@ export default function CompetitorsPage() {
                             {substitute.suppliers && substitute.suppliers.length > 0 && (
                               <div className="mt-3 pt-3 border-t border-border">
                                 <p className="text-xs font-medium text-muted-foreground mb-2">Available from:</p>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="space-y-2">
                                   {substitute.suppliers.map((sup, supIndex) => (
-                                    <Badge key={supIndex} variant="outline" className="text-xs">
-                                      {sup.name} • ${sup.price} • {sup.location}
-                                    </Badge>
+                                    <div key={supIndex} className="flex items-center justify-between p-2 rounded-lg bg-background/50">
+                                      <div className="flex items-center gap-2">
+                                        <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                                          <span className="text-xs font-semibold text-primary">{sup.name.charAt(0)}</span>
+                                        </div>
+                                        <div>
+                                          <p className="text-sm font-medium text-foreground">{sup.name}</p>
+                                          <p className="text-xs text-muted-foreground">${sup.price}/unit • {sup.location}</p>
+                                        </div>
+                                      </div>
+                                      <div className="flex gap-1">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 px-2 gap-1"
+                                          onClick={() => {
+                                            // Create a supplier object for the substitute supplier
+                                            const subSupplier = {
+                                              id: `sub_${supIndex}`,
+                                              name: sup.name,
+                                              matchScore: substitute.similarity,
+                                              priceRange: { min: sup.price * 0.9, max: sup.price * 1.1 },
+                                              moq: 50,
+                                              leadTime: "7-14 days",
+                                              location: sup.location,
+                                              verified: false,
+                                            };
+                                            setSelectedSupplier(subSupplier);
+                                            setContactModalOpen(true);
+                                          }}
+                                        >
+                                          <Mail className="h-3 w-3" />
+                                          <span className="hidden sm:inline">Contact</span>
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          className="h-7 px-2 gap-1"
+                                          onClick={() => {
+                                            const subSupplier = {
+                                              id: `sub_${supIndex}`,
+                                              name: sup.name,
+                                              matchScore: substitute.similarity,
+                                              priceRange: { min: sup.price * 0.9, max: sup.price * 1.1 },
+                                              moq: 50,
+                                              leadTime: "7-14 days",
+                                              location: sup.location,
+                                              verified: false,
+                                            };
+                                            setSelectedSupplier(subSupplier);
+                                            setContactModalOpen(true);
+                                          }}
+                                        >
+                                          <FileText className="h-3 w-3" />
+                                          <span className="hidden sm:inline">RFQ</span>
+                                        </Button>
+                                      </div>
+                                    </div>
                                   ))}
                                 </div>
                               </div>
@@ -1482,6 +1559,14 @@ export default function CompetitorsPage() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Contact Supplier Modal */}
+        <ProductSupplierContactModal
+          supplier={selectedSupplier}
+          product={productAnalysisResult?.product || null}
+          open={contactModalOpen}
+          onOpenChange={setContactModalOpen}
+        />
       </div>
     </DashboardLayout>
   );
