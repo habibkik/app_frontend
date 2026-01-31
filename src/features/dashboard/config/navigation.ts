@@ -13,6 +13,7 @@ import {
   DollarSign,
   Megaphone,
   Globe,
+  Users,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -90,6 +91,7 @@ const sellerNavigation: NavGroup[] = [
     label: "Intelligence",
     items: [
       { title: "Market Intelligence", url: "/dashboard/market", icon: TrendingUp },
+      { title: "Competitor Tracking", url: "/dashboard/competitors", icon: Users },
       { title: "Pricing Strategy", url: "/dashboard/pricing", icon: DollarSign },
     ],
   },
