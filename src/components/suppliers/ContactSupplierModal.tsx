@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, MessageSquare } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/form";
 import { Supplier } from "@/data/suppliers";
 import { useToast } from "@/hooks/use-toast";
+import { useConversations } from "@/contexts/ConversationsContext";
 
 const contactFormSchema = z.object({
   name: z
@@ -85,6 +87,8 @@ export function ContactSupplierModal({
 }: ContactSupplierModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { createConversation, setActiveConversationId, getConversationBySupplier } = useConversations();
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -98,21 +102,56 @@ export function ContactSupplierModal({
     },
   });
 
+  // Check if there's an existing conversation with this supplier
+  const existingConversation = supplier ? getConversationBySupplier(supplier.id) : undefined;
+
   const onSubmit = async (data: ContactFormValues) => {
+    if (!supplier) return;
+    
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
     
+    // Create the conversation
+    const conversationId = createConversation({
+      supplier,
+      subject: data.subject,
+      message: data.message,
+      inquiryType: inquiryTypes.find(t => t.value === data.inquiryType)?.label || data.inquiryType,
+      senderName: data.name,
+      senderEmail: data.email,
+      senderCompany: data.company,
+    });
+    
+    setActiveConversationId(conversationId);
     setIsSubmitting(false);
     
     toast({
       title: "Message Sent!",
-      description: `Your inquiry has been sent to ${supplier?.name}. They typically respond within ${supplier?.responseTime}.`,
+      description: `Your inquiry has been sent to ${supplier.name}. View it in Conversations.`,
+      action: (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate("/dashboard/conversations")}
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          View
+        </Button>
+      ),
     });
     
     form.reset();
     onOpenChange(false);
+  };
+
+  const handleViewConversation = () => {
+    if (existingConversation) {
+      setActiveConversationId(existingConversation.id);
+      navigate("/dashboard/conversations");
+      onOpenChange(false);
+    }
   };
 
   if (!supplier) return null;
@@ -127,6 +166,19 @@ export function ContactSupplierModal({
             {supplier.responseTime}.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Existing Conversation Banner */}
+        {existingConversation && (
+          <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <div className="flex items-center gap-2 text-sm">
+              <MessageSquare className="h-4 w-4 text-primary" />
+              <span>You have an existing conversation with this supplier</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleViewConversation}>
+              View Chat
+            </Button>
+          </div>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
