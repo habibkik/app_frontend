@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingUp, Loader2, Sparkles, Search, ImageIcon } from "lucide-react";
+import { TrendingUp, Loader2, Sparkles, Search, ImageIcon, Play } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketSearch } from "@/components/market/MarketSearch";
 import { AnalysisSummaryCard } from "@/components/market/AnalysisSummaryCard";
@@ -16,6 +17,7 @@ import { UniversalImageUpload } from "@/components/shared/UniversalImageUpload";
 import { useAnalysisStore, type CompetitorInfo } from "@/stores/analysisStore";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeForSelling } from "@/features/agents/miromind/api";
+import { DEMO_MARKET_RESULT } from "@/data/demoMarketData";
 import {
   analyzeMarket,
   saveAnalysisToHistory,
@@ -126,6 +128,15 @@ export default function MarketIntelligencePage() {
     setActiveTab("text-search");
   };
 
+  // Load demo data
+  const handleLoadDemo = () => {
+    setSellerResults(DEMO_MARKET_RESULT);
+    toast({
+      title: "Demo Data Loaded",
+      description: "Explore the market analysis with sample data for a Bluetooth speaker.",
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -206,6 +217,28 @@ export default function MarketIntelligencePage() {
                   <UniversalImageUpload 
                     onAnalysisComplete={handleImageAnalysisComplete}
                   />
+                  
+                  {/* Demo Button */}
+                  <div className="mt-8 text-center">
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-border" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          Or explore with sample data
+                        </span>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleLoadDemo}
+                      className="mt-4 gap-2"
+                    >
+                      <Play className="h-4 w-4" />
+                      View Demo Analysis
+                    </Button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -2,6 +2,7 @@
  * Image Supplier Discovery Component
  * Main results view for Buyer mode image analysis
  */
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
   Package,
@@ -21,13 +22,14 @@ import { SupplierMatchResults } from "./SupplierMatchResults";
 import { SubstituteProducts } from "./SubstituteProducts";
 import { SubstituteSuppliers } from "./SubstituteSuppliers";
 import { DeliverySummary } from "./DeliveryEstimates";
+import { BuyerSupplierDetailModal } from "./BuyerSupplierDetailModal";
 import type { SupplierDiscoveryResult, SupplierMatch, SubstituteSupplier } from "@/stores/analysisStore";
 
 interface ImageSupplierDiscoveryProps {
   result: SupplierDiscoveryResult;
   imagePreview?: string;
   onContactSupplier?: (supplier: SupplierMatch) => void;
-  onViewSupplierDetails?: (supplier: SupplierMatch) => void;
+  onSaveSupplier?: (supplier: SupplierMatch) => void;
   onContactSubstituteSupplier?: (supplier: SubstituteSupplier) => void;
   onNewAnalysis?: () => void;
 }
@@ -36,10 +38,13 @@ export function ImageSupplierDiscovery({
   result,
   imagePreview,
   onContactSupplier,
-  onViewSupplierDetails,
+  onSaveSupplier,
   onContactSubstituteSupplier,
   onNewAnalysis,
 }: ImageSupplierDiscoveryProps) {
+  const [selectedSupplier, setSelectedSupplier] = useState<SupplierMatch | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   const { 
     productIdentification, 
     suggestedSuppliers, 
@@ -48,6 +53,11 @@ export function ImageSupplierDiscovery({
     estimatedMarketPrice, 
     confidence 
   } = result;
+
+  const handleViewSupplierDetails = (supplier: SupplierMatch) => {
+    setSelectedSupplier(supplier);
+    setIsDetailModalOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -154,7 +164,7 @@ export function ImageSupplierDiscovery({
             <SupplierMatchResults
               suppliers={suggestedSuppliers}
               onContactSupplier={onContactSupplier}
-              onViewDetails={onViewSupplierDetails}
+              onViewDetails={handleViewSupplierDetails}
             />
           </motion.div>
           
@@ -202,6 +212,15 @@ export function ImageSupplierDiscovery({
           </motion.div>
         </TabsContent>
       </Tabs>
+
+      {/* Supplier Detail Modal */}
+      <BuyerSupplierDetailModal
+        supplier={selectedSupplier}
+        open={isDetailModalOpen}
+        onOpenChange={setIsDetailModalOpen}
+        onContact={onContactSupplier}
+        onSave={onSaveSupplier}
+      />
     </div>
   );
 }
