@@ -19,6 +19,7 @@ import { BOMCostSummary } from "@/components/bom/BOMCostSummary";
 import { BOMSupplierMatchModal } from "@/components/bom/BOMSupplierMatchModal";
 import { BOMExportActions } from "@/components/bom/BOMExportActions";
 import { AIAnalysisPanel } from "@/components/bom/AIAnalysisPanel";
+import { ContentGenerationPanel } from "@/components/bom/ContentGenerationPanel";
 import { mockBOMComponents, componentCategories, BOMComponent } from "@/data/bom";
 import { AnalyzedComponent } from "@/lib/ai-analysis-service";
 
@@ -175,81 +176,104 @@ export default function BOMPage() {
               {/* Cost Summary */}
               <BOMCostSummary components={components} confidence={confidence} />
 
-              {/* Components Table */}
-              <Card>
-                <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <CardTitle>
-                      {productName} - Components ({filteredComponents.length})
-                    </CardTitle>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setHasAnalysis(false);
-                        setComponents([]);
-                      }}
-                    >
-                      New Analysis
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Tabs defaultValue="table" className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <TabsList>
-                        <TabsTrigger value="table">Table View</TabsTrigger>
-                        <TabsTrigger value="cards">Card View</TabsTrigger>
-                      </TabsList>
+              {/* Main Content Grid */}
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* Components Table */}
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <CardTitle>
+                          {productName} - Components ({filteredComponents.length})
+                        </CardTitle>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setHasAnalysis(false);
+                            setComponents([]);
+                          }}
+                        >
+                          New Analysis
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <Tabs defaultValue="table" className="space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <TabsList>
+                            <TabsTrigger value="table">Table View</TabsTrigger>
+                            <TabsTrigger value="cards">Card View</TabsTrigger>
+                          </TabsList>
 
-                      {/* Filters */}
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Search components..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 w-[200px]"
-                          />
+                          {/* Filters */}
+                          <div className="flex items-center gap-2">
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                placeholder="Search components..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9 w-[200px]"
+                              />
+                            </div>
+                            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                              <SelectTrigger className="w-[160px]">
+                                <Filter className="h-4 w-4 mr-2" />
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {componentCategories.map((cat) => (
+                                  <SelectItem key={cat} value={cat}>
+                                    {cat}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
-                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                          <SelectTrigger className="w-[160px]">
-                            <Filter className="h-4 w-4 mr-2" />
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {componentCategories.map((cat) => (
-                              <SelectItem key={cat} value={cat}>
-                                {cat}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
 
-                    <TabsContent value="table">
-                      <BOMComponentsTable
-                        components={filteredComponents}
-                        onViewSuppliers={handleViewSuppliers}
-                      />
-                    </TabsContent>
-
-                    <TabsContent value="cards">
-                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {filteredComponents.map((component) => (
-                          <ComponentCard
-                            key={component.id}
-                            component={component}
-                            onViewSuppliers={() => handleViewSuppliers(component)}
+                        <TabsContent value="table">
+                          <BOMComponentsTable
+                            components={filteredComponents}
+                            onViewSuppliers={handleViewSuppliers}
                           />
-                        ))}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
+                        </TabsContent>
+
+                        <TabsContent value="cards">
+                          <div className="grid gap-4 sm:grid-cols-2">
+                            {filteredComponents.map((component) => (
+                              <ComponentCard
+                                key={component.id}
+                                component={component}
+                                onViewSuppliers={() => handleViewSuppliers(component)}
+                              />
+                            ))}
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Content Generation Panel */}
+                <div className="lg:col-span-1">
+                  <ContentGenerationPanel
+                    productName={productName}
+                    productCategory="Electronics"
+                    components={components.map((c) => ({
+                      name: c.name,
+                      category: c.category,
+                      material: c.material,
+                      specifications: c.specifications,
+                    }))}
+                    attributes={{
+                      componentCount: String(components.length),
+                      estimatedCost: `$${components.reduce((sum, c) => sum + c.totalCost, 0).toFixed(2)}`,
+                    }}
+                  />
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
