@@ -5,3 +5,4 @@ export { DemandIndicators } from "./DemandIndicators";
 export { ImageMarketAnalysis } from "./ImageMarketAnalysis";
 export { MarketHeatMap } from "./MarketHeatMap";
 export { SubstituteCompetitors } from "./SubstituteCompetitors";
+export { CompetitorDetailModal, type CompetitorData } from "./CompetitorDetailModal";
