@@ -1,315 +1,292 @@
 
-# Mapbox Integration with Enhanced Geographic & Business Data
+# Demo Data & Supplier Detail Popup Implementation Plan
 
 ## Overview
-This plan adds comprehensive geographic coordinates (Mapbox-compatible), full business information, and demand concentration data to all entities across the platform. Suppliers, competitors, and producers will have complete location data that powers an interactive map on the Heat Map page.
+This plan adds two key features:
+1. **Demo data for AI Market Analysis** - Pre-populated sample data that shows when users view the Market Intelligence page without running an analysis
+2. **Supplier detail popup modal** - A comprehensive popup window showing all business information when clicking on a supplier in the discovery results
 
 ## What You'll Get
 
-### For Buyer Mode
-- Supplier addresses with GPS coordinates and Google Maps links
-- Business profiles: company size, year established, revenue, certifications
-- Contact information: website, email, phone
-- Regional supplier density visualization on Heat Map
+### 1. AI Market Analysis Demo Data
+When visiting the Market Intelligence page, users will see sample market analysis data demonstrating the platform's capabilities:
+- Pre-populated competitor data with full business profiles
+- Market heat map regions with geographic coordinates
+- Pricing insights and demand indicators
+- Substitute competitors with location data
 
-### For Producer & Seller Modes  
-- Competitor addresses with coordinates
-- Demand concentration data per region (percentage showing where buyers are)
-- Full business profiles for competitors
-- Regional market opportunity visualization
-
-### Interactive Mapbox Map
-- Real map showing entity locations worldwide
-- Clickable markers with popup details
-- Toggle between map view and grid view
-- Mode-specific marker colors
+### 2. Supplier Detail Popup
+When clicking any supplier in the Supplier Discovery results:
+- Full-screen modal with all business information
+- Company overview (size, year established, revenue)
+- Contact details (email, phone, website, LinkedIn)
+- Full address with Google Maps integration
+- Certifications and specializations
+- Pricing and lead time details
+- "Contact Supplier" and "Save" action buttons
 
 ---
 
 ## Technical Implementation
 
-### 1. Install Mapbox Dependencies
-
-Add packages for interactive mapping:
-- `react-map-gl` - React wrapper for Mapbox GL JS
-- `mapbox-gl` - Core Mapbox library
-
-**Note**: Mapbox requires a public access token. You'll be prompted to add it as a secret. The token is safe for client-side use.
-
-### 2. Update Type Definitions
-
-**File**: `src/stores/analysisStore.ts`
-
-Add new shared interfaces:
-
-```typescript
-// Geographic location with coordinates
-interface GeoLocation {
-  latitude: number;
-  longitude: number;
-  formattedAddress: string;
-  city: string;
-  state?: string;
-  country: string;
-  postalCode?: string;
-}
-
-// Business contact information
-interface BusinessContact {
-  email?: string;
-  phone?: string;
-  website?: string;
-  linkedIn?: string;
-}
-
-// Company profile details
-interface BusinessProfile {
-  companySize?: "1-10" | "11-50" | "51-200" | "201-500" | "500+";
-  yearEstablished?: number;
-  annualRevenue?: string;
-  employeeCount?: number;
-  certifications?: string[];
-  specializations?: string[];
-}
-
-// Demand concentration for regions
-interface RegionalDemand {
-  region: string;
-  demandLevel: "high" | "medium" | "low";
-  concentration: number; // 0-100 percentage
-  geoLocation?: GeoLocation;
-}
-```
-
-Update existing types to include new fields:
-- `SupplierMatch` - Add geoLocation, contact, businessProfile
-- `SubstituteSupplier` - Add geoLocation, contact
-- `ProducerCompetitor` - Add geoLocation, contact, businessProfile, demandConcentration
-- `CompetitorInfo` - Add geoLocation, contact, businessProfile
-- `SubstituteCompetitor` - Add geoLocation, contact
-- `MarketHeatMapRegion` - Add geoLocation, demandConcentration percentage
-
-### 3. Update Edge Functions
-
-#### A. Product Supplier Analysis (Buyer Mode)
-**File**: `supabase/functions/product-supplier-analysis/index.ts`
-
-Enhance AI prompt to request:
-- Full business address with GPS coordinates
-- Contact information (website, email, phone)
-- Company profile (size, revenue, certifications)
-- Regional supplier distribution data
-
-Updated response structure per supplier:
-```json
-{
-  "geoLocation": {
-    "latitude": 22.5431,
-    "longitude": 114.0579,
-    "formattedAddress": "Building 8, Tech Park, Shenzhen 518057, China",
-    "city": "Shenzhen",
-    "country": "China"
-  },
-  "contact": {
-    "website": "https://example.com",
-    "email": "sales@example.com",
-    "phone": "+86-755-8888-9999"
-  },
-  "businessProfile": {
-    "companySize": "201-500",
-    "yearEstablished": 2008,
-    "certifications": ["ISO 9001", "CE"]
-  }
-}
-```
-
-#### B. Competitor Analysis (Producer/Seller Modes)
-**File**: `supabase/functions/competitor-analysis/index.ts`
-
-Add support for:
-- Image-based analysis (alongside URL-based)
-- Competitor geographic data extraction
-- Demand concentration by region
-- Market heat map data with coordinates
-
-### 4. Create Mapbox Components
-
-**New Files in `src/components/shared/`:**
-
-#### A. `MapboxMap.tsx`
-Interactive map component featuring:
-- Configurable viewport (auto-fits to markers)
-- Support for markers and clustering
-- Custom marker icons by entity type
-- Click popup with entity details
-- Navigation controls (zoom, pan)
-- Mode-specific styling (different colors for buyer/seller/producer)
-
-#### B. `LocationMarker.tsx`
-Custom marker component showing:
-- Entity type icon (factory, store, supplier badge)
-- Color coding by demand level or match score
-- Hover tooltip with entity name
-
-#### C. `MapPopupCard.tsx`
-Popup card displaying:
-- Entity name and type badge
-- Full address with "Open in Google Maps" link
-- Key metrics (price, lead time, market share)
-- Contact quick actions
-
-#### D. `BusinessProfileCard.tsx`
-Expandable card showing:
-- Company overview
-- Contact information with action buttons
-- Business metrics (size, revenue, year established)
-- Certifications and specializations
-
-### 5. Update Heat Map Page
-
-**File**: `src/pages/dashboard/HeatMap.tsx`
-
-Transform into dual-view experience:
-
-```text
-+------------------------------------------------------------------+
-|  [Map Icon] Regional Heat Map                    [Map] [Grid]     |
-+------------------------------------------------------------------+
-|  +------------------------------------------------------------+  |
-|  |                                                            |  |
-|  |              [INTERACTIVE MAPBOX MAP]                      |  |
-|  |         Markers for suppliers/competitors                  |  |
-|  |                                                            |  |
-|  +------------------------------------------------------------+  |
-|                                                                   |
-|  [Summary Stats Cards]                                            |
-|  +--------------------+  +--------------------+  +-------------+  |
-|  | Region Card 1      |  | Region Card 2      |  | Region 3    |  |
-|  +--------------------+  +--------------------+  +-------------+  |
-+------------------------------------------------------------------+
-```
-
-Mode-specific behavior:
-| Mode | Shows on Map | Marker Color |
-|------|-------------|--------------|
-| Buyer | Supplier locations | Blue markers |
-| Producer | Competitor factories | Indigo markers |
-| Seller | Competitor locations | Purple markers |
-
-### 6. Update Display Components
-
-Add business profile sections and map links:
-
-**Buyer Mode**:
-- `SupplierMatchResults.tsx` - Add address display, "View on Map" link, contact info
-- `SubstituteSuppliers.tsx` - Add location with coordinates
-
-**Producer Mode**:
-- `ProducerCompetition.tsx` - Add factory address, demand concentration, business profile
-- `SubstituteProducers.tsx` - Add location display
-
-**Seller Mode**:
-- `CompetitorDisplay.tsx` - Add headquarters location, business profile
-- `SubstituteCompetitors.tsx` - Add address and contact info
-- `MarketHeatMap.tsx` - Add demand concentration percentage display
-
-### 7. Update Landing Page Demos
-
-Add mock geographic and business data:
-- `InteractiveDemo.tsx` - Buyer demo with supplier locations
-- `SellerInteractiveDemo.tsx` - Competitor locations and demand data
-- `ProducerInteractiveDemo.tsx` - Producer locations
-
----
-
-## File Changes Summary
+### File Changes
 
 | File | Action | Description |
 |------|--------|-------------|
-| `package.json` | Edit | Add react-map-gl, mapbox-gl |
-| `src/stores/analysisStore.ts` | Edit | Add GeoLocation, BusinessContact, BusinessProfile types |
-| `src/components/shared/MapboxMap.tsx` | Create | Interactive map component |
-| `src/components/shared/LocationMarker.tsx` | Create | Custom marker component |
-| `src/components/shared/MapPopupCard.tsx` | Create | Popup card for markers |
-| `src/components/shared/BusinessProfileCard.tsx` | Create | Business info display |
-| `src/components/shared/index.ts` | Edit | Export new components |
-| `src/pages/dashboard/HeatMap.tsx` | Edit | Add Mapbox map with toggle |
-| `supabase/functions/product-supplier-analysis/index.ts` | Edit | Add geo/business data to prompt |
-| `supabase/functions/competitor-analysis/index.ts` | Edit | Support image analysis with locations |
-| `src/components/buyer/SupplierMatchResults.tsx` | Edit | Add business profile section |
-| `src/components/buyer/SubstituteSuppliers.tsx` | Edit | Add location info |
-| `src/components/producer/ProducerCompetition.tsx` | Edit | Add demand concentration |
-| `src/components/seller/CompetitorDisplay.tsx` | Edit | Add business profile |
-| `src/components/seller/SubstituteCompetitors.tsx` | Edit | Add location |
-| `src/components/seller/MarketHeatMap.tsx` | Edit | Add demand concentration display |
-| `src/components/landing/InteractiveDemo.tsx` | Edit | Add mock geo data |
-| `src/components/landing/SellerInteractiveDemo.tsx` | Edit | Add mock geo data |
-| `src/components/landing/ProducerInteractiveDemo.tsx` | Edit | Add mock geo data |
+| `src/pages/dashboard/MarketIntelligence.tsx` | Edit | Add demo data toggle and sample market analysis results |
+| `src/components/buyer/SupplierDetailModal.tsx` | Create | New modal component for supplier business details |
+| `src/components/buyer/ImageSupplierDiscovery.tsx` | Edit | Add state and handler for supplier detail modal |
+| `src/components/buyer/SupplierMatchResults.tsx` | Edit | Make supplier cards clickable to open detail modal |
+| `src/components/buyer/index.ts` | Edit | Export new SupplierDetailModal component |
+
+### 1. Create Supplier Detail Modal
+
+**New File**: `src/components/buyer/SupplierDetailModal.tsx`
+
+A comprehensive dialog showing:
+
+```text
++------------------------------------------------------------------+
+|  [Logo]  Supplier Name            [Verified Badge]    [X Close]  |
+|          Location • Industry                                      |
++------------------------------------------------------------------+
+|                                                                   |
+|  [Match Score] 95% Match                                          |
+|  [Progress Bar]                                                   |
+|                                                                   |
+|  +------------------+  +------------------+  +------------------+ |
+|  | Price Range      |  | MOQ              |  | Lead Time        | |
+|  | $120 - $180/unit |  | 100 units        |  | 10-15 days       | |
+|  +------------------+  +------------------+  +------------------+ |
+|                                                                   |
+|  [Tabs: Overview | Contact | Business Profile | Certifications]  |
+|                                                                   |
+|  === Overview Tab ===                                             |
+|  - Full Address with Google Maps link                             |
+|  - City, State, Country                                           |
+|  - Delivery estimates if available                                |
+|                                                                   |
+|  === Contact Tab ===                                              |
+|  - Email (clickable mailto)                                       |
+|  - Phone (clickable tel)                                          |
+|  - Website (external link)                                        |
+|  - LinkedIn (external link)                                       |
+|                                                                   |
+|  === Business Profile Tab ===                                     |
+|  - Company Size                                                   |
+|  - Year Established                                               |
+|  - Annual Revenue                                                 |
+|  - Employee Count                                                 |
+|  - Specializations                                                |
+|                                                                   |
+|  === Certifications Tab ===                                       |
+|  - List of certifications with verified badges                    |
+|                                                                   |
+|  +----------------------+  +----------------------+               |
+|  |   Contact Supplier   |  |   Save to List       |               |
+|  +----------------------+  +----------------------+               |
++------------------------------------------------------------------+
+```
+
+### 2. Add Demo Data to Market Intelligence
+
+**Edit**: `src/pages/dashboard/MarketIntelligence.tsx`
+
+Add a "View Demo" button and sample data:
+
+```typescript
+const DEMO_MARKET_RESULT: MarketAnalysisResult = {
+  productIdentification: {
+    name: "Wireless Bluetooth Speaker",
+    category: "Consumer Electronics",
+    attributes: {
+      "Power Output": "20W",
+      "Battery Life": "12 hours",
+      "Connectivity": "Bluetooth 5.0",
+      "Material": "Aluminum + Fabric",
+    },
+  },
+  competitors: [
+    {
+      name: "SoundMax Electronics",
+      marketShare: "28%",
+      priceRange: { min: 45, max: 89 },
+      strengths: ["Brand recognition", "Wide distribution"],
+      geoLocation: {
+        latitude: 34.0522,
+        longitude: -118.2437,
+        formattedAddress: "456 Electronics Blvd, Los Angeles, CA 90001",
+        city: "Los Angeles",
+        state: "California",
+        country: "USA",
+      },
+      contact: {
+        email: "sales@soundmax.com",
+        phone: "+1-800-555-1234",
+        website: "https://soundmax.com",
+      },
+      businessProfile: {
+        companySize: "201-500",
+        yearEstablished: 2012,
+        annualRevenue: "$50M - $100M",
+        certifications: ["ISO 9001", "FCC", "CE"],
+      },
+    },
+    // ... more competitors
+  ],
+  substituteCompetitors: [...],
+  marketHeatMap: [...],
+  marketPriceRange: { min: 35, max: 120, average: 65 },
+  pricingRecommendation: {...},
+  demandIndicators: {...},
+  confidence: 92,
+};
+```
+
+Add button to load demo:
+```tsx
+<Button onClick={() => loadDemoData()} variant="outline">
+  <Sparkles className="h-4 w-4 mr-2" />
+  View Demo Analysis
+</Button>
+```
+
+### 3. Update ImageSupplierDiscovery
+
+**Edit**: `src/components/buyer/ImageSupplierDiscovery.tsx`
+
+Add modal state and pass handler:
+
+```typescript
+const [selectedSupplier, setSelectedSupplier] = useState<SupplierMatch | null>(null);
+const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+const handleViewSupplierDetails = (supplier: SupplierMatch) => {
+  setSelectedSupplier(supplier);
+  setIsDetailModalOpen(true);
+};
+
+// Render modal at bottom of component
+<SupplierDetailModal
+  supplier={selectedSupplier}
+  open={isDetailModalOpen}
+  onOpenChange={setIsDetailModalOpen}
+  onContact={onContactSupplier}
+/>
+```
+
+### 4. Update SupplierMatchResults
+
+**Edit**: `src/components/buyer/SupplierMatchResults.tsx`
+
+Make supplier cards fully clickable:
+
+```typescript
+// Add onClick to motion.div wrapper
+<motion.div
+  onClick={() => onViewDetails?.(supplier)}
+  className="cursor-pointer hover:shadow-lg transition-all"
+>
+  {/* existing content */}
+</motion.div>
+```
 
 ---
 
-## Sample Data Structures
+## Demo Data Structure
 
-### Supplier with Full Business Info
+### Sample Competitors with Full Business Data
 ```json
 {
-  "id": "sup_1",
-  "name": "GlobalTech Manufacturing",
-  "location": "Shenzhen, China",
+  "name": "SoundMax Electronics",
+  "marketShare": "28%",
+  "priceRange": { "min": 45, "max": 89 },
+  "strengths": ["Brand recognition", "Wide distribution", "Quality products"],
   "geoLocation": {
-    "latitude": 22.5431,
-    "longitude": 114.0579,
-    "formattedAddress": "Building 8, Tech Park, Nanshan District, Shenzhen 518057, China",
-    "city": "Shenzhen",
-    "country": "China"
+    "latitude": 34.0522,
+    "longitude": -118.2437,
+    "formattedAddress": "456 Electronics Blvd, Los Angeles, CA 90001, USA",
+    "city": "Los Angeles",
+    "state": "California",
+    "country": "USA"
   },
   "contact": {
-    "email": "sales@globaltech.com",
-    "phone": "+86-755-8888-9999",
-    "website": "https://globaltech.com"
+    "email": "sales@soundmax.com",
+    "phone": "+1-800-555-1234",
+    "website": "https://soundmax.com",
+    "linkedIn": "https://linkedin.com/company/soundmax"
   },
   "businessProfile": {
     "companySize": "201-500",
-    "yearEstablished": 2008,
+    "yearEstablished": 2012,
     "annualRevenue": "$50M - $100M",
-    "certifications": ["ISO 9001", "ISO 14001", "CE"]
+    "certifications": ["ISO 9001", "FCC", "CE"]
   }
 }
 ```
 
-### Heat Map Region with Demand Concentration
+### Sample Heat Map Regions
 ```json
 {
-  "region": "East Asia",
+  "region": "North America",
   "demand": "high",
   "competitorCount": 45,
-  "avgPrice": 245,
-  "growth": "+15%",
+  "avgPrice": 65,
+  "growth": "+12%",
   "opportunity": "excellent",
   "demandConcentration": 78,
   "geoLocation": {
-    "latitude": 35.6762,
-    "longitude": 139.6503,
-    "city": "Tokyo",
-    "country": "Japan"
+    "latitude": 37.0902,
+    "longitude": -95.7129,
+    "formattedAddress": "United States",
+    "city": "Kansas City",
+    "country": "USA"
   }
 }
 ```
 
 ---
 
-## API Key Requirement
+## User Experience Flow
 
-Mapbox requires a public access token. After approval, you'll be prompted to add:
+### Market Intelligence Demo
+1. User navigates to Market Intelligence page
+2. Sees empty state with "View Demo Analysis" button
+3. Clicks button to load sample data
+4. Full market analysis displayed with competitors, heat map, pricing
+5. Can interact with all tabs and features
 
-**Secret Name**: `VITE_MAPBOX_ACCESS_TOKEN`
-
-This is a publishable key safe for client-side code. Get it free at mapbox.com (50,000 map loads/month on free tier).
+### Supplier Detail Popup
+1. User uploads product image in Buyer mode
+2. AI returns matched suppliers
+3. User clicks any supplier card
+4. Full-screen modal opens with complete business profile
+5. User can view all tabs (Overview, Contact, Business, Certifications)
+6. User can click "Contact Supplier" or "Save" from modal
+7. Modal closes and user returns to results
 
 ---
 
-## Dependencies Summary
+## Component Dependencies
 
-**New packages**:
-- `react-map-gl` (^7.x) - React bindings for Mapbox GL
-- `mapbox-gl` (^3.x) - Core Mapbox GL library
+```text
+ImageSupplierDiscovery
+    ├── SupplierMatchResults
+    │   └── BusinessProfileCard (existing inline)
+    ├── SupplierDetailModal (NEW)
+    │   ├── Dialog from ui/dialog
+    │   ├── Tabs from ui/tabs
+    │   └── Badge from ui/badge
+    └── SubstituteSuppliers
+```
+
+---
+
+## Summary
+
+This implementation adds:
+1. **Demo data** for Market Intelligence so users can explore the platform without uploading images
+2. **Supplier detail modal** providing a comprehensive view of all business information when clicking on any supplier result
+3. Enhanced UX with clickable supplier cards and full business profiles
+4. Google Maps integration for supplier addresses
+5. Quick contact actions (email, phone, website) directly from the modal
