@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -27,6 +27,15 @@ import {
   CheckCircle2,
   XCircle,
   Calendar,
+  Upload,
+  Camera,
+  Image as ImageIcon,
+  X,
+  MapPin,
+  Clock,
+  ShieldCheck,
+  Repeat2,
+  ArrowRight,
 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -67,6 +76,38 @@ import {
   Area,
   AreaChart,
 } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
+
+// Types for product analysis
+interface ProductAnalysisResult {
+  product: {
+    name: string;
+    category: string;
+    specifications: Record<string, string>;
+  };
+  suppliers: Array<{
+    id: string;
+    name: string;
+    matchScore: number;
+    priceRange: { min: number; max: number };
+    moq: number;
+    leadTime: string;
+    location: string;
+    verified: boolean;
+  }>;
+  substitutes: Array<{
+    name: string;
+    similarity: number;
+    priceAdvantage: string;
+    suppliers: Array<{
+      name: string;
+      price: number;
+      location: string;
+    }>;
+  }>;
+  estimatedPrice: { min: number; max: number };
+  confidence: number;
+}
 
 // Price history data for each competitor (last 12 months)
 const priceHistoryData = [
@@ -182,6 +223,17 @@ export default function CompetitorsPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<CompetitorAnalysis | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  
+  // Product analysis state
+  const [activeTab, setActiveTab] = useState("competitors");
+  const [productImage, setProductImage] = useState<string | null>(null);
+  const [productFileName, setProductFileName] = useState<string | null>(null);
+  const [isProductAnalyzing, setIsProductAnalyzing] = useState(false);
+  const [productAnalysisProgress, setProductAnalysisProgress] = useState(0);
+  const [productAnalysisStep, setProductAnalysisStep] = useState("");
+  const [productAnalysisResult, setProductAnalysisResult] = useState<ProductAnalysisResult | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   const filteredCompetitors = mockCompetitors.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -254,6 +306,117 @@ export default function CompetitorsPage() {
     setNewCompetitorUrl("");
     setAnalysisResult(null);
     setAnalysisError(null);
+  };
+
+  // Product analysis handlers
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  const processFile = useCallback((file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid File",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setProductImage(base64);
+      setProductFileName(file.name);
+    };
+    reader.readAsDataURL(file);
+  }, [toast]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    const file = e.dataTransfer.files[0];
+    if (file) processFile(file);
+  }, [processFile]);
+
+  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+  }, [processFile]);
+
+  const clearProductImage = () => {
+    setProductImage(null);
+    setProductFileName(null);
+    setProductAnalysisResult(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleProductAnalysis = async () => {
+    if (!productImage) return;
+
+    setIsProductAnalyzing(true);
+    setProductAnalysisProgress(0);
+    setProductAnalysisStep("Uploading image...");
+
+    const steps = [
+      "Identifying product...",
+      "Analyzing specifications...",
+      "Searching suppliers...",
+      "Finding substitutes...",
+      "Generating results...",
+    ];
+
+    let stepIndex = 0;
+    const progressInterval = setInterval(() => {
+      if (stepIndex < steps.length - 1) {
+        stepIndex++;
+        setProductAnalysisProgress((stepIndex / steps.length) * 80);
+        setProductAnalysisStep(steps[stepIndex]);
+      }
+    }, 800);
+
+    try {
+      const base64Data = productImage.split(",")[1];
+      
+      const { data, error } = await supabase.functions.invoke('product-supplier-analysis', {
+        body: { imageBase64: base64Data, mimeType: 'image/jpeg' },
+      });
+
+      clearInterval(progressInterval);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.success && data?.data) {
+        setProductAnalysisResult(data.data);
+        setProductAnalysisProgress(100);
+        setProductAnalysisStep("Complete!");
+        toast({
+          title: "Analysis Complete",
+          description: `Found ${data.data.suppliers?.length || 0} suppliers and ${data.data.substitutes?.length || 0} substitutes`,
+        });
+      } else {
+        throw new Error(data?.error || "Analysis failed");
+      }
+    } catch (error) {
+      clearInterval(progressInterval);
+      const errorMessage = error instanceof Error ? error.message : "Failed to analyze product";
+      toast({
+        title: "Analysis Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProductAnalyzing(false);
+    }
   };
 
   return (
@@ -482,8 +645,23 @@ export default function CompetitorsPage() {
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="competitors" className="gap-2">
+              <Eye className="h-4 w-4" />
+              Competitors
+            </TabsTrigger>
+            <TabsTrigger value="product-analysis" className="gap-2">
+              <Search className="h-4 w-4" />
+              Product Analysis
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Competitors Tab */}
+          <TabsContent value="competitors" className="space-y-6">
+            {/* Quick Stats */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -998,6 +1176,312 @@ export default function CompetitorsPage() {
             </Card>
           </div>
         </div>
+          </TabsContent>
+
+          {/* Product Analysis Tab */}
+          <TabsContent value="product-analysis" className="space-y-6">
+            {/* Upload Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Product Image Analysis
+                </CardTitle>
+                <CardDescription>
+                  Upload a product image to find suppliers and substitute products with their suppliers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!productImage ? (
+                  <div
+                    className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${
+                      dragActive
+                        ? "border-primary bg-primary/5 scale-[1.02]"
+                        : "border-border hover:border-primary/50 hover:bg-muted/30"
+                    }`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileInput}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="flex flex-col items-center justify-center text-center pointer-events-none">
+                      <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                        <Upload className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        Upload Product Image
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4 max-w-sm">
+                        Drag and drop an image or click to browse. We'll find suppliers and alternatives.
+                      </p>
+                      <div className="flex items-center gap-3 pointer-events-auto">
+                        <Button onClick={() => fileInputRef.current?.click()}>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Image
+                        </Button>
+                        <Button variant="outline" onClick={() => {
+                          if (fileInputRef.current) {
+                            fileInputRef.current.setAttribute("capture", "environment");
+                            fileInputRef.current.click();
+                          }
+                        }}>
+                          <Camera className="h-4 w-4 mr-2" />
+                          Camera
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="relative rounded-2xl overflow-hidden bg-muted/50 border border-border">
+                      <img
+                        src={productImage}
+                        alt="Product preview"
+                        className="w-full max-h-72 object-contain"
+                      />
+                      {isProductAnalyzing && (
+                        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                          <p className="mt-4 text-sm font-medium text-foreground">{productAnalysisStep}</p>
+                          <div className="w-48 mt-3">
+                            <Progress value={productAnalysisProgress} className="h-2" />
+                          </div>
+                        </div>
+                      )}
+                      {!isProductAnalyzing && (
+                        <button
+                          onClick={clearProductImage}
+                          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 hover:bg-background border border-border transition-colors"
+                        >
+                          <X className="h-4 w-4 text-muted-foreground" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <ImageIcon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground truncate">{productFileName}</p>
+                          <p className="text-xs text-muted-foreground">Ready for analysis</p>
+                        </div>
+                      </div>
+                      <Button onClick={handleProductAnalysis} disabled={isProductAnalyzing}>
+                        {isProductAnalyzing ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            Find Suppliers
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Analysis Results */}
+            {productAnalysisResult && (
+              <div className="space-y-6">
+                {/* Product Identified */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        Product Identified
+                      </CardTitle>
+                      <Badge variant="secondary">{productAnalysisResult.confidence}% confidence</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-foreground">{productAnalysisResult.product.name}</h3>
+                        <p className="text-muted-foreground">{productAnalysisResult.product.category}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(productAnalysisResult.product.specifications || {}).map(([key, value]) => (
+                          <Badge key={key} variant="outline" className="text-xs capitalize">
+                            {key}: {value}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
+                        <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                          <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Estimated Market Price</p>
+                          <p className="text-lg font-bold text-foreground">
+                            ${productAnalysisResult.estimatedPrice.min} - ${productAnalysisResult.estimatedPrice.max}
+                            <span className="text-sm font-normal text-muted-foreground ml-1">per unit</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Matched Suppliers */}
+                <Card>
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <ShieldCheck className="h-5 w-5 text-primary" />
+                        AI-Matched Suppliers
+                      </CardTitle>
+                      <Badge variant="secondary">{productAnalysisResult.suppliers?.length || 0} matches found</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {productAnalysisResult.suppliers?.map((supplier, index) => (
+                      <motion.div
+                        key={supplier.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={`relative p-4 rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 ${
+                          index === 0 ? "ring-2 ring-primary/20 border-primary/30" : ""
+                        }`}
+                      >
+                        {index === 0 && (
+                          <div className="absolute -top-2 -right-2">
+                            <Badge className="bg-primary text-primary-foreground text-xs">Best Match</Badge>
+                          </div>
+                        )}
+                        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start gap-3">
+                              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <span className="text-lg font-bold text-primary">{supplier.name.charAt(0)}</span>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="font-semibold text-foreground truncate">{supplier.name}</h4>
+                                  {supplier.verified && <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />}
+                                </div>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="h-3.5 w-3.5" />
+                                    {supplier.location}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {supplier.leadTime}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mt-3">
+                              <div className="flex items-center justify-between text-sm mb-1.5">
+                                <span className="text-muted-foreground">Match Score</span>
+                                <span className="font-medium text-foreground">{supplier.matchScore}%</span>
+                              </div>
+                              <Progress value={supplier.matchScore} className="h-2" />
+                            </div>
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              <Badge variant="outline" className="text-xs">MOQ: {supplier.moq} units</Badge>
+                              <Badge variant="outline" className="text-xs">
+                                ${supplier.priceRange.min} - ${supplier.priceRange.max}/unit
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="flex sm:flex-col gap-2 sm:w-28">
+                            <Button size="sm" className="flex-1 sm:w-full">
+                              Contact
+                              <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1 sm:w-full">
+                              Details
+                            </Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                {/* Substitute Products */}
+                {productAnalysisResult.substitutes && productAnalysisResult.substitutes.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-base">
+                        <Repeat2 className="h-5 w-5 text-amber-500" />
+                        Substitute Products with Suppliers
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Similar products that could serve your needs with potential cost savings
+                      </p>
+                      <div className="space-y-4">
+                        {productAnalysisResult.substitutes.map((substitute, index) => (
+                          <motion.div
+                            key={substitute.name}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="p-4 rounded-xl bg-muted/50 border border-border"
+                          >
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                                  <Sparkles className="h-5 w-5 text-amber-500" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-foreground">{substitute.name}</p>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className="text-xs text-muted-foreground">{substitute.similarity}% similar</span>
+                                    <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0">
+                                      <TrendingDown className="h-3 w-3 mr-1" />
+                                      {substitute.priceAdvantage}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                              <Button variant="ghost" size="sm">
+                                Explore
+                                <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                              </Button>
+                            </div>
+                            
+                            {/* Suppliers for this substitute */}
+                            {substitute.suppliers && substitute.suppliers.length > 0 && (
+                              <div className="mt-3 pt-3 border-t border-border">
+                                <p className="text-xs font-medium text-muted-foreground mb-2">Available from:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {substitute.suppliers.map((sup, supIndex) => (
+                                    <Badge key={supIndex} variant="outline" className="text-xs">
+                                      {sup.name} • ${sup.price} • {sup.location}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
