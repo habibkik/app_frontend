@@ -22,6 +22,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   DollarSign,
+  Users,
+  Repeat2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,6 +63,17 @@ interface ProducerDemoResult {
     risks: string[];
     leadTime: string;
   };
+  competition: Array<{
+    name: string;
+    product: string;
+    price: number;
+    marketShare: string;
+  }>;
+  substituteProducers: Array<{
+    name: string;
+    product: string;
+    advantage: string;
+  }>;
   confidence: number;
 }
 
@@ -98,6 +111,14 @@ const simulateAnalysis = async (): Promise<ProducerDemoResult> => {
       risks: ["LED chip supply volatility", "Holiday season demand spike"],
       leadTime: "4-6 weeks",
     },
+    competition: [
+      { name: "LightTech Industries", product: "Premium LED Lamp", price: 89.99, marketShare: "28%" },
+      { name: "BrightHome Co", product: "Smart Desk Light", price: 69.99, marketShare: "22%" },
+    ],
+    substituteProducers: [
+      { name: "GlowMaster", product: "OLED Desk Lamp", advantage: "Better color accuracy" },
+      { name: "SunBeam Tech", product: "Natural Light Lamp", advantage: "Lower power consumption" },
+    ],
     confidence: 92,
   };
 };
@@ -462,6 +483,49 @@ export function ProducerInteractiveDemo() {
                               <span className="font-medium text-foreground">Risks: </span>
                               {result.feasibility.risks.join(", ")}
                             </p>
+                          </div>
+                        )}
+
+                        {/* Competition Preview */}
+                        {result.competition && result.competition.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Users className="h-4 w-4 text-amber-600" />
+                              <span className="text-sm font-medium text-foreground">
+                                Competition ({result.competition.length})
+                              </span>
+                            </div>
+                            <div className="space-y-1.5">
+                              {result.competition.slice(0, 2).map((comp, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm"
+                                >
+                                  <div>
+                                    <span className="text-foreground font-medium">{comp.name}</span>
+                                    <p className="text-xs text-muted-foreground">{comp.product}</p>
+                                  </div>
+                                  <Badge variant="outline" className="text-xs">
+                                    {comp.marketShare}
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Substitute Producers */}
+                        {result.substituteProducers && result.substituteProducers.length > 0 && (
+                          <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                            <Repeat2 className="h-4 w-4 text-amber-600" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-foreground">
+                                {result.substituteProducers.length} Substitute Producers
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {result.substituteProducers[0]?.name}: {result.substituteProducers[0]?.advantage}
+                              </p>
+                            </div>
                           </div>
                         )}
 

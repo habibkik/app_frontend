@@ -22,6 +22,9 @@ import {
   BarChart3,
   Target,
   Eye,
+  Map,
+  Repeat2,
+  Flame,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,6 +57,16 @@ interface SellerDemoResult {
     seasonality: string;
     searchVolume: string;
   };
+  heatMap: Array<{
+    region: string;
+    demand: "high" | "medium" | "low";
+    growth: string;
+  }>;
+  substituteCompetitors: Array<{
+    name: string;
+    product: string;
+    threat: "high" | "medium" | "low";
+  }>;
   confidence: number;
 }
 
@@ -85,6 +98,15 @@ const simulateAnalysis = async (): Promise<SellerDemoResult> => {
       seasonality: "Peak in Q4 (holiday season)",
       searchVolume: "450K monthly",
     },
+    heatMap: [
+      { region: "North America", demand: "high", growth: "+15%" },
+      { region: "Europe", demand: "medium", growth: "+8%" },
+      { region: "Asia Pacific", demand: "high", growth: "+22%" },
+    ],
+    substituteCompetitors: [
+      { name: "SoundPods Pro", product: "Noise-cancelling TWS", threat: "high" },
+      { name: "AudioMax Elite", product: "Sport earbuds", threat: "medium" },
+    ],
     confidence: 94,
   };
 };
@@ -433,6 +455,53 @@ export function SellerInteractiveDemo() {
                             </p>
                           </div>
                         </div>
+
+                        {/* Heat Map Preview */}
+                        {result.heatMap && result.heatMap.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <Map className="h-4 w-4 text-emerald-600" />
+                              <span className="text-sm font-medium text-foreground">
+                                Regional Heat Map
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                              {result.heatMap.map((region, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`p-2 rounded-lg text-center text-xs ${
+                                    region.demand === "high"
+                                      ? "bg-destructive/10 border border-destructive/30"
+                                      : region.demand === "medium"
+                                      ? "bg-amber-500/10 border border-amber-500/30"
+                                      : "bg-primary/10 border border-primary/30"
+                                  }`}
+                                >
+                                  <p className="font-medium text-foreground truncate">{region.region}</p>
+                                  <p className="text-primary">{region.growth}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Substitute Competitors */}
+                        {result.substituteCompetitors && result.substituteCompetitors.length > 0 && (
+                          <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                            <Repeat2 className="h-4 w-4 text-amber-600" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-foreground">
+                                {result.substituteCompetitors.length} Substitute Threats
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {result.substituteCompetitors[0]?.name} selling {result.substituteCompetitors[0]?.product}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
+                              {result.substituteCompetitors[0]?.threat} threat
+                            </Badge>
+                          </div>
+                        )}
 
                         {/* CTA */}
                         <Button asChild className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700" size="lg">
