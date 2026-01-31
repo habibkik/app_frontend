@@ -26,6 +26,7 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
+  Calendar,
 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -54,6 +55,43 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeCompetitor, type CompetitorAnalysis } from "@/lib/competitor-api";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Area,
+  AreaChart,
+} from "recharts";
+
+// Price history data for each competitor (last 12 months)
+const priceHistoryData = [
+  { month: "Feb", TechSupply: 102, IndustrialDirect: 100, GlobalParts: 110, MegaTrade: 98, yourPrice: 100 },
+  { month: "Mar", TechSupply: 103, IndustrialDirect: 99, GlobalParts: 110, MegaTrade: 97, yourPrice: 99 },
+  { month: "Apr", TechSupply: 101, IndustrialDirect: 98, GlobalParts: 111, MegaTrade: 96, yourPrice: 98 },
+  { month: "May", TechSupply: 104, IndustrialDirect: 97, GlobalParts: 112, MegaTrade: 95, yourPrice: 97 },
+  { month: "Jun", TechSupply: 103, IndustrialDirect: 98, GlobalParts: 111, MegaTrade: 94, yourPrice: 96 },
+  { month: "Jul", TechSupply: 105, IndustrialDirect: 97, GlobalParts: 112, MegaTrade: 93, yourPrice: 96 },
+  { month: "Aug", TechSupply: 104, IndustrialDirect: 96, GlobalParts: 113, MegaTrade: 94, yourPrice: 95 },
+  { month: "Sep", TechSupply: 106, IndustrialDirect: 98, GlobalParts: 112, MegaTrade: 95, yourPrice: 96 },
+  { month: "Oct", TechSupply: 105, IndustrialDirect: 97, GlobalParts: 111, MegaTrade: 94, yourPrice: 96 },
+  { month: "Nov", TechSupply: 104, IndustrialDirect: 98, GlobalParts: 112, MegaTrade: 95, yourPrice: 97 },
+  { month: "Dec", TechSupply: 106, IndustrialDirect: 99, GlobalParts: 113, MegaTrade: 96, yourPrice: 97 },
+  { month: "Jan", TechSupply: 105, IndustrialDirect: 98, GlobalParts: 112, MegaTrade: 95, yourPrice: 96 },
+];
+
+// Product category pricing trends
+const categoryTrends = [
+  { category: "Servo Motors", you: 245, avgCompetitor: 268, change: -8.5 },
+  { category: "Hydraulic Pumps", you: 189, avgCompetitor: 195, change: -3.1 },
+  { category: "CNC Controllers", you: 892, avgCompetitor: 845, change: 5.6 },
+  { category: "Bearings", you: 45, avgCompetitor: 48, change: -6.3 },
+  { category: "Power Supplies", you: 156, avgCompetitor: 162, change: -3.7 },
+];
 
 // Mock competitor data
 const mockCompetitors = [
@@ -512,6 +550,169 @@ export default function CompetitorsPage() {
               <p className="text-xs text-muted-foreground mt-2">
                 Across all competitors
               </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Price History Charts */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Price Index Trends */}
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Price Index Trends</CardTitle>
+                  <CardDescription>12-month competitor pricing comparison</CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="h-8 gap-1">
+                    <Calendar className="h-3.5 w-3.5" />
+                    Last 12 months
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={priceHistoryData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
+                    <XAxis 
+                      dataKey="month" 
+                      tick={{ fontSize: 12 }} 
+                      tickLine={false}
+                      axisLine={false}
+                      className="text-muted-foreground"
+                    />
+                    <YAxis 
+                      domain={[90, 115]}
+                      tick={{ fontSize: 12 }} 
+                      tickLine={false}
+                      axisLine={false}
+                      className="text-muted-foreground"
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      }}
+                      labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: 600 }}
+                    />
+                    <Legend 
+                      verticalAlign="top" 
+                      height={36}
+                      iconType="circle"
+                      iconSize={8}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="yourPrice" 
+                      name="Your Price" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={{ r: 6, strokeWidth: 2 }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="TechSupply" 
+                      name="TechSupply Co" 
+                      stroke="#f97316" 
+                      strokeWidth={2}
+                      dot={false}
+                      strokeDasharray="5 5"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="IndustrialDirect" 
+                      name="Industrial Direct" 
+                      stroke="#22c55e" 
+                      strokeWidth={2}
+                      dot={false}
+                      strokeDasharray="5 5"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="GlobalParts" 
+                      name="GlobalParts Inc" 
+                      stroke="#a855f7" 
+                      strokeWidth={2}
+                      dot={false}
+                      strokeDasharray="5 5"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="MegaTrade" 
+                      name="MegaTrade" 
+                      stroke="#ec4899" 
+                      strokeWidth={2}
+                      dot={false}
+                      strokeDasharray="5 5"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Category Price Comparison */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Category Price Comparison</CardTitle>
+              <CardDescription>Your pricing vs. competitor average by category</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {categoryTrends.map((cat) => (
+                  <div key={cat.category} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-foreground">{cat.category}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-muted-foreground">
+                          ${cat.you} <span className="text-xs">vs</span> ${cat.avgCompetitor}
+                        </span>
+                        <Badge 
+                          variant="secondary" 
+                          className={cat.change < 0 
+                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20" 
+                            : "bg-destructive/10 text-destructive border-destructive/20"
+                          }
+                        >
+                          {cat.change > 0 ? "+" : ""}{cat.change}%
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="relative h-2 rounded-full bg-muted overflow-hidden">
+                      <div 
+                        className="absolute left-0 top-0 h-full rounded-full bg-primary"
+                        style={{ width: `${(cat.you / cat.avgCompetitor) * 50}%` }}
+                      />
+                      <div 
+                        className="absolute top-0 h-full w-0.5 bg-muted-foreground/50"
+                        style={{ left: '50%' }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Your Price</span>
+                      <span>Avg Competitor</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="flex items-start gap-2">
+                  <Sparkles className="h-4 w-4 text-primary mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-medium text-foreground">Price Optimization Tip</p>
+                    <p className="text-muted-foreground mt-0.5">
+                      CNC Controllers are priced 5.6% above market average. Consider a 3-5% reduction to improve competitiveness.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
