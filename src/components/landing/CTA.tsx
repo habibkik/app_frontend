@@ -1,8 +1,11 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Upload, Camera, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { HeroButton } from "@/components/ui/hero-button";
 
 const CTA = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="py-24 bg-gradient-hero relative overflow-hidden">
       {/* Background Effects */}
@@ -27,24 +30,24 @@ const CTA = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 border border-accent/30 mb-8"
           >
-            <Sparkles className="w-4 h-4 text-accent" />
+            <Camera className="w-4 h-4 text-accent" />
             <span className="text-sm font-medium text-primary-foreground/90">
-              Start Free Today
+              Start with a Single Image
             </span>
           </motion.div>
 
           {/* Headline */}
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-6">
-            Ready to Transform{" "}
+            Snap a Photo.{" "}
             <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-              Your Trade Business?
+              Unlock Insights.
             </span>
           </h2>
 
           {/* Description */}
           <p className="text-xl text-primary-foreground/70 mb-10 max-w-2xl mx-auto">
-            Join thousands of businesses already using our platform to source 
-            smarter, trade faster, and grow globally.
+            No complex forms. No product catalogs. Just upload an image 
+            and let AI do the rest — suppliers, costs, market data, all in seconds.
           </p>
 
           {/* CTA Buttons */}
@@ -55,12 +58,24 @@ const CTA = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <HeroButton variant="accent" size="lg">
-              Get Started Free
-              <ArrowRight className="w-5 h-5" />
+            <HeroButton 
+              variant="accent" 
+              size="lg"
+              onClick={() => navigate("/dashboard")}
+            >
+              <Upload className="w-5 h-5" />
+              Upload Your First Image
             </HeroButton>
-            <HeroButton variant="outline" size="lg">
-              Talk to Sales
+            <HeroButton 
+              variant="outline" 
+              size="lg"
+              onClick={() => {
+                // Scroll to demo section
+                document.querySelector("#features")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              <Sparkles className="w-5 h-5" />
+              See How It Works
             </HeroButton>
           </motion.div>
 
@@ -72,7 +87,7 @@ const CTA = () => {
             transition={{ duration: 0.5, delay: 0.5 }}
             className="mt-8 text-sm text-primary-foreground/50"
           >
-            No credit card required • Free 14-day trial • Cancel anytime
+            No signup required • Instant results • 100% free to try
           </motion.p>
         </motion.div>
       </div>
