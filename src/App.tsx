@@ -7,6 +7,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ProtectedRoute, PublicRoute } from "@/components/auth/ProtectedRoute";
 import { SavedSuppliersProvider } from "@/contexts/SavedSuppliersContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -32,12 +33,13 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <SavedSuppliersProvider>
-        <ConversationsProvider>
-          <TooltipProvider>
-          <Toaster />
-          <Sonner />
+    <ThemeProvider>
+      <AuthProvider>
+        <SavedSuppliersProvider>
+          <ConversationsProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
           <BrowserRouter>
             <Routes>
               {/* Public routes */}
@@ -72,11 +74,12 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ConversationsProvider>
-    </SavedSuppliersProvider>
-  </AuthProvider>
+              </BrowserRouter>
+            </TooltipProvider>
+          </ConversationsProvider>
+        </SavedSuppliersProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

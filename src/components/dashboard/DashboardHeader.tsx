@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModeSelector } from "./ModeSelector";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/use-auth";
 
 export function DashboardHeader() {
@@ -51,11 +52,14 @@ export function DashboardHeader() {
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-1 ml-auto">
           {/* Mobile Search */}
           <Button variant="ghost" size="icon" className="md:hidden">
             <Search className="h-5 w-5" />
           </Button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
