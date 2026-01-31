@@ -45,10 +45,11 @@
 - [x] Update `src/pages/dashboard/Suppliers.tsx` to consume analysis results
 
 ### Phase 4: Seller Mode Results Pages
-- [ ] `src/components/seller/ImageMarketAnalysis.tsx` - Market analysis results
-- [ ] `src/components/seller/CompetitorFromImage.tsx` - Competitor display
-- [ ] `src/components/seller/PricingRecommendation.tsx` - AI pricing panel
-- [ ] Update `src/pages/dashboard/MarketIntelligence.tsx` to consume results
+- [x] `src/components/seller/ImageMarketAnalysis.tsx` - Market analysis results
+- [x] `src/components/seller/CompetitorDisplay.tsx` - Competitor display
+- [x] `src/components/seller/PricingRecommendation.tsx` - AI pricing panel
+- [x] `src/components/seller/DemandIndicators.tsx` - Market demand signals
+- [x] Update `src/pages/dashboard/MarketIntelligence.tsx` to consume results
 
 ### Phase 5: Navigation Updates
 - [ ] Update navigation to show "Results" pages after analysis
