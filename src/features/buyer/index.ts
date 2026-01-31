@@ -17,9 +17,22 @@ export { default as RFQBuilderPage } from "@/pages/dashboard/RFQs";
 export { default as ConversationsPage } from "@/pages/dashboard/Conversations";
 export { default as SavedSuppliersPage } from "@/pages/dashboard/SavedSuppliers";
 
-// Context (re-exported for backwards compatibility)
-export { SavedSuppliersProvider, useSavedSuppliers } from "@/contexts/SavedSuppliersContext";
-export { ConversationsProvider, useConversations } from "@/contexts/ConversationsContext";
+// Stores (preferred - replaces Context)
+export { 
+  useSavedSuppliers, 
+  useSavedSuppliersStore,
+  type SupplierMetadata 
+} from "@/stores/savedSuppliersStore";
+
+export { 
+  useConversations, 
+  useConversationsStore,
+  type NewConversationData 
+} from "@/stores/conversationsStore";
+
+// Deprecated context providers (kept for backward compatibility - no-op)
+export { SavedSuppliersProvider } from "@/contexts/SavedSuppliersContext";
+export { ConversationsProvider } from "@/contexts/ConversationsContext";
 
 // Data/API
 export { mockSuppliers, type Supplier } from "@/data/suppliers";
