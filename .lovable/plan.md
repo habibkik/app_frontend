@@ -1,108 +1,126 @@
-# Unified AI Trade Platform - PRD Alignment Plan
 
-## ✅ COMPLETED - All Core Phases
+# Heat Map Page Implementation Plan
 
-### Phase 1 & 2: Foundation
-1. **✅ Universal Image Upload Component** (`src/components/shared/UniversalImageUpload.tsx`)
-   - Mode-aware image upload with drag-drop support
-   - Camera capture for mobile devices
-   - Mode-specific messaging (Buyer/Producer/Seller)
-   - Calls real analysis APIs and stores results
+## Overview
+Add a dedicated Market Heat Map page accessible from the sidebar navigation across all dashboard modes (Buyer, Producer, Seller). This page will display geographic market opportunity visualization showing regional demand, competition density, pricing averages, and growth trends.
 
-2. **✅ Analysis Store** (`src/stores/analysisStore.ts`)
-   - Zustand store for centralized analysis results
-   - Enhanced loading states (idle, uploading, analyzing, complete, error)
-   - Selector hooks for optimized re-renders
-   - Persists analysis history
+## What You'll Get
 
-3. **✅ MiroMind Agent Extensions** (`src/features/agents/miromind/`)
-   - `analyzeForSourcing()` - Buyer mode API
-   - `analyzeForSelling()` - Seller mode API
-   - `analyzeProductImage()` - Producer mode API
+### A New "Heat Map" Page
+- **Dedicated route**: `/dashboard/heatmap`
+- **Visible in sidebar**: For Buyer, Producer, and Seller modes
+- **Full-page experience**: Regional market data in an interactive grid layout
+- **Mode-aware content**: Different context/descriptions based on active mode
 
-### Phase 3: Buyer Mode Results Pages
-- [x] `src/components/buyer/ImageSupplierDiscovery.tsx`
-- [x] `src/components/buyer/SupplierMatchResults.tsx`
-- [x] `src/components/buyer/SubstituteProducts.tsx`
-- [x] `src/pages/dashboard/Suppliers.tsx` - Integrated with store
-
-### Phase 4: Seller Mode Results Pages
-- [x] `src/components/seller/ImageMarketAnalysis.tsx`
-- [x] `src/components/seller/CompetitorDisplay.tsx`
-- [x] `src/components/seller/PricingRecommendation.tsx`
-- [x] `src/components/seller/DemandIndicators.tsx`
-- [x] `src/pages/dashboard/MarketIntelligence.tsx` - Integrated with store
-
-### Phase 5: Producer Mode Integration
-- [x] `src/pages/dashboard/BOM.tsx` - Integrated with analysis store
-- [x] Shows image preview from dashboard upload
-- [x] Displays components and cost summary
-
-### Phase 6: Loading States & Optimization
-- [x] `src/stores/analysisStore.ts` - Enhanced with status types and selector hooks
-- [x] `src/components/shared/GlobalAnalysisIndicator.tsx` - App-wide progress bar
-- [x] `src/components/shared/AnalysisErrorDisplay.tsx` - Error state with retry
-- [x] `src/components/shared/ResultsBadge.tsx` - Shows when results available
-- [x] Added global indicator to `src/App.tsx`
+### Features on the Heat Map Page
+- Regional market demand visualization (High/Medium/Low indicators)
+- Competitor count per region
+- Average pricing by region
+- Growth trends with opportunity ratings (Excellent/Good/Moderate/Saturated)
+- Filter and sort capabilities
+- Summary statistics cards
+- Integration with existing analysis store data
 
 ---
 
-## Architecture Overview
+## Technical Implementation
 
+### 1. Create Heat Map Page Component
+**File**: `src/pages/dashboard/HeatMap.tsx`
+
+A new dashboard page that:
+- Uses `DashboardLayout` wrapper (consistent with other pages)
+- Displays mode-specific header text based on current mode
+- Shows summary stat cards for quick insights
+- Renders regional heat map grid using the existing `MarketHeatMap` component
+- Includes empty state when no data is available
+- Pulls data from the analysis store (`sellerResults.marketHeatMap`)
+
+### 2. Update Navigation Configuration
+**File**: `src/features/dashboard/config/navigation.ts`
+
+Add "Heat Map" navigation item to the "Insights" group for all three modes:
+- Buyer mode: Add to "Insights" group
+- Producer mode: Add to "Insights" group  
+- Seller mode: Add to "Insights" group (near Analytics)
+
+Icon: `Map` from lucide-react
+
+### 3. Register Route in Router
+**File**: `src/app/Router.tsx`
+
+Add protected route:
 ```
-Image Upload (Dashboard Home or Mode Pages)
-       │
-       ▼
-┌─────────────────────────────────────────┐
-│         Universal Image Upload           │
-│  (Mode-aware: Buyer/Producer/Seller)    │
-└─────────────────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────────┐
-│           MiroMind Agent                 │
-│  ├── analyzeProductImage (Producer)      │
-│  ├── analyzeForSourcing (Buyer)          │
-│  └── analyzeForSelling (Seller)          │
-└─────────────────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────────┐
-│           Analysis Store                 │
-│  ├── producerResults (BOM)               │
-│  ├── buyerResults (Suppliers)            │
-│  ├── sellerResults (Market)              │
-│  └── status, progress, error             │
-└─────────────────────────────────────────┘
-       │
-       ▼
-┌─────────────────────────────────────────┐
-│         Mode-Specific Results            │
-│  ├── /dashboard/bom (Producer)           │
-│  ├── /dashboard/suppliers (Buyer)        │
-│  └── /dashboard/market (Seller)          │
-└─────────────────────────────────────────┘
+/dashboard/heatmap -> HeatMap component
 ```
 
----
+### 4. Update Quick Actions (Optional Enhancement)
+**File**: `src/features/dashboard/pages/components/QuickActions.tsx`
 
-## Status Summary
-
-| Feature | Status |
-|---------|--------|
-| Image as universal input | ✅ Complete |
-| Buyer: Supplier discovery | ✅ Complete |
-| Producer: Image to BOM | ✅ Complete |
-| Seller: Market intelligence | ✅ Complete |
-| Global loading states | ✅ Complete |
-| Error handling | ✅ Complete |
+Add heat map shortcut for Seller mode quick actions.
 
 ---
 
-## Future Enhancements
+## File Changes Summary
 
-- [ ] Add real backend API integration (replace mocks)
-- [ ] Implement analysis caching/reuse
-- [ ] Add comparison feature for multiple analyses
-- [ ] Integrate with actual supplier databases
-- [ ] Add export to PDF/Excel functionality
+| File | Action | Description |
+|------|--------|-------------|
+| `src/pages/dashboard/HeatMap.tsx` | Create | New Heat Map page component |
+| `src/features/dashboard/config/navigation.ts` | Edit | Add Heat Map nav item to all mode navigations |
+| `src/app/Router.tsx` | Edit | Add `/dashboard/heatmap` route |
+
+---
+
+## Page Layout Preview
+
+```text
++------------------------------------------------------------------+
+|  [Map Icon] Heat Map                                              |
+|  View regional market opportunities and demand                    |
++------------------------------------------------------------------+
+|                                                                   |
+|  +------------+  +------------+  +------------+  +------------+   |
+|  | Regions    |  | Avg Demand |  | Top Region |  | Growth Avg |   |
+|  | 8          |  | High       |  | North Amer.|  | +12.5%     |   |
+|  +------------+  +------------+  +------------+  +------------+   |
+|                                                                   |
+|  +--------------------+  +--------------------+  +-------------+  |
+|  | North America      |  | Europe            |  | Asia Pacific|  |
+|  | Demand: High       |  | Demand: Medium    |  | Demand: High|  |
+|  | Competitors: 45    |  | Competitors: 32   |  | Competitors:|  |
+|  | Avg Price: $245    |  | Avg Price: $198   |  | Avg Price:  |  |
+|  | Growth: +15%       |  | Growth: +8%       |  | Growth: +22%|  |
+|  | [Excellent]        |  | [Good]            |  | [Excellent] |  |
+|  +--------------------+  +--------------------+  +-------------+  |
+|                                                                   |
+|           ...more region cards in responsive grid...              |
++------------------------------------------------------------------+
+```
+
+---
+
+## Mode-Specific Behavior
+
+| Mode | Page Title | Description |
+|------|------------|-------------|
+| Buyer | Regional Supplier Heat Map | View supplier density and pricing by region |
+| Producer | Manufacturing Heat Map | View production capacity and competition by region |
+| Seller | Market Heat Map | View demand and opportunities by region |
+
+---
+
+## Data Flow
+
+1. User navigates to `/dashboard/heatmap` from sidebar
+2. Page reads current mode from `useDashboardMode()`
+3. Page checks analysis store for existing `marketHeatMap` data
+4. If data exists: Displays regional cards
+5. If no data: Shows empty state with prompt to run analysis first
+
+---
+
+## Dependencies
+- Uses existing `MarketHeatMap` component from `src/components/seller/MarketHeatMap.tsx`
+- Uses existing `useAnalysisStore` for data
+- Uses existing `DashboardLayout` wrapper
+- No new packages required
