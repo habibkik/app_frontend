@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "search": "بحث",
+    "filter": "تصفية",
+    "export": "تصدير",
+    "import": "استيراد",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "submit": "إرسال",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "yes": "نعم",
+    "no": "لا",
+    "or": "أو",
+    "and": "و",
+    "all": "الكل",
+    "none": "لا شيء",
+    "select": "اختيار",
+    "upload": "رفع",
+    "download": "تحميل",
+    "refresh": "تحديث",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "view": "عرض",
+    "details": "التفاصيل",
+    "success": "نجاح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "معلومات"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "dashboard": "لوحة التحكم",
+    "suppliers": "الموردين",
+    "components": "المكونات",
+    "bom": "إدارة قائمة المواد",
+    "rfqs": "طلبات عروض الأسعار",
+    "conversations": "المحادثات",
+    "campaigns": "الحملات",
+    "analytics": "التحليلات",
+    "settings": "الإعدادات",
+    "marketIntelligence": "استخبارات السوق",
+    "competitors": "المنافسين",
+    "pricing": "التسعير",
+    "gtm": "استراتيجية الوصول للسوق",
+    "websiteBuilder": "منشئ المواقع",
+    "feasibility": "الجدوى"
+  },
+  "landing": {
+    "hero": {
+      "title": "ذكاء سلسلة التوريد المدعوم بالذكاء الاصطناعي",
+      "subtitle": "حوّل عمليات الشراء والمبيعات والإنتاج بالأتمتة الذكية",
+      "cta": "ابدأ مجاناً",
+      "secondaryCta": "شاهد العرض التوضيحي"
+    },
+    "features": {
+      "title": "ميزات قوية",
+      "subtitle": "كل ما تحتاجه لتحسين سلسلة التوريد",
+      "aiAnalysis": "تحليل الذكاء الاصطناعي",
+      "aiAnalysisDesc": "تحليل ذكي للمكونات والموردين واتجاهات السوق",
+      "supplierDiscovery": "اكتشاف الموردين",
+      "supplierDiscoveryDesc": "ابحث وتواصل مع موردين معتمدين حول العالم",
+      "marketIntel": "استخبارات السوق",
+      "marketIntelDesc": "رؤى فورية حول الأسعار والطلب والمنافسة"
+    },
+    "roles": {
+      "buyer": "المشتري",
+      "buyerDesc": "ابحث عن الموردين وحلل المكونات وحسّن المشتريات",
+      "seller": "البائع",
+      "sellerDesc": "اوصل للعملاء وحلل الأسواق ونمّي أعمالك",
+      "producer": "المنتج",
+      "producerDesc": "أدر الإنتاج وتتبع التكاليف وحسّن العمليات"
+    }
+  },
+  "auth": {
+    "loginTitle": "مرحباً بعودتك",
+    "loginSubtitle": "سجّل الدخول إلى حسابك",
+    "signupTitle": "إنشاء حساب",
+    "signupSubtitle": "ابدأ تجربتك المجانية اليوم",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "rememberMe": "تذكرني",
+    "termsAgree": "أوافق على الشروط وسياسة الخصوصية"
+  },
+  "dashboard": {
+    "welcome": "مرحباً بعودتك",
+    "overview": "نظرة عامة",
+    "recentActivity": "النشاط الأخير",
+    "quickActions": "إجراءات سريعة",
+    "stats": {
+      "totalSuppliers": "إجمالي الموردين",
+      "activeRfqs": "طلبات الأسعار النشطة",
+      "pendingMessages": "الرسائل المعلقة",
+      "savedItems": "العناصر المحفوظة"
+    },
+    "modes": {
+      "buyer": "وضع المشتري",
+      "seller": "وضع البائع",
+      "producer": "وضع المنتج"
+    }
+  },
+  "suppliers": {
+    "title": "الموردين",
+    "searchPlaceholder": "ابحث عن الموردين...",
+    "addSupplier": "إضافة مورد",
+    "contactSupplier": "تواصل مع المورد",
+    "viewProfile": "عرض الملف الشخصي",
+    "saveSupplier": "حفظ المورد",
+    "filters": {
+      "all": "جميع الموردين",
+      "verified": "معتمد",
+      "new": "جديد",
+      "favorites": "المفضلة"
+    },
+    "details": {
+      "rating": "التقييم",
+      "location": "الموقع",
+      "products": "المنتجات",
+      "responseTime": "وقت الاستجابة",
+      "minOrder": "الحد الأدنى للطلب"
+    }
+  },
+  "campaigns": {
+    "title": "الحملات",
+    "compose": "إنشاء",
+    "scheduled": "المجدولة",
+    "postNow": "انشر الآن",
+    "schedule": "جدولة",
+    "selectPlatforms": "اختر المنصات",
+    "noPlatforms": "لا توجد منصات متصلة",
+    "connectPlatforms": "اذهب إلى الإعدادات ← وسائل التواصل الاجتماعي لربط حساباتك",
+    "characterCount": "{{count}} حرف",
+    "scheduledFor": "مجدول لـ {{date}}"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "apiKeys": "مفاتيح API",
+    "socialMedia": "وسائل التواصل الاجتماعي",
+    "email": "البريد الإلكتروني",
+    "messaging": "المراسلة",
+    "profile": "الملف الشخصي",
+    "notifications": "الإشعارات",
+    "security": "الأمان",
+    "language": "اللغة",
+    "theme": "المظهر",
+    "social": {
+      "title": "تكامل وسائل التواصل الاجتماعي",
+      "description": "اربط حسابات التواصل الاجتماعي لنشر المحتوى وإدارة الرسائل",
+      "connect": "ربط",
+      "disconnect": "إلغاء الربط",
+      "connected": "متصل",
+      "notConnected": "غير متصل"
+    }
+  },
+  "bom": {
+    "title": "إدارة قائمة المواد",
+    "uploadBom": "رفع قائمة المواد",
+    "analyzeBom": "تحليل قائمة المواد",
+    "exportBom": "تصدير قائمة المواد",
+    "totalCost": "التكلفة الإجمالية",
+    "components": "المكونات",
+    "quantity": "الكمية",
+    "unitPrice": "سعر الوحدة",
+    "totalPrice": "السعر الإجمالي"
+  },
+  "rfqs": {
+    "title": "طلبات عروض الأسعار",
+    "createRfq": "إنشاء طلب عرض أسعار",
+    "viewResponses": "عرض الردود",
+    "status": {
+      "draft": "مسودة",
+      "sent": "مرسل",
+      "received": "مستلم",
+      "accepted": "مقبول",
+      "rejected": "مرفوض"
+    }
+  },
+  "errors": {
+    "generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "notFound": "الصفحة غير موجودة",
+    "unauthorized": "غير مصرح لك بعرض هذه الصفحة",
+    "networkError": "خطأ في الشبكة. يرجى التحقق من الاتصال."
+  }
+}

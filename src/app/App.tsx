@@ -7,6 +7,7 @@ import { AuthProvider } from "@/features/auth";
 import { SavedSuppliersProvider } from "@/contexts/SavedSuppliersContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Router } from "./Router";
 
 const queryClient = new QueryClient();
@@ -15,19 +16,21 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
-          <SavedSuppliersProvider>
-            <ConversationsProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Router />
-                </BrowserRouter>
-              </TooltipProvider>
-            </ConversationsProvider>
-          </SavedSuppliersProvider>
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <SavedSuppliersProvider>
+              <ConversationsProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter>
+                    <Router />
+                  </BrowserRouter>
+                </TooltipProvider>
+              </ConversationsProvider>
+            </SavedSuppliersProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

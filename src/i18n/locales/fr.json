@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "export": "Exporter",
+    "import": "Importer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "submit": "Soumettre",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "or": "ou",
+    "and": "et",
+    "all": "Tout",
+    "none": "Aucun",
+    "select": "Sélectionner",
+    "upload": "Téléverser",
+    "download": "Télécharger",
+    "refresh": "Actualiser",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "signup": "S'inscrire",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "name": "Nom",
+    "status": "Statut",
+    "actions": "Actions",
+    "view": "Voir",
+    "details": "Détails",
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Avertissement",
+    "info": "Info"
+  },
+  "nav": {
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "suppliers": "Fournisseurs",
+    "components": "Composants",
+    "bom": "Gestionnaire de nomenclature",
+    "rfqs": "Demandes de devis",
+    "conversations": "Conversations",
+    "campaigns": "Campagnes",
+    "analytics": "Analytique",
+    "settings": "Paramètres",
+    "marketIntelligence": "Intelligence de marché",
+    "competitors": "Concurrents",
+    "pricing": "Tarification",
+    "gtm": "Stratégie GTM",
+    "websiteBuilder": "Créateur de site",
+    "feasibility": "Faisabilité"
+  },
+  "landing": {
+    "hero": {
+      "title": "Intelligence de chaîne d'approvisionnement alimentée par l'IA",
+      "subtitle": "Transformez vos achats, ventes et production avec l'automatisation intelligente",
+      "cta": "Commencer gratuitement",
+      "secondaryCta": "Voir la démo"
+    },
+    "features": {
+      "title": "Fonctionnalités puissantes",
+      "subtitle": "Tout ce dont vous avez besoin pour optimiser votre chaîne d'approvisionnement",
+      "aiAnalysis": "Analyse IA",
+      "aiAnalysisDesc": "Analyse intelligente des composants, fournisseurs et tendances du marché",
+      "supplierDiscovery": "Découverte de fournisseurs",
+      "supplierDiscoveryDesc": "Trouvez et connectez-vous avec des fournisseurs vérifiés dans le monde entier",
+      "marketIntel": "Intelligence de marché",
+      "marketIntelDesc": "Insights en temps réel sur les prix, la demande et la concurrence"
+    },
+    "roles": {
+      "buyer": "Acheteur",
+      "buyerDesc": "Trouvez des fournisseurs, analysez les composants et optimisez les achats",
+      "seller": "Vendeur",
+      "sellerDesc": "Atteignez des clients, analysez les marchés et développez votre entreprise",
+      "producer": "Producteur",
+      "producerDesc": "Gérez la production, suivez les coûts et optimisez les opérations"
+    }
+  },
+  "auth": {
+    "loginTitle": "Bon retour",
+    "loginSubtitle": "Connectez-vous à votre compte",
+    "signupTitle": "Créer un compte",
+    "signupSubtitle": "Commencez votre essai gratuit aujourd'hui",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "hasAccount": "Vous avez déjà un compte ?",
+    "rememberMe": "Se souvenir de moi",
+    "termsAgree": "J'accepte les conditions et la politique de confidentialité"
+  },
+  "dashboard": {
+    "welcome": "Bon retour",
+    "overview": "Vue d'ensemble",
+    "recentActivity": "Activité récente",
+    "quickActions": "Actions rapides",
+    "stats": {
+      "totalSuppliers": "Total des fournisseurs",
+      "activeRfqs": "Demandes de devis actives",
+      "pendingMessages": "Messages en attente",
+      "savedItems": "Éléments sauvegardés"
+    },
+    "modes": {
+      "buyer": "Mode acheteur",
+      "seller": "Mode vendeur",
+      "producer": "Mode producteur"
+    }
+  },
+  "suppliers": {
+    "title": "Fournisseurs",
+    "searchPlaceholder": "Rechercher des fournisseurs...",
+    "addSupplier": "Ajouter un fournisseur",
+    "contactSupplier": "Contacter le fournisseur",
+    "viewProfile": "Voir le profil",
+    "saveSupplier": "Sauvegarder le fournisseur",
+    "filters": {
+      "all": "Tous les fournisseurs",
+      "verified": "Vérifié",
+      "new": "Nouveau",
+      "favorites": "Favoris"
+    },
+    "details": {
+      "rating": "Note",
+      "location": "Emplacement",
+      "products": "Produits",
+      "responseTime": "Temps de réponse",
+      "minOrder": "Commande min."
+    }
+  },
+  "campaigns": {
+    "title": "Campagnes",
+    "compose": "Composer",
+    "scheduled": "Planifié",
+    "postNow": "Publier maintenant",
+    "schedule": "Planifier",
+    "selectPlatforms": "Sélectionner les plateformes",
+    "noPlatforms": "Aucune plateforme connectée",
+    "connectPlatforms": "Allez dans Paramètres → Réseaux sociaux pour connecter vos comptes",
+    "characterCount": "{{count}} caractères",
+    "scheduledFor": "Planifié pour {{date}}"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "apiKeys": "Clés API",
+    "socialMedia": "Réseaux sociaux",
+    "email": "E-mail",
+    "messaging": "Messagerie",
+    "profile": "Profil",
+    "notifications": "Notifications",
+    "security": "Sécurité",
+    "language": "Langue",
+    "theme": "Thème",
+    "social": {
+      "title": "Intégrations des réseaux sociaux",
+      "description": "Connectez vos comptes de réseaux sociaux pour publier du contenu et gérer les messages",
+      "connect": "Connecter",
+      "disconnect": "Déconnecter",
+      "connected": "Connecté",
+      "notConnected": "Non connecté"
+    }
+  },
+  "bom": {
+    "title": "Gestionnaire de nomenclature",
+    "uploadBom": "Téléverser la nomenclature",
+    "analyzeBom": "Analyser la nomenclature",
+    "exportBom": "Exporter la nomenclature",
+    "totalCost": "Coût total",
+    "components": "Composants",
+    "quantity": "Quantité",
+    "unitPrice": "Prix unitaire",
+    "totalPrice": "Prix total"
+  },
+  "rfqs": {
+    "title": "Demandes de devis",
+    "createRfq": "Créer une demande de devis",
+    "viewResponses": "Voir les réponses",
+    "status": {
+      "draft": "Brouillon",
+      "sent": "Envoyé",
+      "received": "Reçu",
+      "accepted": "Accepté",
+      "rejected": "Rejeté"
+    }
+  },
+  "errors": {
+    "generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "notFound": "Page non trouvée",
+    "unauthorized": "Vous n'êtes pas autorisé à voir cette page",
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion."
+  }
+}

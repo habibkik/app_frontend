@@ -7,6 +7,7 @@
    Colors in HSL format */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -136,6 +137,19 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
   }
+
+  /* RTL Support */
+  html[dir="rtl"] {
+    font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+  }
+
+  html[dir="rtl"] body {
+    text-align: right;
+  }
+
+  .font-arabic {
+    font-family: 'Noto Sans Arabic', sans-serif;
+  }
 }
 
 @layer utilities {
@@ -179,5 +193,35 @@
     background: hsl(222 47% 11% / 0.8);
     backdrop-filter: blur(12px);
     border: 1px solid hsl(0 0% 100% / 0.1);
+  }
+
+  /* RTL-aware spacing utilities */
+  .rtl .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+  }
+
+  /* RTL flex direction */
+  .rtl .flex-row {
+    flex-direction: row-reverse;
+  }
+
+  /* RTL margin/padding adjustments */
+  .rtl .ml-auto {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .rtl .mr-auto {
+    margin-right: 0;
+    margin-left: auto;
+  }
+
+  /* RTL text alignment overrides */
+  .rtl .text-left {
+    text-align: right;
+  }
+
+  .rtl .text-right {
+    text-align: left;
   }
 }
