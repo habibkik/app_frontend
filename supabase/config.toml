@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.social-credentials]
 verify_jwt = false
+
+[functions.scheduled-posts-processor]
+verify_jwt = false
