@@ -8,6 +8,7 @@ import { ProtectedRoute, PublicRoute } from "@/components/auth/ProtectedRoute";
 import { SavedSuppliersProvider } from "@/contexts/SavedSuppliersContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { GlobalAnalysisIndicator } from "@/components/shared/GlobalAnalysisIndicator";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -38,6 +39,7 @@ const App = () => (
         <SavedSuppliersProvider>
           <ConversationsProvider>
             <TooltipProvider>
+              <GlobalAnalysisIndicator />
               <Toaster />
               <Sonner />
           <BrowserRouter>

@@ -1,12 +1,14 @@
 /**
  * Analysis Store - Zustand store for centralized analysis results across modes
+ * Optimized with better loading states and error handling
  */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { DashboardMode } from "@/features/dashboard";
-import type { ProductAnalysisResult, IdentifiedComponent } from "@/features/agents/miromind/types";
 
-// Buyer-specific results
+// ============================================================
+// TYPES - Buyer Mode
+// ============================================================
 export interface SupplierMatch {
   id: string;
   name: string;
@@ -34,13 +36,36 @@ export interface SupplierDiscoveryResult {
   confidence: number;
 }
 
-// Producer-specific results (existing BOM)
-export interface BOMAnalysisResult extends ProductAnalysisResult {
-  totalEstimatedCost: number;
-  components: IdentifiedComponent[];
+// ============================================================
+// TYPES - Producer Mode
+// ============================================================
+export interface IdentifiedComponent {
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  estimatedUnitCost: number;
+  specifications: string;
+  material: string;
+  confidence: number;
 }
 
-// Seller-specific results
+export interface BOMAnalysisResult {
+  success: boolean;
+  productName: string;
+  productCategory: string;
+  components: IdentifiedComponent[];
+  overallConfidence: number;
+  processingTime: number;
+  suggestedTags: string[];
+  attributes: Record<string, string>;
+  totalEstimatedCost: number;
+  error?: string;
+}
+
+// ============================================================
+// TYPES - Seller Mode
+// ============================================================
 export interface CompetitorInfo {
   name: string;
   priceRange: { min: number; max: number };
@@ -72,18 +97,31 @@ export interface MarketAnalysisResult {
   confidence: number;
 }
 
-// History item for all modes
+// ============================================================
+// TYPES - History & Loading States
+// ============================================================
 export interface AnalysisHistoryItem {
   id: string;
   timestamp: number;
   mode: DashboardMode;
-  imagePreview: string; // base64 thumbnail
+  imagePreview: string;
   productName: string;
   productCategory: string;
 }
 
+export type AnalysisStatus = "idle" | "uploading" | "analyzing" | "complete" | "error";
+
+export interface AnalysisError {
+  code: string;
+  message: string;
+  retryable: boolean;
+}
+
+// ============================================================
+// STORE STATE
+// ============================================================
 interface AnalysisState {
-  // Current active analysis image
+  // Current active analysis
   currentImage: string | null;
   currentImageName: string | null;
   
@@ -95,16 +133,31 @@ interface AnalysisState {
   // Analysis history
   history: AnalysisHistoryItem[];
   
-  // Loading states
-  isAnalyzing: boolean;
+  // Enhanced loading states
+  status: AnalysisStatus;
+  activeMode: DashboardMode | null;
   analysisProgress: number;
   analysisStep: string;
+  error: AnalysisError | null;
+  
+  // Timestamps for cache management
+  lastAnalysisTime: number | null;
 }
 
+// ============================================================
+// STORE ACTIONS
+// ============================================================
 interface AnalysisActions {
-  // Set the current image for analysis
+  // Image management
   setCurrentImage: (image: string, fileName: string) => void;
   clearCurrentImage: () => void;
+  
+  // Analysis lifecycle
+  startAnalysis: (mode: DashboardMode) => void;
+  updateProgress: (progress: number, step: string) => void;
+  completeAnalysis: () => void;
+  failAnalysis: (error: AnalysisError) => void;
+  resetStatus: () => void;
   
   // Set mode-specific results
   setBuyerResults: (results: SupplierDiscoveryResult) => void;
@@ -117,13 +170,22 @@ interface AnalysisActions {
   
   // History management
   addToHistory: (item: Omit<AnalysisHistoryItem, "id" | "timestamp">) => void;
+  removeFromHistory: (id: string) => void;
   clearHistory: () => void;
   
-  // Loading state
+  // Computed helpers
+  hasResults: (mode: DashboardMode) => boolean;
+  getResultsForMode: (mode: DashboardMode) => SupplierDiscoveryResult | BOMAnalysisResult | MarketAnalysisResult | null;
+  
+  // Legacy compatibility
+  isAnalyzing: boolean;
   setAnalyzing: (isAnalyzing: boolean) => void;
   setAnalysisProgress: (progress: number, step: string) => void;
 }
 
+// ============================================================
+// STORE IMPLEMENTATION
+// ============================================================
 export const useAnalysisStore = create<AnalysisState & AnalysisActions>()(
   persist(
     (set, get) => ({
@@ -134,14 +196,19 @@ export const useAnalysisStore = create<AnalysisState & AnalysisActions>()(
       producerResults: null,
       sellerResults: null,
       history: [],
-      isAnalyzing: false,
+      status: "idle",
+      activeMode: null,
       analysisProgress: 0,
       analysisStep: "",
+      error: null,
+      lastAnalysisTime: null,
+      isAnalyzing: false,
       
-      // Actions
+      // Image management
       setCurrentImage: (image, fileName) => set({
         currentImage: image,
         currentImageName: fileName,
+        error: null,
       }),
       
       clearCurrentImage: () => set({
@@ -149,9 +216,60 @@ export const useAnalysisStore = create<AnalysisState & AnalysisActions>()(
         currentImageName: null,
       }),
       
+      // Analysis lifecycle
+      startAnalysis: (mode) => set({
+        status: "analyzing",
+        activeMode: mode,
+        analysisProgress: 0,
+        analysisStep: "Initializing...",
+        error: null,
+        isAnalyzing: true,
+      }),
+      
+      updateProgress: (progress, step) => set({
+        analysisProgress: progress,
+        analysisStep: step,
+      }),
+      
+      completeAnalysis: () => set({
+        status: "complete",
+        analysisProgress: 100,
+        analysisStep: "Complete!",
+        lastAnalysisTime: Date.now(),
+        isAnalyzing: false,
+      }),
+      
+      failAnalysis: (error) => set({
+        status: "error",
+        error,
+        isAnalyzing: false,
+      }),
+      
+      resetStatus: () => set({
+        status: "idle",
+        activeMode: null,
+        analysisProgress: 0,
+        analysisStep: "",
+        error: null,
+        isAnalyzing: false,
+      }),
+      
+      // Legacy compatibility
+      setAnalyzing: (isAnalyzing) => set({ 
+        isAnalyzing,
+        status: isAnalyzing ? "analyzing" : "idle",
+        analysisProgress: isAnalyzing ? 0 : 100,
+        analysisStep: isAnalyzing ? "Initializing..." : "",
+      }),
+      
+      setAnalysisProgress: (progress, step) => set({
+        analysisProgress: progress,
+        analysisStep: step,
+      }),
+      
+      // Set results
       setBuyerResults: (results) => {
         set({ buyerResults: results });
-        // Add to history
         get().addToHistory({
           mode: "buyer",
           imagePreview: get().currentImage?.substring(0, 200) || "",
@@ -180,6 +298,7 @@ export const useAnalysisStore = create<AnalysisState & AnalysisActions>()(
         });
       },
       
+      // Clear results
       clearResults: (mode) => {
         if (!mode) {
           set({
@@ -208,8 +327,11 @@ export const useAnalysisStore = create<AnalysisState & AnalysisActions>()(
         buyerResults: null,
         producerResults: null,
         sellerResults: null,
+        status: "idle",
+        error: null,
       }),
       
+      // History management
       addToHistory: (item) => set((state) => ({
         history: [
           {
@@ -217,28 +339,86 @@ export const useAnalysisStore = create<AnalysisState & AnalysisActions>()(
             id: crypto.randomUUID(),
             timestamp: Date.now(),
           },
-          ...state.history.slice(0, 19), // Keep last 20 items
+          ...state.history.slice(0, 19),
         ],
+      })),
+      
+      removeFromHistory: (id) => set((state) => ({
+        history: state.history.filter((item) => item.id !== id),
       })),
       
       clearHistory: () => set({ history: [] }),
       
-      setAnalyzing: (isAnalyzing) => set({ 
-        isAnalyzing,
-        analysisProgress: isAnalyzing ? 0 : 100,
-        analysisStep: isAnalyzing ? "Initializing..." : "",
-      }),
+      // Computed helpers
+      hasResults: (mode) => {
+        const state = get();
+        switch (mode) {
+          case "buyer":
+            return state.buyerResults !== null;
+          case "producer":
+            return state.producerResults !== null;
+          case "seller":
+            return state.sellerResults !== null;
+          default:
+            return false;
+        }
+      },
       
-      setAnalysisProgress: (progress, step) => set({
-        analysisProgress: progress,
-        analysisStep: step,
-      }),
+      getResultsForMode: (mode) => {
+        const state = get();
+        switch (mode) {
+          case "buyer":
+            return state.buyerResults;
+          case "producer":
+            return state.producerResults;
+          case "seller":
+            return state.sellerResults;
+          default:
+            return null;
+        }
+      },
     }),
     {
       name: "analysis-store",
       partialize: (state) => ({
         history: state.history,
+        // Don't persist results or images to avoid large localStorage
       }),
     }
   )
 );
+
+// ============================================================
+// SELECTOR HOOKS
+// ============================================================
+export const useAnalysisStatus = () => useAnalysisStore((s) => ({
+  status: s.status,
+  progress: s.analysisProgress,
+  step: s.analysisStep,
+  error: s.error,
+  isAnalyzing: s.isAnalyzing,
+}));
+
+export const useAnalysisResults = (mode: DashboardMode) => useAnalysisStore((s) => {
+  switch (mode) {
+    case "buyer":
+      return s.buyerResults;
+    case "producer":
+      return s.producerResults;
+    case "seller":
+      return s.sellerResults;
+  }
+});
+
+export const useHasResults = (mode: DashboardMode) => useAnalysisStore((s) => {
+  switch (mode) {
+    case "buyer":
+      return s.buyerResults !== null;
+    case "producer":
+      return s.producerResults !== null;
+    case "seller":
+      return s.sellerResults !== null;
+    default:
+      return false;
+  }
+});
