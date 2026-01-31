@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useRef } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useRef, useEffect } from "react";
 import { Conversation, Message, mockConversations } from "@/data/conversations";
 import { Supplier } from "@/data/suppliers";
+import { playNotificationSound, initializeAudioContext } from "@/lib/notification-sound";
 
 interface NewConversationData {
   supplier: Supplier;
@@ -46,6 +47,23 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
   const [typingConversations, setTypingConversations] = useState<Set<string>>(new Set());
   const typingTimeoutRefs = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
+  // Initialize audio context on first user interaction
+  useEffect(() => {
+    const handleFirstInteraction = () => {
+      initializeAudioContext();
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+    
+    window.addEventListener('click', handleFirstInteraction);
+    window.addEventListener('keydown', handleFirstInteraction);
+    
+    return () => {
+      window.removeEventListener('click', handleFirstInteraction);
+      window.removeEventListener('keydown', handleFirstInteraction);
+    };
+  }, []);
+
   const getConversation = useCallback(
     (id: string) => conversations.find((c) => c.id === id),
     [conversations]
@@ -87,6 +105,9 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
           return conv;
         })
       );
+
+      // Play notification sound for incoming message
+      playNotificationSound('message');
     },
     [conversations, activeConversationId]
   );
@@ -159,6 +180,9 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
           return conv;
         })
       );
+
+      // Play sent sound
+      playNotificationSound('sent');
 
       // Update message status to delivered after a short delay
       setTimeout(() => {
