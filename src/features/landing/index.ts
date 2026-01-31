@@ -12,3 +12,7 @@ export { default as Footer } from "@/components/landing/Footer";
 
 // Pages
 export { default as IndexPage } from "./pages/IndexPage";
+export { default as BuyersPage } from "./pages/BuyersPage";
+export { default as SellersPage } from "./pages/SellersPage";
+export { default as ProducersPage } from "./pages/ProducersPage";
+export { default as PricingPage } from "./pages/PricingPage";
