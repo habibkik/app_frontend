@@ -319,9 +319,9 @@ export function AIAnalysisPanel({ onAnalysisComplete }: AIAnalysisPanelProps) {
         )}
 
         {/* API Info */}
-        {!import.meta.env.VITE_AI_ANALYSIS_ENDPOINT && (
+        {!import.meta.env.VITE_MIROMIND_API_ENDPOINT && (
           <p className="text-xs text-muted-foreground text-center">
-            Demo mode: Using simulated AI analysis
+            Demo mode: Using simulated MiroMind analysis
           </p>
         )}
       </CardContent>
