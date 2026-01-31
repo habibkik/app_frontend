@@ -9,6 +9,7 @@ import {
   DollarSign,
   Package,
   Factory,
+  Map,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -35,8 +36,8 @@ const actionsConfig: Record<DashboardMode, QuickAction[]> = {
   ],
   seller: [
     { icon: TrendingUp, label: "Market Intelligence", path: "/dashboard/market" },
+    { icon: Map, label: "View Heat Map", path: "/dashboard/heatmap" },
     { icon: DollarSign, label: "Pricing Strategy", path: "/dashboard/pricing" },
-    { icon: FileText, label: "Launch Campaign", path: "/dashboard/campaigns" },
   ],
 };
 
