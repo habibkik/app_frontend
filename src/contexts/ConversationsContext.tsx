@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, ReactNode, useRef } from "react";
 import { Conversation, Message, mockConversations } from "@/data/conversations";
 import { Supplier } from "@/data/suppliers";
 
@@ -22,13 +22,29 @@ interface ConversationsContextType {
   createConversation: (data: NewConversationData) => string;
   markAsRead: (conversationId: string) => void;
   getTotalUnreadCount: () => number;
+  typingConversations: Set<string>;
+  simulateSupplierResponse: (conversationId: string) => void;
 }
 
 const ConversationsContext = createContext<ConversationsContextType | undefined>(undefined);
 
+// Simulated response templates
+const responseTemplates = [
+  "Thank you for your message! I'll review this and get back to you shortly.",
+  "Got it! Let me check our inventory and I'll send you the details within the hour.",
+  "Thanks for reaching out. Our team is reviewing your requirements and we'll have a quote ready for you soon.",
+  "Understood! I'll prepare the technical specifications and send them over.",
+  "Perfect, I've noted your requirements. We can definitely help with this project.",
+  "Thanks for the clarification. I'll discuss this with our production team and update you.",
+  "Great question! Let me gather the relevant information and get back to you.",
+  "I appreciate your patience. We're working on this and will have an answer shortly.",
+];
+
 export function ConversationsProvider({ children }: { children: ReactNode }) {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [typingConversations, setTypingConversations] = useState<Set<string>>(new Set());
+  const typingTimeoutRefs = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   const getConversation = useCallback(
     (id: string) => conversations.find((c) => c.id === id),
@@ -38,6 +54,82 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
   const getConversationBySupplier = useCallback(
     (supplierId: string) => conversations.find((c) => c.supplierId === supplierId),
     [conversations]
+  );
+
+  const addSupplierMessage = useCallback(
+    (conversationId: string, content: string) => {
+      const conversation = conversations.find((c) => c.id === conversationId);
+      if (!conversation) return;
+
+      const newMessage: Message = {
+        id: `msg-${Date.now()}`,
+        senderId: conversation.supplierId,
+        senderName: conversation.supplierName,
+        senderAvatar: conversation.supplierLogo,
+        content,
+        timestamp: new Date(),
+        isOwn: false,
+        status: "delivered",
+      };
+
+      setConversations((prev) =>
+        prev.map((conv) => {
+          if (conv.id === conversationId) {
+            const isActive = conversationId === activeConversationId;
+            return {
+              ...conv,
+              messages: [...conv.messages, newMessage],
+              lastMessage: content.slice(0, 100) + (content.length > 100 ? "..." : ""),
+              lastMessageTime: new Date(),
+              unreadCount: isActive ? 0 : conv.unreadCount + 1,
+            };
+          }
+          return conv;
+        })
+      );
+    },
+    [conversations, activeConversationId]
+  );
+
+  const simulateSupplierResponse = useCallback(
+    (conversationId: string) => {
+      // Clear any existing timeout for this conversation
+      const existingTimeout = typingTimeoutRefs.current.get(conversationId);
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+      }
+
+      // Random delay before typing starts (1-3 seconds)
+      const typingDelay = 1000 + Math.random() * 2000;
+      
+      // Start typing after delay
+      const startTypingTimeout = setTimeout(() => {
+        setTypingConversations((prev) => new Set(prev).add(conversationId));
+        
+        // Typing duration (2-4 seconds)
+        const typingDuration = 2000 + Math.random() * 2000;
+        
+        const sendMessageTimeout = setTimeout(() => {
+          // Stop typing
+          setTypingConversations((prev) => {
+            const next = new Set(prev);
+            next.delete(conversationId);
+            return next;
+          });
+          
+          // Send response
+          const randomResponse = responseTemplates[Math.floor(Math.random() * responseTemplates.length)];
+          addSupplierMessage(conversationId, randomResponse);
+          
+          typingTimeoutRefs.current.delete(conversationId);
+        }, typingDuration);
+        
+        typingTimeoutRefs.current.set(conversationId, sendMessageTimeout);
+      }, typingDelay);
+      
+      typingTimeoutRefs.current.set(conversationId + "-start", startTypingTimeout);
+    },
+    [addSupplierMessage]
   );
 
   const addMessage = useCallback(
@@ -60,15 +152,37 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
             return {
               ...conv,
               messages: [...conv.messages, newMessage],
-              lastMessage: content,
+              lastMessage: content.slice(0, 100) + (content.length > 100 ? "..." : ""),
               lastMessageTime: new Date(),
             };
           }
           return conv;
         })
       );
+
+      // Update message status to delivered after a short delay
+      setTimeout(() => {
+        setConversations((prev) =>
+          prev.map((conv) => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                messages: conv.messages.map((msg) =>
+                  msg.id === newMessage.id ? { ...msg, status: "delivered" as const } : msg
+                ),
+              };
+            }
+            return conv;
+          })
+        );
+      }, 800);
+
+      // Simulate supplier response (70% chance)
+      if (Math.random() > 0.3) {
+        simulateSupplierResponse(conversationId);
+      }
     },
-    []
+    [simulateSupplierResponse]
   );
 
   const createConversation = useCallback((data: NewConversationData): string => {
@@ -96,7 +210,7 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
       lastMessage: message.slice(0, 100) + (message.length > 100 ? "..." : ""),
       lastMessageTime: new Date(),
       unreadCount: 0,
-      isOnline: Math.random() > 0.5, // Random online status for demo
+      isOnline: Math.random() > 0.5,
       messages: [
         {
           id: `msg-${Date.now()}`,
@@ -112,8 +226,14 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
     };
 
     setConversations((prev) => [newConversation, ...prev]);
+    
+    // Simulate supplier response for new conversation
+    setTimeout(() => {
+      simulateSupplierResponse(newConversationId);
+    }, 500);
+    
     return newConversationId;
-  }, [conversations, addMessage]);
+  }, [conversations, addMessage, simulateSupplierResponse]);
 
   const markAsRead = useCallback((conversationId: string) => {
     setConversations((prev) =>
@@ -150,6 +270,8 @@ export function ConversationsProvider({ children }: { children: ReactNode }) {
         createConversation,
         markAsRead,
         getTotalUnreadCount,
+        typingConversations,
+        simulateSupplierResponse,
       }}
     >
       {children}

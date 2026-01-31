@@ -43,6 +43,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Conversation, Message } from "@/data/conversations";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { TypingIndicator } from "@/components/conversations/TypingIndicator";
 import { useToast } from "@/hooks/use-toast";
 
 function formatMessageTime(date: Date): string {
@@ -192,9 +193,10 @@ interface MessageThreadProps {
   onSendMessage: (content: string) => void;
   onBack: () => void;
   isMobile: boolean;
+  isTyping: boolean;
 }
 
-function MessageThread({ conversation, onSendMessage, onBack, isMobile }: MessageThreadProps) {
+function MessageThread({ conversation, onSendMessage, onBack, isMobile, isTyping }: MessageThreadProps) {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -204,7 +206,7 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile }: Messag
 
   useEffect(() => {
     scrollToBottom();
-  }, [conversation.messages]);
+  }, [conversation.messages, isTyping]);
 
   const handleSend = () => {
     if (newMessage.trim()) {
@@ -397,6 +399,17 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile }: Messag
               </div>
             );
           })}
+          
+          {/* Typing Indicator */}
+          <AnimatePresence>
+            {isTyping && (
+              <TypingIndicator
+                supplierName={conversation.supplierName}
+                supplierLogo={conversation.supplierLogo}
+              />
+            )}
+          </AnimatePresence>
+          
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
@@ -453,11 +466,17 @@ export default function ConversationsPage() {
     setActiveConversationId,
     addMessage,
     markAsRead,
+    typingConversations,
   } = useConversations();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
   const [showThread, setShowThread] = useState(false);
+
+  // Check if current conversation has typing indicator
+  const isCurrentConversationTyping = activeConversationId 
+    ? typingConversations.has(activeConversationId) 
+    : false;
 
   // Handle responsive view
   useEffect(() => {
@@ -547,6 +566,7 @@ export default function ConversationsPage() {
                   onSendMessage={handleSendMessage}
                   onBack={handleBack}
                   isMobile={isMobileView}
+                  isTyping={isCurrentConversationTyping}
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-center p-8">
