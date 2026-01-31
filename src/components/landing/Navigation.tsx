@@ -8,10 +8,10 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { label: "For Buyers", href: "#buyers" },
-    { label: "For Sellers", href: "#sellers" },
-    { label: "For Producers", href: "#producers" },
-    { label: "Pricing", href: "#pricing" },
+    { label: "For Buyers", href: "/buyers" },
+    { label: "For Sellers", href: "/sellers" },
+    { label: "For Producers", href: "/producers" },
+    { label: "Pricing", href: "/pricing" },
   ];
 
   return (
@@ -42,13 +42,13 @@ const Navigation = () => {
             className="hidden md:flex items-center gap-8"
           >
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="text-sm font-medium text-primary-foreground/70 hover:text-primary-foreground transition-colors"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </motion.div>
 
@@ -88,14 +88,14 @@ const Navigation = () => {
             >
               <div className="py-6 space-y-4">
                 {navLinks.map((link) => (
-                  <a
+                  <Link
                     key={link.label}
-                    href={link.href}
+                    to={link.href}
                     className="block py-2 text-base font-medium text-primary-foreground/70 hover:text-primary-foreground transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 ))}
                 <div className="pt-4 space-y-3">
                   <HeroButton variant="ghost" size="default" className="w-full" asChild>

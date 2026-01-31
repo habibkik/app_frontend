@@ -7,7 +7,7 @@ import { LoginPage, SignupPage, ProtectedRoute, PublicRoute } from "@/features/a
 import { DashboardPage } from "@/features/dashboard";
 
 // Landing feature pages
-import { IndexPage } from "@/features/landing";
+import { IndexPage, BuyersPage, SellersPage, ProducersPage, PricingPage } from "@/features/landing";
 
 // Buyer feature pages (still using old location during migration)
 import Suppliers from "@/pages/dashboard/Suppliers";
@@ -37,6 +37,10 @@ export function Router() {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<IndexPage />} />
+      <Route path="/buyers" element={<BuyersPage />} />
+      <Route path="/sellers" element={<SellersPage />} />
+      <Route path="/producers" element={<ProducersPage />} />
+      <Route path="/pricing" element={<PricingPage />} />
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
       
