@@ -23,6 +23,9 @@ import {
   Sparkles,
   Target,
   AlertCircle,
+  Loader2,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -48,6 +51,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { analyzeCompetitor, type CompetitorAnalysis } from "@/lib/competitor-api";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock competitor data
 const mockCompetitors = [
@@ -130,10 +136,14 @@ const marketInsights = [
 ];
 
 export default function CompetitorsPage() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompetitor, setSelectedCompetitor] = useState(mockCompetitors[0]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newCompetitorUrl, setNewCompetitorUrl] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<CompetitorAnalysis | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const filteredCompetitors = mockCompetitors.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -143,18 +153,69 @@ export default function CompetitorsPage() {
   const getTrendIcon = (trend: "up" | "down" | "stable") => {
     switch (trend) {
       case "up":
-        return <TrendingUp className="h-4 w-4 text-red-500" />;
+        return <TrendingUp className="h-4 w-4 text-destructive" />;
       case "down":
-        return <TrendingDown className="h-4 w-4 text-emerald-500" />;
+        return <TrendingDown className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />;
       case "stable":
         return <Minus className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getPriceChangeColor = (change: number) => {
-    if (change > 0) return "text-red-500";
-    if (change < 0) return "text-emerald-500";
+    if (change > 0) return "text-destructive";
+    if (change < 0) return "text-emerald-600 dark:text-emerald-400";
     return "text-muted-foreground";
+  };
+
+  const handleAnalyzeCompetitor = async () => {
+    if (!newCompetitorUrl.trim()) {
+      toast({
+        title: "URL Required",
+        description: "Please enter a competitor website URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+    setAnalysisResult(null);
+
+    try {
+      const result = await analyzeCompetitor(newCompetitorUrl);
+      
+      if (result.success && result.data) {
+        setAnalysisResult(result.data);
+        toast({
+          title: "Analysis Complete",
+          description: `Successfully analyzed ${result.data.name}`,
+        });
+      } else {
+        setAnalysisError(result.error || "Failed to analyze competitor");
+        toast({
+          title: "Analysis Failed",
+          description: result.error || "Failed to analyze competitor",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An error occurred";
+      setAnalysisError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setIsAddDialogOpen(false);
+    setNewCompetitorUrl("");
+    setAnalysisResult(null);
+    setAnalysisError(null);
   };
 
   return (
@@ -173,47 +234,209 @@ export default function CompetitorsPage() {
               <RefreshCw className="h-4 w-4" />
               Sync All
             </Button>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={handleCloseDialog}>
               <DialogTrigger asChild>
                 <Button className="gap-2">
                   <Plus className="h-4 w-4" />
                   Add Competitor
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
                 <DialogHeader>
                   <DialogTitle>Add New Competitor</DialogTitle>
                   <DialogDescription>
-                    Enter a competitor's website URL to start tracking their products and pricing.
+                    Enter a competitor's website URL for AI-powered analysis.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label>Website URL</Label>
-                    <Input
-                      placeholder="https://competitor-website.com"
-                      value={newCompetitorUrl}
-                      onChange={(e) => setNewCompetitorUrl(e.target.value)}
-                    />
-                  </div>
-                  <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-primary mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">AI-Powered Analysis</p>
-                        <p className="text-xs text-muted-foreground">
-                          Our AI will automatically detect products, pricing, and key information from the competitor's website.
-                        </p>
+                
+                <div className="flex-1 overflow-auto">
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Website URL</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="https://competitor-website.com"
+                          value={newCompetitorUrl}
+                          onChange={(e) => setNewCompetitorUrl(e.target.value)}
+                          disabled={isAnalyzing}
+                        />
+                        <Button 
+                          onClick={handleAnalyzeCompetitor} 
+                          disabled={isAnalyzing || !newCompetitorUrl.trim()}
+                          className="shrink-0"
+                        >
+                          {isAnalyzing ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Analyzing...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-4 w-4 mr-2" />
+                              Analyze
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
+
+                    {/* Analysis Status */}
+                    {isAnalyzing && (
+                      <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">Analyzing Competitor...</p>
+                            <p className="text-xs text-muted-foreground">
+                              AI is extracting pricing, products, and strategic insights
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Analysis Error */}
+                    {analysisError && !isAnalyzing && (
+                      <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                        <div className="flex items-start gap-3">
+                          <XCircle className="h-5 w-5 text-destructive mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-destructive">Analysis Failed</p>
+                            <p className="text-xs text-muted-foreground">{analysisError}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Analysis Results */}
+                    {analysisResult && !isAnalyzing && (
+                      <ScrollArea className="max-h-[400px]">
+                        <div className="space-y-4 pr-4">
+                          {/* Success Header */}
+                          <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                            <div className="flex items-start gap-3">
+                              <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{analysisResult.name}</p>
+                                <p className="text-xs text-muted-foreground">{analysisResult.website}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Summary */}
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold text-foreground">Summary</h4>
+                            <p className="text-sm text-muted-foreground">{analysisResult.summary}</p>
+                          </div>
+
+                          {/* Market Position */}
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold text-foreground">Market Position</h4>
+                            <Badge variant="secondary" className="capitalize">{analysisResult.marketPosition}</Badge>
+                          </div>
+
+                          {/* Pricing */}
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold text-foreground">Pricing Strategy</h4>
+                            <div className="grid grid-cols-3 gap-2 text-sm">
+                              <div className="p-2 rounded-lg bg-muted/50">
+                                <p className="text-xs text-muted-foreground">Strategy</p>
+                                <p className="font-medium capitalize">{analysisResult.pricing.strategy}</p>
+                              </div>
+                              <div className="p-2 rounded-lg bg-muted/50">
+                                <p className="text-xs text-muted-foreground">Range</p>
+                                <p className="font-medium">{analysisResult.pricing.range}</p>
+                              </div>
+                              <div className="p-2 rounded-lg bg-muted/50">
+                                <p className="text-xs text-muted-foreground">Competitiveness</p>
+                                <p className="font-medium capitalize">{analysisResult.pricing.competitiveness}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Products */}
+                          {analysisResult.products.length > 0 && (
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold text-foreground">Key Products</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {analysisResult.products.map((product, i) => (
+                                  <Badge key={i} variant="outline" className="text-xs">{product}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Strengths & Weaknesses */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold text-foreground">Strengths</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {analysisResult.strengths.map((s, i) => (
+                                  <Badge key={i} className="text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">
+                                    {s}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold text-foreground">Weaknesses</h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {analysisResult.weaknesses.map((w, i) => (
+                                  <Badge key={i} className="text-xs bg-destructive/10 text-destructive border-destructive/20">
+                                    {w}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Recommendations */}
+                          {analysisResult.recommendations.length > 0 && (
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                <Sparkles className="h-4 w-4 text-primary" />
+                                AI Recommendations
+                              </h4>
+                              <ul className="space-y-1.5">
+                                {analysisResult.recommendations.map((rec, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                    <Target className="h-3 w-3 mt-1.5 text-primary shrink-0" />
+                                    {rec}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    )}
+
+                    {/* Default State */}
+                    {!isAnalyzing && !analysisResult && !analysisError && (
+                      <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
+                        <div className="flex items-start gap-3">
+                          <Sparkles className="h-5 w-5 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">AI-Powered Analysis</p>
+                            <p className="text-xs text-muted-foreground">
+                              Enter a URL and click Analyze to get competitive intelligence including pricing, products, strengths, and strategic recommendations.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+
+                <DialogFooter className="border-t pt-4">
+                  <Button variant="outline" onClick={handleCloseDialog}>
                     Cancel
                   </Button>
-                  <Button onClick={() => setIsAddDialogOpen(false)}>
-                    Start Tracking
+                  <Button 
+                    onClick={handleCloseDialog} 
+                    disabled={!analysisResult}
+                  >
+                    {analysisResult ? "Add to Tracking" : "Start Tracking"}
                   </Button>
                 </DialogFooter>
               </DialogContent>
