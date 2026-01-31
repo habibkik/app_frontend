@@ -14,6 +14,7 @@ import {
   Megaphone,
   Globe,
   Users,
+  Settings,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -52,6 +53,12 @@ const buyerNavigation: NavGroup[] = [
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
     ],
   },
+  {
+    label: "Account",
+    items: [
+      { title: "Settings", url: "/dashboard/settings", icon: Settings },
+    ],
+  },
 ];
 
 // Producer mode navigation
@@ -75,6 +82,12 @@ const producerNavigation: NavGroup[] = [
     items: [
       { title: "Go-To-Market", url: "/dashboard/gtm", icon: Rocket },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { title: "Settings", url: "/dashboard/settings", icon: Settings },
     ],
   },
 ];
@@ -106,6 +119,12 @@ const sellerNavigation: NavGroup[] = [
     label: "Insights",
     items: [
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { title: "Settings", url: "/dashboard/settings", icon: Settings },
     ],
   },
 ];

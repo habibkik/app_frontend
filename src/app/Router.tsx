@@ -30,6 +30,7 @@ import WebsiteBuilder from "@/pages/dashboard/WebsiteBuilder";
 
 // Shared pages
 import Analytics from "@/pages/dashboard/Analytics";
+import Settings from "@/pages/dashboard/Settings";
 import NotFound from "@/pages/NotFound";
 
 export function Router() {
@@ -68,6 +69,7 @@ export function Router() {
       
       {/* Shared pages */}
       <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+      <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       
       {/* Catch-all */}
       <Route path="*" element={<NotFound />} />
