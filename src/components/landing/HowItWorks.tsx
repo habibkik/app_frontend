@@ -1,30 +1,30 @@
 import { motion } from "framer-motion";
-import { Search, MessageSquare, FileCheck, Package } from "lucide-react";
+import { Upload, Sparkles, BarChart3, Rocket } from "lucide-react";
 
 const steps = [
   {
     step: "01",
-    icon: Search,
-    title: "Discover Suppliers",
-    description: "Use our AI-powered search to find verified suppliers that match your exact product specifications and quality requirements.",
+    icon: Upload,
+    title: "Upload Any Product",
+    description: "Simply drop a product image — a photo from your phone, a supplier catalog, or any product you want to analyze.",
   },
   {
     step: "02",
-    icon: MessageSquare,
-    title: "Request Quotes",
-    description: "Send detailed RFQs to multiple suppliers simultaneously. Compare pricing, MOQ, and lead times in one dashboard.",
+    icon: Sparkles,
+    title: "AI Analyzes Everything",
+    description: "Our AI instantly identifies components, materials, costs, suppliers, and market data from your image.",
   },
   {
     step: "03",
-    icon: FileCheck,
-    title: "Negotiate & Verify",
-    description: "Communicate directly with suppliers, request samples, and verify credentials before committing to orders.",
+    icon: BarChart3,
+    title: "Get Mode-Specific Insights",
+    description: "Choose your goal: Find suppliers (Buyer), generate BOM (Producer), or analyze market (Seller).",
   },
   {
     step: "04",
-    icon: Package,
-    title: "Order & Track",
-    description: "Place orders securely through our platform and track production, shipping, and delivery in real-time.",
+    icon: Rocket,
+    title: "Take Action",
+    description: "Request quotes, source components, or launch products — all from a single image upload.",
   },
 ];
 
@@ -55,12 +55,12 @@ const HowItWorks = () => {
             How It Works
           </span>
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            From Search to{" "}
-            <span className="text-gradient-primary">Delivery</span>
+            Image to{" "}
+            <span className="text-gradient-primary">Intelligence</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Our streamlined process takes the complexity out of global trade, 
-            helping you source and order with confidence.
+            One image unlocks everything you need — suppliers, costs, components, 
+            market data, and more. No forms, no catalogs, just snap and go.
           </p>
         </motion.div>
 
