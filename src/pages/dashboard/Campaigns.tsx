@@ -238,6 +238,7 @@ export default function CampaignsPage() {
                       content={postContent}
                       onContentChange={setPostContent}
                       maxLength={280}
+                      selectedPlatforms={selectedPlatforms}
                     />
 
                     <Separator />

@@ -9,26 +9,33 @@ import {
   AtSign,
   MapPin,
   X,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { AISuggestionsPanel } from "./AISuggestionsPanel";
 
 interface PostComposerProps {
   content: string;
   onContentChange: (content: string) => void;
   maxLength?: number;
   placeholder?: string;
+  selectedPlatforms?: string[];
 }
 
 export function PostComposer({ 
   content, 
   onContentChange, 
   maxLength = 280,
-  placeholder = "What's on your mind? Write your post here..."
+  placeholder = "What's on your mind? Write your post here...",
+  selectedPlatforms = [],
 }: PostComposerProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showAISuggestions, setShowAISuggestions] = useState(false);
   
   const characterCount = content.length;
   const isOverLimit = characterCount > maxLength;
@@ -91,6 +98,15 @@ export function PostComposer({
       {/* Toolbar */}
       <div className="flex items-center justify-between border-t pt-3">
         <div className="flex items-center gap-1">
+          <Button 
+            variant={showAISuggestions ? "secondary" : "ghost"} 
+            size="icon" 
+            className="h-9 w-9" 
+            title="AI Suggestions"
+            onClick={() => setShowAISuggestions(!showAISuggestions)}
+          >
+            <Sparkles className={cn("h-4 w-4", showAISuggestions && "text-primary")} />
+          </Button>
           <Button variant="ghost" size="icon" className="h-9 w-9" title="Add image">
             <Image className="h-4 w-4" />
           </Button>
@@ -154,6 +170,14 @@ export function PostComposer({
           </Button>
         )}
       </div>
+
+      {/* AI Suggestions Panel */}
+      {showAISuggestions && (
+        <AISuggestionsPanel
+          selectedPlatforms={selectedPlatforms}
+          onSelectCaption={onContentChange}
+        />
+      )}
     </div>
   );
 }
