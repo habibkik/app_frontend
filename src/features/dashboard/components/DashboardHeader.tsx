@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ModeSelector } from "./ModeSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/features/auth";
 
 export function DashboardHeader() {
@@ -57,6 +58,9 @@ export function DashboardHeader() {
           <Button variant="ghost" size="icon" className="md:hidden">
             <Search className="h-5 w-5" />
           </Button>
+
+          {/* Language Selector */}
+          <LanguageSelector />
 
           {/* Theme Toggle */}
           <ThemeToggle />

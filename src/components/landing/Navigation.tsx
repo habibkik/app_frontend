@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles } from "lucide-react";
 import { HeroButton } from "@/components/ui/hero-button";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -93,6 +94,7 @@ const Navigation = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="hidden md:flex items-center gap-4"
           >
+            <LanguageSelector variant="ghost" />
             <HeroButton variant="ghost" size="sm" asChild>
               <Link to="/login">Sign In</Link>
             </HeroButton>
@@ -136,6 +138,9 @@ const Navigation = () => {
                   </button>
                 ))}
                 <div className="pt-4 space-y-3">
+                  <div className="flex justify-start pb-2">
+                    <LanguageSelector variant="outline" showLabel />
+                  </div>
                   <HeroButton variant="ghost" size="default" className="w-full" asChild>
                     <Link to="/login">Sign In</Link>
                   </HeroButton>

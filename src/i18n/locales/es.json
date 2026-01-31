@@ -1,0 +1,199 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "yes": "Sí",
+    "no": "No",
+    "or": "o",
+    "and": "y",
+    "all": "Todo",
+    "none": "Ninguno",
+    "select": "Seleccionar",
+    "upload": "Subir",
+    "download": "Descargar",
+    "refresh": "Actualizar",
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "status": "Estado",
+    "actions": "Acciones",
+    "view": "Ver",
+    "details": "Detalles",
+    "success": "Éxito",
+    "error": "Error",
+    "warning": "Advertencia",
+    "info": "Info"
+  },
+  "nav": {
+    "home": "Inicio",
+    "dashboard": "Panel de control",
+    "suppliers": "Proveedores",
+    "components": "Componentes",
+    "bom": "Gestor de BOM",
+    "rfqs": "Solicitudes de cotización",
+    "conversations": "Conversaciones",
+    "campaigns": "Campañas",
+    "analytics": "Análisis",
+    "settings": "Configuración",
+    "marketIntelligence": "Inteligencia de mercado",
+    "competitors": "Competidores",
+    "pricing": "Precios",
+    "gtm": "Estrategia GTM",
+    "websiteBuilder": "Constructor de sitios",
+    "feasibility": "Factibilidad"
+  },
+  "landing": {
+    "hero": {
+      "title": "Inteligencia de cadena de suministro impulsada por IA",
+      "subtitle": "Transforma tus compras, ventas y producción con automatización inteligente",
+      "cta": "Comenzar gratis",
+      "secondaryCta": "Ver demo"
+    },
+    "features": {
+      "title": "Funciones potentes",
+      "subtitle": "Todo lo que necesitas para optimizar tu cadena de suministro",
+      "aiAnalysis": "Análisis de IA",
+      "aiAnalysisDesc": "Análisis inteligente de componentes, proveedores y tendencias del mercado",
+      "supplierDiscovery": "Descubrimiento de proveedores",
+      "supplierDiscoveryDesc": "Encuentra y conecta con proveedores verificados en todo el mundo",
+      "marketIntel": "Inteligencia de mercado",
+      "marketIntelDesc": "Insights en tiempo real sobre precios, demanda y competencia"
+    },
+    "roles": {
+      "buyer": "Comprador",
+      "buyerDesc": "Encuentra proveedores, analiza componentes y optimiza las compras",
+      "seller": "Vendedor",
+      "sellerDesc": "Llega a clientes, analiza mercados y haz crecer tu negocio",
+      "producer": "Productor",
+      "producerDesc": "Gestiona la producción, rastrea costos y optimiza operaciones"
+    }
+  },
+  "auth": {
+    "loginTitle": "Bienvenido de nuevo",
+    "loginSubtitle": "Inicia sesión en tu cuenta",
+    "signupTitle": "Crear cuenta",
+    "signupSubtitle": "Comienza tu prueba gratuita hoy",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "rememberMe": "Recordarme",
+    "termsAgree": "Acepto los términos y la política de privacidad"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido de nuevo",
+    "overview": "Resumen",
+    "recentActivity": "Actividad reciente",
+    "quickActions": "Acciones rápidas",
+    "stats": {
+      "totalSuppliers": "Total de proveedores",
+      "activeRfqs": "Solicitudes activas",
+      "pendingMessages": "Mensajes pendientes",
+      "savedItems": "Elementos guardados"
+    },
+    "modes": {
+      "buyer": "Modo comprador",
+      "seller": "Modo vendedor",
+      "producer": "Modo productor"
+    }
+  },
+  "suppliers": {
+    "title": "Proveedores",
+    "searchPlaceholder": "Buscar proveedores...",
+    "addSupplier": "Agregar proveedor",
+    "contactSupplier": "Contactar proveedor",
+    "viewProfile": "Ver perfil",
+    "saveSupplier": "Guardar proveedor",
+    "filters": {
+      "all": "Todos los proveedores",
+      "verified": "Verificado",
+      "new": "Nuevo",
+      "favorites": "Favoritos"
+    },
+    "details": {
+      "rating": "Calificación",
+      "location": "Ubicación",
+      "products": "Productos",
+      "responseTime": "Tiempo de respuesta",
+      "minOrder": "Pedido mín."
+    }
+  },
+  "campaigns": {
+    "title": "Campañas",
+    "compose": "Componer",
+    "scheduled": "Programado",
+    "postNow": "Publicar ahora",
+    "schedule": "Programar",
+    "selectPlatforms": "Seleccionar plataformas",
+    "noPlatforms": "No hay plataformas conectadas",
+    "connectPlatforms": "Ve a Configuración → Redes sociales para conectar tus cuentas",
+    "characterCount": "{{count}} caracteres",
+    "scheduledFor": "Programado para {{date}}"
+  },
+  "settings": {
+    "title": "Configuración",
+    "apiKeys": "Claves API",
+    "socialMedia": "Redes sociales",
+    "email": "Correo electrónico",
+    "messaging": "Mensajería",
+    "profile": "Perfil",
+    "notifications": "Notificaciones",
+    "security": "Seguridad",
+    "language": "Idioma",
+    "theme": "Tema",
+    "social": {
+      "title": "Integraciones de redes sociales",
+      "description": "Conecta tus cuentas de redes sociales para publicar contenido y gestionar mensajes",
+      "connect": "Conectar",
+      "disconnect": "Desconectar",
+      "connected": "Conectado",
+      "notConnected": "No conectado"
+    }
+  },
+  "bom": {
+    "title": "Gestor de BOM",
+    "uploadBom": "Subir BOM",
+    "analyzeBom": "Analizar BOM",
+    "exportBom": "Exportar BOM",
+    "totalCost": "Costo total",
+    "components": "Componentes",
+    "quantity": "Cantidad",
+    "unitPrice": "Precio unitario",
+    "totalPrice": "Precio total"
+  },
+  "rfqs": {
+    "title": "Solicitudes de cotización",
+    "createRfq": "Crear solicitud",
+    "viewResponses": "Ver respuestas",
+    "status": {
+      "draft": "Borrador",
+      "sent": "Enviado",
+      "received": "Recibido",
+      "accepted": "Aceptado",
+      "rejected": "Rechazado"
+    }
+  },
+  "errors": {
+    "generic": "Algo salió mal. Por favor, inténtalo de nuevo.",
+    "notFound": "Página no encontrada",
+    "unauthorized": "No estás autorizado para ver esta página",
+    "networkError": "Error de red. Por favor, verifica tu conexión."
+  }
+}
