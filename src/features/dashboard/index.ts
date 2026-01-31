@@ -1,20 +1,20 @@
 // Dashboard feature barrel export
-export { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-export { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-export { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-export { ModeSelector } from "@/components/dashboard/ModeSelector";
-export { PlaceholderPage } from "@/components/dashboard/PlaceholderPage";
 
-// Pages
-export { default as DashboardPage } from "@/pages/Dashboard";
-export { default as AnalyticsPage } from "@/pages/dashboard/Analytics";
+// Components
+export { 
+  DashboardLayout, 
+  DashboardHeader, 
+  DashboardSidebar, 
+  ModeSelector, 
+  PlaceholderPage 
+} from "./components";
 
-// Context (will be migrated to Zustand store)
+// State/Context
 export { 
   DashboardModeProvider, 
   useDashboardMode,
   type DashboardMode,
-} from "@/contexts/DashboardModeContext";
+} from "./state/modeContext";
 
 // Config
 export { 
@@ -22,4 +22,19 @@ export {
   modeConfig,
   type NavItem,
   type NavGroup,
-} from "@/config/navigation";
+} from "./config/navigation";
+
+// API/Data
+export {
+  rfqTrendsData,
+  responseTimesData,
+  costSavingsData,
+  quoteSuccessData,
+  categoryDistributionData,
+  analyticsStats,
+  filterDataByDateRange,
+  calculateFilteredStats,
+} from "./api/analyticsApi";
+
+// Pages
+export { default as DashboardPage } from "./pages/DashboardPage";

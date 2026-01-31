@@ -1,4 +1,6 @@
 // Landing feature barrel export
+
+// Components
 export { default as Navigation } from "@/components/landing/Navigation";
 export { default as Hero } from "@/components/landing/Hero";
 export { default as Features } from "@/components/landing/Features";
@@ -9,4 +11,4 @@ export { default as CTA } from "@/components/landing/CTA";
 export { default as Footer } from "@/components/landing/Footer";
 
 // Pages
-export { default as IndexPage } from "@/pages/Index";
+export { default as IndexPage } from "./pages/IndexPage";
