@@ -17,7 +17,7 @@ export { default as RFQBuilderPage } from "@/pages/dashboard/RFQs";
 export { default as ConversationsPage } from "@/pages/dashboard/Conversations";
 export { default as SavedSuppliersPage } from "@/pages/dashboard/SavedSuppliers";
 
-// Context (will be migrated to Zustand)
+// Context (re-exported for backwards compatibility)
 export { SavedSuppliersProvider, useSavedSuppliers } from "@/contexts/SavedSuppliersContext";
 export { ConversationsProvider, useConversations } from "@/contexts/ConversationsContext";
 

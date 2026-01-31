@@ -1,11 +1,13 @@
 // Auth feature barrel export
+
+// Components
 export { AuthProvider } from "@/components/auth/AuthProvider";
 export { ProtectedRoute, PublicRoute } from "@/components/auth/ProtectedRoute";
 export { PasswordStrengthMeter } from "@/components/auth/PasswordStrengthMeter";
 
 // Pages
-export { default as LoginPage } from "@/pages/Login";
-export { default as SignupPage } from "@/pages/Signup";
+export { default as LoginPage } from "./pages/LoginPage";
+export { default as SignupPage } from "./pages/SignupPage";
 
 // Hooks
 export { useAuth } from "@/hooks/use-auth";
