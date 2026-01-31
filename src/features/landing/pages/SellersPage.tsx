@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Navigation from "@/components/landing/Navigation";
 import Footer from "@/components/landing/Footer";
+import { SellerInteractiveDemo } from "@/components/landing/SellerInteractiveDemo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -181,6 +182,9 @@ export default function SellersPage() {
           </div>
         </div>
       </section>
+
+      {/* Interactive Demo Section */}
+      <SellerInteractiveDemo />
 
       {/* Features Grid */}
       <section className="py-20">

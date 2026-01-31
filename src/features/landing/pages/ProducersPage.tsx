@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Navigation from "@/components/landing/Navigation";
 import Footer from "@/components/landing/Footer";
+import { ProducerInteractiveDemo } from "@/components/landing/ProducerInteractiveDemo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -181,6 +182,9 @@ export default function ProducersPage() {
           </div>
         </div>
       </section>
+
+      {/* Interactive Demo Section */}
+      <ProducerInteractiveDemo />
 
       {/* Features Grid */}
       <section className="py-20">
