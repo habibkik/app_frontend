@@ -18,7 +18,9 @@ import { BOMComponentsTable } from "@/components/bom/BOMComponentsTable";
 import { BOMCostSummary } from "@/components/bom/BOMCostSummary";
 import { BOMSupplierMatchModal } from "@/components/bom/BOMSupplierMatchModal";
 import { BOMExportActions } from "@/components/bom/BOMExportActions";
+import { AIAnalysisPanel } from "@/components/bom/AIAnalysisPanel";
 import { mockBOMComponents, componentCategories, BOMComponent } from "@/data/bom";
+import { AnalyzedComponent } from "@/lib/ai-analysis-service";
 
 export default function BOMPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -29,6 +31,7 @@ export default function BOMPage() {
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
   const [selectedComponent, setSelectedComponent] = useState<BOMComponent | null>(null);
   const [supplierModalOpen, setSupplierModalOpen] = useState(false);
+  const [confidence, setConfidence] = useState(87);
 
   const handleAnalyze = async (files: File[]) => {
     setIsAnalyzing(true);
@@ -44,6 +47,33 @@ export default function BOMPage() {
     setIsAnalyzing(false);
   };
 
+  // Convert AI analyzed components to BOM components
+  const handleAIAnalysisComplete = (analyzedComponents: AnalyzedComponent[], name: string) => {
+    const bomComponents: BOMComponent[] = analyzedComponents.map((comp, index) => ({
+      id: `ai-comp-${index + 1}`,
+      name: comp.name,
+      category: comp.category,
+      quantity: comp.quantity,
+      unit: comp.unit,
+      unitCost: comp.estimatedUnitCost,
+      totalCost: comp.estimatedUnitCost * comp.quantity,
+      alternatives: Math.floor(Math.random() * 8) + 2,
+      matchedSuppliers: Math.floor(Math.random() * 15) + 5,
+      specifications: comp.specifications,
+      material: comp.material,
+    }));
+
+    // Calculate average confidence
+    const avgConfidence = Math.round(
+      analyzedComponents.reduce((sum, c) => sum + c.confidence, 0) / analyzedComponents.length
+    );
+
+    setProductName(name);
+    setComponents(bomComponents);
+    setConfidence(avgConfidence);
+    setHasAnalysis(true);
+  };
+
   const handleViewSuppliers = (component: BOMComponent) => {
     setSelectedComponent(component);
     setSupplierModalOpen(true);
@@ -57,8 +87,6 @@ export default function BOMPage() {
       categoryFilter === "All Categories" || c.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
-
-  const confidence = 87; // Mock confidence score
 
   return (
     <DashboardLayout>
@@ -97,33 +125,43 @@ export default function BOMPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                    AI-Powered Product Analysis
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <BOMUploadZone onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
-                  
-                  {/* Features Preview */}
-                  <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                    <FeatureCard
-                      title="Component Detection"
-                      description="AI identifies all components from product images and specs"
-                    />
-                    <FeatureCard
-                      title="Cost Estimation"
-                      description="Get accurate cost breakdowns with market pricing data"
-                    />
-                    <FeatureCard
-                      title="Supplier Matching"
-                      description="Find verified suppliers for each identified component"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* Main Upload Area */}
+                <div className="lg:col-span-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        AI-Powered Product Analysis
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <BOMUploadZone onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+                      
+                      {/* Features Preview */}
+                      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                        <FeatureCard
+                          title="Component Detection"
+                          description="AI identifies all components from product images and specs"
+                        />
+                        <FeatureCard
+                          title="Cost Estimation"
+                          description="Get accurate cost breakdowns with market pricing data"
+                        />
+                        <FeatureCard
+                          title="Supplier Matching"
+                          description="Find verified suppliers for each identified component"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* AI Vision Panel */}
+                <div className="lg:col-span-1">
+                  <AIAnalysisPanel onAnalysisComplete={handleAIAnalysisComplete} />
+                </div>
+              </div>
             </motion.div>
           ) : (
             /* Analysis Results */
