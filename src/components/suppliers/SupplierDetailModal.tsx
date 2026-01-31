@@ -12,7 +12,11 @@ import {
   MessageSquare,
   Bookmark,
   Share2,
-  X
+  Mail,
+  Phone,
+  Globe,
+  Linkedin,
+  TrendingUp
 } from "lucide-react";
 import {
   Dialog,
@@ -24,8 +28,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Supplier } from "@/data/suppliers";
-import { cn } from "@/lib/utils";
 
 interface SupplierDetailModalProps {
   supplier: Supplier | null;
@@ -43,6 +47,10 @@ export function SupplierDetailModal({
   onSave,
 }: SupplierDetailModalProps) {
   if (!supplier) return null;
+
+  const googleMapsUrl = supplier.geoLocation 
+    ? `https://www.google.com/maps/search/?api=1&query=${supplier.geoLocation.latitude},${supplier.geoLocation.longitude}`
+    : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -117,13 +125,40 @@ export function SupplierDetailModal({
         {/* Content */}
         <div className="p-6 pt-16">
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
-              <TabsTrigger value="certifications">Certifications</TabsTrigger>
+              <TabsTrigger value="contact">Contact</TabsTrigger>
+              <TabsTrigger value="business">Business</TabsTrigger>
+              <TabsTrigger value="team">Team</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-6 space-y-6">
+              {/* Location with Google Maps */}
+              {supplier.geoLocation && (
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-2">Location</h3>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm">{supplier.geoLocation.formattedAddress}</p>
+                      {googleMapsUrl && (
+                        <a 
+                          href={googleMapsUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline flex items-center gap-1 mt-1"
+                        >
+                          Open in Google Maps
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Description */}
               <div>
                 <h3 className="text-sm font-semibold text-foreground mb-2">About</h3>
@@ -134,6 +169,138 @@ export function SupplierDetailModal({
 
               <Separator />
 
+              {/* Specializations */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">
+                  Specializations
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {supplier.specializations.map((spec) => (
+                    <Badge
+                      key={spec}
+                      variant="secondary"
+                      className="px-3 py-1.5 text-sm"
+                    >
+                      {spec}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Certifications */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">
+                  Certifications
+                </h3>
+                <div className="grid gap-3">
+                  {supplier.certifications.map((cert) => (
+                    <div
+                      key={cert}
+                      className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
+                        <Award className="h-5 w-5 text-success" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{cert}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Verified certification
+                        </p>
+                      </div>
+                      <BadgeCheck className="h-5 w-5 text-success" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="contact" className="mt-6 space-y-6">
+              {/* Contact Information */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">
+                  Contact Information
+                </h3>
+                <div className="grid gap-3">
+                  {supplier.contact?.email && (
+                    <a 
+                      href={`mailto:${supplier.contact.email}`}
+                      className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Mail className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Email</p>
+                        <p className="font-medium text-primary">{supplier.contact.email}</p>
+                      </div>
+                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    </a>
+                  )}
+
+                  {supplier.contact?.phone && (
+                    <a 
+                      href={`tel:${supplier.contact.phone}`}
+                      className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Phone className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Phone</p>
+                        <p className="font-medium text-primary">{supplier.contact.phone}</p>
+                      </div>
+                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    </a>
+                  )}
+
+                  {supplier.contact?.website && (
+                    <a 
+                      href={supplier.contact.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Globe className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Website</p>
+                        <p className="font-medium text-primary">{supplier.contact.website}</p>
+                      </div>
+                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    </a>
+                  )}
+
+                  {supplier.contact?.linkedIn && (
+                    <a 
+                      href={supplier.contact.linkedIn}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="h-10 w-10 rounded-lg bg-[#0077B5]/10 flex items-center justify-center">
+                        <Linkedin className="h-5 w-5 text-[#0077B5]" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground">Company LinkedIn</p>
+                        <p className="font-medium text-primary">View Company Page</p>
+                      </div>
+                      <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                    </a>
+                  )}
+                </div>
+
+                {!supplier.contact && (
+                  <div className="p-4 rounded-lg bg-muted/50 text-center text-muted-foreground">
+                    <p className="text-sm">Contact information not available</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="business" className="mt-6 space-y-6">
               {/* Company Details */}
               <div>
                 <h3 className="text-sm font-semibold text-foreground mb-3">
@@ -171,117 +338,50 @@ export function SupplierDetailModal({
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                     <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <MapPin className="h-4 w-4 text-primary" />
+                      <Building2 className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Location</p>
-                      <p className="text-sm font-medium">
-                        {supplier.location.city}, {supplier.location.country}
-                      </p>
+                      <p className="text-xs text-muted-foreground">Industry</p>
+                      <p className="text-sm font-medium">{supplier.industry}</p>
                     </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="capabilities" className="mt-6 space-y-6">
-              {/* Specializations */}
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">
-                  Specializations
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {supplier.specializations.map((spec) => (
-                    <Badge
-                      key={spec}
-                      variant="secondary"
-                      className="px-3 py-1.5 text-sm"
-                    >
-                      {spec}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Industry */}
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">
-                  Industry Focus
-                </h3>
-                <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{supplier.industry}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Primary industry sector
-                    </p>
                   </div>
                 </div>
               </div>
 
               <Separator />
 
-              {/* Response & Reliability */}
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">
-                  Response & Reliability
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-lg border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock className="h-4 w-4 text-success" />
-                      <span className="text-sm font-medium">Response Time</span>
-                    </div>
-                    <p className="text-2xl font-bold text-success">
-                      {supplier.responseTime}
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-lg border">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Star className="h-4 w-4 text-warning" />
-                      <span className="text-sm font-medium">Rating</span>
-                    </div>
-                    <p className="text-2xl font-bold">
-                      {supplier.rating}
-                      <span className="text-sm font-normal text-muted-foreground ml-1">
-                        / 5.0
-                      </span>
-                    </p>
+              {/* Business Profile */}
+              {supplier.businessProfile && (
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3">
+                    Business Profile
+                  </h3>
+                  <div className="grid gap-4">
+                    {supplier.businessProfile.annualRevenue && (
+                      <div className="flex items-center gap-3 p-4 rounded-lg border">
+                        <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
+                          <TrendingUp className="h-5 w-5 text-success" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Annual Revenue</p>
+                          <p className="font-medium">{supplier.businessProfile.annualRevenue}</p>
+                        </div>
+                      </div>
+                    )}
+                    {supplier.businessProfile.companySize && (
+                      <div className="flex items-center gap-3 p-4 rounded-lg border">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Company Size</p>
+                          <p className="font-medium">{supplier.businessProfile.companySize} employees</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="certifications" className="mt-6 space-y-6">
-              {/* Certifications */}
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3">
-                  Certifications & Compliance
-                </h3>
-                <div className="grid gap-3">
-                  {supplier.certifications.map((cert) => (
-                    <div
-                      key={cert}
-                      className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
-                        <Award className="h-5 w-5 text-success" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{cert}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Verified certification
-                        </p>
-                      </div>
-                      <BadgeCheck className="h-5 w-5 text-success" />
-                    </div>
-                  ))}
-                </div>
-              </div>
+              )}
 
               {supplier.verified && (
                 <>
@@ -294,7 +394,73 @@ export function SupplierDetailModal({
                       <div>
                         <p className="font-medium text-success">Verified Supplier</p>
                         <p className="text-sm text-muted-foreground">
-                          This supplier has been verified by TradePlatform
+                          This supplier has been verified by our platform
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </TabsContent>
+
+            <TabsContent value="team" className="mt-6 space-y-6">
+              {/* Team Members */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-3">
+                  Key Contacts
+                </h3>
+                {supplier.employees && supplier.employees.length > 0 ? (
+                  <div className="grid gap-3">
+                    {supplier.employees.map((employee, index) => (
+                      <a
+                        key={index}
+                        href={employee.linkedIn}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors group"
+                      >
+                        <Avatar className="h-12 w-12">
+                          <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
+                            {employee.avatar || employee.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="font-medium">{employee.name}</p>
+                          <p className="text-sm text-muted-foreground">{employee.role}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-[#0077B5] group-hover:text-[#005885] transition-colors">
+                          <Linkedin className="h-5 w-5" />
+                          <span className="text-sm font-medium">View Profile</span>
+                          <ExternalLink className="h-4 w-4" />
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 rounded-lg bg-muted/50 text-center">
+                    <Users className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">
+                      No team members listed for this supplier
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Contact the supplier directly for more information
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {supplier.employees && supplier.employees.length > 0 && (
+                <>
+                  <Separator />
+                  <div className="p-4 rounded-lg bg-[#0077B5]/5 border border-[#0077B5]/20">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-[#0077B5]/10 flex items-center justify-center">
+                        <Linkedin className="h-5 w-5 text-[#0077B5]" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-[#0077B5]">Connect on LinkedIn</p>
+                        <p className="text-sm text-muted-foreground">
+                          Click on any team member to view their full profile
                         </p>
                       </div>
                     </div>
