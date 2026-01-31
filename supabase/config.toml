@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.product-supplier-analysis]
 verify_jwt = false
+
+[functions.social-post]
+verify_jwt = false
+
+[functions.social-credentials]
+verify_jwt = false

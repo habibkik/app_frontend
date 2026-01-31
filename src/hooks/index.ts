@@ -5,3 +5,8 @@ export { useDebounce } from "./useDebounce";
 export { useLocalStorage } from "./useLocalStorage";
 export { useMobile } from "./useMobile";
 export { useToast, toast } from "./useToast";
+export { useSocialCredentials } from "./useSocialCredentials";
+export { useSocialPosting } from "./useSocialPosting";
+
+// Type exports
+export type { SocialPlatform } from "./useSocialCredentials";
