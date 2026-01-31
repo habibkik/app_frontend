@@ -8,6 +8,8 @@ import {
   Tag,
   ImageIcon,
   FileText,
+  Flame,
+  Repeat2,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,13 +19,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CompetitorDisplay } from "./CompetitorDisplay";
 import { PricingRecommendation } from "./PricingRecommendation";
 import { DemandIndicators } from "./DemandIndicators";
+import { MarketHeatMap } from "./MarketHeatMap";
+import { SubstituteCompetitors } from "./SubstituteCompetitors";
 import { ContentGenerationPanel } from "@/components/bom/ContentGenerationPanel";
-import type { MarketAnalysisResult, CompetitorInfo } from "@/stores/analysisStore";
+import type { MarketAnalysisResult, CompetitorInfo, SubstituteCompetitor } from "@/stores/analysisStore";
 
 interface ImageMarketAnalysisProps {
   result: MarketAnalysisResult;
   imagePreview?: string;
   onViewCompetitor?: (competitor: CompetitorInfo) => void;
+  onViewSubstituteCompetitor?: (competitor: SubstituteCompetitor) => void;
   onNewAnalysis?: () => void;
 }
 
@@ -31,9 +36,19 @@ export function ImageMarketAnalysis({
   result,
   imagePreview,
   onViewCompetitor,
+  onViewSubstituteCompetitor,
   onNewAnalysis,
 }: ImageMarketAnalysisProps) {
-  const { productIdentification, competitors, marketPriceRange, pricingRecommendation, demandIndicators, confidence } = result;
+  const { 
+    productIdentification, 
+    competitors, 
+    substituteCompetitors,
+    marketHeatMap,
+    marketPriceRange, 
+    pricingRecommendation, 
+    demandIndicators, 
+    confidence 
+  } = result;
 
   // Convert to format needed for content generation
   const productForContent = {
@@ -147,8 +162,10 @@ export function ImageMarketAnalysis({
 
       {/* Tabbed Content */}
       <Tabs defaultValue="analysis" className="w-full">
-        <TabsList className="grid w-full max-w-lg grid-cols-3">
-          <TabsTrigger value="analysis">Market Analysis</TabsTrigger>
+        <TabsList className="grid w-full max-w-2xl grid-cols-5">
+          <TabsTrigger value="analysis">Analysis</TabsTrigger>
+          <TabsTrigger value="heatmap">Heat Map</TabsTrigger>
+          <TabsTrigger value="substitutes">Substitutes</TabsTrigger>
           <TabsTrigger value="pricing">Pricing</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
         </TabsList>
@@ -174,6 +191,28 @@ export function ImageMarketAnalysis({
           </motion.div>
         </TabsContent>
 
+        {/* Heat Map Tab */}
+        <TabsContent value="heatmap" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <MarketHeatMap regions={marketHeatMap || []} />
+          </motion.div>
+        </TabsContent>
+
+        {/* Substitutes Tab */}
+        <TabsContent value="substitutes" className="mt-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <SubstituteCompetitors 
+              competitors={substituteCompetitors || []}
+              onViewCompetitor={onViewSubstituteCompetitor}
+            />
+          </motion.div>
+        </TabsContent>
         {/* Pricing Tab */}
         <TabsContent value="pricing" className="mt-6">
           <motion.div
