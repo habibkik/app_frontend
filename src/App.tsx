@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ProtectedRoute, PublicRoute } from "@/components/auth/ProtectedRoute";
 import { SavedSuppliersProvider } from "@/contexts/SavedSuppliersContext";
+import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -33,7 +34,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <SavedSuppliersProvider>
-        <TooltipProvider>
+        <ConversationsProvider>
+          <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -72,8 +74,9 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
-      </SavedSuppliersProvider>
-    </AuthProvider>
+      </ConversationsProvider>
+    </SavedSuppliersProvider>
+  </AuthProvider>
   </QueryClientProvider>
 );
 

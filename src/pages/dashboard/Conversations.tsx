@@ -41,7 +41,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { mockConversations, Conversation, Message } from "@/data/conversations";
+import { Conversation, Message } from "@/data/conversations";
+import { useConversations } from "@/contexts/ConversationsContext";
 import { useToast } from "@/hooks/use-toast";
 
 function formatMessageTime(date: Date): string {
@@ -446,10 +447,14 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile }: Messag
 
 export default function ConversationsPage() {
   const { toast } = useToast();
-  const [conversations, setConversations] = useState(mockConversations);
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(
-    mockConversations[0]?.id || null
-  );
+  const { 
+    conversations, 
+    activeConversationId, 
+    setActiveConversationId,
+    addMessage,
+    markAsRead,
+  } = useConversations();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
   const [showThread, setShowThread] = useState(false);
@@ -464,6 +469,13 @@ export default function ConversationsPage() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Auto-select first conversation if none selected
+  useEffect(() => {
+    if (!activeConversationId && conversations.length > 0) {
+      setActiveConversationId(conversations[0].id);
+    }
+  }, [activeConversationId, conversations, setActiveConversationId]);
+
   const filteredConversations = useMemo(() => {
     if (!searchQuery) return conversations;
     const query = searchQuery.toLowerCase();
@@ -475,63 +487,19 @@ export default function ConversationsPage() {
   }, [conversations, searchQuery]);
 
   const selectedConversation = useMemo(() => {
-    return conversations.find((c) => c.id === selectedConversationId) || null;
-  }, [conversations, selectedConversationId]);
+    return conversations.find((c) => c.id === activeConversationId) || null;
+  }, [conversations, activeConversationId]);
 
   const handleSelectConversation = (id: string) => {
-    setSelectedConversationId(id);
+    setActiveConversationId(id);
     setShowThread(true);
-    
-    // Mark as read
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === id ? { ...conv, unreadCount: 0 } : conv
-      )
-    );
+    markAsRead(id);
   };
 
   const handleSendMessage = (content: string) => {
-    if (!selectedConversationId) return;
+    if (!activeConversationId) return;
 
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      senderId: "user",
-      senderName: "You",
-      senderAvatar: "ME",
-      content,
-      timestamp: new Date(),
-      isOwn: true,
-      status: "sent",
-    };
-
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === selectedConversationId
-          ? {
-              ...conv,
-              messages: [...conv.messages, newMessage],
-              lastMessage: content,
-              lastMessageTime: new Date(),
-            }
-          : conv
-      )
-    );
-
-    // Simulate message delivery
-    setTimeout(() => {
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.id === selectedConversationId
-            ? {
-                ...conv,
-                messages: conv.messages.map((msg) =>
-                  msg.id === newMessage.id ? { ...msg, status: "delivered" } : msg
-                ),
-              }
-            : conv
-        )
-      );
-    }, 1000);
+    addMessage(activeConversationId, content);
 
     toast({
       title: "Message sent",
@@ -559,7 +527,7 @@ export default function ConversationsPage() {
             >
               <ConversationList
                 conversations={filteredConversations}
-                selectedId={selectedConversationId}
+                selectedId={activeConversationId}
                 onSelect={handleSelectConversation}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
