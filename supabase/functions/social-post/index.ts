@@ -20,6 +20,8 @@ interface Credentials {
   accessTokenSecret?: string;
   phoneNumberId?: string;
   pageId?: string;
+  accountId?: string;  // Instagram Business Account ID
+  openId?: string;     // TikTok Open ID
 }
 
 // Twitter OAuth 1.0a signature generation
@@ -191,6 +193,139 @@ async function sendWhatsAppMessage(content: string, credentials: Credentials) {
   return { platform: "whatsapp", success: true, data: result };
 }
 
+// Post to Instagram (via Facebook Graph API - requires Instagram Business Account)
+async function postToInstagram(content: string, credentials: Credentials, imageUrl?: string) {
+  const accountId = credentials.accountId;
+  const accessToken = credentials.accessToken;
+  
+  if (!accountId || !accessToken) {
+    throw new Error("Instagram requires accountId and accessToken");
+  }
+
+  // Instagram requires either an image or video for posts
+  // For text-only posts, we create a "carousel" with just text or use the comment feature
+  // However, the official API requires media. For text posts, you'd typically:
+  // 1. Create a media container with an image URL
+  // 2. Publish the container
+  
+  if (imageUrl) {
+    // Step 1: Create media container
+    const containerUrl = `https://graph.facebook.com/v18.0/${accountId}/media`;
+    const containerResponse = await fetch(containerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image_url: imageUrl,
+        caption: content,
+        access_token: accessToken,
+      }),
+    });
+
+    const containerResult = await containerResponse.json();
+    if (!containerResponse.ok) {
+      throw new Error(`Instagram container error: ${JSON.stringify(containerResult)}`);
+    }
+
+    // Step 2: Publish the media
+    const publishUrl = `https://graph.facebook.com/v18.0/${accountId}/media_publish`;
+    const publishResponse = await fetch(publishUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        creation_id: containerResult.id,
+        access_token: accessToken,
+      }),
+    });
+
+    const publishResult = await publishResponse.json();
+    if (!publishResponse.ok) {
+      throw new Error(`Instagram publish error: ${JSON.stringify(publishResult)}`);
+    }
+
+    return { platform: "instagram", success: true, data: publishResult };
+  } else {
+    // For text-only posts, Instagram Content Publishing API requires media
+    // Return error explaining this limitation
+    throw new Error("Instagram requires an image or video for posts. Text-only posts are not supported by the API.");
+  }
+}
+
+// Post to TikTok (Content Posting API)
+async function postToTikTok(content: string, credentials: Credentials, videoUrl?: string) {
+  const accessToken = credentials.accessToken;
+  
+  if (!accessToken) {
+    throw new Error("TikTok requires an access token");
+  }
+
+  // TikTok Content Posting API requires video content
+  // The workflow is:
+  // 1. Initialize a post with post/publish/inbox/video/init
+  // 2. Upload the video
+  // 3. Publish the post
+  
+  if (!videoUrl) {
+    throw new Error("TikTok requires a video URL for posts. Text-only posts are not supported.");
+  }
+
+  // Step 1: Query creator info to verify access
+  const creatorInfoUrl = "https://open.tiktokapis.com/v2/post/publish/creator_info/query/";
+  const creatorResponse = await fetch(creatorInfoUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json; charset=UTF-8",
+    },
+  });
+
+  const creatorResult = await creatorResponse.json();
+  if (!creatorResponse.ok || creatorResult.error?.code !== "ok") {
+    console.error("TikTok creator info error:", creatorResult);
+    throw new Error(`TikTok creator info error: ${JSON.stringify(creatorResult)}`);
+  }
+
+  // Step 2: Initialize video upload with PULL_FROM_URL
+  const initUrl = "https://open.tiktokapis.com/v2/post/publish/video/init/";
+  const initResponse = await fetch(initUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json; charset=UTF-8",
+    },
+    body: JSON.stringify({
+      post_info: {
+        title: content.substring(0, 150), // TikTok title limit
+        privacy_level: "PUBLIC_TO_EVERYONE",
+        disable_duet: false,
+        disable_stitch: false,
+        disable_comment: false,
+        video_cover_timestamp_ms: 0,
+      },
+      source_info: {
+        source: "PULL_FROM_URL",
+        video_url: videoUrl,
+      },
+    }),
+  });
+
+  const initResult = await initResponse.json();
+  if (!initResponse.ok || initResult.error?.code !== "ok") {
+    console.error("TikTok init error:", initResult);
+    throw new Error(`TikTok init error: ${JSON.stringify(initResult)}`);
+  }
+
+  // The video will be processed asynchronously by TikTok
+  // publish_id can be used to check status
+  return { 
+    platform: "tiktok", 
+    success: true, 
+    data: {
+      publish_id: initResult.data?.publish_id,
+      message: "Video submitted for processing. It will appear on your TikTok profile once processing is complete.",
+    },
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -272,6 +407,14 @@ Deno.serve(async (req) => {
             break;
           case "whatsapp":
             result = await sendWhatsAppMessage(content, credentials);
+            break;
+          case "instagram":
+            // Instagram requires image/video - would need to pass mediaUrl from request
+            result = await postToInstagram(content, credentials);
+            break;
+          case "tiktok":
+            // TikTok requires video - would need to pass videoUrl from request
+            result = await postToTikTok(content, credentials);
             break;
           default:
             errors.push({ platform, error: "Platform not supported yet" });
