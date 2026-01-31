@@ -6,12 +6,14 @@ import HowItWorks from "@/components/landing/HowItWorks";
 import Testimonials from "@/components/landing/Testimonials";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
+import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
 
 export default function IndexPage() {
   return (
     <div className="min-h-screen">
       <Navigation />
       <Hero />
+      <InteractiveDemo />
       <Features />
       <RoleCards />
       <HowItWorks />

@@ -1,18 +1,47 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Sparkles } from "lucide-react";
 import { HeroButton } from "@/components/ui/hero-button";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const navLinks = [
+    { label: "Try Demo", href: "/#demo", highlight: true },
     { label: "For Buyers", href: "/buyers" },
     { label: "For Sellers", href: "/sellers" },
     { label: "For Producers", href: "/producers" },
     { label: "Pricing", href: "/pricing" },
   ];
+
+  const handleNavClick = (href: string) => {
+    // Handle hash links (like /#demo)
+    if (href.includes('#')) {
+      const [path, hash] = href.split('#');
+      if (location.pathname === '/' || location.pathname === path) {
+        // Already on the page, just scroll
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        // Navigate to the page first, then scroll
+        navigate(path || '/');
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
+    } else {
+      navigate(href);
+    }
+    setIsOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-dark">
@@ -42,13 +71,18 @@ const Navigation = () => {
             className="hidden md:flex items-center gap-8"
           >
             {navLinks.map((link) => (
-              <Link
+              <button
                 key={link.label}
-                to={link.href}
-                className="text-sm font-medium text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+                onClick={() => handleNavClick(link.href)}
+                className={`text-sm font-medium transition-colors ${
+                  link.highlight 
+                    ? "text-primary-foreground flex items-center gap-1" 
+                    : "text-primary-foreground/70 hover:text-primary-foreground"
+                }`}
               >
+                {link.highlight && <Sparkles className="h-3.5 w-3.5" />}
                 {link.label}
-              </Link>
+              </button>
             ))}
           </motion.div>
 
@@ -88,14 +122,18 @@ const Navigation = () => {
             >
               <div className="py-6 space-y-4">
                 {navLinks.map((link) => (
-                  <Link
+                  <button
                     key={link.label}
-                    to={link.href}
-                    className="block py-2 text-base font-medium text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => handleNavClick(link.href)}
+                    className={`block py-2 text-base font-medium transition-colors text-left w-full ${
+                      link.highlight 
+                        ? "text-primary-foreground flex items-center gap-1" 
+                        : "text-primary-foreground/70 hover:text-primary-foreground"
+                    }`}
                   >
+                    {link.highlight && <Sparkles className="h-4 w-4" />}
                     {link.label}
-                  </Link>
+                  </button>
                 ))}
                 <div className="pt-4 space-y-3">
                   <HeroButton variant="ghost" size="default" className="w-full" asChild>

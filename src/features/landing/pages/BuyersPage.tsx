@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Navigation from "@/components/landing/Navigation";
 import Footer from "@/components/landing/Footer";
+import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -133,6 +134,9 @@ export default function BuyersPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* Interactive Demo */}
+      <InteractiveDemo />
 
       {/* AI Never Sleeps Section */}
       <section className="py-20 bg-muted/30">
