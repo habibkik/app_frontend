@@ -1,19 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Share2, 
-  Check, 
-  X, 
-  ExternalLink,
-  RefreshCw,
-  Settings,
-} from "lucide-react";
+import { Share2, Check, X, ExternalLink, Loader2 } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -24,156 +15,72 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useSocialCredentials, SocialPlatform } from "@/hooks/useSocialCredentials";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface SocialPlatform {
-  id: string;
-  name: string;
-  icon: string;
-  connected: boolean;
-  username?: string;
-  features: {
-    posting: boolean;
-    messaging: boolean;
-    analytics: boolean;
-  };
-  apiKey?: string;
-  apiSecret?: string;
-}
-
-const initialPlatforms: SocialPlatform[] = [
-  {
-    id: "twitter",
-    name: "Twitter / X",
-    icon: "𝕏",
-    connected: false,
-    features: { posting: true, messaging: true, analytics: true },
-  },
-  {
-    id: "facebook",
-    name: "Facebook",
-    icon: "f",
-    connected: false,
-    features: { posting: true, messaging: true, analytics: true },
-  },
-  {
-    id: "instagram",
-    name: "Instagram",
-    icon: "📷",
-    connected: false,
-    features: { posting: true, messaging: true, analytics: true },
-  },
-  {
-    id: "linkedin",
-    name: "LinkedIn",
-    icon: "in",
-    connected: false,
-    features: { posting: true, messaging: true, analytics: true },
-  },
-  {
-    id: "tiktok",
-    name: "TikTok",
-    icon: "♪",
-    connected: false,
-    features: { posting: true, messaging: false, analytics: true },
-  },
-  {
-    id: "youtube",
-    name: "YouTube",
-    icon: "▶",
-    connected: false,
-    features: { posting: true, messaging: false, analytics: true },
-  },
-  {
-    id: "pinterest",
-    name: "Pinterest",
-    icon: "📌",
-    connected: false,
-    features: { posting: true, messaging: false, analytics: true },
-  },
-  {
-    id: "threads",
-    name: "Threads",
-    icon: "@",
-    connected: false,
-    features: { posting: true, messaging: false, analytics: false },
-  },
-];
+const developerPortalUrls: Record<string, string> = {
+  twitter: "https://developer.twitter.com/en/portal/dashboard",
+  facebook: "https://developers.facebook.com/apps",
+  instagram: "https://developers.facebook.com/apps",
+  linkedin: "https://www.linkedin.com/developers/apps",
+  whatsapp: "https://developers.facebook.com/apps",
+  tiktok: "https://developers.tiktok.com",
+  youtube: "https://console.cloud.google.com/apis/credentials",
+  pinterest: "https://developers.pinterest.com/apps",
+};
 
 export function SocialMediaSection() {
-  const { toast } = useToast();
-  const [platforms, setPlatforms] = useState<SocialPlatform[]>(initialPlatforms);
+  const { platforms, loading, connecting, connectPlatform, disconnectPlatform } = useSocialCredentials();
   const [configuringPlatform, setConfiguringPlatform] = useState<SocialPlatform | null>(null);
-  const [apiKey, setApiKey] = useState("");
-  const [apiSecret, setApiSecret] = useState("");
+  const [credentials, setCredentials] = useState<Record<string, string>>({});
 
-  const handleConnect = (platformId: string) => {
-    const platform = platforms.find(p => p.id === platformId);
-    if (platform) {
-      setConfiguringPlatform(platform);
-      setApiKey(platform.apiKey || "");
-      setApiSecret(platform.apiSecret || "");
-    }
+  const handleConnect = (platform: SocialPlatform) => {
+    setConfiguringPlatform(platform);
+    setCredentials({});
   };
 
-  const handleDisconnect = (platformId: string) => {
-    setPlatforms(prev => 
-      prev.map(p => 
-        p.id === platformId 
-          ? { ...p, connected: false, username: undefined, apiKey: undefined, apiSecret: undefined }
-          : p
-      )
-    );
-    toast({
-      title: "Disconnected",
-      description: "Social media account has been disconnected",
-    });
+  const handleDisconnect = async (platformId: string) => {
+    await disconnectPlatform(platformId);
   };
 
-  const handleSaveConnection = () => {
+  const handleSaveConnection = async () => {
     if (!configuringPlatform) return;
 
-    if (!apiKey) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your API key",
-        variant: "destructive",
-      });
-      return;
+    // Validate required fields
+    const missingFields = configuringPlatform.requiredFields.filter(
+      (field) => !credentials[field.key]?.trim()
+    );
+
+    if (missingFields.length > 0) {
+      return; // The inputs will show validation states
     }
 
-    setPlatforms(prev => 
-      prev.map(p => 
-        p.id === configuringPlatform.id 
-          ? { 
-              ...p, 
-              connected: true, 
-              username: "@connected_user",
-              apiKey,
-              apiSecret,
-            }
-          : p
-      )
-    );
-
-    setConfiguringPlatform(null);
-    setApiKey("");
-    setApiSecret("");
-    
-    toast({
-      title: "Connected!",
-      description: `${configuringPlatform.name} has been connected successfully`,
-    });
+    const result = await connectPlatform(configuringPlatform.id, credentials);
+    if (result.success) {
+      setConfiguringPlatform(null);
+      setCredentials({});
+    }
   };
 
-  const toggleFeature = (platformId: string, feature: keyof SocialPlatform["features"]) => {
-    setPlatforms(prev => 
-      prev.map(p => 
-        p.id === platformId 
-          ? { ...p, features: { ...p.features, [feature]: !p.features[feature] } }
-          : p
-      )
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Share2 className="h-5 w-5" />
+            Social Media Integrations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-20 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -184,7 +91,7 @@ export function SocialMediaSection() {
             Social Media Integrations
           </CardTitle>
           <CardDescription>
-            Connect your social media accounts to post content and manage messages
+            Connect your social media accounts to post content and manage messages from your own accounts
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -204,7 +111,7 @@ export function SocialMediaSection() {
                   <div>
                     <h4 className="font-medium">{platform.name}</h4>
                     {platform.connected ? (
-                      <p className="text-sm text-success flex items-center gap-1">
+                      <p className="text-sm text-primary flex items-center gap-1">
                         <Check className="h-3 w-3" />
                         {platform.username}
                       </p>
@@ -214,15 +121,6 @@ export function SocialMediaSection() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {platform.connected && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleConnect(platform.id)}
-                    >
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  )}
                   {platform.connected ? (
                     <Button
                       variant="outline"
@@ -233,10 +131,7 @@ export function SocialMediaSection() {
                       Disconnect
                     </Button>
                   ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => handleConnect(platform.id)}
-                    >
+                    <Button size="sm" onClick={() => handleConnect(platform)}>
                       Connect
                     </Button>
                   )}
@@ -247,111 +142,92 @@ export function SocialMediaSection() {
         </CardContent>
       </Card>
 
-      {/* Feature Toggles */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Feature Settings</CardTitle>
-          <CardDescription>
-            Enable or disable specific features for each connected platform
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {platforms.filter(p => p.connected).length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                Connect a social media account to configure features
-              </p>
-            ) : (
-              platforms.filter(p => p.connected).map(platform => (
-                <div key={platform.id} className="p-4 border rounded-lg space-y-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{platform.icon}</span>
-                    <h4 className="font-medium">{platform.name}</h4>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor={`${platform.id}-posting`}>Auto Posting</Label>
-                      <Switch
-                        id={`${platform.id}-posting`}
-                        checked={platform.features.posting}
-                        onCheckedChange={() => toggleFeature(platform.id, "posting")}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor={`${platform.id}-messaging`}>Messaging</Label>
-                      <Switch
-                        id={`${platform.id}-messaging`}
-                        checked={platform.features.messaging}
-                        onCheckedChange={() => toggleFeature(platform.id, "messaging")}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor={`${platform.id}-analytics`}>Analytics</Label>
-                      <Switch
-                        id={`${platform.id}-analytics`}
-                        checked={platform.features.analytics}
-                        onCheckedChange={() => toggleFeature(platform.id, "analytics")}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Connected Platforms Summary */}
+      {platforms.some((p) => p.connected) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Connected Accounts</CardTitle>
+            <CardDescription>
+              These accounts are ready for posting and messaging
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {platforms
+                .filter((p) => p.connected)
+                .map((platform) => (
+                  <Badge key={platform.id} variant="secondary" className="text-sm py-1 px-3">
+                    <span className="mr-2">{platform.icon}</span>
+                    {platform.name}
+                    {platform.username && (
+                      <span className="ml-1 text-muted-foreground">({platform.username})</span>
+                    )}
+                  </Badge>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Configuration Dialog */}
       <Dialog open={!!configuringPlatform} onOpenChange={() => setConfiguringPlatform(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="text-2xl">{configuringPlatform?.icon}</span>
               Connect {configuringPlatform?.name}
             </DialogTitle>
             <DialogDescription>
               Enter your API credentials to connect your {configuringPlatform?.name} account.
-              You can find these in your {configuringPlatform?.name} developer portal.
+              Your credentials are stored securely and only you can access them.
             </DialogDescription>
           </DialogHeader>
+
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="api-key">API Key / Consumer Key</Label>
-              <Input
-                id="api-key"
-                type="password"
-                placeholder="Enter your API key"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="api-secret">API Secret / Consumer Secret</Label>
-              <Input
-                id="api-secret"
-                type="password"
-                placeholder="Enter your API secret"
-                value={apiSecret}
-                onChange={(e) => setApiSecret(e.target.value)}
-              />
-            </div>
-            <div className="text-sm text-muted-foreground">
-              <a 
-                href={`https://developer.${configuringPlatform?.id}.com`} 
-                target="_blank" 
+            {configuringPlatform?.requiredFields.map((field) => (
+              <div key={field.key} className="space-y-2">
+                <Label htmlFor={field.key}>{field.label}</Label>
+                <Input
+                  id={field.key}
+                  type="password"
+                  placeholder={field.placeholder}
+                  value={credentials[field.key] || ""}
+                  onChange={(e) =>
+                    setCredentials((prev) => ({ ...prev, [field.key]: e.target.value }))
+                  }
+                />
+              </div>
+            ))}
+
+            <div className="text-sm text-muted-foreground pt-2">
+              <a
+                href={developerPortalUrls[configuringPlatform?.id || ""] || "#"}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline inline-flex items-center gap-1"
               >
-                Get API credentials <ExternalLink className="h-3 w-3" />
+                Get API credentials from {configuringPlatform?.name} Developer Portal
+                <ExternalLink className="h-3 w-3" />
               </a>
             </div>
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfiguringPlatform(null)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveConnection}>
-              <Check className="h-4 w-4 mr-2" />
-              Connect
+            <Button onClick={handleSaveConnection} disabled={connecting}>
+              {connecting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Connect
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
