@@ -15,6 +15,7 @@ import {
   Globe,
   Users,
   Settings,
+  Map,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -50,6 +51,7 @@ const buyerNavigation: NavGroup[] = [
   {
     label: "Insights",
     items: [
+      { title: "Heat Map", url: "/dashboard/heatmap", icon: Map },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
     ],
   },
@@ -81,6 +83,12 @@ const producerNavigation: NavGroup[] = [
     label: "Growth",
     items: [
       { title: "Go-To-Market", url: "/dashboard/gtm", icon: Rocket },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      { title: "Heat Map", url: "/dashboard/heatmap", icon: Map },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
     ],
   },
@@ -118,6 +126,7 @@ const sellerNavigation: NavGroup[] = [
   {
     label: "Insights",
     items: [
+      { title: "Heat Map", url: "/dashboard/heatmap", icon: Map },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
     ],
   },
