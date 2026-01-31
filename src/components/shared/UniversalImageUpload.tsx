@@ -1,6 +1,7 @@
 /**
  * Universal Image Upload Component
  * Mode-aware image upload that serves as the entry point for all dashboard modes
+ * Runs actual analysis and stores results before navigating
  */
 import { useCallback, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +21,12 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { useDashboardMode } from "@/features/dashboard";
 import { useAnalysisStore } from "@/stores/analysisStore";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  analyzeProductImage, 
+  analyzeForSourcing, 
+  analyzeForSelling 
+} from "@/features/agents/miromind/api";
 
 interface ModeConfig {
   icon: React.ElementType;
@@ -87,6 +94,7 @@ export function UniversalImageUpload({
   const { mode } = useDashboardMode();
   const config = modeConfigs[mode];
   const ModeIcon = config.icon;
+  const { toast } = useToast();
   
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -94,6 +102,7 @@ export function UniversalImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const {
+    currentImage,
     isAnalyzing,
     analysisProgress,
     analysisStep,
@@ -101,6 +110,9 @@ export function UniversalImageUpload({
     setAnalyzing,
     setAnalysisProgress,
     clearCurrentImage,
+    setBuyerResults,
+    setProducerResults,
+    setSellerResults,
   } = useAnalysisStore();
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -166,22 +178,90 @@ export function UniversalImageUpload({
   };
 
   const handleAnalyze = async () => {
-    if (!previewUrl) return;
+    if (!currentImage) return;
     
     setAnalyzing(true);
     
-    // Simulate analysis with progress updates
-    const steps = config.processingSteps;
-    for (let i = 0; i < steps.length; i++) {
-      setAnalysisProgress((i / steps.length) * 100, steps[i]);
-      await new Promise((resolve) => setTimeout(resolve, 800 + Math.random() * 400));
+    try {
+      // Show progress updates
+      const steps = config.processingSteps;
+      let currentStep = 0;
+      
+      const progressInterval = setInterval(() => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          setAnalysisProgress((currentStep / steps.length) * 80, steps[currentStep]);
+        }
+      }, 700);
+
+      setAnalysisProgress(10, steps[0]);
+      
+      // Call the appropriate API based on mode
+      const request = {
+        imageBase64: currentImage,
+        mimeType: "image/jpeg",
+      };
+
+      let analysisSuccessful = false;
+      
+      switch (mode) {
+        case "buyer": {
+          const result = await analyzeForSourcing(request);
+          setBuyerResults(result);
+          analysisSuccessful = true;
+          toast({
+            title: "Supplier Discovery Complete",
+            description: `Found ${result.suggestedSuppliers.length} matching suppliers for ${result.productIdentification.name}`,
+          });
+          break;
+        }
+        case "producer": {
+          const result = await analyzeProductImage(request);
+          if (result.success) {
+            setProducerResults({
+              ...result,
+              totalEstimatedCost: result.components.reduce(
+                (sum, c) => sum + c.estimatedUnitCost * c.quantity, 
+                0
+              ),
+            });
+            analysisSuccessful = true;
+            toast({
+              title: "BOM Analysis Complete",
+              description: `Identified ${result.components.length} components for ${result.productName}`,
+            });
+          }
+          break;
+        }
+        case "seller": {
+          const result = await analyzeForSelling(request);
+          setSellerResults(result);
+          analysisSuccessful = true;
+          toast({
+            title: "Market Analysis Complete",
+            description: `Found ${result.competitors.length} competitors and pricing insights`,
+          });
+          break;
+        }
+      }
+
+      clearInterval(progressInterval);
+      
+      if (analysisSuccessful) {
+        setAnalysisProgress(100, "Complete!");
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        onAnalysisComplete?.();
+      }
+    } catch (error) {
+      console.error("Analysis error:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "There was an error analyzing your image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzing(false);
     }
-    
-    setAnalysisProgress(100, "Complete!");
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    
-    setAnalyzing(false);
-    onAnalysisComplete?.();
   };
 
   return (
