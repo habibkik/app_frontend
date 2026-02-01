@@ -1,171 +1,195 @@
 
-# Enhanced Supplier Detail Popup with Business Information & Worker Profiles
+# Save AI-Discovered Suppliers to Browse All Tab
 
 ## Overview
-This plan enhances the existing supplier detail popup in the "Browse All" section of Supplier Discovery to show comprehensive business information and LinkedIn profiles of workers at each supplier.
+When the AI analyzes a product image and returns supplier matches and substitute suppliers, these will be automatically saved and displayed in the "Browse All" tab alongside existing suppliers. Users will be able to see which suppliers were discovered via AI analysis.
 
 ## What You'll Get
-When you click on any supplier card in Browse All:
-- A comprehensive popup with all business information
-- **New Contact tab**: Email, phone, website, LinkedIn company page
-- **New Location info**: Full address with Google Maps integration
-- **Enhanced Business details**: Revenue, company size, year established
-- **New Team tab**: LinkedIn profiles of key employees at the supplier (sales reps, account managers, etc.)
+- All AI-discovered suppliers (both main matches and substitutes) automatically appear in Browse All
+- Visual badge indicating "AI Discovered" on suppliers found through image analysis
+- Suppliers persist across page refreshes using Zustand store with localStorage
+- Ability to clear AI-discovered suppliers if needed
+- Seamless integration with existing filters and search
 
 ---
 
 ## Technical Implementation
 
-### 1. Enhance Supplier Data Type
-**File**: `src/data/suppliers.ts`
+### 1. Create AI Discovered Suppliers Store
 
-Add new fields to the `Supplier` interface:
+**New File**: `src/stores/discoveredSuppliersStore.ts`
+
+A Zustand store to persist AI-discovered suppliers:
 
 ```typescript
-export interface SupplierEmployee {
-  name: string;
-  role: string;
-  linkedIn: string;
-  avatar?: string;
+interface DiscoveredSuppliersState {
+  // Suppliers discovered via AI analysis
+  discoveredSuppliers: Supplier[];
+  
+  // Track source analysis for each supplier
+  supplierSources: Record<string, {
+    analysisId: string;
+    discoveredAt: Date;
+    type: "match" | "substitute";
+    matchScore?: number;
+  }>;
 }
 
+interface DiscoveredSuppliersActions {
+  // Add suppliers from analysis results
+  addFromAnalysis: (
+    suppliers: SupplierMatch[],
+    substituteSuppliers: SubstituteSupplier[],
+    analysisId: string
+  ) => void;
+  
+  // Check if supplier is AI-discovered
+  isDiscovered: (supplierId: string) => boolean;
+  
+  // Get source info for a supplier
+  getSourceInfo: (supplierId: string) => SourceInfo | undefined;
+  
+  // Clear all discovered suppliers
+  clearDiscovered: () => void;
+}
+```
+
+### 2. Create Type Converter Utility
+
+**New File**: `src/lib/supplier-converter.ts`
+
+Convert AI result types to standard Supplier type:
+
+```typescript
+// Convert SupplierMatch to Supplier
+export function supplierMatchToSupplier(match: SupplierMatch): Supplier {
+  return {
+    id: `ai-${match.id}`,
+    name: match.name,
+    logo: match.name.substring(0, 2).toUpperCase(),
+    location: parseLocation(match.location, match.geoLocation),
+    industry: guessIndustry(match.businessProfile),
+    specializations: match.businessProfile?.specializations || [],
+    verified: match.verified,
+    rating: calculateRating(match.matchScore),
+    reviewCount: 0, // AI-discovered, no reviews yet
+    responseTime: match.leadTime,
+    minOrderValue: match.moq * match.priceRange.min,
+    yearEstablished: match.businessProfile?.yearEstablished || new Date().getFullYear(),
+    employeeCount: match.businessProfile?.companySize || "Unknown",
+    description: `AI-discovered supplier with ${match.matchScore}% match score.`,
+    certifications: match.businessProfile?.certifications || [],
+    geoLocation: match.geoLocation,
+    contact: match.contact,
+    businessProfile: {
+      annualRevenue: match.businessProfile?.annualRevenue,
+      companySize: match.businessProfile?.companySize,
+    },
+    // Mark as AI-discovered
+    isAIDiscovered: true,
+    matchScore: match.matchScore,
+  };
+}
+
+// Convert SubstituteSupplier to Supplier
+export function substituteSupplierToSupplier(sub: SubstituteSupplier): Supplier {
+  // Similar conversion with substitute-specific fields
+}
+```
+
+### 3. Extend Supplier Type
+
+**Edit**: `src/data/suppliers.ts`
+
+Add optional AI-discovery fields:
+
+```typescript
 export interface Supplier {
   // ... existing fields ...
   
-  // Geographic location with coordinates
-  geoLocation?: {
-    latitude: number;
-    longitude: number;
-    formattedAddress: string;
-    city: string;
-    state?: string;
-    country: string;
-  };
-  
-  // Contact information
-  contact?: {
-    email?: string;
-    phone?: string;
-    website?: string;
-    linkedIn?: string;
-  };
-  
-  // Business profile
-  businessProfile?: {
-    annualRevenue?: string;
-    companySize?: string;
-  };
-  
-  // Key employees/contacts
-  employees?: SupplierEmployee[];
+  // AI Discovery metadata (optional)
+  isAIDiscovered?: boolean;
+  matchScore?: number;
+  discoveredAt?: Date;
+  substituteOf?: string; // Original product if substitute
 }
 ```
 
-### 2. Update Mock Supplier Data
-**File**: `src/data/suppliers.ts`
+### 4. Update Suppliers Page
 
-Enhance each mock supplier with the new data:
+**Edit**: `src/pages/dashboard/Suppliers.tsx`
+
+Integrate discovered suppliers:
 
 ```typescript
-{
-  id: "sup-001",
-  name: "TechParts Manufacturing Co.",
-  // ... existing fields ...
+// Import the new store
+import { useDiscoveredSuppliersStore } from "@/stores/discoveredSuppliersStore";
+
+// In component:
+const { discoveredSuppliers, addFromAnalysis } = useDiscoveredSuppliersStore();
+
+// Merge suppliers for Browse All
+const allSuppliers = useMemo(() => {
+  // Combine mock + discovered, avoiding duplicates
+  const combinedMap = new Map<string, Supplier>();
   
-  geoLocation: {
-    latitude: 22.5431,
-    longitude: 114.0579,
-    formattedAddress: "Building 8, Tech Park, Nanshan District, Shenzhen 518057, China",
-    city: "Shenzhen",
-    state: "Guangdong",
-    country: "China",
-  },
-  contact: {
-    email: "sales@techparts.cn",
-    phone: "+86-755-8888-9999",
-    website: "https://techparts.cn",
-    linkedIn: "https://linkedin.com/company/techparts-manufacturing",
-  },
-  businessProfile: {
-    annualRevenue: "$50M - $100M",
-    companySize: "500-1000",
-  },
-  employees: [
-    {
-      name: "David Chen",
-      role: "Sales Director",
-      linkedIn: "https://linkedin.com/in/david-chen-techparts",
-    },
-    {
-      name: "Lisa Wang",
-      role: "Key Account Manager",
-      linkedIn: "https://linkedin.com/in/lisa-wang-techparts",
-    },
-    {
-      name: "Michael Liu",
-      role: "Technical Sales Engineer",
-      linkedIn: "https://linkedin.com/in/michael-liu-techparts",
-    },
-  ],
-}
+  // Add mock suppliers
+  mockSuppliers.forEach(s => combinedMap.set(s.id, s));
+  
+  // Add/update with discovered suppliers
+  discoveredSuppliers.forEach(s => combinedMap.set(s.id, s));
+  
+  return Array.from(combinedMap.values());
+}, [discoveredSuppliers]);
+
+// Auto-save when AI results come in
+useEffect(() => {
+  if (buyerResults) {
+    addFromAnalysis(
+      buyerResults.suggestedSuppliers,
+      buyerResults.substituteSuppliers || [],
+      crypto.randomUUID()
+    );
+  }
+}, [buyerResults, addFromAnalysis]);
 ```
 
-### 3. Enhance Supplier Detail Modal
-**File**: `src/components/suppliers/SupplierDetailModal.tsx`
+### 5. Update Supplier Card
 
-Update the modal to include 4 tabs:
+**Edit**: `src/components/suppliers/SupplierCard.tsx`
 
-```text
-+------------------------------------------------------------------+
-|  [Logo]  Supplier Name            [Verified Badge]    [X Close]  |
-|          Location • Industry                                      |
-+------------------------------------------------------------------+
-|                                                                   |
-|  +------------------+  +------------------+  +------------------+ |
-|  | Rating           |  | Response Time    |  | Min. Order       | |
-|  | 4.8 ★            |  | < 12 hours       |  | $5,000           | |
-|  +------------------+  +------------------+  +------------------+ |
-|                                                                   |
-|  [Tabs: Overview | Contact | Business | Team]                     |
-|                                                                   |
-|  === Overview Tab ===                                             |
-|  - Full Address with Google Maps link                             |
-|  - About / Description                                            |
-|  - Specializations badges                                         |
-|  - Certifications list                                            |
-|                                                                   |
-|  === Contact Tab ===                                              |
-|  - Email (clickable mailto:)                                      |
-|  - Phone (clickable tel:)                                         |
-|  - Website (external link)                                        |
-|  - Company LinkedIn page (external link)                          |
-|                                                                   |
-|  === Business Tab ===                                             |
-|  - Company Size                                                   |
-|  - Year Established                                               |
-|  - Annual Revenue                                                 |
-|  - Employee Count                                                 |
-|  - Industry Focus                                                 |
-|                                                                   |
-|  === Team Tab (NEW) ===                                           |
-|  +----------------------------------------------------------+     |
-|  | [Avatar] David Chen                                       |     |
-|  |          Sales Director                                   |     |
-|  |          [LinkedIn Icon] View Profile →                   |     |
-|  +----------------------------------------------------------+     |
-|  | [Avatar] Lisa Wang                                        |     |
-|  |          Key Account Manager                              |     |
-|  |          [LinkedIn Icon] View Profile →                   |     |
-|  +----------------------------------------------------------+     |
-|  | [Avatar] Michael Liu                                      |     |
-|  |          Technical Sales Engineer                         |     |
-|  |          [LinkedIn Icon] View Profile →                   |     |
-|  +----------------------------------------------------------+     |
-|                                                                   |
-|  +----------------------+  +----------------------+               |
-|  |   Contact Supplier   |  |   Save               |               |
-|  +----------------------+  +----------------------+               |
-+------------------------------------------------------------------+
+Show AI-discovered badge:
+
+```typescript
+{supplier.isAIDiscovered && (
+  <Badge className="bg-gradient-to-r from-purple-500 to-primary text-white text-xs">
+    <Sparkles className="h-3 w-3 mr-1" />
+    AI Discovered
+  </Badge>
+)}
+
+{supplier.matchScore && (
+  <Badge variant="outline" className="text-xs">
+    {supplier.matchScore}% Match
+  </Badge>
+)}
+```
+
+### 6. Add Clear Button (Optional)
+
+**Edit**: `src/pages/dashboard/Suppliers.tsx`
+
+Add ability to clear discovered suppliers:
+
+```typescript
+<Button 
+  variant="outline" 
+  size="sm"
+  onClick={() => clearDiscovered()}
+>
+  <Trash2 className="h-4 w-4 mr-2" />
+  Clear AI Results
+</Button>
 ```
 
 ---
@@ -174,49 +198,60 @@ Update the modal to include 4 tabs:
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/data/suppliers.ts` | Edit | Add SupplierEmployee interface and new fields to Supplier type |
-| `src/data/suppliers.ts` | Edit | Update mockSuppliers with contact, geo, businessProfile, and employees data |
-| `src/components/suppliers/SupplierDetailModal.tsx` | Edit | Add Contact tab with clickable links |
-| `src/components/suppliers/SupplierDetailModal.tsx` | Edit | Add Team tab with employee LinkedIn profiles |
-| `src/components/suppliers/SupplierDetailModal.tsx` | Edit | Enhance Overview tab with Google Maps link |
+| `src/stores/discoveredSuppliersStore.ts` | Create | New Zustand store for persisting AI-discovered suppliers |
+| `src/lib/supplier-converter.ts` | Create | Utility to convert SupplierMatch/SubstituteSupplier to Supplier type |
+| `src/data/suppliers.ts` | Edit | Add optional AI-discovery fields to Supplier interface |
+| `src/pages/dashboard/Suppliers.tsx` | Edit | Merge discovered suppliers with mockSuppliers, auto-save on AI results |
+| `src/components/suppliers/SupplierCard.tsx` | Edit | Display "AI Discovered" badge and match score |
+| `src/stores/index.ts` | Edit | Export new store |
 
 ---
 
-## Sample Employee Data Structure
+## Data Flow
 
-```json
-{
-  "employees": [
-    {
-      "name": "David Chen",
-      "role": "Sales Director",
-      "linkedIn": "https://linkedin.com/in/david-chen-techparts",
-      "avatar": "DC"
-    },
-    {
-      "name": "Lisa Wang",
-      "role": "Key Account Manager", 
-      "linkedIn": "https://linkedin.com/in/lisa-wang-techparts",
-      "avatar": "LW"
-    },
-    {
-      "name": "Michael Liu",
-      "role": "Technical Sales Engineer",
-      "linkedIn": "https://linkedin.com/in/michael-liu-techparts",
-      "avatar": "ML"
-    }
-  ]
-}
+```text
+User uploads image
+        ↓
+AI analyzes → returns SupplierMatch[] + SubstituteSupplier[]
+        ↓
+Convert to Supplier[] format (supplier-converter.ts)
+        ↓
+Save to discoveredSuppliersStore (persisted to localStorage)
+        ↓
+Browse All tab merges: mockSuppliers + discoveredSuppliers
+        ↓
+Display with "AI Discovered" badge on AI-found suppliers
 ```
 
 ---
 
 ## User Experience Flow
 
-1. User navigates to Supplier Discovery → Browse All tab
-2. User clicks on any supplier card
-3. Detail modal opens with enhanced information
-4. User can browse tabs (Overview, Contact, Business, Team)
-5. In **Contact tab**: User clicks email/phone/website to reach out
-6. In **Team tab**: User clicks LinkedIn profiles to connect with key people at the supplier
-7. User can click "Contact Supplier" to send an inquiry or "Save" to save for later
+1. User uploads a product image in the "AI Results" tab
+2. AI analyzes and shows matched suppliers + substitutes
+3. **Automatically**, these suppliers are converted and saved to the store
+4. User switches to "Browse All" tab
+5. Sees all suppliers including newly discovered ones with an "AI Discovered" badge
+6. AI-discovered suppliers show match score and discovery date
+7. User can filter, search, contact, or save these suppliers just like any other
+8. Data persists across page refreshes
+
+---
+
+## Visual Indicator Design
+
+```text
++------------------------------------------+
+| [Avatar]  Supplier Name                  |
+|           Shanghai, China • Electronics  |
+|                                          |
+|  [AI Discovered] [92% Match]             |
+|                                          |
+|  ★ 4.6  |  156 reviews  |  < 24h        |
+|  Min. Order: $5,000                      |
+|                                          |
+|  [ISO 9001] [RoHS] [CE Mark]             |
+|                                          |
+|     [Contact]    [Save]                  |
++------------------------------------------+
+```
