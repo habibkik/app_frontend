@@ -16,7 +16,9 @@ import {
   Phone,
   Globe,
   Linkedin,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  ArrowRightLeft
 } from "lucide-react";
 import {
   Dialog,
@@ -84,6 +86,26 @@ export function SupplierDetailModal({
                       {supplier.industry}
                     </span>
                   </div>
+                  {/* AI Discovery badges in header */}
+                  {supplier.isAIDiscovered && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge className="bg-gradient-to-r from-purple-500 to-primary text-white text-xs">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        AI Discovered
+                      </Badge>
+                      {supplier.matchScore && (
+                        <Badge variant="outline" className="text-xs border-white/30 text-white">
+                          {supplier.matchScore}% Match
+                        </Badge>
+                      )}
+                      {supplier.substituteOf && (
+                        <Badge variant="outline" className="text-xs border-white/30 text-white">
+                          <ArrowRightLeft className="h-3 w-3 mr-1" />
+                          Substitute
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -133,6 +155,26 @@ export function SupplierDetailModal({
             </TabsList>
 
             <TabsContent value="overview" className="mt-6 space-y-6">
+              {/* Substitute Product Info - Show for substitute suppliers */}
+              {supplier.substituteOf && (
+                <div className="p-4 rounded-lg bg-gradient-to-r from-purple-500/10 to-primary/10 border border-purple-500/20">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                      <ArrowRightLeft className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">Substitute Supplier</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        This supplier was discovered as an alternative for:
+                      </p>
+                      <Badge variant="secondary" className="mt-2 text-sm">
+                        {supplier.substituteOf}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Location with Google Maps */}
               {supplier.geoLocation && (
                 <div>
