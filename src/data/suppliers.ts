@@ -50,6 +50,11 @@ export interface Supplier {
   contact?: SupplierContact;
   businessProfile?: SupplierBusinessProfile;
   employees?: SupplierEmployee[];
+  // AI Discovery metadata (optional)
+  isAIDiscovered?: boolean;
+  matchScore?: number;
+  discoveredAt?: Date;
+  substituteOf?: string; // Original product if substitute
 }
 
 export const mockSuppliers: Supplier[] = [

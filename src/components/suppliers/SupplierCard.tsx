@@ -1,4 +1,4 @@
-import { Star, MapPin, Clock, BadgeCheck, Building2 } from "lucide-react";
+import { Star, MapPin, Clock, BadgeCheck, Building2, Sparkles } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,26 @@ export function SupplierCard({ supplier, onContact, onSave, onClick, onNameClick
                 {supplier.industry}
               </span>
             </div>
+            
+            {/* AI Discovery Badges */}
+            {supplier.isAIDiscovered && (
+              <div className="flex items-center gap-2 mt-2">
+                <Badge className="bg-gradient-to-r from-purple-500 to-primary text-white text-xs">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI Discovered
+                </Badge>
+                {supplier.matchScore && (
+                  <Badge variant="outline" className="text-xs">
+                    {supplier.matchScore}% Match
+                  </Badge>
+                )}
+                {supplier.substituteOf && (
+                  <Badge variant="secondary" className="text-xs">
+                    Substitute
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
