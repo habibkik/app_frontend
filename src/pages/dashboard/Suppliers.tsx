@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, SlidersHorizontal, Grid3X3, List, ArrowUpDown, Sparkles, ImageIcon, DollarSign, Package, Clock } from "lucide-react";
+import { Search, SlidersHorizontal, Grid3X3, List, ArrowUpDown, Sparkles, ImageIcon, DollarSign, Package, Clock, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,7 @@ import { UniversalImageUpload } from "@/components/shared/UniversalImageUpload";
 import { mockSuppliers, Supplier } from "@/data/suppliers";
 import { useSavedSuppliers } from "@/contexts/SavedSuppliersContext";
 import { useAnalysisStore, type SupplierMatch } from "@/stores/analysisStore";
+import { useDiscoveredSuppliersStore } from "@/stores/discoveredSuppliersStore";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeForSourcing } from "@/features/agents/miromind/api";
 
@@ -43,6 +44,13 @@ export default function SuppliersPage() {
     clearResults,
   } = useAnalysisStore();
   
+  // Discovered suppliers store for AI results persistence
+  const { 
+    discoveredSuppliers, 
+    addFromAnalysis, 
+    clearDiscovered 
+  } = useDiscoveredSuppliersStore();
+  
   const [activeTab, setActiveTab] = useState<string>(buyerResults ? "ai-results" : "browse");
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<SupplierFilters>(defaultFilters);
@@ -52,6 +60,17 @@ export default function SuppliersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [contactSupplier, setContactSupplier] = useState<Supplier | null>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  
+  // Auto-save AI results to discovered suppliers store
+  useEffect(() => {
+    if (buyerResults) {
+      addFromAnalysis(
+        buyerResults.suggestedSuppliers,
+        buyerResults.substituteSuppliers || [],
+        crypto.randomUUID()
+      );
+    }
+  }, [buyerResults, addFromAnalysis]);
 
   // Handle image analysis completion
   const handleAnalysisComplete = async () => {
@@ -114,9 +133,22 @@ export default function SuppliersPage() {
     setActiveTab("browse");
   };
 
+  // Merge mock suppliers with discovered suppliers
+  const allSuppliers = useMemo(() => {
+    const combinedMap = new Map<string, Supplier>();
+    
+    // Add mock suppliers first
+    mockSuppliers.forEach((s) => combinedMap.set(s.id, s));
+    
+    // Add/update with discovered suppliers (AI results take precedence)
+    discoveredSuppliers.forEach((s) => combinedMap.set(s.id, s));
+    
+    return Array.from(combinedMap.values());
+  }, [discoveredSuppliers]);
+
   // Filter and sort suppliers
   const filteredSuppliers = useMemo(() => {
-    let result = [...mockSuppliers];
+    let result = [...allSuppliers];
 
     // Search filter
     if (searchQuery) {
@@ -176,13 +208,13 @@ export default function SuppliersPage() {
           return a.responseTime.localeCompare(b.responseTime);
         case "minOrder":
           return a.minOrderValue - b.minOrderValue;
-        default:
+      default:
           return 0;
       }
     });
 
     return result;
-  }, [searchQuery, filters, sortBy]);
+  }, [searchQuery, filters, sortBy, allSuppliers]);
 
   const handleContact = (supplier: Supplier) => {
     setContactSupplier(supplier);
@@ -520,9 +552,27 @@ export default function SuppliersPage() {
 
               {/* Results */}
               <div className="flex-1">
-                {/* Results Count */}
-                <div className="mb-4 text-sm text-muted-foreground">
-                  Showing {filteredSuppliers.length} of {mockSuppliers.length} suppliers
+                {/* Results Count & Clear AI Button */}
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Showing {filteredSuppliers.length} of {allSuppliers.length} suppliers
+                    {discoveredSuppliers.length > 0 && (
+                      <span className="ml-1">
+                        ({discoveredSuppliers.length} AI discovered)
+                      </span>
+                    )}
+                  </span>
+                  {discoveredSuppliers.length > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => clearDiscovered()}
+                      className="gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Clear AI Results
+                    </Button>
+                  )}
                 </div>
 
                 {/* Supplier Grid/List */}

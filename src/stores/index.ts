@@ -21,3 +21,8 @@ export {
   type MarketAnalysisResult,
   type AnalysisHistoryItem,
 } from "./analysisStore";
+export {
+  useDiscoveredSuppliersStore,
+  useDiscoveredSuppliers,
+  type SupplierSourceInfo,
+} from "./discoveredSuppliersStore";
