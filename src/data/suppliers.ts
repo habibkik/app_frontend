@@ -1,8 +1,17 @@
+export type EmployeeDepartment = 
+  | "sales" 
+  | "after_sales" 
+  | "technical" 
+  | "production" 
+  | "management"
+  | "other";
+
 export interface SupplierEmployee {
   name: string;
   role: string;
   linkedIn: string;
   avatar?: string;
+  department: EmployeeDepartment;
 }
 
 export interface SupplierGeoLocation {
@@ -93,9 +102,9 @@ export const mockSuppliers: Supplier[] = [
       companySize: "500-1000",
     },
     employees: [
-      { name: "David Chen", role: "Sales Director", linkedIn: "https://linkedin.com/in/david-chen-techparts", avatar: "DC" },
-      { name: "Lisa Wang", role: "Key Account Manager", linkedIn: "https://linkedin.com/in/lisa-wang-techparts", avatar: "LW" },
-      { name: "Michael Liu", role: "Technical Sales Engineer", linkedIn: "https://linkedin.com/in/michael-liu-techparts", avatar: "ML" },
+      { name: "David Chen", role: "Sales Director", linkedIn: "https://linkedin.com/in/david-chen-techparts", avatar: "DC", department: "sales" },
+      { name: "Lisa Wang", role: "Key Account Manager", linkedIn: "https://linkedin.com/in/lisa-wang-techparts", avatar: "LW", department: "sales" },
+      { name: "Michael Liu", role: "Technical Sales Engineer", linkedIn: "https://linkedin.com/in/michael-liu-techparts", avatar: "ML", department: "technical" },
     ],
   },
   {
@@ -133,8 +142,8 @@ export const mockSuppliers: Supplier[] = [
       companySize: "1000-5000",
     },
     employees: [
-      { name: "Priya Sharma", role: "Export Manager", linkedIn: "https://linkedin.com/in/priya-sharma-gts", avatar: "PS" },
-      { name: "Rahul Patel", role: "Business Development", linkedIn: "https://linkedin.com/in/rahul-patel-gts", avatar: "RP" },
+      { name: "Priya Sharma", role: "Export Manager", linkedIn: "https://linkedin.com/in/priya-sharma-gts", avatar: "PS", department: "sales" },
+      { name: "Rahul Patel", role: "Business Development", linkedIn: "https://linkedin.com/in/rahul-patel-gts", avatar: "RP", department: "sales" },
     ],
   },
   {
@@ -172,9 +181,9 @@ export const mockSuppliers: Supplier[] = [
       companySize: "100-500",
     },
     employees: [
-      { name: "Hans Mueller", role: "Sales Director EMEA", linkedIn: "https://linkedin.com/in/hans-mueller-pmw", avatar: "HM" },
-      { name: "Klaus Weber", role: "Technical Consultant", linkedIn: "https://linkedin.com/in/klaus-weber-pmw", avatar: "KW" },
-      { name: "Anna Schmidt", role: "Customer Success Manager", linkedIn: "https://linkedin.com/in/anna-schmidt-pmw", avatar: "AS" },
+      { name: "Hans Mueller", role: "Sales Director EMEA", linkedIn: "https://linkedin.com/in/hans-mueller-pmw", avatar: "HM", department: "sales" },
+      { name: "Klaus Weber", role: "Technical Consultant", linkedIn: "https://linkedin.com/in/klaus-weber-pmw", avatar: "KW", department: "technical" },
+      { name: "Anna Schmidt", role: "Customer Success Manager", linkedIn: "https://linkedin.com/in/anna-schmidt-pmw", avatar: "AS", department: "after_sales" },
     ],
   },
   {
@@ -211,7 +220,7 @@ export const mockSuppliers: Supplier[] = [
       companySize: "50-100",
     },
     employees: [
-      { name: "Somchai Prasert", role: "Sales Manager", linkedIn: "https://linkedin.com/in/somchai-prasert", avatar: "SP" },
+      { name: "Somchai Prasert", role: "Sales Manager", linkedIn: "https://linkedin.com/in/somchai-prasert", avatar: "SP", department: "sales" },
     ],
   },
   {
@@ -248,9 +257,9 @@ export const mockSuppliers: Supplier[] = [
       companySize: "100-500",
     },
     employees: [
-      { name: "Aoife O'Connor", role: "VP Sales", linkedIn: "https://linkedin.com/in/aoife-oconnor-msi", avatar: "AO" },
-      { name: "Liam Murphy", role: "Account Executive", linkedIn: "https://linkedin.com/in/liam-murphy-msi", avatar: "LM" },
-      { name: "Siobhan Kelly", role: "Customer Success", linkedIn: "https://linkedin.com/in/siobhan-kelly-msi", avatar: "SK" },
+      { name: "Aoife O'Connor", role: "VP Sales", linkedIn: "https://linkedin.com/in/aoife-oconnor-msi", avatar: "AO", department: "sales" },
+      { name: "Liam Murphy", role: "Account Executive", linkedIn: "https://linkedin.com/in/liam-murphy-msi", avatar: "LM", department: "sales" },
+      { name: "Siobhan Kelly", role: "Customer Success", linkedIn: "https://linkedin.com/in/siobhan-kelly-msi", avatar: "SK", department: "after_sales" },
     ],
   },
   {
@@ -288,8 +297,8 @@ export const mockSuppliers: Supplier[] = [
       companySize: "100-500",
     },
     employees: [
-      { name: "Carlos Silva", role: "Commercial Director", linkedIn: "https://linkedin.com/in/carlos-silva-fti", avatar: "CS" },
-      { name: "Maria Santos", role: "Export Coordinator", linkedIn: "https://linkedin.com/in/maria-santos-fti", avatar: "MS" },
+      { name: "Carlos Silva", role: "Commercial Director", linkedIn: "https://linkedin.com/in/carlos-silva-fti", avatar: "CS", department: "management" },
+      { name: "Maria Santos", role: "Export Coordinator", linkedIn: "https://linkedin.com/in/maria-santos-fti", avatar: "MS", department: "sales" },
     ],
   },
   {
@@ -327,9 +336,9 @@ export const mockSuppliers: Supplier[] = [
       companySize: "500-1000",
     },
     employees: [
-      { name: "John Williams", role: "VP Sales", linkedIn: "https://linkedin.com/in/john-williams-apd", avatar: "JW" },
-      { name: "Sarah Johnson", role: "Regional Sales Manager", linkedIn: "https://linkedin.com/in/sarah-johnson-apd", avatar: "SJ" },
-      { name: "Robert Davis", role: "Key Account Manager", linkedIn: "https://linkedin.com/in/robert-davis-apd", avatar: "RD" },
+      { name: "John Williams", role: "VP Sales", linkedIn: "https://linkedin.com/in/john-williams-apd", avatar: "JW", department: "management" },
+      { name: "Sarah Johnson", role: "Regional Sales Manager", linkedIn: "https://linkedin.com/in/sarah-johnson-apd", avatar: "SJ", department: "sales" },
+      { name: "Robert Davis", role: "Key Account Manager", linkedIn: "https://linkedin.com/in/robert-davis-apd", avatar: "RD", department: "sales" },
     ],
   },
   {
@@ -366,8 +375,8 @@ export const mockSuppliers: Supplier[] = [
       companySize: "500-1000",
     },
     employees: [
-      { name: "Nguyen Minh", role: "Export Sales Manager", linkedIn: "https://linkedin.com/in/nguyen-minh-hgf", avatar: "NM" },
-      { name: "Tran Linh", role: "Product Specialist", linkedIn: "https://linkedin.com/in/tran-linh-hgf", avatar: "TL" },
+      { name: "Nguyen Minh", role: "Export Sales Manager", linkedIn: "https://linkedin.com/in/nguyen-minh-hgf", avatar: "NM", department: "sales" },
+      { name: "Tran Linh", role: "Product Specialist", linkedIn: "https://linkedin.com/in/tran-linh-hgf", avatar: "TL", department: "technical" },
     ],
   },
 ];
