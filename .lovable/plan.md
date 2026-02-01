@@ -1,195 +1,245 @@
 
-# Save AI-Discovered Suppliers to Browse All Tab
+# Component Supplier Page for Producer Mode
 
 ## Overview
-When the AI analyzes a product image and returns supplier matches and substitute suppliers, these will be automatically saved and displayed in the "Browse All" tab alongside existing suppliers. Users will be able to see which suppliers were discovered via AI analysis.
+This plan creates an enhanced "Component Supply" page in Producer mode that shows all component search history and results, with detailed supplier information in popup windows. The popup includes enhanced team tabs with role-specific departments and a comprehensive Supply Chain Risk section.
 
 ## What You'll Get
-- All AI-discovered suppliers (both main matches and substitutes) automatically appear in Browse All
-- Visual badge indicating "AI Discovered" on suppliers found through image analysis
-- Suppliers persist across page refreshes using Zustand store with localStorage
-- Ability to clear AI-discovered suppliers if needed
-- Seamless integration with existing filters and search
+
+### 1. Enhanced Component Supply Page
+- **Search History**: View all past component searches organized by component
+- **Component-based Results**: See suppliers grouped by each component you've searched for
+- **Clickable Supplier Names**: Open full supplier details in popup windows
+
+### 2. Enhanced Supplier Detail Popup (4 Tabs)
+- **Overview**: Location with Google Maps, description, specializations, certifications
+- **Contact**: Email, phone, website, LinkedIn (all clickable)
+- **Business**: Revenue, company size, establishment year, industry
+- **Team**: Enhanced with department-grouped employees
+
+### 3. Enhanced Team Tab - Department Organization
+People organized by department:
+- **Sales**: Sales Directors, Account Managers, Business Development
+- **After Sales**: Customer Success, Support Engineers, Service Managers
+- **Technical**: Technical Sales Engineers, Application Engineers
+- **Production**: Production Managers, Quality Engineers, Manufacturing Leads
+
+### 4. NEW Supply Chain Risk Section
+Visual dashboard showing:
+- **Supply Chain Flow Visualization**: Component → Supplier → Delivery flow diagram
+- **Lead Time Risk Assessment**: Risk level based on delivery times
+- **Single Supplier Dependency Risk**: Warning when only one supplier available
+- **Geographic Concentration Risk**: Risk when suppliers concentrated in one region
+- **Overall Risk Score**: 0-100 composite score with color-coded indicator
 
 ---
 
 ## Technical Implementation
 
-### 1. Create AI Discovered Suppliers Store
+### 1. Extend SupplierEmployee Type
 
-**New File**: `src/stores/discoveredSuppliersStore.ts`
+**File**: `src/data/suppliers.ts`
 
-A Zustand store to persist AI-discovered suppliers:
+Add department categorization to employees:
 
 ```typescript
-interface DiscoveredSuppliersState {
-  // Suppliers discovered via AI analysis
-  discoveredSuppliers: Supplier[];
-  
-  // Track source analysis for each supplier
-  supplierSources: Record<string, {
-    analysisId: string;
-    discoveredAt: Date;
-    type: "match" | "substitute";
-    matchScore?: number;
-  }>;
-}
+export type EmployeeDepartment = 
+  | "sales" 
+  | "after_sales" 
+  | "technical" 
+  | "production" 
+  | "management"
+  | "other";
 
-interface DiscoveredSuppliersActions {
-  // Add suppliers from analysis results
-  addFromAnalysis: (
-    suppliers: SupplierMatch[],
-    substituteSuppliers: SubstituteSupplier[],
-    analysisId: string
-  ) => void;
-  
-  // Check if supplier is AI-discovered
-  isDiscovered: (supplierId: string) => boolean;
-  
-  // Get source info for a supplier
-  getSourceInfo: (supplierId: string) => SourceInfo | undefined;
-  
-  // Clear all discovered suppliers
-  clearDiscovered: () => void;
+export interface SupplierEmployee {
+  name: string;
+  role: string;
+  linkedIn: string;
+  avatar?: string;
+  department: EmployeeDepartment; // NEW
 }
 ```
 
-### 2. Create Type Converter Utility
+### 2. Create Component Supplier Store
 
-**New File**: `src/lib/supplier-converter.ts`
+**New File**: `src/stores/componentSupplierStore.ts`
 
-Convert AI result types to standard Supplier type:
+Zustand store to persist component search history:
 
 ```typescript
-// Convert SupplierMatch to Supplier
-export function supplierMatchToSupplier(match: SupplierMatch): Supplier {
-  return {
-    id: `ai-${match.id}`,
-    name: match.name,
-    logo: match.name.substring(0, 2).toUpperCase(),
-    location: parseLocation(match.location, match.geoLocation),
-    industry: guessIndustry(match.businessProfile),
-    specializations: match.businessProfile?.specializations || [],
-    verified: match.verified,
-    rating: calculateRating(match.matchScore),
-    reviewCount: 0, // AI-discovered, no reviews yet
-    responseTime: match.leadTime,
-    minOrderValue: match.moq * match.priceRange.min,
-    yearEstablished: match.businessProfile?.yearEstablished || new Date().getFullYear(),
-    employeeCount: match.businessProfile?.companySize || "Unknown",
-    description: `AI-discovered supplier with ${match.matchScore}% match score.`,
-    certifications: match.businessProfile?.certifications || [],
-    geoLocation: match.geoLocation,
-    contact: match.contact,
-    businessProfile: {
-      annualRevenue: match.businessProfile?.annualRevenue,
-      companySize: match.businessProfile?.companySize,
-    },
-    // Mark as AI-discovered
-    isAIDiscovered: true,
-    matchScore: match.matchScore,
+interface ComponentSearchResult {
+  id: string;
+  componentId: string;
+  componentName: string;
+  category: string;
+  searchedAt: Date;
+  suppliers: ComponentSupplierMatch[];
+}
+
+interface ComponentSupplierMatch {
+  id: string;
+  name: string;
+  location: string;
+  unitPrice: number;
+  moq: number;
+  leadTime: string;
+  leadTimeDays: number;
+  rating: number;
+  certifications: string[];
+  inStock: boolean;
+  // Full supplier details
+  geoLocation?: GeoLocation;
+  contact?: SupplierContact;
+  businessProfile?: SupplierBusinessProfile;
+  employees?: SupplierEmployee[];
+}
+
+interface ComponentSupplierStore {
+  searchHistory: ComponentSearchResult[];
+  addSearchResult: (result: ComponentSearchResult) => void;
+  clearHistory: () => void;
+  getSuppliersByComponent: (componentId: string) => ComponentSupplierMatch[];
+}
+```
+
+### 3. Create Supply Chain Risk Calculator
+
+**New File**: `src/lib/supply-chain-risk.ts`
+
+Utility to calculate various risk metrics:
+
+```typescript
+interface SupplyChainRiskScore {
+  overall: number; // 0-100
+  leadTimeRisk: {
+    score: number;
+    level: "low" | "medium" | "high";
+    details: string;
+  };
+  singleSupplierRisk: {
+    score: number;
+    level: "low" | "medium" | "high";
+    affectedComponents: string[];
+  };
+  geographicRisk: {
+    score: number;
+    level: "low" | "medium" | "high";
+    concentrationDetails: { region: string; percentage: number }[];
   };
 }
 
-// Convert SubstituteSupplier to Supplier
-export function substituteSupplierToSupplier(sub: SubstituteSupplier): Supplier {
-  // Similar conversion with substitute-specific fields
-}
+export function calculateLeadTimeRisk(suppliers: SupplierQuote[]): RiskLevel;
+export function calculateSingleSupplierRisk(components: ComponentPart[], quotes: SupplierQuote[]): RiskLevel;
+export function calculateGeographicConcentrationRisk(suppliers: SupplierQuote[]): RiskLevel;
+export function calculateOverallRiskScore(metrics: RiskMetrics): number;
 ```
 
-### 3. Extend Supplier Type
+### 4. Create Supply Chain Flow Visualization Component
 
-**Edit**: `src/data/suppliers.ts`
+**New File**: `src/components/components/SupplyChainFlow.tsx`
 
-Add optional AI-discovery fields:
-
-```typescript
-export interface Supplier {
-  // ... existing fields ...
-  
-  // AI Discovery metadata (optional)
-  isAIDiscovered?: boolean;
-  matchScore?: number;
-  discoveredAt?: Date;
-  substituteOf?: string; // Original product if substitute
-}
+Visual flow diagram showing:
+```text
++-------------+     +---------------+     +-------------+
+| Components  | --> |   Suppliers   | --> |  Delivery   |
+|  (Parts)    |     |  (Sources)    |     |  (Timeline) |
++-------------+     +---------------+     +-------------+
+     ↓                    ↓                     ↓
+  5 Parts          12 Suppliers           18 avg days
 ```
 
-### 4. Update Suppliers Page
+### 5. Create Supply Chain Risk Panel Component
 
-**Edit**: `src/pages/dashboard/Suppliers.tsx`
+**New File**: `src/components/components/SupplyChainRiskPanel.tsx`
 
-Integrate discovered suppliers:
+Dashboard card showing all risk metrics:
 
-```typescript
-// Import the new store
-import { useDiscoveredSuppliersStore } from "@/stores/discoveredSuppliersStore";
-
-// In component:
-const { discoveredSuppliers, addFromAnalysis } = useDiscoveredSuppliersStore();
-
-// Merge suppliers for Browse All
-const allSuppliers = useMemo(() => {
-  // Combine mock + discovered, avoiding duplicates
-  const combinedMap = new Map<string, Supplier>();
-  
-  // Add mock suppliers
-  mockSuppliers.forEach(s => combinedMap.set(s.id, s));
-  
-  // Add/update with discovered suppliers
-  discoveredSuppliers.forEach(s => combinedMap.set(s.id, s));
-  
-  return Array.from(combinedMap.values());
-}, [discoveredSuppliers]);
-
-// Auto-save when AI results come in
-useEffect(() => {
-  if (buyerResults) {
-    addFromAnalysis(
-      buyerResults.suggestedSuppliers,
-      buyerResults.substituteSuppliers || [],
-      crypto.randomUUID()
-    );
-  }
-}, [buyerResults, addFromAnalysis]);
+```text
++----------------------------------------------------------+
+|  Supply Chain Risk Assessment                             |
++----------------------------------------------------------+
+|                                                          |
+|  Overall Risk Score: [====72====] MEDIUM                 |
+|                                                          |
+|  +-------------------+  +-------------------+            |
+|  | Lead Time Risk    |  | Dependency Risk   |            |
+|  | 🟡 MEDIUM         |  | 🔴 HIGH           |            |
+|  | Avg: 18 days      |  | 2 single-source   |            |
+|  +-------------------+  +-------------------+            |
+|                                                          |
+|  +-------------------+                                   |
+|  | Geographic Risk   |                                   |
+|  | 🟡 MEDIUM         |                                   |
+|  | 60% in China      |                                   |
+|  +-------------------+                                   |
+|                                                          |
+|  [View Detailed Analysis]                                |
++----------------------------------------------------------+
 ```
 
-### 5. Update Supplier Card
+### 6. Create Component Supplier Detail Modal
 
-**Edit**: `src/components/suppliers/SupplierCard.tsx`
+**New File**: `src/components/components/ComponentSupplierDetailModal.tsx`
 
-Show AI-discovered badge:
+Enhanced version of SupplierDetailModal with:
+- All 4 existing tabs (Overview, Contact, Business, Team)
+- Enhanced Team tab with department grouping:
 
-```typescript
-{supplier.isAIDiscovered && (
-  <Badge className="bg-gradient-to-r from-purple-500 to-primary text-white text-xs">
-    <Sparkles className="h-3 w-3 mr-1" />
-    AI Discovered
-  </Badge>
-)}
-
-{supplier.matchScore && (
-  <Badge variant="outline" className="text-xs">
-    {supplier.matchScore}% Match
-  </Badge>
-)}
+```text
++----------------------------------------------------------+
+| Team Tab                                                  |
++----------------------------------------------------------+
+|                                                          |
+| 🏢 SALES DEPARTMENT                                       |
+| +------------------------------------------------------+ |
+| | [Avatar] David Chen - Sales Director    [LinkedIn →] | |
+| | [Avatar] Sarah Kim - Account Manager    [LinkedIn →] | |
+| +------------------------------------------------------+ |
+|                                                          |
+| 🔧 TECHNICAL DEPARTMENT                                   |
+| +------------------------------------------------------+ |
+| | [Avatar] Tom Lee - Technical Sales Eng  [LinkedIn →] | |
+| | [Avatar] Amy Wu - Application Engineer  [LinkedIn →] | |
+| +------------------------------------------------------+ |
+|                                                          |
+| 🛠️ PRODUCTION DEPARTMENT                                  |
+| +------------------------------------------------------+ |
+| | [Avatar] Mike Chen - Production Manager [LinkedIn →] | |
+| | [Avatar] Liu Wei - Quality Engineer     [LinkedIn →] | |
+| +------------------------------------------------------+ |
+|                                                          |
+| 📞 AFTER SALES / SUPPORT                                  |
+| +------------------------------------------------------+ |
+| | [Avatar] Jenny Lin - Customer Success   [LinkedIn →] | |
+| | [Avatar] Wang Fei - Support Engineer    [LinkedIn →] | |
+| +------------------------------------------------------+ |
+|                                                          |
++----------------------------------------------------------+
 ```
 
-### 6. Add Clear Button (Optional)
+### 7. Update Components Page
 
-**Edit**: `src/pages/dashboard/Suppliers.tsx`
+**Edit**: `src/pages/dashboard/Components.tsx`
 
-Add ability to clear discovered suppliers:
+Add new sections:
+- Search history sidebar
+- Supply chain risk panel
+- Clickable supplier names that open detail modal
+- Filter by component searches
+
+### 8. Update Mock Data
+
+**Edit**: `src/data/components.ts` and `src/data/suppliers.ts`
+
+Add department-categorized employees to supplier quotes:
 
 ```typescript
-<Button 
-  variant="outline" 
-  size="sm"
-  onClick={() => clearDiscovered()}
->
-  <Trash2 className="h-4 w-4 mr-2" />
-  Clear AI Results
-</Button>
+employees: [
+  { name: "David Chen", role: "Sales Director", department: "sales", linkedIn: "..." },
+  { name: "Amy Wu", role: "Technical Engineer", department: "technical", linkedIn: "..." },
+  { name: "Mike Zhang", role: "Production Manager", department: "production", linkedIn: "..." },
+  { name: "Jenny Lin", role: "Customer Success", department: "after_sales", linkedIn: "..." },
+]
 ```
 
 ---
@@ -198,60 +248,77 @@ Add ability to clear discovered suppliers:
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/stores/discoveredSuppliersStore.ts` | Create | New Zustand store for persisting AI-discovered suppliers |
-| `src/lib/supplier-converter.ts` | Create | Utility to convert SupplierMatch/SubstituteSupplier to Supplier type |
-| `src/data/suppliers.ts` | Edit | Add optional AI-discovery fields to Supplier interface |
-| `src/pages/dashboard/Suppliers.tsx` | Edit | Merge discovered suppliers with mockSuppliers, auto-save on AI results |
-| `src/components/suppliers/SupplierCard.tsx` | Edit | Display "AI Discovered" badge and match score |
+| `src/data/suppliers.ts` | Edit | Add `EmployeeDepartment` type and `department` field to employees |
+| `src/data/components.ts` | Edit | Add employee data to supplier quotes with departments |
+| `src/stores/componentSupplierStore.ts` | Create | New store for component search history |
+| `src/lib/supply-chain-risk.ts` | Create | Risk calculation utilities |
+| `src/components/components/SupplyChainFlow.tsx` | Create | Flow visualization component |
+| `src/components/components/SupplyChainRiskPanel.tsx` | Create | Risk dashboard panel |
+| `src/components/components/ComponentSupplierDetailModal.tsx` | Create | Enhanced supplier detail modal with department-grouped team |
+| `src/pages/dashboard/Components.tsx` | Edit | Add history, risk panel, clickable suppliers |
+| `src/features/producer/index.ts` | Edit | Export new components |
 | `src/stores/index.ts` | Edit | Export new store |
 
 ---
 
-## Data Flow
+## Risk Score Calculation Logic
 
-```text
-User uploads image
-        ↓
-AI analyzes → returns SupplierMatch[] + SubstituteSupplier[]
-        ↓
-Convert to Supplier[] format (supplier-converter.ts)
-        ↓
-Save to discoveredSuppliersStore (persisted to localStorage)
-        ↓
-Browse All tab merges: mockSuppliers + discoveredSuppliers
-        ↓
-Display with "AI Discovered" badge on AI-found suppliers
+```typescript
+// Lead Time Risk (0-100)
+// < 7 days: 10 (low)
+// 7-14 days: 30 (low-medium)
+// 14-21 days: 50 (medium)
+// 21-30 days: 70 (medium-high)
+// > 30 days: 90 (high)
+
+// Single Supplier Dependency Risk (0-100)
+// All components have 3+ suppliers: 10
+// 1-2 components single-sourced: 50
+// 3+ components single-sourced: 80
+// Any critical component single-sourced: 95
+
+// Geographic Concentration Risk (0-100)
+// Spread across 3+ regions: 20
+// 50%+ in one region: 50
+// 70%+ in one region: 75
+// 90%+ in one region: 90
+
+// Overall Score = weighted average
+// Lead Time: 30%
+// Single Supplier: 40%
+// Geographic: 30%
 ```
 
 ---
 
 ## User Experience Flow
 
-1. User uploads a product image in the "AI Results" tab
-2. AI analyzes and shows matched suppliers + substitutes
-3. **Automatically**, these suppliers are converted and saved to the store
-4. User switches to "Browse All" tab
-5. Sees all suppliers including newly discovered ones with an "AI Discovered" badge
-6. AI-discovered suppliers show match score and discovery date
-7. User can filter, search, contact, or save these suppliers just like any other
-8. Data persists across page refreshes
+1. User navigates to Producer Mode → Component Supply
+2. Sees list of components with supplier quotes (existing)
+3. **NEW**: Clicks on supplier name → Opens detailed popup with 4 tabs
+4. **NEW**: Team tab shows employees grouped by department (Sales, Technical, Production, After Sales)
+5. **NEW**: Supply Chain Risk panel shows overall health score
+6. **NEW**: Flow visualization shows component → supplier → delivery pipeline
+7. **NEW**: Risk warnings highlight single-source and geographic concentration issues
+8. User can click LinkedIn profiles to connect with relevant contacts
 
 ---
 
-## Visual Indicator Design
+## Visual Design
 
+### Risk Score Indicator
 ```text
-+------------------------------------------+
-| [Avatar]  Supplier Name                  |
-|           Shanghai, China • Electronics  |
-|                                          |
-|  [AI Discovered] [92% Match]             |
-|                                          |
-|  ★ 4.6  |  156 reviews  |  < 24h        |
-|  Min. Order: $5,000                      |
-|                                          |
-|  [ISO 9001] [RoHS] [CE Mark]             |
-|                                          |
-|     [Contact]    [Save]                  |
-+------------------------------------------+
+0-30: 🟢 LOW    - Green gradient, "Supply chain healthy"
+31-60: 🟡 MEDIUM - Yellow gradient, "Some risks identified"  
+61-80: 🟠 HIGH  - Orange gradient, "Significant risks"
+81-100: 🔴 CRITICAL - Red gradient, "Urgent action needed"
+```
+
+### Department Icons in Team Tab
+```text
+Sales: 💼 (briefcase)
+Technical: ⚙️ (gear)
+Production: 🏭 (factory)
+After Sales: 🛎️ (service bell)
+Management: 👔 (business)
 ```
