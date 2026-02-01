@@ -26,3 +26,9 @@ export {
   useDiscoveredSuppliers,
   type SupplierSourceInfo,
 } from "./discoveredSuppliersStore";
+export {
+  useComponentSupplierStore,
+  useComponentSuppliers,
+  type ComponentSupplierMatch,
+  type ComponentSearchResult,
+} from "./componentSupplierStore";

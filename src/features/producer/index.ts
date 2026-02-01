@@ -19,6 +19,9 @@ export { ComparisonSummary } from "@/components/components/ComparisonSummary";
 export { CostComparisonChart } from "@/components/components/CostComparisonChart";
 export { SaveComparisonDialog } from "@/components/components/SaveComparisonDialog";
 export { LoadComparisonDialog } from "@/components/components/LoadComparisonDialog";
+export { SupplyChainFlow } from "@/components/components/SupplyChainFlow";
+export { SupplyChainRiskPanel } from "@/components/components/SupplyChainRiskPanel";
+export { ComponentSupplierDetailModal } from "@/components/components/ComponentSupplierDetailModal";
 
 // Pages
 export { default as BOMsPage } from "@/pages/dashboard/BOM";

@@ -1,8 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, Clock, MapPin, CheckCircle, Package, AlertCircle } from "lucide-react";
+import { Star, Clock, MapPin, CheckCircle, Package, AlertCircle, ExternalLink } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ComponentPart, SupplierQuote } from "@/data/components";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +10,7 @@ interface SupplierQuoteListProps {
   quotes: SupplierQuote[];
   selectedQuoteId: string | null;
   onSelectQuote: (quoteId: string) => void;
+  onSupplierClick?: (quote: SupplierQuote) => void;
   isExpanded: boolean;
 }
 
@@ -19,6 +19,7 @@ export function SupplierQuoteList({
   quotes,
   selectedQuoteId,
   onSelectQuote,
+  onSupplierClick,
   isExpanded,
 }: SupplierQuoteListProps) {
   const lowestPrice = Math.min(...quotes.map((q) => q.unitPrice));
@@ -46,7 +47,7 @@ export function SupplierQuoteList({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className={cn(
-                    "p-4 rounded-lg border transition-all cursor-pointer",
+                    "p-4 rounded-lg border transition-all cursor-pointer group",
                     isSelected
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50 bg-card"
@@ -71,9 +72,16 @@ export function SupplierQuoteList({
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <h4 className="font-medium text-foreground">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSupplierClick?.(quote);
+                              }}
+                              className="font-medium text-foreground hover:text-primary hover:underline flex items-center gap-1 transition-colors"
+                            >
                               {quote.supplierName}
-                            </h4>
+                              <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </button>
                             {isLowest && (
                               <Badge variant="default" className="text-xs">
                                 Lowest

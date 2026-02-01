@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Package, Search, Filter } from "lucide-react";
+import { Package, Search, Filter, History, Trash2 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -18,12 +21,18 @@ import { ComparisonSummary } from "@/components/components/ComparisonSummary";
 import { CostComparisonChart } from "@/components/components/CostComparisonChart";
 import { SaveComparisonDialog } from "@/components/components/SaveComparisonDialog";
 import { LoadComparisonDialog } from "@/components/components/LoadComparisonDialog";
+import { SupplyChainFlow } from "@/components/components/SupplyChainFlow";
+import { SupplyChainRiskPanel } from "@/components/components/SupplyChainRiskPanel";
+import { ComponentSupplierDetailModal } from "@/components/components/ComponentSupplierDetailModal";
 import {
   mockComponentParts,
   getQuotesForComponent,
   ComparisonSelection,
   mockSupplierQuotes,
+  SupplierQuote,
 } from "@/data/components";
+import { calculateSupplyChainRisk } from "@/lib/supply-chain-risk";
+import { useComponentSupplierStore, type ComponentSupplierMatch } from "@/stores/componentSupplierStore";
 
 export default function ComponentsPage() {
   const { toast } = useToast();
@@ -36,6 +45,16 @@ export default function ComponentsPage() {
       selectedQuoteId: null,
     }))
   );
+  const [selectedSupplier, setSelectedSupplier] = useState<ComponentSupplierMatch | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  
+  // Component supplier store
+  const { searchHistory, clearHistory } = useComponentSupplierStore();
+
+  // Calculate supply chain risk
+  const riskScore = useMemo(() => {
+    return calculateSupplyChainRisk(mockComponentParts, mockSupplierQuotes);
+  }, []);
 
   // Get unique categories
   const categories = Array.from(new Set(mockComponentParts.map((p) => p.category)));
@@ -59,6 +78,36 @@ export default function ComponentsPage() {
         sel.componentId === componentId ? { ...sel, selectedQuoteId: quoteId } : sel
       )
     );
+  };
+
+  const handleSupplierClick = (quote: SupplierQuote) => {
+    // Convert SupplierQuote to ComponentSupplierMatch format
+    const supplierMatch: ComponentSupplierMatch = {
+      id: quote.id,
+      supplierId: quote.supplierId,
+      name: quote.supplierName,
+      logo: quote.supplierLogo,
+      location: quote.supplierLocation,
+      unitPrice: quote.unitPrice,
+      moq: quote.moq,
+      leadTime: quote.leadTime,
+      leadTimeDays: quote.leadTimeDays,
+      rating: quote.rating,
+      certifications: quote.certifications,
+      inStock: quote.inStock,
+      stockQuantity: quote.stockQuantity,
+      geoLocation: quote.geoLocation,
+      contact: quote.contact,
+      businessProfile: quote.businessProfile,
+      employees: quote.employees,
+      industry: quote.industry,
+      specializations: quote.specializations,
+      description: quote.description,
+      yearEstablished: quote.yearEstablished,
+      verified: quote.verified,
+    };
+    setSelectedSupplier(supplierMatch);
+    setIsDetailModalOpen(true);
   };
 
   const handleCreateOrder = () => {
@@ -129,6 +178,12 @@ export default function ComponentsPage() {
           </div>
         </motion.div>
 
+        {/* Supply Chain Overview */}
+        <div className="grid gap-4 lg:grid-cols-2">
+          <SupplyChainFlow parts={mockComponentParts} quotes={mockSupplierQuotes} />
+          <SupplyChainRiskPanel riskScore={riskScore} />
+        </div>
+
         {/* Main Content */}
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Component List - Left Side */}
@@ -188,6 +243,7 @@ export default function ComponentsPage() {
                         selections.find((s) => s.componentId === part.id)?.selectedQuoteId || null
                       }
                       onSelectQuote={(quoteId) => handleSelectQuote(part.id, quoteId)}
+                      onSupplierClick={handleSupplierClick}
                       isExpanded={isExpanded}
                     />
                   </div>
@@ -199,16 +255,79 @@ export default function ComponentsPage() {
             <CostComparisonChart parts={mockComponentParts} selections={selections} />
           </div>
 
-          {/* Comparison Summary - Right Side */}
+          {/* Right Sidebar */}
           <div className="space-y-4">
+            {/* Comparison Summary */}
             <ComparisonSummary
               parts={mockComponentParts}
               selections={selections}
               onCreateOrder={handleCreateOrder}
             />
+
+            {/* Search History */}
+            {searchHistory.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <History className="h-4 w-4" />
+                      Search History
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearHistory}
+                      className="h-6 px-2 text-xs"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Clear
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <ScrollArea className="h-[200px]">
+                    <div className="space-y-2">
+                      {searchHistory.slice(0, 10).map((result) => (
+                        <div
+                          key={result.id}
+                          className="p-2 rounded-lg bg-muted/50 text-sm"
+                        >
+                          <div className="font-medium">{result.componentName}</div>
+                          <div className="flex items-center justify-between mt-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {result.category}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {result.suppliers.length} suppliers
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Supplier Detail Modal */}
+      <ComponentSupplierDetailModal
+        supplier={selectedSupplier}
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedSupplier(null);
+        }}
+        onContact={(supplier) => {
+          toast({
+            title: "Quote Requested",
+            description: `Your request has been sent to ${supplier.name}.`,
+          });
+          setIsDetailModalOpen(false);
+        }}
+      />
     </DashboardLayout>
   );
 }
