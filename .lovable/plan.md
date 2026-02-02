@@ -1,246 +1,236 @@
 
-# Component Supplier Page for Producer Mode
+# Enhanced Production Feasibility Analysis Component
 
 ## Overview
-This plan creates an enhanced "Component Supply" page in Producer mode that shows all component search history and results, with detailed supplier information in popup windows. The popup includes enhanced team tabs with role-specific departments and a comprehensive Supply Chain Risk section.
+This plan creates a comprehensive `FeasibilityAnalysisComponent` in `src/features/producer/components/` that provides detailed cost breakdown, feasibility scoring, make vs buy analysis, scenario simulation, and risk assessment - all integrated into the existing Feasibility page.
 
 ## What You'll Get
 
-### 1. Enhanced Component Supply Page
-- **Search History**: View all past component searches organized by component
-- **Component-based Results**: See suppliers grouped by each component you've searched for
-- **Clickable Supplier Names**: Open full supplier details in popup windows
+### 1. Header Section
+- Product name with BOM component count
+- "Calculate Feasibility" button to trigger analysis
 
-### 2. Enhanced Supplier Detail Popup (4 Tabs)
-- **Overview**: Location with Google Maps, description, specializations, certifications
-- **Contact**: Email, phone, website, LinkedIn (all clickable)
-- **Business**: Revenue, company size, establishment year, industry
-- **Team**: Enhanced with department-grouped employees
+### 2. Cost Breakdown Cards (4 Cards)
+- **Component Cost**: Total cost breakdown by component, per-unit cost
+- **Production Cost**: Labor, equipment, facility allocation
+- **Logistics Cost**: Shipping, import duties, handling/storage
+- **Total Cost Summary**: Combined per-unit cost with breakdown
 
-### 3. Enhanced Team Tab - Department Organization
-People organized by department:
-- **Sales**: Sales Directors, Account Managers, Business Development
-- **After Sales**: Customer Success, Support Engineers, Service Managers
-- **Technical**: Technical Sales Engineers, Application Engineers
-- **Production**: Production Managers, Quality Engineers, Manufacturing Leads
+### 3. Feasibility Score (Circular Visual)
+- Large circular progress indicator (0-100)
+- Color-coded: Red (<50), Yellow (50-70), Green (70+)
+- Label: "Production Viable" or "Needs Optimization"
 
-### 4. NEW Supply Chain Risk Section
-Visual dashboard showing:
-- **Supply Chain Flow Visualization**: Component → Supplier → Delivery flow diagram
-- **Lead Time Risk Assessment**: Risk level based on delivery times
-- **Single Supplier Dependency Risk**: Warning when only one supplier available
-- **Geographic Concentration Risk**: Risk when suppliers concentrated in one region
-- **Overall Risk Score**: 0-100 composite score with color-coded indicator
+### 4. Key Feasibility Factors (Left Sidebar)
+- Component availability status
+- Lead time assessment
+- Single supplier risk warnings
+- Cost competitiveness check
+- Local vs imported sourcing ratio
+
+### 5. Production Decision Matrix
+- Make vs Buy cost comparison
+- Savings calculation
+- Recommendation with percentage difference
+
+### 6. Scenario Simulation (Collapsible)
+- Production volume slider (100 - 10,000 units)
+- Component cost increase slider (0 - 30%)
+- Labor cost/hour slider
+- Real-time unit cost recalculation
+- Volume discount threshold indicator
+
+### 7. Risk Factors Section
+- Red flags with specific warnings
+- Mitigation suggestions for each risk
+
+### 8. Recommendations Banner
+- Feasible: Green with recommended order size and break-even
+- Risky: Yellow with risks and cost reduction opportunities
+- Not Feasible: Red with reason and alternatives
+
+### 9. Action Buttons
+- "Proceed to Production" (if feasible)
+- "Optimize BOM" (find cheaper alternatives)
+- "Request RFQ from all suppliers"
+- "Export Report" (PDF)
 
 ---
 
 ## Technical Implementation
 
-### 1. Extend SupplierEmployee Type
+### 1. Create Feasibility Types
 
-**File**: `src/data/suppliers.ts`
-
-Add department categorization to employees:
+**New File**: `src/features/producer/types/feasibility.ts`
 
 ```typescript
-export type EmployeeDepartment = 
-  | "sales" 
-  | "after_sales" 
-  | "technical" 
-  | "production" 
-  | "management"
-  | "other";
-
-export interface SupplierEmployee {
-  name: string;
-  role: string;
-  linkedIn: string;
-  avatar?: string;
-  department: EmployeeDepartment; // NEW
-}
-```
-
-### 2. Create Component Supplier Store
-
-**New File**: `src/stores/componentSupplierStore.ts`
-
-Zustand store to persist component search history:
-
-```typescript
-interface ComponentSearchResult {
-  id: string;
+export interface ComponentCostBreakdown {
   componentId: string;
-  componentName: string;
-  category: string;
-  searchedAt: Date;
-  suppliers: ComponentSupplierMatch[];
-}
-
-interface ComponentSupplierMatch {
-  id: string;
   name: string;
-  location: string;
-  unitPrice: number;
-  moq: number;
-  leadTime: string;
-  leadTimeDays: number;
-  rating: number;
-  certifications: string[];
-  inStock: boolean;
-  // Full supplier details
-  geoLocation?: GeoLocation;
-  contact?: SupplierContact;
-  businessProfile?: SupplierBusinessProfile;
-  employees?: SupplierEmployee[];
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  supplierCount: number;
 }
 
-interface ComponentSupplierStore {
-  searchHistory: ComponentSearchResult[];
-  addSearchResult: (result: ComponentSearchResult) => void;
-  clearHistory: () => void;
-  getSuppliersByComponent: (componentId: string) => ComponentSupplierMatch[];
+export interface ProductionCostEstimate {
+  laborCostPerUnit: number;
+  equipmentCostPerUnit: number;
+  facilityCostPerUnit: number;
+  totalProductionCostPerUnit: number;
+}
+
+export interface LogisticsCostEstimate {
+  shippingCostPerUnit: number;
+  importDuties: number;
+  handlingStorage: number;
+  totalLandedCostPerUnit: number;
+}
+
+export interface FeasibilityFactors {
+  componentAvailability: { status: "pass" | "warn" | "fail"; message: string };
+  leadTime: { status: "pass" | "warn" | "fail"; days: number; message: string };
+  singleSupplierRisk: { status: "pass" | "warn" | "fail"; count: number; message: string };
+  costCompetitiveness: { status: "pass" | "warn" | "fail"; message: string };
+  localSourcing: { status: "pass" | "warn" | "fail"; localPercent: number; importedPercent: number };
+}
+
+export interface MakeVsBuyAnalysis {
+  makeCost: number;
+  buyCost: number;
+  difference: number;
+  savingsPercent: number;
+  recommendation: "make" | "buy";
+}
+
+export interface ScenarioParams {
+  productionVolume: number;
+  costIncrease: number;
+  laborCostPerHour: number;
+}
+
+export interface RiskFactor {
+  id: string;
+  type: "critical" | "warning" | "info";
+  title: string;
+  description: string;
+  mitigation?: string;
+}
+
+export interface FeasibilityAnalysis {
+  productName: string;
+  componentCount: number;
+  score: number;
+  status: "feasible" | "risky" | "not-feasible";
+  componentCosts: ComponentCostBreakdown[];
+  productionCost: ProductionCostEstimate;
+  logisticsCost: LogisticsCostEstimate;
+  totalCostPerUnit: number;
+  factors: FeasibilityFactors;
+  makeVsBuy: MakeVsBuyAnalysis;
+  risks: RiskFactor[];
+  breakEvenUnits: number;
+  recommendedMinOrder: number;
 }
 ```
 
-### 3. Create Supply Chain Risk Calculator
+### 2. Create Feasibility Calculator
 
-**New File**: `src/lib/supply-chain-risk.ts`
+**New File**: `src/features/producer/utils/feasibilityCalculator.ts`
 
-Utility to calculate various risk metrics:
+Utility functions to calculate:
+- Component costs from BOM data
+- Production costs based on labor rates
+- Logistics costs with duty calculations
+- Overall feasibility score (weighted factors)
+- Make vs Buy analysis
+- Scenario simulations
 
-```typescript
-interface SupplyChainRiskScore {
-  overall: number; // 0-100
-  leadTimeRisk: {
-    score: number;
-    level: "low" | "medium" | "high";
-    details: string;
-  };
-  singleSupplierRisk: {
-    score: number;
-    level: "low" | "medium" | "high";
-    affectedComponents: string[];
-  };
-  geographicRisk: {
-    score: number;
-    level: "low" | "medium" | "high";
-    concentrationDetails: { region: string; percentage: number }[];
-  };
-}
+### 3. Create Circular Score Component
 
-export function calculateLeadTimeRisk(suppliers: SupplierQuote[]): RiskLevel;
-export function calculateSingleSupplierRisk(components: ComponentPart[], quotes: SupplierQuote[]): RiskLevel;
-export function calculateGeographicConcentrationRisk(suppliers: SupplierQuote[]): RiskLevel;
-export function calculateOverallRiskScore(metrics: RiskMetrics): number;
-```
+**New File**: `src/features/producer/components/FeasibilityScoreCircle.tsx`
 
-### 4. Create Supply Chain Flow Visualization Component
+Large circular progress using SVG with:
+- Animated fill based on score
+- Color transitions (red → yellow → green)
+- Center text with score and label
+- Pulsing animation for attention
 
-**New File**: `src/components/components/SupplyChainFlow.tsx`
+### 4. Create Cost Breakdown Cards
 
-Visual flow diagram showing:
-```text
-+-------------+     +---------------+     +-------------+
-| Components  | --> |   Suppliers   | --> |  Delivery   |
-|  (Parts)    |     |  (Sources)    |     |  (Timeline) |
-+-------------+     +---------------+     +-------------+
-     ↓                    ↓                     ↓
-  5 Parts          12 Suppliers           18 avg days
-```
+**New File**: `src/features/producer/components/CostBreakdownCards.tsx`
 
-### 5. Create Supply Chain Risk Panel Component
+Four cards displaying:
+- Component Cost with expandable breakdown list
+- Production Cost with labor/equipment/facility split
+- Logistics Cost with shipping/duties/handling
+- Total Summary card with pie chart visualization
 
-**New File**: `src/components/components/SupplyChainRiskPanel.tsx`
+### 5. Create Feasibility Factors Panel
 
-Dashboard card showing all risk metrics:
+**New File**: `src/features/producer/components/FeasibilityFactorsPanel.tsx`
 
-```text
-+----------------------------------------------------------+
-|  Supply Chain Risk Assessment                             |
-+----------------------------------------------------------+
-|                                                          |
-|  Overall Risk Score: [====72====] MEDIUM                 |
-|                                                          |
-|  +-------------------+  +-------------------+            |
-|  | Lead Time Risk    |  | Dependency Risk   |            |
-|  | 🟡 MEDIUM         |  | 🔴 HIGH           |            |
-|  | Avg: 18 days      |  | 2 single-source   |            |
-|  +-------------------+  +-------------------+            |
-|                                                          |
-|  +-------------------+                                   |
-|  | Geographic Risk   |                                   |
-|  | 🟡 MEDIUM         |                                   |
-|  | 60% in China      |                                   |
-|  +-------------------+                                   |
-|                                                          |
-|  [View Detailed Analysis]                                |
-+----------------------------------------------------------+
-```
+Left sidebar showing:
+- Status icons (✓, ⚠, ✗) for each factor
+- Color-coded backgrounds
+- Detailed tooltips on hover
 
-### 6. Create Component Supplier Detail Modal
+### 6. Create Make vs Buy Card
 
-**New File**: `src/components/components/ComponentSupplierDetailModal.tsx`
+**New File**: `src/features/producer/components/MakeVsBuyCard.tsx`
 
-Enhanced version of SupplierDetailModal with:
-- All 4 existing tabs (Overview, Contact, Business, Team)
-- Enhanced Team tab with department grouping:
+Decision matrix showing:
+- Side-by-side cost comparison
+- Visual bar chart comparison
+- Savings calculation
+- AI recommendation badge
 
-```text
-+----------------------------------------------------------+
-| Team Tab                                                  |
-+----------------------------------------------------------+
-|                                                          |
-| 🏢 SALES DEPARTMENT                                       |
-| +------------------------------------------------------+ |
-| | [Avatar] David Chen - Sales Director    [LinkedIn →] | |
-| | [Avatar] Sarah Kim - Account Manager    [LinkedIn →] | |
-| +------------------------------------------------------+ |
-|                                                          |
-| 🔧 TECHNICAL DEPARTMENT                                   |
-| +------------------------------------------------------+ |
-| | [Avatar] Tom Lee - Technical Sales Eng  [LinkedIn →] | |
-| | [Avatar] Amy Wu - Application Engineer  [LinkedIn →] | |
-| +------------------------------------------------------+ |
-|                                                          |
-| 🛠️ PRODUCTION DEPARTMENT                                  |
-| +------------------------------------------------------+ |
-| | [Avatar] Mike Chen - Production Manager [LinkedIn →] | |
-| | [Avatar] Liu Wei - Quality Engineer     [LinkedIn →] | |
-| +------------------------------------------------------+ |
-|                                                          |
-| 📞 AFTER SALES / SUPPORT                                  |
-| +------------------------------------------------------+ |
-| | [Avatar] Jenny Lin - Customer Success   [LinkedIn →] | |
-| | [Avatar] Wang Fei - Support Engineer    [LinkedIn →] | |
-| +------------------------------------------------------+ |
-|                                                          |
-+----------------------------------------------------------+
-```
+### 7. Create Scenario Simulator
 
-### 7. Update Components Page
+**New File**: `src/features/producer/components/ScenarioSimulator.tsx`
 
-**Edit**: `src/pages/dashboard/Components.tsx`
+Collapsible panel with:
+- Three sliders (volume, cost increase, labor rate)
+- Real-time cost recalculation
+- Volume discount notification
+- Reset button
 
-Add new sections:
-- Search history sidebar
-- Supply chain risk panel
-- Clickable supplier names that open detail modal
-- Filter by component searches
+### 8. Create Risk Factors Panel
 
-### 8. Update Mock Data
+**New File**: `src/features/producer/components/RiskFactorsPanel.tsx`
 
-**Edit**: `src/data/components.ts` and `src/data/suppliers.ts`
+Display critical warnings:
+- Red/Yellow/Blue color coding by severity
+- Expandable mitigation suggestions
+- Link to relevant actions (find supplier, etc.)
 
-Add department-categorized employees to supplier quotes:
+### 9. Create Recommendation Banner
 
-```typescript
-employees: [
-  { name: "David Chen", role: "Sales Director", department: "sales", linkedIn: "..." },
-  { name: "Amy Wu", role: "Technical Engineer", department: "technical", linkedIn: "..." },
-  { name: "Mike Zhang", role: "Production Manager", department: "production", linkedIn: "..." },
-  { name: "Jenny Lin", role: "Customer Success", department: "after_sales", linkedIn: "..." },
-]
-```
+**New File**: `src/features/producer/components/RecommendationBanner.tsx`
+
+Top-of-page banner:
+- Green/Yellow/Red based on status
+- Key metrics (min order, break-even)
+- Call-to-action buttons
+
+### 10. Create Main Analysis Component
+
+**New File**: `src/features/producer/components/FeasibilityAnalysisComponent.tsx`
+
+Main orchestrating component that:
+- Accepts BOM/component data
+- Runs feasibility calculations
+- Manages simulation state
+- Renders all sub-components in layout
+
+### 11. Update Feasibility Page
+
+**Edit**: `src/pages/dashboard/Feasibility.tsx`
+
+Replace/enhance existing content with:
+- New FeasibilityAnalysisComponent
+- Integration with producerResults from analysisStore
+- Tab system to switch between projects
 
 ---
 
@@ -248,77 +238,153 @@ employees: [
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/data/suppliers.ts` | Edit | Add `EmployeeDepartment` type and `department` field to employees |
-| `src/data/components.ts` | Edit | Add employee data to supplier quotes with departments |
-| `src/stores/componentSupplierStore.ts` | Create | New store for component search history |
-| `src/lib/supply-chain-risk.ts` | Create | Risk calculation utilities |
-| `src/components/components/SupplyChainFlow.tsx` | Create | Flow visualization component |
-| `src/components/components/SupplyChainRiskPanel.tsx` | Create | Risk dashboard panel |
-| `src/components/components/ComponentSupplierDetailModal.tsx` | Create | Enhanced supplier detail modal with department-grouped team |
-| `src/pages/dashboard/Components.tsx` | Edit | Add history, risk panel, clickable suppliers |
+| `src/features/producer/types/feasibility.ts` | Create | TypeScript interfaces for feasibility analysis |
+| `src/features/producer/utils/feasibilityCalculator.ts` | Create | Calculation utilities for costs and scores |
+| `src/features/producer/components/FeasibilityScoreCircle.tsx` | Create | Circular score visualization |
+| `src/features/producer/components/CostBreakdownCards.tsx` | Create | Four cost breakdown cards |
+| `src/features/producer/components/FeasibilityFactorsPanel.tsx` | Create | Key factors sidebar |
+| `src/features/producer/components/MakeVsBuyCard.tsx` | Create | Make vs Buy decision matrix |
+| `src/features/producer/components/ScenarioSimulator.tsx` | Create | Collapsible simulation panel |
+| `src/features/producer/components/RiskFactorsPanel.tsx` | Create | Risk warnings and mitigations |
+| `src/features/producer/components/RecommendationBanner.tsx` | Create | Top recommendation banner |
+| `src/features/producer/components/FeasibilityAnalysisComponent.tsx` | Create | Main orchestrating component |
 | `src/features/producer/index.ts` | Edit | Export new components |
-| `src/stores/index.ts` | Edit | Export new store |
+| `src/pages/dashboard/Feasibility.tsx` | Edit | Integrate new analysis component |
 
 ---
 
-## Risk Score Calculation Logic
+## Component Layout
+
+```text
++------------------------------------------------------------------+
+| RECOMMENDATION BANNER (Green/Yellow/Red)                          |
+| ✓ Production is viable at $45.20/unit | Break-even: 500 units    |
++------------------------------------------------------------------+
+
++---------------------------+  +------------------------------------+
+| HEADER                    |  | FEASIBILITY SCORE                  |
+| Product: Smart Device     |  |      ╭──────────╮                  |
+| BOM: 10 components        |  |     │    87    │                  |
+| [Calculate Feasibility]   |  |     │  VIABLE  │                  |
++---------------------------+  |      ╰──────────╯                  |
+                               +------------------------------------+
+
++------------------------------------------------------------------+
+| COST BREAKDOWN CARDS                                              |
+| +---------------+ +---------------+ +-----------+ +-------------+ |
+| | COMPONENT     | | PRODUCTION    | | LOGISTICS | | TOTAL       | |
+| | $28.50/unit   | | $8.20/unit    | | $8.50/unit| | $45.20/unit | |
+| | - MCU: $4.25  | | - Labor: $5   | | - Ship: $3| | ───────────  | |
+| | - OLED: $6.75 | | - Equip: $2   | | - Duty: $4| | [Pie Chart] | |
+| | - Battery: $5 | | - Facil: $1.2 | | - Hand: $1| |             | |
+| +---------------+ +---------------+ +-----------+ +-------------+ |
++------------------------------------------------------------------+
+
++------------------------+  +--------------------------------------+
+| KEY FACTORS            |  | MAKE vs BUY DECISION                  |
+| ✓ All suppliers found  |  | +----------------+  +----------------+ |
+| ⚠ Lead time: 28 days   |  | |    MAKE        |  |     BUY        | |
+| ✗ 3 single-source      |  | |   $45.20       |  |    $68.00      | |
+| ✓ Below market avg     |  | +----------------+  +----------------+ |
+| ⚠ 60% imported         |  | Recommendation: Making saves 34%      |
++------------------------+  +--------------------------------------+
+
++------------------------------------------------------------------+
+| SCENARIO SIMULATION (Collapsible)                                 |
+| Volume:  [====500=====] 100 - 10,000 units                       |
+| Cost +%: [====10%=====] 0% - 30%                                 |
+| Labor:   [====$25=====] $15 - $50/hr                             |
+|                                                                   |
+| Projected Unit Cost: $47.85  (+5.8% from baseline)               |
+| Volume discount kicks in at 500 units                            |
++------------------------------------------------------------------+
+
++------------------------------------------------------------------+
+| RISK FACTORS                                                      |
+| 🔴 Only 1 supplier for Motor - Consider finding backup           |
+| 🟡 45-day lead time aggressive for timeline                      |
+| 🟡 15% of cost in import duties - Consider local alternatives    |
++------------------------------------------------------------------+
+
++------------------------------------------------------------------+
+| ACTION BUTTONS                                                    |
+| [Proceed to Production] [Optimize BOM] [Request RFQ] [Export PDF]|
++------------------------------------------------------------------+
+```
+
+---
+
+## Feasibility Score Calculation
 
 ```typescript
-// Lead Time Risk (0-100)
-// < 7 days: 10 (low)
-// 7-14 days: 30 (low-medium)
-// 14-21 days: 50 (medium)
-// 21-30 days: 70 (medium-high)
-// > 30 days: 90 (high)
+// Score weights
+const WEIGHTS = {
+  componentAvailability: 20,  // All suppliers found
+  leadTime: 20,               // Lead time acceptable
+  singleSupplierRisk: 20,     // Multi-source components
+  costCompetitiveness: 25,    // Below market average
+  localSourcing: 15,          // Local vs imported ratio
+};
 
-// Single Supplier Dependency Risk (0-100)
-// All components have 3+ suppliers: 10
-// 1-2 components single-sourced: 50
-// 3+ components single-sourced: 80
-// Any critical component single-sourced: 95
+// Score calculation
+function calculateFeasibilityScore(factors: FeasibilityFactors): number {
+  let score = 0;
+  
+  // Component availability: 20 points
+  score += factors.componentAvailability.status === "pass" ? 20 :
+           factors.componentAvailability.status === "warn" ? 10 : 0;
+  
+  // Lead time: 20 points
+  if (factors.leadTime.days <= 14) score += 20;
+  else if (factors.leadTime.days <= 28) score += 15;
+  else if (factors.leadTime.days <= 45) score += 8;
+  
+  // Single supplier risk: 20 points
+  if (factors.singleSupplierRisk.count === 0) score += 20;
+  else if (factors.singleSupplierRisk.count <= 2) score += 12;
+  else if (factors.singleSupplierRisk.count <= 4) score += 5;
+  
+  // Cost competitiveness: 25 points
+  score += factors.costCompetitiveness.status === "pass" ? 25 :
+           factors.costCompetitiveness.status === "warn" ? 15 : 5;
+  
+  // Local sourcing: 15 points
+  score += Math.round(factors.localSourcing.localPercent / 100 * 15);
+  
+  return Math.min(100, Math.max(0, score));
+}
 
-// Geographic Concentration Risk (0-100)
-// Spread across 3+ regions: 20
-// 50%+ in one region: 50
-// 70%+ in one region: 75
-// 90%+ in one region: 90
-
-// Overall Score = weighted average
-// Lead Time: 30%
-// Single Supplier: 40%
-// Geographic: 30%
+// Status determination
+function getStatus(score: number): "feasible" | "risky" | "not-feasible" {
+  if (score >= 70) return "feasible";
+  if (score >= 50) return "risky";
+  return "not-feasible";
+}
 ```
 
 ---
 
-## User Experience Flow
+## Data Integration
 
-1. User navigates to Producer Mode → Component Supply
-2. Sees list of components with supplier quotes (existing)
-3. **NEW**: Clicks on supplier name → Opens detailed popup with 4 tabs
-4. **NEW**: Team tab shows employees grouped by department (Sales, Technical, Production, After Sales)
-5. **NEW**: Supply Chain Risk panel shows overall health score
-6. **NEW**: Flow visualization shows component → supplier → delivery pipeline
-7. **NEW**: Risk warnings highlight single-source and geographic concentration issues
-8. User can click LinkedIn profiles to connect with relevant contacts
+The component will use data from:
+1. **BOM Components** (`src/data/bom.ts`): Component list with costs
+2. **Supplier Quotes** (`src/data/components.ts`): Supplier pricing and lead times
+3. **Analysis Store** (`src/stores/analysisStore.ts`): Producer analysis results
+4. **Supply Chain Risk** (`src/lib/supply-chain-risk.ts`): Risk calculations
 
 ---
 
-## Visual Design
+## Styling Guidelines
 
-### Risk Score Indicator
-```text
-0-30: 🟢 LOW    - Green gradient, "Supply chain healthy"
-31-60: 🟡 MEDIUM - Yellow gradient, "Some risks identified"  
-61-80: 🟠 HIGH  - Orange gradient, "Significant risks"
-81-100: 🔴 CRITICAL - Red gradient, "Urgent action needed"
-```
-
-### Department Icons in Team Tab
-```text
-Sales: 💼 (briefcase)
-Technical: ⚙️ (gear)
-Production: 🏭 (factory)
-After Sales: 🛎️ (service bell)
-Management: 👔 (business)
-```
+- Professional, data-forward design
+- Charts using Recharts (PieChart for cost breakdown)
+- Color coding:
+  - Green (#10b981): Good/Pass/Feasible
+  - Yellow (#f59e0b): Caution/Warning/Risky  
+  - Red (#ef4444): Risk/Fail/Not Feasible
+- Framer Motion animations for:
+  - Score circle fill animation
+  - Card entrance animations
+  - Slider value changes
+- Mobile responsive with stacked layout on small screens
+- Collapsible sections for complex data
