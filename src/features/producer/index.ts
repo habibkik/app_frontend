@@ -23,6 +23,16 @@ export { SupplyChainFlow } from "@/components/components/SupplyChainFlow";
 export { SupplyChainRiskPanel } from "@/components/components/SupplyChainRiskPanel";
 export { ComponentSupplierDetailModal } from "@/components/components/ComponentSupplierDetailModal";
 
+// Feasibility Analysis Components
+export { FeasibilityAnalysisComponent } from "./components/FeasibilityAnalysisComponent";
+export { FeasibilityScoreCircle } from "./components/FeasibilityScoreCircle";
+export { CostBreakdownCards } from "./components/CostBreakdownCards";
+export { FeasibilityFactorsPanel } from "./components/FeasibilityFactorsPanel";
+export { MakeVsBuyCard } from "./components/MakeVsBuyCard";
+export { ScenarioSimulator } from "./components/ScenarioSimulator";
+export { RiskFactorsPanel } from "./components/RiskFactorsPanel";
+export { RecommendationBanner } from "./components/RecommendationBanner";
+
 // Pages
 export { default as BOMsPage } from "@/pages/dashboard/BOM";
 export { default as ComponentsPage } from "@/pages/dashboard/Components";
@@ -42,3 +52,7 @@ export {
   type ComparisonSelection 
 } from "@/data/components";
 export { type AnalyzedComponent } from "@/lib/ai-analysis-service";
+
+// Feasibility Types & Utilities
+export * from "./types/feasibility";
+export * from "./utils/feasibilityCalculator";
