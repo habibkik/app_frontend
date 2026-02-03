@@ -38,6 +38,7 @@ import {
   ArrowRight,
   Mail,
   FileText,
+  Activity,
 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -81,6 +82,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { ProductSupplierContactModal } from "@/components/suppliers/ProductSupplierContactModal";
 import { CompetitorDetailModal, type CompetitorData } from "@/components/seller/CompetitorDetailModal";
+import { CompetitorMonitor } from "@/features/seller/components/CompetitorMonitor";
+import type { CompetitorTableRow } from "@/features/seller/types/competitorMonitor";
 
 // Types for product analysis
 interface ProductAnalysisResult {
@@ -770,11 +773,43 @@ export default function CompetitorsPage() {
               <Eye className="h-4 w-4" />
               Competitors
             </TabsTrigger>
+            <TabsTrigger value="monitor" className="gap-2">
+              <Activity className="h-4 w-4" />
+              Live Monitor
+            </TabsTrigger>
             <TabsTrigger value="product-analysis" className="gap-2">
               <Search className="h-4 w-4" />
               Product Analysis
             </TabsTrigger>
           </TabsList>
+
+          {/* Live Monitor Tab */}
+          <TabsContent value="monitor" className="space-y-6">
+            <CompetitorMonitor 
+              onViewCompetitor={(competitor: CompetitorTableRow) => {
+                // Convert CompetitorTableRow to CompetitorData for the modal
+                const competitorData: CompetitorData = {
+                  id: competitor.id,
+                  name: competitor.name,
+                  website: competitor.platform.toLowerCase() + ".com",
+                  logo: competitor.logo,
+                  priceIndex: Math.round(competitor.currentPrice / 0.4299), // Approximate
+                  priceChange: competitor.priceChange7d,
+                  marketShare: 15,
+                  productCount: 500,
+                  avgRating: competitor.avgRating,
+                  strengths: ["Competitive pricing"],
+                  weaknesses: ["Limited stock"],
+                  tracking: true,
+                  lastUpdated: competitor.lastUpdated.toISOString(),
+                  trend: competitor.priceChange7d > 0 ? "up" : competitor.priceChange7d < 0 ? "down" : "stable",
+                  description: competitor.description || `${competitor.name} - Competitor on ${competitor.platform}`,
+                };
+                setDetailCompetitor(competitorData);
+                setDetailModalOpen(true);
+              }}
+            />
+          </TabsContent>
 
           {/* Competitors Tab */}
           <TabsContent value="competitors" className="space-y-6">

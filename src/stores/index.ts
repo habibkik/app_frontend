@@ -32,3 +32,4 @@ export {
   type ComponentSupplierMatch,
   type ComponentSearchResult,
 } from "./componentSupplierStore";
+export { useCompetitorMonitorStore } from "./competitorMonitorStore";
