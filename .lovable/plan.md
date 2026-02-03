@@ -1,390 +1,427 @@
 
-# Enhanced Production Feasibility Analysis Component
+# Competitor Monitor Component Implementation
 
 ## Overview
-This plan creates a comprehensive `FeasibilityAnalysisComponent` in `src/features/producer/components/` that provides detailed cost breakdown, feasibility scoring, make vs buy analysis, scenario simulation, and risk assessment - all integrated into the existing Feasibility page.
+Create a new `CompetitorMonitorComponent` in `src/features/seller/components/` that provides comprehensive competitor monitoring with real-time updates, sortable tables, advanced filtering, and actionable insights. This component will be integrated into the existing Competitors page as a dedicated monitoring dashboard.
 
-## What You'll Get
+## Current State Analysis
 
-### 1. Header Section
-- Product name with BOM component count
-- "Calculate Feasibility" button to trigger analysis
+The existing Competitors page (1697 lines) has:
+- Basic stats cards
+- 12-month price history chart
+- Competitor list with search
+- Price alerts (basic)
+- Competitor detail modal
 
-### 2. Cost Breakdown Cards (4 Cards)
-- **Component Cost**: Total cost breakdown by component, per-unit cost
-- **Production Cost**: Labor, equipment, facility allocation
-- **Logistics Cost**: Shipping, import duties, handling/storage
-- **Total Cost Summary**: Combined per-unit cost with breakdown
-
-### 3. Feasibility Score (Circular Visual)
-- Large circular progress indicator (0-100)
-- Color-coded: Red (<50), Yellow (50-70), Green (70+)
-- Label: "Production Viable" or "Needs Optimization"
-
-### 4. Key Feasibility Factors (Left Sidebar)
-- Component availability status
-- Lead time assessment
-- Single supplier risk warnings
-- Cost competitiveness check
-- Local vs imported sourcing ratio
-
-### 5. Production Decision Matrix
-- Make vs Buy cost comparison
-- Savings calculation
-- Recommendation with percentage difference
-
-### 6. Scenario Simulation (Collapsible)
-- Production volume slider (100 - 10,000 units)
-- Component cost increase slider (0 - 30%)
-- Labor cost/hour slider
-- Real-time unit cost recalculation
-- Volume discount threshold indicator
-
-### 7. Risk Factors Section
-- Red flags with specific warnings
-- Mitigation suggestions for each risk
-
-### 8. Recommendations Banner
-- Feasible: Green with recommended order size and break-even
-- Risky: Yellow with risks and cost reduction opportunities
-- Not Feasible: Red with reason and alternatives
-
-### 9. Action Buttons
-- "Proceed to Production" (if feasible)
-- "Optimize BOM" (find cheaper alternatives)
-- "Request RFQ from all suppliers"
-- "Export Report" (PDF)
+**Missing Features:**
+1. Product multi-selector with date range picker
+2. Auto-refresh functionality with toggle
+3. Key metrics cards with live values
+4. Enhanced price trend chart with area fills and annotations
+5. Sortable/filterable competitor table with pagination
+6. Price movement alerts with dismiss functionality
+7. Market insights sidebar with recommendations
+8. Real-time update notifications
 
 ---
 
-## Technical Implementation
+## Implementation Plan
 
-### 1. Create Feasibility Types
+### 1. Create Competitor Monitor Types
 
-**New File**: `src/features/producer/types/feasibility.ts`
+**New File**: `src/features/seller/types/competitorMonitor.ts`
+
+Define types for:
+- `MonitoredProduct` - products being tracked
+- `CompetitorTableRow` - table data structure with all columns
+- `PriceMovementAlert` - alert types (drop, increase, new entry, out of stock)
+- `MarketInsight` - pricing recommendations and conditions
+- `AutoRefreshSettings` - refresh interval configuration
 
 ```typescript
-export interface ComponentCostBreakdown {
-  componentId: string;
-  name: string;
-  quantity: number;
-  unitCost: number;
-  totalCost: number;
-  supplierCount: number;
-}
-
-export interface ProductionCostEstimate {
-  laborCostPerUnit: number;
-  equipmentCostPerUnit: number;
-  facilityCostPerUnit: number;
-  totalProductionCostPerUnit: number;
-}
-
-export interface LogisticsCostEstimate {
-  shippingCostPerUnit: number;
-  importDuties: number;
-  handlingStorage: number;
-  totalLandedCostPerUnit: number;
-}
-
-export interface FeasibilityFactors {
-  componentAvailability: { status: "pass" | "warn" | "fail"; message: string };
-  leadTime: { status: "pass" | "warn" | "fail"; days: number; message: string };
-  singleSupplierRisk: { status: "pass" | "warn" | "fail"; count: number; message: string };
-  costCompetitiveness: { status: "pass" | "warn" | "fail"; message: string };
-  localSourcing: { status: "pass" | "warn" | "fail"; localPercent: number; importedPercent: number };
-}
-
-export interface MakeVsBuyAnalysis {
-  makeCost: number;
-  buyCost: number;
-  difference: number;
-  savingsPercent: number;
-  recommendation: "make" | "buy";
-}
-
-export interface ScenarioParams {
-  productionVolume: number;
-  costIncrease: number;
-  laborCostPerHour: number;
-}
-
-export interface RiskFactor {
+export interface MonitoredProduct {
   id: string;
-  type: "critical" | "warning" | "info";
-  title: string;
-  description: string;
-  mitigation?: string;
+  name: string;
+  category: string;
+  yourPrice: number;
+  marketAverage: number;
 }
 
-export interface FeasibilityAnalysis {
+export interface CompetitorTableRow {
+  rank: number;
+  id: string;
+  name: string;
+  logo: string;
+  platform: "Facebook" | "Amazon" | "OLX" | "Ouedkniss" | "Website" | "Other";
+  currentPrice: number;
+  priceChange7d: number;
+  lastUpdated: Date;
+  stockStatus: "in_stock" | "limited" | "out_of_stock";
+  reviewCount: number;
+  avgRating: number;
+  isAboveYourPrice: boolean;
+  priceHistory: { date: string; price: number }[];
+}
+
+export interface PriceMovementAlert {
+  id: string;
+  type: "drop" | "increase" | "new_entry" | "out_of_stock";
+  competitorName: string;
   productName: string;
-  componentCount: number;
-  score: number;
-  status: "feasible" | "risky" | "not-feasible";
-  componentCosts: ComponentCostBreakdown[];
-  productionCost: ProductionCostEstimate;
-  logisticsCost: LogisticsCostEstimate;
-  totalCostPerUnit: number;
-  factors: FeasibilityFactors;
-  makeVsBuy: MakeVsBuyAnalysis;
-  risks: RiskFactor[];
-  breakEvenUnits: number;
-  recommendedMinOrder: number;
+  oldPrice?: number;
+  newPrice: number;
+  timestamp: Date;
+  dismissed: boolean;
+}
+
+export interface MarketInsight {
+  optimalPrice: number;
+  currentMargin: number;
+  recommendedMargin: number;
+  priceAdjustment: number;
+  trend: { direction: "up" | "down" | "stable"; percentage: number; period: string };
+  demandLevel: "low" | "medium" | "high";
+  newCompetitorsThisWeek: number;
+  supplyStatus: "low" | "stable" | "high";
 }
 ```
 
-### 2. Create Feasibility Calculator
+### 2. Create Competitor Monitor Store
 
-**New File**: `src/features/producer/utils/feasibilityCalculator.ts`
+**New File**: `src/stores/competitorMonitorStore.ts`
 
-Utility functions to calculate:
-- Component costs from BOM data
-- Production costs based on labor rates
-- Logistics costs with duty calculations
-- Overall feasibility score (weighted factors)
-- Make vs Buy analysis
-- Scenario simulations
+Zustand store managing:
+- Selected products for monitoring
+- Date range selection
+- Auto-refresh settings (on/off, interval)
+- Last updated timestamp
+- Alerts list with dismiss state
+- Competitors data
 
-### 3. Create Circular Score Component
+```typescript
+interface CompetitorMonitorStore {
+  // Selection state
+  selectedProducts: string[];
+  dateRange: { from: Date; to: Date };
+  
+  // Refresh settings
+  autoRefresh: boolean;
+  refreshInterval: 1 | 2 | 4; // hours
+  lastUpdated: Date;
+  isRefreshing: boolean;
+  
+  // Data
+  competitors: CompetitorTableRow[];
+  alerts: PriceMovementAlert[];
+  marketInsight: MarketInsight | null;
+  
+  // Actions
+  setSelectedProducts: (products: string[]) => void;
+  setDateRange: (range: { from: Date; to: Date }) => void;
+  setAutoRefresh: (enabled: boolean) => void;
+  setRefreshInterval: (hours: 1 | 2 | 4) => void;
+  refreshData: () => Promise<void>;
+  dismissAlert: (alertId: string) => void;
+}
+```
 
-**New File**: `src/features/producer/components/FeasibilityScoreCircle.tsx`
+### 3. Create Component Architecture
 
-Large circular progress using SVG with:
-- Animated fill based on score
-- Color transitions (red → yellow → green)
-- Center text with score and label
-- Pulsing animation for attention
+#### Main Component
+**New File**: `src/features/seller/components/CompetitorMonitor.tsx`
 
-### 4. Create Cost Breakdown Cards
+Main orchestrating component with layout:
+- Header with controls
+- Key metrics cards row
+- Price trend chart (large)
+- Two-column layout: Table (left), Insights sidebar (right)
+- Alerts section (bottom)
 
-**New File**: `src/features/producer/components/CostBreakdownCards.tsx`
+#### Sub-Components
 
-Four cards displaying:
-- Component Cost with expandable breakdown list
-- Production Cost with labor/equipment/facility split
-- Logistics Cost with shipping/duties/handling
-- Total Summary card with pie chart visualization
+**`CompetitorMonitorHeader.tsx`**
+- Product multi-select dropdown
+- Date range picker (using existing DateRangePicker)
+- Refresh button with "Last updated: X hours ago"
+- Auto-refresh toggle with interval selector
 
-### 5. Create Feasibility Factors Panel
+**`CompetitorMetricsCards.tsx`**
+Four cards:
+1. Market Average Price ($45.99)
+2. Your Current Price ($42.99)
+3. Price Position ("10% Below Market" green badge)
+4. Competitors Found ("12 active sellers")
 
-**New File**: `src/features/producer/components/FeasibilityFactorsPanel.tsx`
+**`CompetitorPriceTrendChart.tsx`**
+Enhanced Recharts AreaChart:
+- X-axis: dates (30 days)
+- Y-axis: price ($)
+- Thick blue line: Your price
+- Gray dashed line: Market average
+- Light gray area fill: Min-Max price range
+- Reference lines for annotations
+- Custom tooltip showing all values
 
-Left sidebar showing:
-- Status icons (✓, ⚠, ✗) for each factor
-- Color-coded backgrounds
-- Detailed tooltips on hover
+**`CompetitorTable.tsx`**
+Full-featured table with:
+- Sortable columns (click header)
+- Platform filter checkboxes
+- Pagination (20 per page)
+- Expandable rows (click to show price history chart)
+- Color coding: Green if competitor price > yours, Red if < yours
+- Columns: Rank, Name, Platform, Current Price, 7d Change, Last Updated, Stock, Reviews
 
-### 6. Create Make vs Buy Card
+**`PriceMovementAlerts.tsx`**
+Scrollable list with:
+- Color-coded icons (red/yellow/blue/green)
+- Alert description with old/new prices
+- Timestamp ("2 hours ago")
+- "View competitor" button
+- Dismiss (X) button
 
-**New File**: `src/features/producer/components/MakeVsBuyCard.tsx`
-
-Decision matrix showing:
-- Side-by-side cost comparison
-- Visual bar chart comparison
-- Savings calculation
-- AI recommendation badge
-
-### 7. Create Scenario Simulator
-
-**New File**: `src/features/producer/components/ScenarioSimulator.tsx`
-
-Collapsible panel with:
-- Three sliders (volume, cost increase, labor rate)
-- Real-time cost recalculation
-- Volume discount notification
-- Reset button
-
-### 8. Create Risk Factors Panel
-
-**New File**: `src/features/producer/components/RiskFactorsPanel.tsx`
-
-Display critical warnings:
-- Red/Yellow/Blue color coding by severity
-- Expandable mitigation suggestions
-- Link to relevant actions (find supplier, etc.)
-
-### 9. Create Recommendation Banner
-
-**New File**: `src/features/producer/components/RecommendationBanner.tsx`
-
-Top-of-page banner:
-- Green/Yellow/Red based on status
-- Key metrics (min order, break-even)
-- Call-to-action buttons
-
-### 10. Create Main Analysis Component
-
-**New File**: `src/features/producer/components/FeasibilityAnalysisComponent.tsx`
-
-Main orchestrating component that:
-- Accepts BOM/component data
-- Runs feasibility calculations
-- Manages simulation state
-- Renders all sub-components in layout
-
-### 11. Update Feasibility Page
-
-**Edit**: `src/pages/dashboard/Feasibility.tsx`
-
-Replace/enhance existing content with:
-- New FeasibilityAnalysisComponent
-- Integration with producerResults from analysisStore
-- Tab system to switch between projects
-
----
-
-## File Changes Summary
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/features/producer/types/feasibility.ts` | Create | TypeScript interfaces for feasibility analysis |
-| `src/features/producer/utils/feasibilityCalculator.ts` | Create | Calculation utilities for costs and scores |
-| `src/features/producer/components/FeasibilityScoreCircle.tsx` | Create | Circular score visualization |
-| `src/features/producer/components/CostBreakdownCards.tsx` | Create | Four cost breakdown cards |
-| `src/features/producer/components/FeasibilityFactorsPanel.tsx` | Create | Key factors sidebar |
-| `src/features/producer/components/MakeVsBuyCard.tsx` | Create | Make vs Buy decision matrix |
-| `src/features/producer/components/ScenarioSimulator.tsx` | Create | Collapsible simulation panel |
-| `src/features/producer/components/RiskFactorsPanel.tsx` | Create | Risk warnings and mitigations |
-| `src/features/producer/components/RecommendationBanner.tsx` | Create | Top recommendation banner |
-| `src/features/producer/components/FeasibilityAnalysisComponent.tsx` | Create | Main orchestrating component |
-| `src/features/producer/index.ts` | Edit | Export new components |
-| `src/pages/dashboard/Feasibility.tsx` | Edit | Integrate new analysis component |
+**`MarketInsightsPanel.tsx`**
+Right sidebar showing:
+- Pricing recommendation box
+- Market conditions indicators
+- Trend visualization
 
 ---
 
-## Component Layout
+## Component Layout Diagram
 
 ```text
 +------------------------------------------------------------------+
-| RECOMMENDATION BANNER (Green/Yellow/Red)                          |
-| ✓ Production is viable at $45.20/unit | Break-even: 500 units    |
-+------------------------------------------------------------------+
-
-+---------------------------+  +------------------------------------+
-| HEADER                    |  | FEASIBILITY SCORE                  |
-| Product: Smart Device     |  |      ╭──────────╮                  |
-| BOM: 10 components        |  |     │    87    │                  |
-| [Calculate Feasibility]   |  |     │  VIABLE  │                  |
-+---------------------------+  |      ╰──────────╯                  |
-                               +------------------------------------+
-
-+------------------------------------------------------------------+
-| COST BREAKDOWN CARDS                                              |
-| +---------------+ +---------------+ +-----------+ +-------------+ |
-| | COMPONENT     | | PRODUCTION    | | LOGISTICS | | TOTAL       | |
-| | $28.50/unit   | | $8.20/unit    | | $8.50/unit| | $45.20/unit | |
-| | - MCU: $4.25  | | - Labor: $5   | | - Ship: $3| | ───────────  | |
-| | - OLED: $6.75 | | - Equip: $2   | | - Duty: $4| | [Pie Chart] | |
-| | - Battery: $5 | | - Facil: $1.2 | | - Hand: $1| |             | |
-| +---------------+ +---------------+ +-----------+ +-------------+ |
-+------------------------------------------------------------------+
-
-+------------------------+  +--------------------------------------+
-| KEY FACTORS            |  | MAKE vs BUY DECISION                  |
-| ✓ All suppliers found  |  | +----------------+  +----------------+ |
-| ⚠ Lead time: 28 days   |  | |    MAKE        |  |     BUY        | |
-| ✗ 3 single-source      |  | |   $45.20       |  |    $68.00      | |
-| ✓ Below market avg     |  | +----------------+  +----------------+ |
-| ⚠ 60% imported         |  | Recommendation: Making saves 34%      |
-+------------------------+  +--------------------------------------+
-
-+------------------------------------------------------------------+
-| SCENARIO SIMULATION (Collapsible)                                 |
-| Volume:  [====500=====] 100 - 10,000 units                       |
-| Cost +%: [====10%=====] 0% - 30%                                 |
-| Labor:   [====$25=====] $15 - $50/hr                             |
-|                                                                   |
-| Projected Unit Cost: $47.85  (+5.8% from baseline)               |
-| Volume discount kicks in at 500 units                            |
+| HEADER                                                            |
+| [Product ▼] [Date Range ▼] | [Refresh] Last updated: 2h | Auto ⚙ |
 +------------------------------------------------------------------+
 
 +------------------------------------------------------------------+
-| RISK FACTORS                                                      |
-| 🔴 Only 1 supplier for Motor - Consider finding backup           |
-| 🟡 45-day lead time aggressive for timeline                      |
-| 🟡 15% of cost in import duties - Consider local alternatives    |
+| KEY METRICS CARDS                                                 |
+| +---------------+ +---------------+ +---------------+ +---------+ |
+| | Mkt Avg       | | Your Price    | | Position      | | Found   | |
+| | $45.99        | | $42.99        | | -10% ▼        | | 12      | |
+| +---------------+ +---------------+ +---------------+ +---------+ |
 +------------------------------------------------------------------+
 
 +------------------------------------------------------------------+
-| ACTION BUTTONS                                                    |
-| [Proceed to Production] [Optimize BOM] [Request RFQ] [Export PDF]|
+| PRICE TREND CHART (Large)                                         |
+| ┌────────────────────────────────────────────────────────────────┐|
+| │  $50 ─┬─────────────────────────────────────────────────────── │|
+| │       │   ▲ You dropped price here                            │|
+| │  $45 ─┤  ═══════╗                        ───── Your Price     │|
+| │       │        ╚════════════════════    - - - Market Avg      │|
+| │  $40 ─┤                 ░░░░░░░░░░░░░░░  ░░░░░ Min-Max Range   │|
+| │       ├──────┬──────┬──────┬──────┬──────┬──────              │|
+| │       Jan 5  Jan 12 Jan 19 Jan 26 Feb 2                       │|
+| └────────────────────────────────────────────────────────────────┘|
++------------------------------------------------------------------+
+
++----------------------------------------------+ +------------------+
+| COMPETITOR TABLE                              | | MARKET INSIGHTS  |
+| +----+--------+------+-------+------+------+ | | +──────────────+ |
+| |Rank| Name   | Plat | Price | Chng | Stock| | | │Optimal: $45 │ |
+| +----+--------+------+-------+------+------+ | | │Margin: 35%  │ |
+| | 1  | TechCo | 🛒   | $39.99| -8%  | ✓    | | | │Raise by $3  │ |
+| | 2  | Parts+ | FB   | $41.50| +2%  | ⚠    | | | +──────────────+ |
+| | 3  | Global | Web  | $44.00| 0%   | ✓    | | |                |
+| +----+--------+------+-------+------+------+ | | | Trending ↓2%/wk|
+| [◀ 1 2 3 ... 5 ▶]  Filter: [Platform ▼]     | | | Demand: High  |
++----------------------------------------------+ | | Supply: Stable|
+                                                 +------------------+
+
++------------------------------------------------------------------+
+| PRICE MOVEMENT ALERTS                                             |
+| +────────────────────────────────────────────────────────────────+|
+| | 🔴 Competitor A dropped to $39.99 (was $45.00) - Margin risk! ||
+| |    2 hours ago                      [View] [×]                 ||
+| +────────────────────────────────────────────────────────────────+|
+| | 🟡 Market average rose 8% - Opportunity to raise price         ||
+| |    4 hours ago                      [View] [×]                 ||
+| +────────────────────────────────────────────────────────────────+|
 +------------------------------------------------------------------+
 ```
 
 ---
 
-## Feasibility Score Calculation
+## Files Summary
+
+| File | Action | Description |
+|------|--------|-------------|
+| `src/features/seller/types/competitorMonitor.ts` | Create | Type definitions |
+| `src/stores/competitorMonitorStore.ts` | Create | Zustand state management |
+| `src/features/seller/components/CompetitorMonitor.tsx` | Create | Main orchestrating component |
+| `src/features/seller/components/CompetitorMonitorHeader.tsx` | Create | Header with controls |
+| `src/features/seller/components/CompetitorMetricsCards.tsx` | Create | 4 key metric cards |
+| `src/features/seller/components/CompetitorPriceTrendChart.tsx` | Create | Enhanced area chart |
+| `src/features/seller/components/CompetitorTable.tsx` | Create | Sortable/filterable table |
+| `src/features/seller/components/PriceMovementAlerts.tsx` | Create | Alert list with actions |
+| `src/features/seller/components/MarketInsightsPanel.tsx` | Create | Insights sidebar |
+| `src/features/seller/index.ts` | Edit | Export new components |
+| `src/stores/index.ts` | Edit | Export new store |
+| `src/pages/dashboard/Competitors.tsx` | Edit | Add Monitor tab |
+
+---
+
+## Key Technical Details
+
+### Auto-Refresh Implementation
+```typescript
+// In CompetitorMonitor.tsx
+useEffect(() => {
+  if (!autoRefresh) return;
+  
+  const intervalMs = refreshInterval * 60 * 60 * 1000; // hours to ms
+  const timer = setInterval(() => {
+    refreshData();
+    toast({ title: "Data refreshed", description: "Competitor prices updated" });
+  }, intervalMs);
+  
+  return () => clearInterval(timer);
+}, [autoRefresh, refreshInterval]);
+```
+
+### Table Sorting
+```typescript
+const [sortConfig, setSortConfig] = useState<{
+  key: keyof CompetitorTableRow;
+  direction: "asc" | "desc";
+}>({ key: "rank", direction: "asc" });
+
+const sortedData = useMemo(() => {
+  return [...competitors].sort((a, b) => {
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+    const modifier = sortConfig.direction === "asc" ? 1 : -1;
+    return aVal > bVal ? modifier : -modifier;
+  });
+}, [competitors, sortConfig]);
+```
+
+### Chart with Annotations (Recharts)
+```typescript
+<AreaChart data={priceData}>
+  <defs>
+    <linearGradient id="rangeGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.1}/>
+      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+    </linearGradient>
+  </defs>
+  <Area type="monotone" dataKey="range" fill="url(#rangeGradient)" />
+  <Line type="monotone" dataKey="yourPrice" stroke="#2563eb" strokeWidth={3} />
+  <Line type="monotone" dataKey="marketAvg" stroke="#6b7280" strokeDasharray="5 5" />
+  <ReferenceLine x="Jan 28" stroke="#ef4444" label="Price drop" />
+</AreaChart>
+```
+
+### Platform Filter
+```typescript
+const platforms = ["Facebook", "Amazon", "OLX", "Ouedkniss", "Website"];
+const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(platforms);
+
+const filteredCompetitors = competitors.filter(c => 
+  selectedPlatforms.includes(c.platform)
+);
+```
+
+---
+
+## Mock Data Structure
 
 ```typescript
-// Score weights
-const WEIGHTS = {
-  componentAvailability: 20,  // All suppliers found
-  leadTime: 20,               // Lead time acceptable
-  singleSupplierRisk: 20,     // Multi-source components
-  costCompetitiveness: 25,    // Below market average
-  localSourcing: 15,          // Local vs imported ratio
-};
+const mockCompetitorRows: CompetitorTableRow[] = [
+  {
+    rank: 1,
+    id: "1",
+    name: "TechSupply Co",
+    logo: "TS",
+    platform: "Amazon",
+    currentPrice: 39.99,
+    priceChange7d: -8.2,
+    lastUpdated: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    stockStatus: "in_stock",
+    reviewCount: 234,
+    avgRating: 4.5,
+    isAboveYourPrice: false, // competitor price < your price
+    priceHistory: [/* 30 days of data */]
+  },
+  // ... more rows
+];
 
-// Score calculation
-function calculateFeasibilityScore(factors: FeasibilityFactors): number {
-  let score = 0;
-  
-  // Component availability: 20 points
-  score += factors.componentAvailability.status === "pass" ? 20 :
-           factors.componentAvailability.status === "warn" ? 10 : 0;
-  
-  // Lead time: 20 points
-  if (factors.leadTime.days <= 14) score += 20;
-  else if (factors.leadTime.days <= 28) score += 15;
-  else if (factors.leadTime.days <= 45) score += 8;
-  
-  // Single supplier risk: 20 points
-  if (factors.singleSupplierRisk.count === 0) score += 20;
-  else if (factors.singleSupplierRisk.count <= 2) score += 12;
-  else if (factors.singleSupplierRisk.count <= 4) score += 5;
-  
-  // Cost competitiveness: 25 points
-  score += factors.costCompetitiveness.status === "pass" ? 25 :
-           factors.costCompetitiveness.status === "warn" ? 15 : 5;
-  
-  // Local sourcing: 15 points
-  score += Math.round(factors.localSourcing.localPercent / 100 * 15);
-  
-  return Math.min(100, Math.max(0, score));
-}
-
-// Status determination
-function getStatus(score: number): "feasible" | "risky" | "not-feasible" {
-  if (score >= 70) return "feasible";
-  if (score >= 50) return "risky";
-  return "not-feasible";
-}
+const mockAlerts: PriceMovementAlert[] = [
+  {
+    id: "alert_1",
+    type: "drop",
+    competitorName: "TechSupply Co",
+    productName: "Servo Motor XR-500",
+    oldPrice: 45.00,
+    newPrice: 39.99,
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+    dismissed: false,
+  },
+  {
+    id: "alert_2",
+    type: "increase",
+    competitorName: "Market Average",
+    productName: "General",
+    newPrice: 0, // Not applicable
+    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
+    dismissed: false,
+  },
+  // ...
+];
 ```
 
 ---
 
-## Data Integration
+## Integration with Existing Page
 
-The component will use data from:
-1. **BOM Components** (`src/data/bom.ts`): Component list with costs
-2. **Supplier Quotes** (`src/data/components.ts`): Supplier pricing and lead times
-3. **Analysis Store** (`src/stores/analysisStore.ts`): Producer analysis results
-4. **Supply Chain Risk** (`src/lib/supply-chain-risk.ts`): Risk calculations
+The new CompetitorMonitor component will be added as a third tab in the existing Competitors page:
+
+```typescript
+<Tabs value={activeTab} onValueChange={setActiveTab}>
+  <TabsList className="grid w-full max-w-lg grid-cols-3">
+    <TabsTrigger value="competitors">Competitors</TabsTrigger>
+    <TabsTrigger value="monitor">Live Monitor</TabsTrigger>
+    <TabsTrigger value="product-analysis">Product Analysis</TabsTrigger>
+  </TabsList>
+  
+  <TabsContent value="monitor">
+    <CompetitorMonitor />
+  </TabsContent>
+</Tabs>
+```
 
 ---
 
 ## Styling Guidelines
 
-- Professional, data-forward design
-- Charts using Recharts (PieChart for cost breakdown)
-- Color coding:
-  - Green (#10b981): Good/Pass/Feasible
-  - Yellow (#f59e0b): Caution/Warning/Risky  
-  - Red (#ef4444): Risk/Fail/Not Feasible
-- Framer Motion animations for:
-  - Score circle fill animation
-  - Card entrance animations
-  - Slider value changes
-- Mobile responsive with stacked layout on small screens
-- Collapsible sections for complex data
+- **Color Coding**:
+  - Green (#10b981): Competitor price above yours (favorable)
+  - Red (#ef4444): Competitor price below yours (at risk)
+  - Yellow (#f59e0b): Warnings, neutral alerts
+  - Blue (#3b82f6): New entries, informational
+
+- **Chart Colors**:
+  - Your price: Blue (#2563eb), thick solid line
+  - Market average: Gray (#6b7280), dashed line
+  - Price range fill: Light purple/gray gradient
+
+- **Table Row States**:
+  - Hover: Light background change
+  - Expanded: Shows mini price history chart
+  - Selected: Primary border highlight
+
+- **Responsive Design**:
+  - Mobile: Stack cards, hide some table columns, full-width chart
+  - Tablet: 2-column layout for insights
+  - Desktop: Full 3-column layout
+
+---
+
+## Future Enhancements (Post-Implementation)
+
+1. **Supabase Realtime**: Subscribe to competitor price changes in database
+2. **Push Notifications**: Browser notifications for critical alerts
+3. **Export Functionality**: CSV/PDF report generation
+4. **Custom Alert Rules**: User-defined thresholds for notifications
+5. **Historical Comparison**: Compare different time periods
