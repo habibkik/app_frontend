@@ -278,7 +278,7 @@ const mockAlerts: PriceMovementAlert[] = [
   },
 ];
 
-// Mock market insight
+// Mock market insight with extended data
 const mockMarketInsight: MarketInsight = {
   optimalPrice: 45.00,
   currentMargin: 35,
@@ -292,6 +292,60 @@ const mockMarketInsight: MarketInsight = {
   demandLevel: "high",
   newCompetitorsThisWeek: 2,
   supplyStatus: "stable",
+  // Extended market statistics
+  marketStats: {
+    averagePrice: 45.99,
+    medianPrice: 44.50,
+    minPrice: 37.99,
+    maxPrice: 49.99,
+    standardDeviation: 3.25,
+    priceRange: 12.00,
+    yourPricePosition: -6.5,
+    yourVsMedian: -3.4,
+    yourCompetitiveness: "competitive",
+    suggestedOptimalPrice: 45.00,
+    suggestedPriceRange: {
+      min: 42.00,
+      max: 47.00,
+    },
+    averageCompetitorRating: 4.3,
+  },
+  // Availability metrics
+  availability: {
+    percentInStock: 75,
+    percentLimited: 17,
+    percentOutOfStock: 8,
+    averageLeadTime: 3,
+  },
+  // Data quality metrics
+  dataQuality: {
+    competitorsTracked: 12,
+    dataPoints: 360,
+    avgObservationsPerCompetitor: 30,
+    lastUpdate: new Date().toISOString(),
+    completeness: 87,
+    reliability: 92,
+  },
+  // Market insights
+  insights: {
+    marketSummary: "The market is showing moderate competition with stable pricing trends. Your competitive position is strong.",
+    opportunities: [
+      "2 competitors out of stock - capture their customers",
+      "Market average trending down - opportunity to gain market share",
+      "High demand with limited supply creates pricing power",
+    ],
+    threats: [
+      "New competitor BulkSupply Pro entered below your price",
+      "TechSupply Co aggressive pricing may pressure margins",
+    ],
+    recommendedActions: [
+      "Consider raising price by $2-3 to match optimal",
+      "Monitor BulkSupply Pro pricing strategy",
+      "Highlight your reliability score vs competitors",
+    ],
+    marketMaturity: "growth",
+    competitiveIntensity: "medium",
+  },
 };
 
 // Mock products
@@ -322,7 +376,7 @@ interface CompetitorMonitorStore {
   marketInsight: MarketInsight | null;
   metrics: CompetitorMonitorMetrics;
   
-  // Platform filter
+  // Platform filter - Extended with all platforms
   selectedPlatforms: string[];
   
   // Actions
@@ -356,7 +410,7 @@ export const useCompetitorMonitorStore = create<CompetitorMonitorStore>()(
         pricePosition: -6.5,
         competitorsFound: 12,
       },
-      selectedPlatforms: ["Facebook", "Amazon", "OLX", "Ouedkniss", "Website", "Other"],
+      selectedPlatforms: ["Facebook", "Amazon", "OLX", "Ouedkniss", "Website", "Instagram", "WhatsApp", "Telegram", "Viber", "TikTok", "LinkedIn", "Other"],
       
       // Actions
       setSelectedProducts: (products) => set({ selectedProducts: products }),

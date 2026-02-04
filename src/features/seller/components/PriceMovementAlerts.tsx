@@ -40,6 +40,24 @@ const alertConfig: Record<AlertType, {
     iconColor: "text-emerald-600 dark:text-emerald-400",
     borderColor: "border-emerald-200 dark:border-emerald-800",
   },
+  availability_change: {
+    icon: Package,
+    bgColor: "bg-purple-50 dark:bg-purple-950/50",
+    iconColor: "text-purple-600 dark:text-purple-400",
+    borderColor: "border-purple-200 dark:border-purple-800",
+  },
+  rating_change: {
+    icon: AlertCircle,
+    bgColor: "bg-orange-50 dark:bg-orange-950/50",
+    iconColor: "text-orange-600 dark:text-orange-400",
+    borderColor: "border-orange-200 dark:border-orange-800",
+  },
+  market_shift: {
+    icon: TrendingUp,
+    bgColor: "bg-indigo-50 dark:bg-indigo-950/50",
+    iconColor: "text-indigo-600 dark:text-indigo-400",
+    borderColor: "border-indigo-200 dark:border-indigo-800",
+  },
 };
 
 const getAlertDescription = (alert: PriceMovementAlert): string => {
