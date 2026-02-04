@@ -46,14 +46,20 @@ import {
 } from "recharts";
 
 const ITEMS_PER_PAGE = 20;
-const PLATFORMS: Platform[] = ["Facebook", "Amazon", "OLX", "Ouedkniss", "Website", "Other"];
+const PLATFORMS: Platform[] = ["Facebook", "Amazon", "OLX", "Ouedkniss", "Website", "Instagram", "WhatsApp", "Telegram", "Viber", "TikTok", "LinkedIn", "Other"];
 
 const platformIcons: Record<Platform, string> = {
   Facebook: "📘",
+  Instagram: "📸",
   Amazon: "🛒",
   OLX: "🟡",
   Ouedkniss: "🟢",
   Website: "🌐",
+  WhatsApp: "💬",
+  Telegram: "✈️",
+  Viber: "💜",
+  TikTok: "🎵",
+  LinkedIn: "💼",
   Other: "📦",
 };
 

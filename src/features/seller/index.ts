@@ -26,7 +26,7 @@ export { CompetitorTable } from "./components/CompetitorTable";
 export { PriceMovementAlerts } from "./components/PriceMovementAlerts";
 export { MarketInsightsPanel } from "./components/MarketInsightsPanel";
 
-// Competitor Monitor Types
+// Competitor Monitor Types (Legacy)
 export type {
   MonitoredProduct,
   CompetitorTableRow,
@@ -35,7 +35,70 @@ export type {
   Platform,
   StockStatus,
   AlertType,
+  AlertSeverity,
+  AlertStatus,
+  BusinessType,
+  CompetitorStatusType,
+  ContactInfo,
+  ReputationMetrics,
+  EngagementMetrics,
+  MarketStatsExtended,
+  AvailabilityMetrics,
+  DataQualityMetrics,
+  MarketInsightsData,
+  AlertConfiguration,
+  CompetitorActivityLog,
+  CompetitorGroup,
 } from "./types/competitorMonitor";
+
+// Comprehensive Competitor Intelligence Types
+export type {
+  Competitor,
+  CompetitorPrice,
+  CompetitorListing,
+  CompetitorMarketData,
+  MarketStats,
+  MarketTrends,
+  MarketInsights,
+  PriceAlert,
+  AlertConfiguration as PriceAlertConfiguration,
+  PriceTrendPoint,
+  CompetitorActivityLog as CompetitorActivity,
+  CompetitorComparison,
+  CompetitorTracking,
+  CompetitorGroup as CompetitorGroupFull,
+  MarketReport,
+  CompetitorFilters,
+  MarketDataFilters,
+  CompetitorDataResponse,
+  PaginatedCompetitorResponse,
+  CompetitorPlatform,
+  AlertCategory,
+  AsyncStatus,
+  AsyncState,
+} from "./types/competitorIntelligence";
+
+// Type guards
+export {
+  isCompetitor,
+  isCompetitorPrice,
+  isCompetitorMarketData,
+  isPriceAlert,
+} from "./types/competitorIntelligence";
+
+// Type converters
+export {
+  toCompetitor,
+  toCompetitorListing,
+  fromCompetitorListing,
+  toPriceAlert,
+  fromPriceAlert,
+  toCompetitorPlatform,
+  fromCompetitorPlatform,
+  getSeverityColors,
+  getPlatformIcon,
+  getCompetitivenessBadge,
+} from "./utils/competitorTypeConverters";
 
 // Pages
 export { default as MarketIntelligencePage } from "@/pages/dashboard/MarketIntelligence";
