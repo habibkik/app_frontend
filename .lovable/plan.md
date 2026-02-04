@@ -1,244 +1,197 @@
 
-# Competitor Monitor Component Implementation
+
+# Competitor Intelligence Types Enhancement Plan
 
 ## Overview
-Create a new `CompetitorMonitorComponent` in `src/features/seller/components/` that provides comprehensive competitor monitoring with real-time updates, sortable tables, advanced filtering, and actionable insights. This component will be integrated into the existing Competitors page as a dedicated monitoring dashboard.
+This plan adapts and enhances the existing competitor monitoring system to incorporate the comprehensive type definitions you provided. The current implementation has basic types, while the new specification includes advanced features like detailed competitor profiles, extensive market statistics, alert configurations, historical tracking, and API response wrappers.
 
-## Current State Analysis
+## Current State vs Required State
 
-The existing Competitors page (1697 lines) has:
-- Basic stats cards
-- 12-month price history chart
-- Competitor list with search
-- Price alerts (basic)
-- Competitor detail modal
+### Existing Types (87 lines)
+- Basic `Platform`, `StockStatus`, `AlertType` enums
+- Simple `CompetitorTableRow` with limited fields
+- Basic `PriceMovementAlert` 
+- Simple `MarketInsight`
+- `PriceTrendDataPoint` for charts
+- `CompetitorMonitorMetrics`
 
-**Missing Features:**
-1. Product multi-selector with date range picker
-2. Auto-refresh functionality with toggle
-3. Key metrics cards with live values
-4. Enhanced price trend chart with area fills and annotations
-5. Sortable/filterable competitor table with pagination
-6. Price movement alerts with dismiss functionality
-7. Market insights sidebar with recommendations
-8. Real-time update notifications
+### Required Types (700+ lines)
+- Comprehensive `Competitor` with reputation, engagement, contact info
+- Detailed `CompetitorPrice` with source tracking, MOQ, lead times
+- `CompetitorListing` combining profile + price history
+- `CompetitorMarketData` with full market statistics
+- `PriceAlert` with severity levels, notification channels
+- `AlertConfiguration` for user preferences
+- `PriceTrendPoint` for charts with competitor count
+- `CompetitorActivityLog` for tracking changes
+- `CompetitorComparison` for side-by-side views
+- `CompetitorTracking` and `CompetitorGroup` for management
+- `MarketReport` for exports
+- API response wrappers and filters
+- Type guards for runtime validation
 
 ---
 
 ## Implementation Plan
 
-### 1. Create Competitor Monitor Types
+### 1. Create New Comprehensive Types File
 
-**New File**: `src/features/seller/types/competitorMonitor.ts`
+**New File**: `src/features/seller/types/competitorIntelligence.ts`
 
-Define types for:
-- `MonitoredProduct` - products being tracked
-- `CompetitorTableRow` - table data structure with all columns
-- `PriceMovementAlert` - alert types (drop, increase, new entry, out of stock)
-- `MarketInsight` - pricing recommendations and conditions
-- `AutoRefreshSettings` - refresh interval configuration
+Contains all comprehensive type definitions organized into sections:
+- **Core Types**: `Competitor`, `CompetitorPrice`, `CompetitorListing`
+- **Market Analysis**: `CompetitorMarketData`, `MarketStats`, `MarketTrends`
+- **Alerts & Notifications**: `PriceAlert`, `AlertConfiguration`
+- **Historical & Trending**: `PriceTrendPoint`, `CompetitorActivityLog`
+- **Comparison & Management**: `CompetitorComparison`, `CompetitorTracking`, `CompetitorGroup`
+- **Export Types**: `MarketReport`
+- **API Types**: Response wrappers, pagination, filters
+- **Type Guards**: Runtime validation functions
 
+### 2. Update Existing Types for Backward Compatibility
+
+**Edit**: `src/features/seller/types/competitorMonitor.ts`
+
+Keep existing types but extend them to be compatible with new comprehensive types:
+- Extend `Platform` to include all platforms: instagram, whatsapp, telegram, viber, tiktok, linkedin
+- Add `pre_order` to `StockStatus`
+- Add `availability_change`, `rating_change`, `market_shift` to `AlertType`
+- Enhance `CompetitorTableRow` with new fields from `Competitor`:
+  - `country`
+  - `businessType`
+  - `contactInfo` (full social/communication channels)
+  - `reputation` (response time, return rate, verified status, account age)
+  - `engagement` (followers, monthly orders, last activity)
+  - `reliabilityScore`
+  - `status` (active, inactive, verified, flagged_suspicious)
+- Enhance `PriceMovementAlert` to match `PriceAlert`:
+  - Add `severity` (low, medium, high, critical)
+  - Add `status` (active, acknowledged, resolved, dismissed)
+  - Add `notificationChannels`
+  - Add `details` object with granular change tracking
+- Enhance `MarketInsight` with full market statistics:
+  - Add `marketStats` (median, stdDev, priceRange, competitiveness)
+  - Add `availability` metrics
+  - Add `insights` (opportunities, threats, recommendations)
+  - Add `dataQuality` metrics
+
+### 3. Create Type Converters/Mappers
+
+**New File**: `src/features/seller/utils/competitorTypeConverters.ts`
+
+Utility functions to convert between legacy types and new comprehensive types:
+- `toCompetitorListing(row: CompetitorTableRow): CompetitorListing`
+- `toCompetitorMarketData(metrics, competitors): CompetitorMarketData`
+- `toPriceAlert(alert: PriceMovementAlert): PriceAlert`
+- `fromCompetitorListing(listing: CompetitorListing): CompetitorTableRow`
+
+### 4. Update Store with Enhanced Data Structure
+
+**Edit**: `src/stores/competitorMonitorStore.ts`
+
+Add new state and actions:
+- Add `marketData: CompetitorMarketData | null`
+- Add `alertConfiguration: AlertConfiguration | null`
+- Add `activityLog: CompetitorActivityLog[]`
+- Add `competitorGroups: CompetitorGroup[]`
+- Add `trackingSettings: CompetitorTracking[]`
+- Add actions: `setAlertConfiguration`, `addActivityLog`, `createGroup`, `updateTracking`
+- Update mock data to include new fields
+
+### 5. Enhance Mock Data
+
+**Edit**: `src/stores/competitorMonitorStore.ts`
+
+Update mock competitors with comprehensive data:
 ```typescript
-export interface MonitoredProduct {
-  id: string;
-  name: string;
-  category: string;
-  yourPrice: number;
-  marketAverage: number;
-}
-
-export interface CompetitorTableRow {
-  rank: number;
-  id: string;
-  name: string;
-  logo: string;
-  platform: "Facebook" | "Amazon" | "OLX" | "Ouedkniss" | "Website" | "Other";
-  currentPrice: number;
-  priceChange7d: number;
-  lastUpdated: Date;
-  stockStatus: "in_stock" | "limited" | "out_of_stock";
-  reviewCount: number;
-  avgRating: number;
-  isAboveYourPrice: boolean;
-  priceHistory: { date: string; price: number }[];
-}
-
-export interface PriceMovementAlert {
-  id: string;
-  type: "drop" | "increase" | "new_entry" | "out_of_stock";
-  competitorName: string;
-  productName: string;
-  oldPrice?: number;
-  newPrice: number;
-  timestamp: Date;
-  dismissed: boolean;
-}
-
-export interface MarketInsight {
-  optimalPrice: number;
-  currentMargin: number;
-  recommendedMargin: number;
-  priceAdjustment: number;
-  trend: { direction: "up" | "down" | "stable"; percentage: number; period: string };
-  demandLevel: "low" | "medium" | "high";
-  newCompetitorsThisWeek: number;
-  supplyStatus: "low" | "stable" | "high";
+{
+  // Existing fields...
+  country: "USA",
+  businessType: "retailer",
+  contactInfo: {
+    website: "https://example.com",
+    email: "contact@example.com",
+    phone: "+1-555-0123",
+    instagram: "@techsupply",
+    facebook: "techsupplyco",
+    whatsapp: "+1-555-0123",
+    linkedin: "techsupply-co"
+  },
+  reputation: {
+    reviewCount: 234,
+    averageRating: 4.5,
+    responseTime: 2.5, // hours
+    returnRate: 3.2,   // percent
+    isVerified: true,
+    accountAge: 730    // days
+  },
+  engagement: {
+    followers: 12500,
+    monthlyOrders: 450,
+    lastActivityAt: new Date().toISOString()
+  },
+  reliabilityScore: 87,
+  status: "verified"
 }
 ```
 
-### 2. Create Competitor Monitor Store
+### 6. Update Components for Enhanced Data Display
 
-**New File**: `src/stores/competitorMonitorStore.ts`
+**Edit**: Multiple component files
 
-Zustand store managing:
-- Selected products for monitoring
-- Date range selection
-- Auto-refresh settings (on/off, interval)
-- Last updated timestamp
-- Alerts list with dismiss state
-- Competitors data
+**CompetitorTable.tsx**:
+- Add columns for reliability score, verified badge
+- Add platform-specific icons for Instagram, WhatsApp, Telegram, TikTok
+- Show engagement metrics in expanded row
+- Display reputation badges
 
+**MarketInsightsPanel.tsx**:
+- Add market statistics section (median, std dev, range)
+- Add competitiveness indicator
+- Add data quality metrics
+- Add market insights (opportunities, threats)
+
+**PriceMovementAlerts.tsx**:
+- Add severity badges (critical, high, medium, low)
+- Add notification channel indicators
+- Add acknowledge/resolve actions
+- Color-code by severity
+
+### 7. Update Exports
+
+**Edit**: `src/features/seller/index.ts`
+
+Export all new types:
 ```typescript
-interface CompetitorMonitorStore {
-  // Selection state
-  selectedProducts: string[];
-  dateRange: { from: Date; to: Date };
-  
-  // Refresh settings
-  autoRefresh: boolean;
-  refreshInterval: 1 | 2 | 4; // hours
-  lastUpdated: Date;
-  isRefreshing: boolean;
-  
-  // Data
-  competitors: CompetitorTableRow[];
-  alerts: PriceMovementAlert[];
-  marketInsight: MarketInsight | null;
-  
-  // Actions
-  setSelectedProducts: (products: string[]) => void;
-  setDateRange: (range: { from: Date; to: Date }) => void;
-  setAutoRefresh: (enabled: boolean) => void;
-  setRefreshInterval: (hours: 1 | 2 | 4) => void;
-  refreshData: () => Promise<void>;
-  dismissAlert: (alertId: string) => void;
-}
-```
+// Comprehensive Types
+export type {
+  Competitor,
+  CompetitorPrice,
+  CompetitorListing,
+  CompetitorMarketData,
+  MarketStats,
+  MarketTrends,
+  PriceAlert,
+  AlertConfiguration,
+  PriceTrendPoint,
+  CompetitorActivityLog,
+  CompetitorComparison,
+  CompetitorTracking,
+  CompetitorGroup,
+  MarketReport,
+  CompetitorFilters,
+  MarketDataFilters,
+  CompetitorDataResponse,
+  PaginatedCompetitorResponse,
+} from "./types/competitorIntelligence";
 
-### 3. Create Component Architecture
-
-#### Main Component
-**New File**: `src/features/seller/components/CompetitorMonitor.tsx`
-
-Main orchestrating component with layout:
-- Header with controls
-- Key metrics cards row
-- Price trend chart (large)
-- Two-column layout: Table (left), Insights sidebar (right)
-- Alerts section (bottom)
-
-#### Sub-Components
-
-**`CompetitorMonitorHeader.tsx`**
-- Product multi-select dropdown
-- Date range picker (using existing DateRangePicker)
-- Refresh button with "Last updated: X hours ago"
-- Auto-refresh toggle with interval selector
-
-**`CompetitorMetricsCards.tsx`**
-Four cards:
-1. Market Average Price ($45.99)
-2. Your Current Price ($42.99)
-3. Price Position ("10% Below Market" green badge)
-4. Competitors Found ("12 active sellers")
-
-**`CompetitorPriceTrendChart.tsx`**
-Enhanced Recharts AreaChart:
-- X-axis: dates (30 days)
-- Y-axis: price ($)
-- Thick blue line: Your price
-- Gray dashed line: Market average
-- Light gray area fill: Min-Max price range
-- Reference lines for annotations
-- Custom tooltip showing all values
-
-**`CompetitorTable.tsx`**
-Full-featured table with:
-- Sortable columns (click header)
-- Platform filter checkboxes
-- Pagination (20 per page)
-- Expandable rows (click to show price history chart)
-- Color coding: Green if competitor price > yours, Red if < yours
-- Columns: Rank, Name, Platform, Current Price, 7d Change, Last Updated, Stock, Reviews
-
-**`PriceMovementAlerts.tsx`**
-Scrollable list with:
-- Color-coded icons (red/yellow/blue/green)
-- Alert description with old/new prices
-- Timestamp ("2 hours ago")
-- "View competitor" button
-- Dismiss (X) button
-
-**`MarketInsightsPanel.tsx`**
-Right sidebar showing:
-- Pricing recommendation box
-- Market conditions indicators
-- Trend visualization
-
----
-
-## Component Layout Diagram
-
-```text
-+------------------------------------------------------------------+
-| HEADER                                                            |
-| [Product ▼] [Date Range ▼] | [Refresh] Last updated: 2h | Auto ⚙ |
-+------------------------------------------------------------------+
-
-+------------------------------------------------------------------+
-| KEY METRICS CARDS                                                 |
-| +---------------+ +---------------+ +---------------+ +---------+ |
-| | Mkt Avg       | | Your Price    | | Position      | | Found   | |
-| | $45.99        | | $42.99        | | -10% ▼        | | 12      | |
-| +---------------+ +---------------+ +---------------+ +---------+ |
-+------------------------------------------------------------------+
-
-+------------------------------------------------------------------+
-| PRICE TREND CHART (Large)                                         |
-| ┌────────────────────────────────────────────────────────────────┐|
-| │  $50 ─┬─────────────────────────────────────────────────────── │|
-| │       │   ▲ You dropped price here                            │|
-| │  $45 ─┤  ═══════╗                        ───── Your Price     │|
-| │       │        ╚════════════════════    - - - Market Avg      │|
-| │  $40 ─┤                 ░░░░░░░░░░░░░░░  ░░░░░ Min-Max Range   │|
-| │       ├──────┬──────┬──────┬──────┬──────┬──────              │|
-| │       Jan 5  Jan 12 Jan 19 Jan 26 Feb 2                       │|
-| └────────────────────────────────────────────────────────────────┘|
-+------------------------------------------------------------------+
-
-+----------------------------------------------+ +------------------+
-| COMPETITOR TABLE                              | | MARKET INSIGHTS  |
-| +----+--------+------+-------+------+------+ | | +──────────────+ |
-| |Rank| Name   | Plat | Price | Chng | Stock| | | │Optimal: $45 │ |
-| +----+--------+------+-------+------+------+ | | │Margin: 35%  │ |
-| | 1  | TechCo | 🛒   | $39.99| -8%  | ✓    | | | │Raise by $3  │ |
-| | 2  | Parts+ | FB   | $41.50| +2%  | ⚠    | | | +──────────────+ |
-| | 3  | Global | Web  | $44.00| 0%   | ✓    | | |                |
-| +----+--------+------+-------+------+------+ | | | Trending ↓2%/wk|
-| [◀ 1 2 3 ... 5 ▶]  Filter: [Platform ▼]     | | | Demand: High  |
-+----------------------------------------------+ | | Supply: Stable|
-                                                 +------------------+
-
-+------------------------------------------------------------------+
-| PRICE MOVEMENT ALERTS                                             |
-| +────────────────────────────────────────────────────────────────+|
-| | 🔴 Competitor A dropped to $39.99 (was $45.00) - Margin risk! ||
-| |    2 hours ago                      [View] [×]                 ||
-| +────────────────────────────────────────────────────────────────+|
-| | 🟡 Market average rose 8% - Opportunity to raise price         ||
-| |    4 hours ago                      [View] [×]                 ||
-| +────────────────────────────────────────────────────────────────+|
-+------------------------------------------------------------------+
+// Type guards
+export {
+  isCompetitor,
+  isCompetitorPrice,
+  isCompetitorMarketData,
+  isPriceAlert,
+} from "./types/competitorIntelligence";
 ```
 
 ---
@@ -247,181 +200,68 @@ Right sidebar showing:
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/features/seller/types/competitorMonitor.ts` | Create | Type definitions |
-| `src/stores/competitorMonitorStore.ts` | Create | Zustand state management |
-| `src/features/seller/components/CompetitorMonitor.tsx` | Create | Main orchestrating component |
-| `src/features/seller/components/CompetitorMonitorHeader.tsx` | Create | Header with controls |
-| `src/features/seller/components/CompetitorMetricsCards.tsx` | Create | 4 key metric cards |
-| `src/features/seller/components/CompetitorPriceTrendChart.tsx` | Create | Enhanced area chart |
-| `src/features/seller/components/CompetitorTable.tsx` | Create | Sortable/filterable table |
-| `src/features/seller/components/PriceMovementAlerts.tsx` | Create | Alert list with actions |
-| `src/features/seller/components/MarketInsightsPanel.tsx` | Create | Insights sidebar |
-| `src/features/seller/index.ts` | Edit | Export new components |
-| `src/stores/index.ts` | Edit | Export new store |
-| `src/pages/dashboard/Competitors.tsx` | Edit | Add Monitor tab |
+| `src/features/seller/types/competitorIntelligence.ts` | Create | Full comprehensive type definitions (700+ lines) |
+| `src/features/seller/types/competitorMonitor.ts` | Edit | Extend existing types for compatibility |
+| `src/features/seller/utils/competitorTypeConverters.ts` | Create | Type conversion utilities |
+| `src/stores/competitorMonitorStore.ts` | Edit | Add new state, enhanced mock data |
+| `src/features/seller/components/CompetitorTable.tsx` | Edit | Display new fields, platforms |
+| `src/features/seller/components/MarketInsightsPanel.tsx` | Edit | Add statistics, insights |
+| `src/features/seller/components/PriceMovementAlerts.tsx` | Edit | Add severity, actions |
+| `src/features/seller/index.ts` | Edit | Export all new types |
 
 ---
 
-## Key Technical Details
+## New Platform Icons
 
-### Auto-Refresh Implementation
 ```typescript
-// In CompetitorMonitor.tsx
-useEffect(() => {
-  if (!autoRefresh) return;
-  
-  const intervalMs = refreshInterval * 60 * 60 * 1000; // hours to ms
-  const timer = setInterval(() => {
-    refreshData();
-    toast({ title: "Data refreshed", description: "Competitor prices updated" });
-  }, intervalMs);
-  
-  return () => clearInterval(timer);
-}, [autoRefresh, refreshInterval]);
-```
-
-### Table Sorting
-```typescript
-const [sortConfig, setSortConfig] = useState<{
-  key: keyof CompetitorTableRow;
-  direction: "asc" | "desc";
-}>({ key: "rank", direction: "asc" });
-
-const sortedData = useMemo(() => {
-  return [...competitors].sort((a, b) => {
-    const aVal = a[sortConfig.key];
-    const bVal = b[sortConfig.key];
-    const modifier = sortConfig.direction === "asc" ? 1 : -1;
-    return aVal > bVal ? modifier : -modifier;
-  });
-}, [competitors, sortConfig]);
-```
-
-### Chart with Annotations (Recharts)
-```typescript
-<AreaChart data={priceData}>
-  <defs>
-    <linearGradient id="rangeGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.1}/>
-      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-    </linearGradient>
-  </defs>
-  <Area type="monotone" dataKey="range" fill="url(#rangeGradient)" />
-  <Line type="monotone" dataKey="yourPrice" stroke="#2563eb" strokeWidth={3} />
-  <Line type="monotone" dataKey="marketAvg" stroke="#6b7280" strokeDasharray="5 5" />
-  <ReferenceLine x="Jan 28" stroke="#ef4444" label="Price drop" />
-</AreaChart>
-```
-
-### Platform Filter
-```typescript
-const platforms = ["Facebook", "Amazon", "OLX", "Ouedkniss", "Website"];
-const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(platforms);
-
-const filteredCompetitors = competitors.filter(c => 
-  selectedPlatforms.includes(c.platform)
-);
+const platformIcons: Record<Platform, string> = {
+  facebook: "📘",
+  instagram: "📸",
+  amazon: "🛒",
+  olx: "🟡",
+  ouedkniss: "🟢",
+  website: "🌐",
+  whatsapp: "💬",
+  telegram: "✈️",
+  viber: "💜",
+  tiktok: "🎵",
+  linkedin: "💼",
+};
 ```
 
 ---
 
-## Mock Data Structure
+## Enhanced Alert Severity Colors
 
 ```typescript
-const mockCompetitorRows: CompetitorTableRow[] = [
-  {
-    rank: 1,
-    id: "1",
-    name: "TechSupply Co",
-    logo: "TS",
-    platform: "Amazon",
-    currentPrice: 39.99,
-    priceChange7d: -8.2,
-    lastUpdated: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-    stockStatus: "in_stock",
-    reviewCount: 234,
-    avgRating: 4.5,
-    isAboveYourPrice: false, // competitor price < your price
-    priceHistory: [/* 30 days of data */]
-  },
-  // ... more rows
-];
-
-const mockAlerts: PriceMovementAlert[] = [
-  {
-    id: "alert_1",
-    type: "drop",
-    competitorName: "TechSupply Co",
-    productName: "Servo Motor XR-500",
-    oldPrice: 45.00,
-    newPrice: 39.99,
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    dismissed: false,
-  },
-  {
-    id: "alert_2",
-    type: "increase",
-    competitorName: "Market Average",
-    productName: "General",
-    newPrice: 0, // Not applicable
-    timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-    dismissed: false,
-  },
-  // ...
-];
+const severityColors = {
+  critical: "bg-red-600 text-white",
+  high: "bg-red-500 text-white",
+  medium: "bg-yellow-500 text-white",
+  low: "bg-blue-500 text-white",
+};
 ```
 
 ---
 
-## Integration with Existing Page
+## New MarketStats Display
 
-The new CompetitorMonitor component will be added as a third tab in the existing Competitors page:
-
-```typescript
-<Tabs value={activeTab} onValueChange={setActiveTab}>
-  <TabsList className="grid w-full max-w-lg grid-cols-3">
-    <TabsTrigger value="competitors">Competitors</TabsTrigger>
-    <TabsTrigger value="monitor">Live Monitor</TabsTrigger>
-    <TabsTrigger value="product-analysis">Product Analysis</TabsTrigger>
-  </TabsList>
-  
-  <TabsContent value="monitor">
-    <CompetitorMonitor />
-  </TabsContent>
-</Tabs>
-```
+The Market Insights panel will show:
+- Average, Median, Min, Max prices
+- Price Range and Standard Deviation
+- Your Competitiveness Status (underpriced → significantly_overpriced)
+- Suggested Optimal Price
+- Data Quality Score (0-100)
+- Market Maturity Level
+- Competitive Intensity
 
 ---
 
-## Styling Guidelines
+## Backward Compatibility
 
-- **Color Coding**:
-  - Green (#10b981): Competitor price above yours (favorable)
-  - Red (#ef4444): Competitor price below yours (at risk)
-  - Yellow (#f59e0b): Warnings, neutral alerts
-  - Blue (#3b82f6): New entries, informational
+The plan maintains full backward compatibility by:
+1. Keeping existing types intact
+2. Adding new optional fields with defaults
+3. Providing type converters for gradual migration
+4. Using union types where old and new values overlap
 
-- **Chart Colors**:
-  - Your price: Blue (#2563eb), thick solid line
-  - Market average: Gray (#6b7280), dashed line
-  - Price range fill: Light purple/gray gradient
-
-- **Table Row States**:
-  - Hover: Light background change
-  - Expanded: Shows mini price history chart
-  - Selected: Primary border highlight
-
-- **Responsive Design**:
-  - Mobile: Stack cards, hide some table columns, full-width chart
-  - Tablet: 2-column layout for insights
-  - Desktop: Full 3-column layout
-
----
-
-## Future Enhancements (Post-Implementation)
-
-1. **Supabase Realtime**: Subscribe to competitor price changes in database
-2. **Push Notifications**: Browser notifications for critical alerts
-3. **Export Functionality**: CSV/PDF report generation
-4. **Custom Alert Rules**: User-defined thresholds for notifications
-5. **Historical Comparison**: Compare different time periods
