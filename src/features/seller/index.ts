@@ -128,3 +128,6 @@ export {
   type PriceHistoryItem,
   type CompetitorDetails,
 } from "./api";
+ 
+ // Content Studio
+ export { ContentStudio } from "./components/ContentStudio";
