@@ -82,4 +82,21 @@ export const API_ENDPOINTS = {
     RFQS: "/analytics/rfqs",
     REVENUE: "/analytics/revenue",
   },
+
+  // Competitors
+  COMPETITORS: {
+    MONITOR: "/competitors/monitor",
+    REFRESH: "/competitors/refresh",
+    DATA: (productId: string) => `/competitors/${productId}`,
+    DETAILS: (competitorId: string) => `/competitors/details/${competitorId}`,
+    HISTORY: (competitorId: string) => `/competitors/${competitorId}/history`,
+    AUTO_REFRESH: "/competitors/auto-refresh",
+  },
+
+  // Alerts
+  ALERTS: {
+    DISMISS: (alertId: string) => `/alerts/${alertId}/dismiss`,
+    LIST: "/alerts",
+    ACKNOWLEDGE: (alertId: string) => `/alerts/${alertId}/acknowledge`,
+  },
 } as const;
