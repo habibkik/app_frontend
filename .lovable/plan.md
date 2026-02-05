@@ -1,360 +1,366 @@
 
-
-# Competitor API Implementation Plan
+# ContentStudio Component Implementation Plan
 
 ## Overview
-Create a new API module `src/features/seller/api/competitorApi.ts` that provides functions for competitor monitoring operations. This API will integrate with the existing `apiClient` service and use the comprehensive types already defined in `competitorIntelligence.ts`.
+Create a comprehensive AI-powered content generation studio for sellers. This component will enable users to generate marketing content (headlines, ad copy, descriptions, emails, and social media posts) for their products using AI, with a professional two-panel layout featuring settings on the left and generated content tabs on the right.
 
-## Current State
+## Component Location
+**New File**: `src/features/seller/components/ContentStudio.tsx`
 
-### Existing Infrastructure
-- **API Client**: `src/services/api/apiClient.ts` - Full-featured HTTP client with auth, timeout, and error handling
-- **Endpoints**: `src/services/api/endpoints.ts` - Centralized endpoint constants (missing competitor endpoints)
-- **Types**: `src/features/seller/types/competitorIntelligence.ts` - Comprehensive 900+ line type system
-- **Existing Competitor API**: `src/lib/competitor-api.ts` - Only has `analyzeCompetitor()` using Supabase edge function
+## Architecture
 
-### What's Missing
-1. No `api/` folder in `src/features/seller/`
-2. No competitor monitoring API functions
-3. No competitor-specific endpoints in `API_ENDPOINTS`
+The component will follow the existing patterns found in:
+- `ContentGenerationPanel.tsx` - For content generation logic and AI integration
+- `AISuggestionsPanel.tsx` - For caption generation patterns
+- `PostComposer.tsx` - For social media patterns
+- `MarketInsightsPanel.tsx` - For card layouts and styling
 
----
+## Component Structure
 
-## Implementation Plan
-
-### 1. Add Competitor Endpoints
-
-**Edit**: `src/services/api/endpoints.ts`
-
-Add new COMPETITORS section:
-```typescript
-// Competitors
-COMPETITORS: {
-  MONITOR: "/competitors/monitor",
-  REFRESH: "/competitors/refresh",
-  DATA: (productId: string) => `/competitors/${productId}`,
-  DETAILS: (competitorId: string) => `/competitors/details/${competitorId}`,
-  HISTORY: (competitorId: string) => `/competitors/${competitorId}/history`,
-  AUTO_REFRESH: "/competitors/auto-refresh",
-},
-
-// Alerts
-ALERTS: {
-  DISMISS: (alertId: string) => `/alerts/${alertId}/dismiss`,
-  LIST: "/alerts",
-  ACKNOWLEDGE: (alertId: string) => `/alerts/${alertId}/acknowledge`,
-},
+```text
+ContentStudio
+├── Left Panel (Sticky, ~320px)
+│   └── ContentSettingsCard
+│       ├── ProductSelector (dropdown)
+│       ├── ProductImagePreview (thumbnail)
+│       ├── TargetAudienceSelect (dropdown)
+│       ├── ContentTypeCheckboxes (5 options)
+│       ├── ToneSelector (dropdown)
+│       └── GenerateButton (large, primary)
+│
+├── Right Panel (Main content, flex-1)
+│   └── Tabs
+│       ├── HeadlinesTab
+│       │   └── HeadlineCard[] (5 cards)
+│       │       ├── HeadlineText (large font)
+│       │       ├── CopyButton
+│       │       ├── UseInAdButton
+│       │       ├── LikeButton (heart toggle)
+│       │       └── RegenerateButton
+│       │
+│       ├── CopyTab
+│       │   └── AdCopyCard[] (short/medium/long)
+│       │       ├── CopyText
+│       │       ├── CharacterCount
+│       │       ├── EditButton (toggle textarea)
+│       │       ├── CopyToClipboard
+│       │       └── UseInFacebookAd
+│       │
+│       ├── DescriptionTab
+│       │   └── DescriptionCard[] (short/medium/long)
+│       │       ├── DescriptionText (editable)
+│       │       ├── CopyButton
+│       │       ├── UseOnWebsite
+│       │       └── UseOnAmazon/OLX
+│       │
+│       ├── EmailTab
+│       │   ├── SubjectLines[] (3 variations)
+│       │   ├── EmailBodyTemplate
+│       │   ├── EditButtons
+│       │   ├── PreviewButton (modal)
+│       │   └── SendTestButton
+│       │
+│       └── SocialTab
+│           └── PlatformCard[] (Instagram, TikTok, Facebook, LinkedIn, Twitter)
+│               ├── PlatformIcon + Name
+│               ├── Caption (styled per platform)
+│               ├── CharLimit indicator
+│               ├── CopyButton
+│               └── PostDirectlyButton
+│
+├── History Section (Collapsible, bottom)
+│   └── RecentContentGrid
+│       └── HistoryItem[]
+│           ├── Thumbnail
+│           ├── ProductName
+│           ├── ContentType
+│           ├── Date
+│           ├── RestoreButton
+│           └── DeleteButton
+│
+└── ActionBar (Bottom right, sticky)
+    ├── SaveAsTemplateButton
+    ├── ExportZipButton
+    └── ShareWithTeamButton
 ```
 
-### 2. Create Competitor API Module
+## State Management
 
-**New File**: `src/features/seller/api/competitorApi.ts`
+Local component state using useState:
+- `selectedProduct`: Product ID
+- `targetAudience`: Audience type
+- `contentTypes`: Set of selected content types
+- `tone`: Selected tone
+- `isGenerating`: Loading state
+- `generatedContent`: Object containing all generated content per tab
+- `editingStates`: Track which cards are in edit mode
+- `likedHeadlines`: Set of liked headline IDs
+- `historyItems`: Array of previously generated content
+- `showHistory`: Boolean for collapsible
 
-Complete API module with 7 functions:
+## Types to Add
 
 ```typescript
-/**
- * Competitor Monitoring API
- * 
- * Provides functions for competitor tracking, price monitoring,
- * and market intelligence operations.
- */
-
-import { apiClient, API_ENDPOINTS } from "@/services";
-import type { ApiResponse } from "@/types/api.types";
-import type {
-  CompetitorMarketData,
-  Competitor,
-  CompetitorPrice,
-  PriceAlert,
-} from "../types/competitorIntelligence";
-
-// ============================================================================
-// RESPONSE TYPES
-// ============================================================================
-
-export interface AutoRefreshSettings {
-  enabled: boolean;
-  interval: number | null;
-  nextUpdate: string | null;
-}
-
-export interface PriceHistoryItem {
+interface ContentProduct {
   id: string;
-  competitorId: string;
-  price: number;
-  currency: string;
-  availability: string;
-  collectedAt: string;
+  name: string;
+  imageUrl?: string;
+  category: string;
 }
 
-export interface CompetitorDetails extends Competitor {
-  priceHistory: PriceHistoryItem[];
-  recentAlerts: PriceAlert[];
-  trackingStatus: {
-    isTracked: boolean;
-    priority: string;
-    lastCheck: string;
-  };
+type TargetAudience = "ecommerce" | "wholesale" | "retailers" | "b2b" | "other";
+type ContentType = "ad_copy" | "description" | "email" | "social" | "landing";
+type ContentTone = "professional" | "friendly" | "humorous" | "urgent";
+
+interface GeneratedHeadline {
+  id: string;
+  text: string;
+  liked: boolean;
 }
 
-// ============================================================================
-// API FUNCTIONS
-// ============================================================================
-
-/**
- * Start monitoring competitors for a product
- * Triggers the competitorMonitoringPipeline via miroflow
- */
-export async function startMonitoring(
-  productId: string,
-  productName: string
-): Promise<ApiResponse<CompetitorMarketData>> {
-  return apiClient.post<CompetitorMarketData>(
-    API_ENDPOINTS.COMPETITORS.MONITOR,
-    { productId, productName }
-  );
+interface GeneratedAdCopy {
+  id: string;
+  variant: "short" | "medium" | "long";
+  text: string;
+  characterCount: number;
 }
 
-/**
- * Manually refresh competitor prices for a product
- * Forces immediate price update from all sources
- */
-export async function refreshCompetitors(
-  productId: string
-): Promise<ApiResponse<CompetitorMarketData>> {
-  return apiClient.post<CompetitorMarketData>(
-    API_ENDPOINTS.COMPETITORS.REFRESH,
-    { productId }
-  );
+interface GeneratedDescription {
+  id: string;
+  variant: "short" | "medium" | "long";
+  text: string;
+  features?: string[];
+  benefits?: string[];
 }
 
-/**
- * Get cached competitor market data for a product
- * Returns the most recent analysis without triggering refresh
- */
-export async function getCompetitorData(
-  productId: string
-): Promise<ApiResponse<CompetitorMarketData>> {
-  return apiClient.get<CompetitorMarketData>(
-    API_ENDPOINTS.COMPETITORS.DATA(productId)
-  );
+interface GeneratedEmail {
+  subjectLines: string[];
+  body: string;
+  hook: string;
+  valueProp: string;
+  cta: string;
 }
 
-/**
- * Get detailed competitor profile with full history
- * Includes contact info, reputation, engagement metrics
- */
-export async function getCompetitorDetails(
-  competitorId: string
-): Promise<ApiResponse<CompetitorDetails>> {
-  return apiClient.get<CompetitorDetails>(
-    API_ENDPOINTS.COMPETITORS.DETAILS(competitorId)
-  );
+interface SocialCaption {
+  platform: "instagram" | "tiktok" | "facebook" | "linkedin" | "twitter";
+  caption: string;
+  hashtags?: string[];
+  characterCount: number;
+  characterLimit: number;
 }
 
-/**
- * Get price history for a specific competitor
- * Returns price observations over specified time period
- */
-export async function getPriceHistory(
-  competitorId: string,
-  days: number = 30
-): Promise<ApiResponse<PriceHistoryItem[]>> {
-  return apiClient.get<PriceHistoryItem[]>(
-    API_ENDPOINTS.COMPETITORS.HISTORY(competitorId),
-    { days }
-  );
+interface ContentHistoryItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productThumbnail?: string;
+  contentType: ContentType;
+  generatedAt: Date;
+  content: any;
 }
 
-/**
- * Configure automatic price refresh for a product
- * Set intervalHours to null to disable auto-refresh
- */
-export async function setAutoRefresh(
-  productId: string,
-  intervalHours: number | null
-): Promise<ApiResponse<AutoRefreshSettings>> {
-  return apiClient.post<AutoRefreshSettings>(
-    API_ENDPOINTS.COMPETITORS.AUTO_REFRESH,
-    { productId, intervalHours }
-  );
+interface GeneratedContent {
+  headlines: GeneratedHeadline[];
+  adCopy: GeneratedAdCopy[];
+  descriptions: GeneratedDescription[];
+  email: GeneratedEmail | null;
+  social: SocialCaption[];
 }
-
-/**
- * Dismiss a price alert
- * Marks alert as dismissed and removes from active list
- */
-export async function dismissAlert(
-  alertId: string
-): Promise<ApiResponse<{ success: boolean }>> {
-  return apiClient.post<{ success: boolean }>(
-    API_ENDPOINTS.ALERTS.DISMISS(alertId)
-  );
-}
-
-// ============================================================================
-// BARREL EXPORT
-// ============================================================================
-
-export const competitorApi = {
-  startMonitoring,
-  refreshCompetitors,
-  getCompetitorData,
-  getCompetitorDetails,
-  getPriceHistory,
-  setAutoRefresh,
-  dismissAlert,
-};
 ```
 
-### 3. Create API Barrel Export
+## UI Components Used
 
-**New File**: `src/features/seller/api/index.ts`
+From existing UI library:
+- `Card`, `CardHeader`, `CardTitle`, `CardContent` - Layout
+- `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent` - Tab navigation
+- `Select`, `SelectTrigger`, `SelectValue`, `SelectContent`, `SelectItem` - Dropdowns
+- `Checkbox` - Content type selection
+- `Button` - Actions
+- `Textarea` - Editable content
+- `Badge` - Labels and counts
+- `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent` - History section
+- `ScrollArea` - Scrollable areas
+- `Separator` - Visual dividers
+- `Dialog` - Email preview modal
 
-```typescript
-// Seller API barrel export
-export {
-  startMonitoring,
-  refreshCompetitors,
-  getCompetitorData,
-  getCompetitorDetails,
-  getPriceHistory,
-  setAutoRefresh,
-  dismissAlert,
-  competitorApi,
-  type AutoRefreshSettings,
-  type PriceHistoryItem,
-  type CompetitorDetails,
-} from "./competitorApi";
+Lucide Icons:
+- `Wand2`, `Sparkles` - AI generation
+- `Copy`, `Check` - Copy actions
+- `Heart` - Like/favorite
+- `RefreshCw` - Regenerate
+- `Edit`, `Save` - Edit mode
+- `Download`, `Share2`, `FileArchive` - Export actions
+- `Mail`, `Eye` - Email preview
+- `Send` - Post directly
+- `History`, `Trash2` - History actions
+- `ChevronDown`, `ChevronUp` - Collapsible
+- Platform icons via custom SVGs or text identifiers
+
+## Styling Details
+
+**Color Scheme** (vibrant, inspiring):
+- Primary actions: Blue (`bg-primary`)
+- Generate button: Large, gradient blue background
+- Social platform colors:
+  - Instagram: Pink/Purple gradient
+  - TikTok: Black/Cyan
+  - Facebook: Blue
+  - LinkedIn: Blue professional
+  - Twitter/X: Black
+- Success states: Emerald green
+- Warning states: Yellow/Orange
+- Character limits: Red when exceeded
+
+**Layout**:
+- Two-column responsive (stacks on mobile)
+- Left panel: sticky, 320px width on desktop
+- Right panel: flex-1, min-width 0
+- Cards with subtle shadows and borders
+- Smooth animations using framer-motion
+
+## Mock Content Examples
+
+**Headlines**:
+```
+1. "The Ultimate [Product] - Now 30% Off"
+2. "Why 10,000+ Customers Choose [Brand]"
+3. "[Product] That Actually Works - Guaranteed"
+4. "Transform Your [Use Case] Today"
+5. "Premium [Product] at Unbeatable Prices"
 ```
 
-### 4. Update Seller Feature Index
-
-**Edit**: `src/features/seller/index.ts`
-
-Add API exports:
-```typescript
-// API
-export {
-  startMonitoring,
-  refreshCompetitors,
-  getCompetitorData,
-  getCompetitorDetails,
-  getPriceHistory,
-  setAutoRefresh,
-  dismissAlert,
-  competitorApi,
-  type AutoRefreshSettings,
-  type PriceHistoryItem,
-  type CompetitorDetails,
-} from "./api";
+**Ad Copy (Short)**:
+```
+"Best-selling [product]. Fast shipping. Guaranteed quality. Order now!"
 ```
 
-### 5. Update Services Index (Optional)
-
-**Edit**: `src/services/index.ts`
-
-Ensure `API_ENDPOINTS` is exported:
-```typescript
-// Services barrel export
-export { apiClient } from "./api/apiClient";
-export { API_ENDPOINTS } from "./api/endpoints";
+**Social Captions**:
 ```
+Instagram: "✨ Elevate your [use case] with our premium [product]! 🚀 
+#QualityFirst #Innovation #MustHave"
 
----
+Twitter: "Looking for reliable [product]? 
+✓ Fast shipping
+✓ Quality guaranteed
+Shop now → [link]"
+```
 
 ## Files Summary
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/services/api/endpoints.ts` | Edit | Add COMPETITORS and ALERTS endpoints |
-| `src/features/seller/api/competitorApi.ts` | Create | Main API module with 7 functions |
-| `src/features/seller/api/index.ts` | Create | Barrel export for API module |
-| `src/features/seller/index.ts` | Edit | Add API exports to feature |
+| `src/features/seller/components/ContentStudio.tsx` | Create | Main component (~900 lines) |
+| `src/features/seller/index.ts` | Edit | Add ContentStudio export |
 
----
+## Implementation Details
 
-## API Function Specifications
-
-| Function | Method | Endpoint | Request Body | Response |
-|----------|--------|----------|--------------|----------|
-| `startMonitoring` | POST | `/competitors/monitor` | `{ productId, productName }` | `CompetitorMarketData` |
-| `refreshCompetitors` | POST | `/competitors/refresh` | `{ productId }` | `CompetitorMarketData` |
-| `getCompetitorData` | GET | `/competitors/{productId}` | - | `CompetitorMarketData` |
-| `getCompetitorDetails` | GET | `/competitors/details/{id}` | - | `CompetitorDetails` |
-| `getPriceHistory` | GET | `/competitors/{id}/history?days=30` | - | `PriceHistoryItem[]` |
-| `setAutoRefresh` | POST | `/competitors/auto-refresh` | `{ productId, intervalHours }` | `AutoRefreshSettings` |
-| `dismissAlert` | POST | `/alerts/{id}/dismiss` | - | `{ success: boolean }` |
-
----
-
-## Usage Examples
+### 1. Input Panel (Left, Sticky)
 
 ```typescript
-import { competitorApi } from "@/features/seller";
+// Product selector with mock data
+const mockProducts = [
+  { id: "1", name: "Servo Motor XR-500", imageUrl: "/placeholder.svg", category: "Motors" },
+  { id: "2", name: "Hydraulic Pump HP-200", imageUrl: "/placeholder.svg", category: "Pumps" },
+  { id: "3", name: "CNC Controller Board", imageUrl: "/placeholder.svg", category: "Electronics" },
+];
 
-// Start monitoring a product
-const result = await competitorApi.startMonitoring(
-  "product-123",
-  "Industrial Motor XR-500"
-);
+// Target audiences
+const audiences = [
+  { value: "ecommerce", label: "E-commerce Shoppers" },
+  { value: "wholesale", label: "Wholesale Buyers" },
+  { value: "retailers", label: "Retailers" },
+  { value: "b2b", label: "Corporate/B2B" },
+  { value: "other", label: "Other" },
+];
 
-// Get cached market data
-const marketData = await competitorApi.getCompetitorData("product-123");
+// Content types with icons
+const contentTypeOptions = [
+  { id: "ad_copy", label: "Ad copy (short)", icon: Megaphone },
+  { id: "description", label: "Product description (long)", icon: FileText },
+  { id: "email", label: "Email campaign", icon: Mail },
+  { id: "social", label: "Social media posts", icon: Share2 },
+  { id: "landing", label: "Landing page copy", icon: Globe },
+];
 
-// Refresh competitors manually
-const updated = await competitorApi.refreshCompetitors("product-123");
-
-// Get competitor details
-const details = await competitorApi.getCompetitorDetails("competitor-456");
-
-// Get 60 days of price history
-const history = await competitorApi.getPriceHistory("competitor-456", 60);
-
-// Enable auto-refresh every 2 hours
-const settings = await competitorApi.setAutoRefresh("product-123", 2);
-
-// Disable auto-refresh
-const disabled = await competitorApi.setAutoRefresh("product-123", null);
-
-// Dismiss an alert
-const dismissed = await competitorApi.dismissAlert("alert-789");
+// Tones
+const toneOptions = [
+  { value: "professional", label: "Professional" },
+  { value: "friendly", label: "Friendly" },
+  { value: "humorous", label: "Humorous" },
+  { value: "urgent", label: "Urgent/FOMO" },
+];
 ```
 
----
+### 2. Tab Content Structure
 
-## Integration with Existing Components
+Each tab will have consistent card patterns:
+- Header with title and action buttons
+- Content area with text
+- Footer with metadata (character count, platform info)
+- Hover states for interactivity
+- Animation on generation
 
-The new API will integrate with:
+### 3. AI Generation (Mock for now)
 
-1. **CompetitorMonitorStore** (`src/stores/competitorMonitorStore.ts`)
-   - Replace mock `refreshData()` with `competitorApi.refreshCompetitors()`
-   - Use `competitorApi.setAutoRefresh()` for auto-refresh settings
+Initially will use mock/simulated generation:
+```typescript
+const generateContent = async () => {
+  setIsGenerating(true);
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  // Set mock generated content based on selected types
+  setGeneratedContent({
+    headlines: mockHeadlines,
+    adCopy: mockAdCopy,
+    descriptions: mockDescriptions,
+    email: mockEmail,
+    social: mockSocialCaptions,
+  });
+  
+  setIsGenerating(false);
+};
+```
 
-2. **CompetitorMonitor** (`src/features/seller/components/CompetitorMonitor.tsx`)
-   - Call `startMonitoring()` when user initiates tracking
-   - Call `getCompetitorData()` to load cached data
+Future integration can use existing `useAICaptions` hook pattern or `generateProductContent` from MiroMind.
 
-3. **PriceMovementAlerts** (`src/features/seller/components/PriceMovementAlerts.tsx`)
-   - Use `dismissAlert()` for dismiss button handler
+### 4. History Section
 
-4. **CompetitorTable** (`src/features/seller/components/CompetitorTable.tsx`)
-   - Use `getCompetitorDetails()` for expanded row data
-   - Use `getPriceHistory()` for historical charts
+Collapsible section at bottom:
+- Uses `Collapsible` from Radix UI
+- Grid layout for history items
+- Local storage persistence option
+- Click to restore content
+- Delete functionality
 
----
+### 5. Actions Bar
 
-## Type Reuse
+Fixed position at bottom right:
+- Save as Template: Opens dialog to name template
+- Export as ZIP: Creates downloadable archive (simulated)
+- Share with Team: Opens share dialog
 
-The API leverages existing comprehensive types:
-- `CompetitorMarketData` - Full market intelligence response
-- `Competitor` - Base competitor profile
-- `PriceAlert` - Alert notifications
-- `CompetitorPrice` - Price observations
+## Responsive Behavior
 
-New response types defined locally:
-- `AutoRefreshSettings` - Auto-refresh configuration
-- `PriceHistoryItem` - Simplified price history entry
-- `CompetitorDetails` - Extended competitor with history
+- **Desktop (1024px+)**: Two-column layout, left sticky
+- **Tablet (768px-1023px)**: Stacked layout, settings above tabs
+- **Mobile (<768px)**: Full-width stacked, simplified tabs
 
+## Integration Points
+
+1. **Export in seller/index.ts**:
+```typescript
+export { ContentStudio } from "./components/ContentStudio";
+```
+
+2. **Future AI Integration**: Can connect to existing edge functions or create new `generate-content` edge function
+
+3. **Social Publishing**: "Post directly" buttons can integrate with existing `useSocialPosting` hook
+
+## Animations
+
+Using framer-motion (already in dependencies):
+- Fade in for generated content
+- Slide animations for tab changes
+- Scale animations for like button
+- Smooth collapse for history section
