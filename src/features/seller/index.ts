@@ -113,3 +113,18 @@ export {
   type MarketAnalysisRequest,
   type MarketAnalysisResult,
 } from "@/lib/market-intel-service";
+
+// Competitor API
+export {
+  startMonitoring,
+  refreshCompetitors,
+  getCompetitorData,
+  getCompetitorDetails,
+  getPriceHistory,
+  setAutoRefresh,
+  dismissAlert,
+  competitorApi,
+  type AutoRefreshSettings,
+  type PriceHistoryItem,
+  type CompetitorDetails,
+} from "./api";
