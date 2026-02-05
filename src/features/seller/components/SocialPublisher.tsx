@@ -27,6 +27,7 @@ import { useSocialPosting } from "@/hooks/useSocialPosting";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useContentStudioStore, type StudioContentItem } from "@/stores/contentStudioStore";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -104,9 +105,11 @@ const generateCampaignId = () =>
 export function SocialPublisher() {
   const { toast } = useToast();
   const { posting, publishPost } = useSocialPosting();
+  const studioItems = useContentStudioStore((s) => s.savedItems);
 
   // Content
   const [contentSource, setContentSource] = useState<"studio" | "custom" | "upload">("custom");
+  const [selectedStudioItem, setSelectedStudioItem] = useState<string>("");
   const [content, setContent] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
 
@@ -295,7 +298,10 @@ export function SocialPublisher() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Select value={contentSource} onValueChange={(v: any) => setContentSource(v)}>
+          <Select value={contentSource} onValueChange={(v: any) => {
+            setContentSource(v);
+            if (v !== "studio") setSelectedStudioItem("");
+          }}>
             <SelectTrigger>
               <SelectValue placeholder="Select content source" />
             </SelectTrigger>
@@ -305,6 +311,87 @@ export function SocialPublisher() {
               <SelectItem value="upload">Upload image / video</SelectItem>
             </SelectContent>
           </Select>
+
+          {contentSource === "studio" && (
+            <div className="space-y-3">
+              {studioItems.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-6 text-center">
+                  <Sparkles className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+                  <p className="text-sm text-muted-foreground">No content generated yet.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Go to Content Studio to generate marketing content first.</p>
+                </div>
+              ) : (
+                <>
+                  <Label className="text-xs text-muted-foreground">Select generated content</Label>
+                  <div className="grid gap-2 max-h-[240px] overflow-y-auto">
+                    {studioItems.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setSelectedStudioItem(item.id);
+                          // Auto-fill content with the first headline + social captions
+                          const parts = [
+                            item.headlines[0] || "",
+                            "",
+                            item.adCopy.medium || item.adCopy.short || "",
+                          ].filter(Boolean);
+                          setContent(parts.join("\n\n"));
+                          toast({ title: "Content loaded", description: `Loaded content for "${item.productName}"` });
+                        }}
+                        className={cn(
+                          "flex items-start gap-3 rounded-lg border p-3 text-left transition-all",
+                          selectedStudioItem === item.id
+                            ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                            : "border-border hover:border-primary/30",
+                        )}
+                      >
+                        <Sparkles className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium truncate">{item.productName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(item.generatedAt), "PPp")} · {item.headlines.length} headlines · {item.socialCaptions.length} captions
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {selectedStudioItem && (
+                    <div className="flex gap-2 flex-wrap">
+                      {(() => {
+                        const item = studioItems.find((i) => i.id === selectedStudioItem);
+                        if (!item) return null;
+                        return (
+                          <>
+                            <Button variant="outline" size="sm" onClick={() => {
+                              setContent(item.headlines.join("\n"));
+                              toast({ title: "Loaded headlines" });
+                            }}>
+                              Load headlines
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => {
+                              setContent(item.adCopy.long || item.adCopy.medium || item.adCopy.short);
+                              toast({ title: "Loaded ad copy" });
+                            }}>
+                              Load ad copy
+                            </Button>
+                            {item.socialCaptions.length > 0 && (
+                              <Button variant="outline" size="sm" onClick={() => {
+                                setContent(item.socialCaptions[0].caption);
+                                toast({ title: `Loaded ${item.socialCaptions[0].platform} caption` });
+                              }}>
+                                Load social caption
+                              </Button>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {contentSource === "upload" && (
             <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground hover:border-primary/50 transition-colors cursor-pointer">
