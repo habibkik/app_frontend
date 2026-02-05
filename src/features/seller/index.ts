@@ -131,3 +131,6 @@ export {
  
  // Content Studio
  export { ContentStudio } from "./components/ContentStudio";
+
+ // Social Publisher
+ export { SocialPublisher } from "./components/SocialPublisher";
