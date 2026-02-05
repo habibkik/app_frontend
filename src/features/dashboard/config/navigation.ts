@@ -13,6 +13,7 @@ import {
   TrendingUp,
   DollarSign,
   Megaphone,
+  Palette,
   Globe,
   Users,
   Settings,
@@ -121,6 +122,7 @@ const sellerNavigation: NavGroup[] = [
     label: "Marketing",
     items: [
       { title: "Campaigns", url: "/dashboard/campaigns", icon: Megaphone },
+      { title: "Content Studio", url: "/dashboard/content-studio", icon: Palette },
       { title: "Social Publisher", url: "/dashboard/publisher", icon: Send },
       { title: "Website Builder", url: "/dashboard/website", icon: Globe },
     ],
