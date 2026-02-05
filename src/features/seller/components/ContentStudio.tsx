@@ -41,7 +41,8 @@
  import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
  import { Label } from "@/components/ui/label";
  import { toast } from "sonner";
- import { cn } from "@/lib/utils";
+  import { cn } from "@/lib/utils";
+  import { useContentStudioStore } from "@/stores/contentStudioStore";
  
  // Types
  interface ContentProduct {
@@ -293,7 +294,8 @@
    }
  };
  
- export const ContentStudio = () => {
+  export const ContentStudio = () => {
+    const addStudioItem = useContentStudioStore((s) => s.addItem);
    // State
    const [selectedProduct, setSelectedProduct] = useState<string>("");
    const [targetAudience, setTargetAudience] = useState<TargetAudience>("ecommerce");
@@ -339,8 +341,25 @@
  
      const productName = selectedProductData?.name || "Product";
      const content = generateMockContent(productName);
-     setGeneratedContent(content);
- 
+      setGeneratedContent(content);
+
+      // Push to shared store for SocialPublisher
+      addStudioItem({
+        id: Date.now().toString(),
+        productName: productName,
+        generatedAt: new Date().toISOString(),
+        headlines: content.headlines.map((h) => h.text),
+        adCopy: {
+          short: content.adCopy.find((a) => a.variant === "short")?.text || "",
+          medium: content.adCopy.find((a) => a.variant === "medium")?.text || "",
+          long: content.adCopy.find((a) => a.variant === "long")?.text || "",
+        },
+        socialCaptions: content.social.map((s) => ({
+          platform: s.platform,
+          caption: s.caption,
+          hashtags: s.hashtags,
+        })),
+      });
      // Add to history
      const historyItem: ContentHistoryItem = {
        id: Date.now().toString(),
