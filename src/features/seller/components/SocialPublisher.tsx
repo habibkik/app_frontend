@@ -375,14 +375,29 @@ export function SocialPublisher() {
                             }}>
                               Load ad copy
                             </Button>
-                            {item.socialCaptions.length > 0 && (
-                              <Button variant="outline" size="sm" onClick={() => {
-                                setContent(item.socialCaptions[0].caption);
-                                toast({ title: `Loaded ${item.socialCaptions[0].platform} caption` });
-                              }}>
-                                Load social caption
-                              </Button>
-                            )}
+                            {item.socialCaptions.map((cap) => {
+                              const platformMatch = PLATFORMS.find(
+                                (p) => p.id === cap.platform.toLowerCase()
+                              );
+                              const icon = platformMatch?.icon ?? "📝";
+                              const label = platformMatch?.name ?? cap.platform;
+                              const text = cap.hashtags?.length
+                                ? `${cap.caption}\n\n${cap.hashtags.map((h) => `#${h.replace(/^#/, "")}`).join(" ")}`
+                                : cap.caption;
+                              return (
+                                <Button
+                                  key={cap.platform}
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setContent(text);
+                                    toast({ title: `Loaded ${label} caption` });
+                                  }}
+                                >
+                                  {icon} {label} caption
+                                </Button>
+                              );
+                            })}
                           </>
                         );
                       })()}
