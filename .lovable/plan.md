@@ -1,362 +1,158 @@
 
 
-# Content Generation Module Implementation Plan
+# SocialPublisher Component Implementation Plan
 
 ## Overview
-Create a comprehensive AI-powered content generation module `src/features/agents/miromind/contentGeneration.ts` that integrates with the Lovable AI Gateway to generate marketing content. This module will power the ContentStudio component with real AI-generated content instead of mock data.
+Create a comprehensive social media publishing component at `src/features/seller/components/SocialPublisher.tsx` that provides content selection, multi-platform publishing, scheduling, UTM tracking, A/B testing, and post management. This component integrates with the existing campaign infrastructure (PlatformSelector, PostScheduler, PostPreview, useSocialPosting hook, and the scheduled_posts database table).
 
-## Current State
-
-### Existing Infrastructure
-- **MiroMind Agent**: Located at `src/features/agents/miromind/` with types, prompts, and API functions
-- **Generate Caption Edge Function**: `supabase/functions/generate-caption/index.ts` already uses Lovable AI Gateway with tool calling
-- **ContentStudio Component**: Uses mock `generateMockContent()` function that needs to be replaced
-- **LOVABLE_API_KEY**: Already configured as a secret
-
-### What's Missing
-1. No `contentGeneration.ts` module for comprehensive marketing content
-2. No edge function dedicated to full content generation (headlines, copy, descriptions, email, social)
-3. ContentStudio uses mock data instead of real AI
+## Component Location
+**New File**: `src/features/seller/components/SocialPublisher.tsx`
 
 ## Architecture
 
 ```text
-ContentStudio.tsx
-       │
-       ▼ (calls)
-contentGeneration.ts (client-side API)
-       │
-       ▼ (HTTP request)
-supabase/functions/generate-marketing-content/index.ts
-       │
-       ▼ (calls)
-Lovable AI Gateway (google/gemini-3-flash-preview)
-       │
-       ▼ (returns structured JSON)
-GeneratedContent response
+SocialPublisher
+|
++-- Content Selection (Top)
+|   +-- Source dropdown (Content Studio / Custom / Upload)
+|   +-- Content preview with edit modal
+|
++-- Platform Selector (Middle)
+|   +-- Checkbox grid for 6 platforms (FB, IG, TikTok, LinkedIn, X, WhatsApp)
+|   +-- Per-platform: account name, char limit, preview
+|
++-- Scheduling Section
+|   +-- Date picker, time picker, timezone selector
+|   +-- "Post immediately" checkbox
+|   +-- "Best time" AI suggestion button
+|
++-- Analytics & UTM (Collapsible)
+|   +-- Track engagement toggle
+|   +-- UTM parameter builder (campaign, medium, source)
+|   +-- Preview URL + copy button
+|
++-- A/B Testing (Collapsible)
+|   +-- Create variant button
+|   +-- Variant A / B cards with edit
+|   +-- Split traffic toggle
+|   +-- Auto-select winner info
+|
++-- Action Buttons (Bottom)
+|   +-- Preview all posts (modal)
+|   +-- Schedule posts (primary)
+|   +-- Save as draft
+|
++-- Success Modal (after scheduling)
+|   +-- Campaign ID, platform count, time
+|   +-- Navigation buttons
+|
++-- Scheduled Posts List (Bottom section)
+|   +-- Cards with thumbnail, platforms, status, actions
 ```
-
-## Implementation Plan
-
-### 1. Create Edge Function for Marketing Content Generation
-
-**New File**: `supabase/functions/generate-marketing-content/index.ts`
-
-This edge function will:
-- Accept product details, audience, and tone
-- Use Lovable AI Gateway with tool calling for structured output
-- Generate all content types in one request
-- Handle rate limits (429) and payment errors (402)
-
-Key features:
-- System prompt with detailed instructions for each content type
-- Tool definition for structured `GeneratedContent` output
-- Tone and audience customization in prompts
-
-### 2. Create Client-Side Content Generation Module
-
-**New File**: `src/features/agents/miromind/contentGeneration.ts`
-
-Exports:
-- `generateMarketingContent()` - Main function that calls the edge function
-- `GeneratedContent` type - Return type with all content categories
-- Helper types for headlines, ad copy, descriptions, email, and social
-
-### 3. Update MiroMind Index
-
-**Edit**: `src/features/agents/miromind/index.ts`
-
-Add exports for the new content generation module.
-
-### 4. Add Edge Function Config
-
-**Edit**: `supabase/config.toml`
-
-Add configuration for the new edge function.
 
 ## Files Summary
 
 | File | Action | Description |
 |------|--------|-------------|
-| `supabase/functions/generate-marketing-content/index.ts` | Create | Edge function using Lovable AI Gateway |
-| `src/features/agents/miromind/contentGeneration.ts` | Create | Client-side API module |
-| `src/features/agents/miromind/index.ts` | Edit | Add new exports |
-| `supabase/config.toml` | Edit | Add function config |
+| `src/features/seller/components/SocialPublisher.tsx` | Create | Full SocialPublisher component |
+| `src/features/seller/index.ts` | Edit | Add SocialPublisher export |
 
 ## Technical Details
 
-### Edge Function Implementation
+### State Management
 
-The edge function will use the Lovable AI Gateway with tool calling to extract structured output:
+Local useState for all component state:
+- `contentSource`: "studio" / "custom" / "upload"
+- `content`: string (the caption/copy text)
+- `mediaUrl`: optional string for image/video
+- `selectedPlatforms`: string[] of platform IDs
+- `scheduleType`: "now" / "scheduled"
+- `scheduledDate`, `scheduledTime`, `timezone`
+- `trackEngagement`: boolean
+- `utmParams`: { campaign, medium, source }
+- `abTestingEnabled`: boolean
+- `variantB`: { content, mediaUrl } for the B variant
+- `splitTraffic`: boolean (50/50)
+- `showPreviewModal`, `showSuccessModal`, `showEditModal`
+- `scheduledPosts`: array of past/upcoming posts (mock data initially)
+
+### Platforms Configuration
 
 ```typescript
-// System prompt structure
-const systemPrompt = `You are MiroMind, an expert marketing content creator...
-
-PRODUCT: ${productName}
-DESCRIPTION: ${productDescription}
-TARGET AUDIENCE: ${targetAudience}
-TONE: ${tone}
-
-Generate comprehensive marketing content following these guidelines:
-
-1. HEADLINES (5 variations):
-   - Attention-grabbing, benefit-focused
-   - Include: urgency, uniqueness, value proposition
-   
-2. AD COPY (3 lengths):
-   - Short (~30 words): Hook + CTA
-   - Medium (~75 words): Hook + value + benefits + CTA
-   - Long (~150 words): Full narrative
-   
-3. PRODUCT DESCRIPTIONS (3 lengths):
-   - Short (~50 words): Core value
-   - Medium (~150 words): Features + benefits
-   - Long (~300 words): Complete with specs
-   
-4. EMAIL CAMPAIGN:
-   - 3 subject line variations
-   - Full email body template
-   
-5. SOCIAL MEDIA (per platform):
-   - Instagram: caption, hashtags, emojis
-   - TikTok: hook, caption, trending sounds
-   - Facebook: copy, engagement question, CTA
-   - LinkedIn: professional B2B angle
-   - Twitter/X: concise 280-char message
-
-TONE ADAPTATION:
-- Professional: Business-like, formal, trustworthy
-- Friendly: Conversational, approachable
-- Humorous: Witty, entertaining
-- Urgent: FOMO, scarcity, action-driven
-
-AUDIENCE CUSTOMIZATION:
-- E-commerce: Value, variety, fast shipping
-- Wholesale: Bulk pricing, reliability
-- Retailers: Margins, display-friendly
-- B2B: ROI, compliance, support`;
+const platforms = [
+  { id: "facebook", name: "Facebook", icon: "📘", charLimit: 63206, color: "bg-blue-600" },
+  { id: "instagram", name: "Instagram", icon: "📸", charLimit: 2200, color: "bg-gradient-to-r from-purple-500 to-pink-500" },
+  { id: "tiktok", name: "TikTok", icon: "🎵", charLimit: 2200, color: "bg-black" },
+  { id: "linkedin", name: "LinkedIn", icon: "💼", charLimit: 3000, color: "bg-blue-700" },
+  { id: "twitter", name: "Twitter/X", icon: "𝕏", charLimit: 280, color: "bg-black" },
+  { id: "whatsapp", name: "WhatsApp", icon: "💬", charLimit: 700, color: "bg-green-500" },
+];
 ```
 
-### Tool Definition for Structured Output
+### Integration Points
+
+1. **useSocialPosting hook**: Used for "Post immediately" action via the existing `social-post` edge function
+2. **PostPreview component**: Reused from `src/components/campaigns/PostPreview.tsx` for platform-specific previews in the preview modal
+3. **Calendar/Popover**: Reused existing Shadcn date picker pattern with `pointer-events-auto`
+4. **scheduled_posts table**: Used for saving scheduled/draft posts via Supabase client
+5. **ContentStudio**: Content can be sourced from ContentStudio generated content
+
+### UTM Builder Logic
 
 ```typescript
-const tools = [{
-  type: "function",
-  function: {
-    name: "generate_marketing_content",
-    description: "Generate comprehensive marketing content for a product",
-    parameters: {
-      type: "object",
-      properties: {
-        headlines: {
-          type: "array",
-          items: { type: "string" },
-          description: "5 attention-grabbing headlines"
-        },
-        adCopy: {
-          type: "object",
-          properties: {
-            short: { type: "string" },
-            medium: { type: "string" },
-            long: { type: "string" }
-          }
-        },
-        descriptions: {
-          type: "object",
-          properties: {
-            short: { type: "string" },
-            medium: { type: "string" },
-            long: { type: "string" }
-          }
-        },
-        emailCampaign: {
-          type: "object",
-          properties: {
-            subjects: { type: "array", items: { type: "string" } },
-            body: { type: "string" }
-          }
-        },
-        socialMedia: {
-          type: "object",
-          properties: {
-            instagram: { /* ... */ },
-            tiktok: { /* ... */ },
-            facebook: { /* ... */ },
-            linkedin: { /* ... */ },
-            twitter: { /* ... */ }
-          }
-        }
-      },
-      required: ["headlines", "adCopy", "descriptions", "emailCampaign", "socialMedia"]
-    }
-  }
-}];
-```
-
-### Client-Side Module Types
-
-```typescript
-// GeneratedContent type
-export interface GeneratedContent {
-  productName: string;
-  targetAudience: string;
-  tone: string;
-  
-  headlines: string[];  // 5 variations
-  
-  adCopy: {
-    short: string;   // ~30 words
-    medium: string;  // ~75 words
-    long: string;    // ~150 words
-  };
-  
-  descriptions: {
-    short: string;   // ~50 words
-    medium: string;  // ~150 words
-    long: string;    // ~300+ words
-  };
-  
-  emailCampaign: {
-    subjects: string[];  // 3 variations
-    body: string;        // HTML template
-  };
-  
-  socialMedia: {
-    instagram: { 
-      caption: string; 
-      hashtags: string[]; 
-      emojis: string[]; 
-    };
-    tiktok: { 
-      caption: string; 
-      hashtags: string[]; 
-      sounds: string[]; 
-    };
-    facebook: { 
-      copy: string; 
-      cta: string; 
-      question: string; 
-    };
-    linkedin: { 
-      copy: string; 
-      cta: string; 
-    };
-    twitter: { 
-      copy: string; 
-      hashtag: string; 
-      cta: string; 
-    };
-  };
-  
-  generatedAt: string;
-}
-```
-
-### Client-Side API Function
-
-```typescript
-export async function generateMarketingContent(
-  productName: string,
-  productDescription: string,
-  targetAudience: string,
-  tone: string
-): Promise<GeneratedContent> {
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-marketing-content`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify({
-        productName,
-        productDescription,
-        targetAudience,
-        tone,
-      }),
-    }
-  );
-
-  if (!response.ok) {
-    if (response.status === 429) {
-      throw new Error("Rate limit exceeded. Please try again in a moment.");
-    }
-    if (response.status === 402) {
-      throw new Error("AI credits exhausted. Please add credits to continue.");
-    }
-    throw new Error("Failed to generate content");
-  }
-
-  return response.json();
-}
-```
-
-## Error Handling
-
-The implementation will handle:
-- **429 Too Many Requests**: Display rate limit message to user
-- **402 Payment Required**: Display credits exhausted message
-- **Network errors**: Fallback to mock content with warning toast
-- **Validation errors**: Return descriptive error messages
-
-## Integration with ContentStudio
-
-After implementation, the ContentStudio component can be updated to:
-
-```typescript
-import { generateMarketingContent } from "@/features/agents/miromind";
-
-// In the generate handler:
-const handleGenerate = async () => {
-  setIsGenerating(true);
-  try {
-    const content = await generateMarketingContent(
-      selectedProduct.name,
-      selectedProduct.description || "",
-      targetAudience,
-      tone
-    );
-    // Map to component's GeneratedContent format
-    setGeneratedContent(mapToComponentFormat(content));
-  } catch (error) {
-    toast.error(error.message);
-    // Fallback to mock content
-    setGeneratedContent(generateMockContent(selectedProduct.name));
-  } finally {
-    setIsGenerating(false);
-  }
+const buildUtmUrl = (baseUrl: string, params: UTMParams) => {
+  const url = new URL(baseUrl);
+  if (params.campaign) url.searchParams.set("utm_campaign", params.campaign);
+  if (params.medium) url.searchParams.set("utm_medium", params.medium);
+  if (params.source) url.searchParams.set("utm_source", params.source);
+  return url.toString();
 };
 ```
 
-## Prompt Engineering Details
+### Scheduling Flow
 
-### Tone Variations
+1. User fills content and selects platforms
+2. Chooses "Post immediately" or schedules date/time
+3. On "Schedule posts" click:
+   - If immediate: calls `useSocialPosting.publishPost()`
+   - If scheduled: inserts into `scheduled_posts` table via Supabase client
+4. Shows success modal with campaign details
+5. Post appears in Scheduled Posts List at the bottom
 
-| Tone | Characteristics |
-|------|-----------------|
-| Professional | Business-like, formal, trustworthy, industry terminology |
-| Friendly | Conversational, approachable, relatable, warm |
-| Humorous | Witty, entertaining, memorable, playful |
-| Urgent/FOMO | Time-sensitive, scarcity, action-driven, compelling |
+### A/B Testing (UI-only for now)
 
-### Audience Targeting
+- Toggle enables variant B creation
+- Side-by-side card display for variants A and B
+- Each variant has its own content editor and media slot
+- "Split traffic 50/50" checkbox
+- Display text: "Testing for 3 days, then auto-select winner"
+- Future backend integration can handle actual split testing
 
-| Audience | Focus Areas |
-|----------|-------------|
-| E-commerce Shoppers | Value, variety, fast shipping, reviews |
-| Wholesale Buyers | Bulk pricing, reliability, partnerships, volume discounts |
-| Retailers | Margins, display-friendly, brand strength, resale potential |
-| Corporate/B2B | ROI, compliance, reliability, support, scalability |
+### UI Components Used
 
-### Platform-Specific Guidelines
+From existing library:
+- Card, Tabs, Select, Checkbox, Button, Textarea, Badge
+- Calendar, Popover, Dialog, Switch, Input, Label
+- Collapsible, ScrollArea, Separator
+- AlertDialog (for cancel confirmation)
 
-| Platform | Character Limit | Style |
-|----------|-----------------|-------|
-| Instagram | 2200 | Visual-focused, emoji-heavy, 10-15 hashtags |
-| TikTok | 300 | Trendy, casual, hook-focused, sound suggestions |
-| Facebook | 500+ | Conversational, engagement questions, CTA buttons |
-| LinkedIn | 700 | Professional B2B, industry insights, thought leadership |
-| Twitter/X | 280 | Concise, witty, punchy, 1-2 hashtags |
+Icons (Lucide):
+- Send, Calendar, Clock, Eye, Save, Copy, Edit, Trash2
+- Facebook, Instagram, Linkedin, Twitter
+- Sparkles (AI best time), Link2 (UTM), FlaskConical (A/B test)
+- CheckCircle2, AlertCircle, Globe, Upload, FileText
+
+### Responsive Design
+
+- Desktop: Multi-column layout where UTM/A/B testing sit alongside scheduling
+- Tablet: Stacked sections
+- Mobile: Full-width single column, simplified platform grid
+
+### Styling
+
+- Platform-specific colors on selection cards
+- Gradient primary button for "Schedule posts"
+- Status badges: blue (scheduled), green (posted), yellow (draft), red (failed)
+- Smooth framer-motion animations for section reveals and post list items
+- Collapsible sections for UTM and A/B testing to reduce visual clutter
 
