@@ -1,197 +1,265 @@
 
 
-# Competitor Intelligence Types Enhancement Plan
+# Competitor API Implementation Plan
 
 ## Overview
-This plan adapts and enhances the existing competitor monitoring system to incorporate the comprehensive type definitions you provided. The current implementation has basic types, while the new specification includes advanced features like detailed competitor profiles, extensive market statistics, alert configurations, historical tracking, and API response wrappers.
+Create a new API module `src/features/seller/api/competitorApi.ts` that provides functions for competitor monitoring operations. This API will integrate with the existing `apiClient` service and use the comprehensive types already defined in `competitorIntelligence.ts`.
 
-## Current State vs Required State
+## Current State
 
-### Existing Types (87 lines)
-- Basic `Platform`, `StockStatus`, `AlertType` enums
-- Simple `CompetitorTableRow` with limited fields
-- Basic `PriceMovementAlert` 
-- Simple `MarketInsight`
-- `PriceTrendDataPoint` for charts
-- `CompetitorMonitorMetrics`
+### Existing Infrastructure
+- **API Client**: `src/services/api/apiClient.ts` - Full-featured HTTP client with auth, timeout, and error handling
+- **Endpoints**: `src/services/api/endpoints.ts` - Centralized endpoint constants (missing competitor endpoints)
+- **Types**: `src/features/seller/types/competitorIntelligence.ts` - Comprehensive 900+ line type system
+- **Existing Competitor API**: `src/lib/competitor-api.ts` - Only has `analyzeCompetitor()` using Supabase edge function
 
-### Required Types (700+ lines)
-- Comprehensive `Competitor` with reputation, engagement, contact info
-- Detailed `CompetitorPrice` with source tracking, MOQ, lead times
-- `CompetitorListing` combining profile + price history
-- `CompetitorMarketData` with full market statistics
-- `PriceAlert` with severity levels, notification channels
-- `AlertConfiguration` for user preferences
-- `PriceTrendPoint` for charts with competitor count
-- `CompetitorActivityLog` for tracking changes
-- `CompetitorComparison` for side-by-side views
-- `CompetitorTracking` and `CompetitorGroup` for management
-- `MarketReport` for exports
-- API response wrappers and filters
-- Type guards for runtime validation
+### What's Missing
+1. No `api/` folder in `src/features/seller/`
+2. No competitor monitoring API functions
+3. No competitor-specific endpoints in `API_ENDPOINTS`
 
 ---
 
 ## Implementation Plan
 
-### 1. Create New Comprehensive Types File
+### 1. Add Competitor Endpoints
 
-**New File**: `src/features/seller/types/competitorIntelligence.ts`
+**Edit**: `src/services/api/endpoints.ts`
 
-Contains all comprehensive type definitions organized into sections:
-- **Core Types**: `Competitor`, `CompetitorPrice`, `CompetitorListing`
-- **Market Analysis**: `CompetitorMarketData`, `MarketStats`, `MarketTrends`
-- **Alerts & Notifications**: `PriceAlert`, `AlertConfiguration`
-- **Historical & Trending**: `PriceTrendPoint`, `CompetitorActivityLog`
-- **Comparison & Management**: `CompetitorComparison`, `CompetitorTracking`, `CompetitorGroup`
-- **Export Types**: `MarketReport`
-- **API Types**: Response wrappers, pagination, filters
-- **Type Guards**: Runtime validation functions
-
-### 2. Update Existing Types for Backward Compatibility
-
-**Edit**: `src/features/seller/types/competitorMonitor.ts`
-
-Keep existing types but extend them to be compatible with new comprehensive types:
-- Extend `Platform` to include all platforms: instagram, whatsapp, telegram, viber, tiktok, linkedin
-- Add `pre_order` to `StockStatus`
-- Add `availability_change`, `rating_change`, `market_shift` to `AlertType`
-- Enhance `CompetitorTableRow` with new fields from `Competitor`:
-  - `country`
-  - `businessType`
-  - `contactInfo` (full social/communication channels)
-  - `reputation` (response time, return rate, verified status, account age)
-  - `engagement` (followers, monthly orders, last activity)
-  - `reliabilityScore`
-  - `status` (active, inactive, verified, flagged_suspicious)
-- Enhance `PriceMovementAlert` to match `PriceAlert`:
-  - Add `severity` (low, medium, high, critical)
-  - Add `status` (active, acknowledged, resolved, dismissed)
-  - Add `notificationChannels`
-  - Add `details` object with granular change tracking
-- Enhance `MarketInsight` with full market statistics:
-  - Add `marketStats` (median, stdDev, priceRange, competitiveness)
-  - Add `availability` metrics
-  - Add `insights` (opportunities, threats, recommendations)
-  - Add `dataQuality` metrics
-
-### 3. Create Type Converters/Mappers
-
-**New File**: `src/features/seller/utils/competitorTypeConverters.ts`
-
-Utility functions to convert between legacy types and new comprehensive types:
-- `toCompetitorListing(row: CompetitorTableRow): CompetitorListing`
-- `toCompetitorMarketData(metrics, competitors): CompetitorMarketData`
-- `toPriceAlert(alert: PriceMovementAlert): PriceAlert`
-- `fromCompetitorListing(listing: CompetitorListing): CompetitorTableRow`
-
-### 4. Update Store with Enhanced Data Structure
-
-**Edit**: `src/stores/competitorMonitorStore.ts`
-
-Add new state and actions:
-- Add `marketData: CompetitorMarketData | null`
-- Add `alertConfiguration: AlertConfiguration | null`
-- Add `activityLog: CompetitorActivityLog[]`
-- Add `competitorGroups: CompetitorGroup[]`
-- Add `trackingSettings: CompetitorTracking[]`
-- Add actions: `setAlertConfiguration`, `addActivityLog`, `createGroup`, `updateTracking`
-- Update mock data to include new fields
-
-### 5. Enhance Mock Data
-
-**Edit**: `src/stores/competitorMonitorStore.ts`
-
-Update mock competitors with comprehensive data:
+Add new COMPETITORS section:
 ```typescript
-{
-  // Existing fields...
-  country: "USA",
-  businessType: "retailer",
-  contactInfo: {
-    website: "https://example.com",
-    email: "contact@example.com",
-    phone: "+1-555-0123",
-    instagram: "@techsupply",
-    facebook: "techsupplyco",
-    whatsapp: "+1-555-0123",
-    linkedin: "techsupply-co"
-  },
-  reputation: {
-    reviewCount: 234,
-    averageRating: 4.5,
-    responseTime: 2.5, // hours
-    returnRate: 3.2,   // percent
-    isVerified: true,
-    accountAge: 730    // days
-  },
-  engagement: {
-    followers: 12500,
-    monthlyOrders: 450,
-    lastActivityAt: new Date().toISOString()
-  },
-  reliabilityScore: 87,
-  status: "verified"
-}
+// Competitors
+COMPETITORS: {
+  MONITOR: "/competitors/monitor",
+  REFRESH: "/competitors/refresh",
+  DATA: (productId: string) => `/competitors/${productId}`,
+  DETAILS: (competitorId: string) => `/competitors/details/${competitorId}`,
+  HISTORY: (competitorId: string) => `/competitors/${competitorId}/history`,
+  AUTO_REFRESH: "/competitors/auto-refresh",
+},
+
+// Alerts
+ALERTS: {
+  DISMISS: (alertId: string) => `/alerts/${alertId}/dismiss`,
+  LIST: "/alerts",
+  ACKNOWLEDGE: (alertId: string) => `/alerts/${alertId}/acknowledge`,
+},
 ```
 
-### 6. Update Components for Enhanced Data Display
+### 2. Create Competitor API Module
 
-**Edit**: Multiple component files
+**New File**: `src/features/seller/api/competitorApi.ts`
 
-**CompetitorTable.tsx**:
-- Add columns for reliability score, verified badge
-- Add platform-specific icons for Instagram, WhatsApp, Telegram, TikTok
-- Show engagement metrics in expanded row
-- Display reputation badges
+Complete API module with 7 functions:
 
-**MarketInsightsPanel.tsx**:
-- Add market statistics section (median, std dev, range)
-- Add competitiveness indicator
-- Add data quality metrics
-- Add market insights (opportunities, threats)
+```typescript
+/**
+ * Competitor Monitoring API
+ * 
+ * Provides functions for competitor tracking, price monitoring,
+ * and market intelligence operations.
+ */
 
-**PriceMovementAlerts.tsx**:
-- Add severity badges (critical, high, medium, low)
-- Add notification channel indicators
-- Add acknowledge/resolve actions
-- Color-code by severity
+import { apiClient, API_ENDPOINTS } from "@/services";
+import type { ApiResponse } from "@/types/api.types";
+import type {
+  CompetitorMarketData,
+  Competitor,
+  CompetitorPrice,
+  PriceAlert,
+} from "../types/competitorIntelligence";
 
-### 7. Update Exports
+// ============================================================================
+// RESPONSE TYPES
+// ============================================================================
+
+export interface AutoRefreshSettings {
+  enabled: boolean;
+  interval: number | null;
+  nextUpdate: string | null;
+}
+
+export interface PriceHistoryItem {
+  id: string;
+  competitorId: string;
+  price: number;
+  currency: string;
+  availability: string;
+  collectedAt: string;
+}
+
+export interface CompetitorDetails extends Competitor {
+  priceHistory: PriceHistoryItem[];
+  recentAlerts: PriceAlert[];
+  trackingStatus: {
+    isTracked: boolean;
+    priority: string;
+    lastCheck: string;
+  };
+}
+
+// ============================================================================
+// API FUNCTIONS
+// ============================================================================
+
+/**
+ * Start monitoring competitors for a product
+ * Triggers the competitorMonitoringPipeline via miroflow
+ */
+export async function startMonitoring(
+  productId: string,
+  productName: string
+): Promise<ApiResponse<CompetitorMarketData>> {
+  return apiClient.post<CompetitorMarketData>(
+    API_ENDPOINTS.COMPETITORS.MONITOR,
+    { productId, productName }
+  );
+}
+
+/**
+ * Manually refresh competitor prices for a product
+ * Forces immediate price update from all sources
+ */
+export async function refreshCompetitors(
+  productId: string
+): Promise<ApiResponse<CompetitorMarketData>> {
+  return apiClient.post<CompetitorMarketData>(
+    API_ENDPOINTS.COMPETITORS.REFRESH,
+    { productId }
+  );
+}
+
+/**
+ * Get cached competitor market data for a product
+ * Returns the most recent analysis without triggering refresh
+ */
+export async function getCompetitorData(
+  productId: string
+): Promise<ApiResponse<CompetitorMarketData>> {
+  return apiClient.get<CompetitorMarketData>(
+    API_ENDPOINTS.COMPETITORS.DATA(productId)
+  );
+}
+
+/**
+ * Get detailed competitor profile with full history
+ * Includes contact info, reputation, engagement metrics
+ */
+export async function getCompetitorDetails(
+  competitorId: string
+): Promise<ApiResponse<CompetitorDetails>> {
+  return apiClient.get<CompetitorDetails>(
+    API_ENDPOINTS.COMPETITORS.DETAILS(competitorId)
+  );
+}
+
+/**
+ * Get price history for a specific competitor
+ * Returns price observations over specified time period
+ */
+export async function getPriceHistory(
+  competitorId: string,
+  days: number = 30
+): Promise<ApiResponse<PriceHistoryItem[]>> {
+  return apiClient.get<PriceHistoryItem[]>(
+    API_ENDPOINTS.COMPETITORS.HISTORY(competitorId),
+    { days }
+  );
+}
+
+/**
+ * Configure automatic price refresh for a product
+ * Set intervalHours to null to disable auto-refresh
+ */
+export async function setAutoRefresh(
+  productId: string,
+  intervalHours: number | null
+): Promise<ApiResponse<AutoRefreshSettings>> {
+  return apiClient.post<AutoRefreshSettings>(
+    API_ENDPOINTS.COMPETITORS.AUTO_REFRESH,
+    { productId, intervalHours }
+  );
+}
+
+/**
+ * Dismiss a price alert
+ * Marks alert as dismissed and removes from active list
+ */
+export async function dismissAlert(
+  alertId: string
+): Promise<ApiResponse<{ success: boolean }>> {
+  return apiClient.post<{ success: boolean }>(
+    API_ENDPOINTS.ALERTS.DISMISS(alertId)
+  );
+}
+
+// ============================================================================
+// BARREL EXPORT
+// ============================================================================
+
+export const competitorApi = {
+  startMonitoring,
+  refreshCompetitors,
+  getCompetitorData,
+  getCompetitorDetails,
+  getPriceHistory,
+  setAutoRefresh,
+  dismissAlert,
+};
+```
+
+### 3. Create API Barrel Export
+
+**New File**: `src/features/seller/api/index.ts`
+
+```typescript
+// Seller API barrel export
+export {
+  startMonitoring,
+  refreshCompetitors,
+  getCompetitorData,
+  getCompetitorDetails,
+  getPriceHistory,
+  setAutoRefresh,
+  dismissAlert,
+  competitorApi,
+  type AutoRefreshSettings,
+  type PriceHistoryItem,
+  type CompetitorDetails,
+} from "./competitorApi";
+```
+
+### 4. Update Seller Feature Index
 
 **Edit**: `src/features/seller/index.ts`
 
-Export all new types:
+Add API exports:
 ```typescript
-// Comprehensive Types
-export type {
-  Competitor,
-  CompetitorPrice,
-  CompetitorListing,
-  CompetitorMarketData,
-  MarketStats,
-  MarketTrends,
-  PriceAlert,
-  AlertConfiguration,
-  PriceTrendPoint,
-  CompetitorActivityLog,
-  CompetitorComparison,
-  CompetitorTracking,
-  CompetitorGroup,
-  MarketReport,
-  CompetitorFilters,
-  MarketDataFilters,
-  CompetitorDataResponse,
-  PaginatedCompetitorResponse,
-} from "./types/competitorIntelligence";
-
-// Type guards
+// API
 export {
-  isCompetitor,
-  isCompetitorPrice,
-  isCompetitorMarketData,
-  isPriceAlert,
-} from "./types/competitorIntelligence";
+  startMonitoring,
+  refreshCompetitors,
+  getCompetitorData,
+  getCompetitorDetails,
+  getPriceHistory,
+  setAutoRefresh,
+  dismissAlert,
+  competitorApi,
+  type AutoRefreshSettings,
+  type PriceHistoryItem,
+  type CompetitorDetails,
+} from "./api";
+```
+
+### 5. Update Services Index (Optional)
+
+**Edit**: `src/services/index.ts`
+
+Ensure `API_ENDPOINTS` is exported:
+```typescript
+// Services barrel export
+export { apiClient } from "./api/apiClient";
+export { API_ENDPOINTS } from "./api/endpoints";
 ```
 
 ---
@@ -200,68 +268,93 @@ export {
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/features/seller/types/competitorIntelligence.ts` | Create | Full comprehensive type definitions (700+ lines) |
-| `src/features/seller/types/competitorMonitor.ts` | Edit | Extend existing types for compatibility |
-| `src/features/seller/utils/competitorTypeConverters.ts` | Create | Type conversion utilities |
-| `src/stores/competitorMonitorStore.ts` | Edit | Add new state, enhanced mock data |
-| `src/features/seller/components/CompetitorTable.tsx` | Edit | Display new fields, platforms |
-| `src/features/seller/components/MarketInsightsPanel.tsx` | Edit | Add statistics, insights |
-| `src/features/seller/components/PriceMovementAlerts.tsx` | Edit | Add severity, actions |
-| `src/features/seller/index.ts` | Edit | Export all new types |
+| `src/services/api/endpoints.ts` | Edit | Add COMPETITORS and ALERTS endpoints |
+| `src/features/seller/api/competitorApi.ts` | Create | Main API module with 7 functions |
+| `src/features/seller/api/index.ts` | Create | Barrel export for API module |
+| `src/features/seller/index.ts` | Edit | Add API exports to feature |
 
 ---
 
-## New Platform Icons
+## API Function Specifications
+
+| Function | Method | Endpoint | Request Body | Response |
+|----------|--------|----------|--------------|----------|
+| `startMonitoring` | POST | `/competitors/monitor` | `{ productId, productName }` | `CompetitorMarketData` |
+| `refreshCompetitors` | POST | `/competitors/refresh` | `{ productId }` | `CompetitorMarketData` |
+| `getCompetitorData` | GET | `/competitors/{productId}` | - | `CompetitorMarketData` |
+| `getCompetitorDetails` | GET | `/competitors/details/{id}` | - | `CompetitorDetails` |
+| `getPriceHistory` | GET | `/competitors/{id}/history?days=30` | - | `PriceHistoryItem[]` |
+| `setAutoRefresh` | POST | `/competitors/auto-refresh` | `{ productId, intervalHours }` | `AutoRefreshSettings` |
+| `dismissAlert` | POST | `/alerts/{id}/dismiss` | - | `{ success: boolean }` |
+
+---
+
+## Usage Examples
 
 ```typescript
-const platformIcons: Record<Platform, string> = {
-  facebook: "📘",
-  instagram: "📸",
-  amazon: "🛒",
-  olx: "🟡",
-  ouedkniss: "🟢",
-  website: "🌐",
-  whatsapp: "💬",
-  telegram: "✈️",
-  viber: "💜",
-  tiktok: "🎵",
-  linkedin: "💼",
-};
+import { competitorApi } from "@/features/seller";
+
+// Start monitoring a product
+const result = await competitorApi.startMonitoring(
+  "product-123",
+  "Industrial Motor XR-500"
+);
+
+// Get cached market data
+const marketData = await competitorApi.getCompetitorData("product-123");
+
+// Refresh competitors manually
+const updated = await competitorApi.refreshCompetitors("product-123");
+
+// Get competitor details
+const details = await competitorApi.getCompetitorDetails("competitor-456");
+
+// Get 60 days of price history
+const history = await competitorApi.getPriceHistory("competitor-456", 60);
+
+// Enable auto-refresh every 2 hours
+const settings = await competitorApi.setAutoRefresh("product-123", 2);
+
+// Disable auto-refresh
+const disabled = await competitorApi.setAutoRefresh("product-123", null);
+
+// Dismiss an alert
+const dismissed = await competitorApi.dismissAlert("alert-789");
 ```
 
 ---
 
-## Enhanced Alert Severity Colors
+## Integration with Existing Components
 
-```typescript
-const severityColors = {
-  critical: "bg-red-600 text-white",
-  high: "bg-red-500 text-white",
-  medium: "bg-yellow-500 text-white",
-  low: "bg-blue-500 text-white",
-};
-```
+The new API will integrate with:
 
----
+1. **CompetitorMonitorStore** (`src/stores/competitorMonitorStore.ts`)
+   - Replace mock `refreshData()` with `competitorApi.refreshCompetitors()`
+   - Use `competitorApi.setAutoRefresh()` for auto-refresh settings
 
-## New MarketStats Display
+2. **CompetitorMonitor** (`src/features/seller/components/CompetitorMonitor.tsx`)
+   - Call `startMonitoring()` when user initiates tracking
+   - Call `getCompetitorData()` to load cached data
 
-The Market Insights panel will show:
-- Average, Median, Min, Max prices
-- Price Range and Standard Deviation
-- Your Competitiveness Status (underpriced → significantly_overpriced)
-- Suggested Optimal Price
-- Data Quality Score (0-100)
-- Market Maturity Level
-- Competitive Intensity
+3. **PriceMovementAlerts** (`src/features/seller/components/PriceMovementAlerts.tsx`)
+   - Use `dismissAlert()` for dismiss button handler
+
+4. **CompetitorTable** (`src/features/seller/components/CompetitorTable.tsx`)
+   - Use `getCompetitorDetails()` for expanded row data
+   - Use `getPriceHistory()` for historical charts
 
 ---
 
-## Backward Compatibility
+## Type Reuse
 
-The plan maintains full backward compatibility by:
-1. Keeping existing types intact
-2. Adding new optional fields with defaults
-3. Providing type converters for gradual migration
-4. Using union types where old and new values overlap
+The API leverages existing comprehensive types:
+- `CompetitorMarketData` - Full market intelligence response
+- `Competitor` - Base competitor profile
+- `PriceAlert` - Alert notifications
+- `CompetitorPrice` - Price observations
+
+New response types defined locally:
+- `AutoRefreshSettings` - Auto-refresh configuration
+- `PriceHistoryItem` - Simplified price history entry
+- `CompetitorDetails` - Extended competitor with history
 
