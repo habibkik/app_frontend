@@ -21,8 +21,22 @@ export type {
   MiroMindConfig,
 } from "./types";
 
+// Content Generation Types
+export type {
+  GeneratedContent,
+  TargetAudience,
+  ContentTone,
+  GenerateContentOptions,
+} from "./contentGeneration";
+
 // API Functions
 export { analyzeProductImage, generateProductContent } from "./api";
+
+// Content Generation (AI-powered marketing content)
+export { 
+  generateMarketingContent, 
+  generateContentWithOptions 
+} from "./contentGeneration";
 
 // Prompts (for reference/customization)
 export { PRODUCT_ANALYSIS_PROMPT, CONTENT_GENERATION_PROMPTS, TONE_MODIFIERS } from "./prompts";
