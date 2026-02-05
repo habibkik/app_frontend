@@ -1,4 +1,5 @@
 import {
+  Send,
   LayoutDashboard,
   Search,
   FileText,
@@ -120,6 +121,7 @@ const sellerNavigation: NavGroup[] = [
     label: "Marketing",
     items: [
       { title: "Campaigns", url: "/dashboard/campaigns", icon: Megaphone },
+      { title: "Social Publisher", url: "/dashboard/publisher", icon: Send },
       { title: "Website Builder", url: "/dashboard/website", icon: Globe },
     ],
   },
