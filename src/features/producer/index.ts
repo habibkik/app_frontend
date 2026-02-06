@@ -34,6 +34,7 @@ export { RiskFactorsPanel } from "./components/RiskFactorsPanel";
 export { RecommendationBanner } from "./components/RecommendationBanner";
 
 // Pages
+export { default as ProducerDashboard } from "./pages/ProducerDashboard";
 export { default as BOMsPage } from "@/pages/dashboard/BOM";
 export { default as ComponentsPage } from "@/pages/dashboard/Components";
 export { default as FeasibilityPage } from "@/pages/dashboard/Feasibility";
