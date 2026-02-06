@@ -3,6 +3,7 @@ import { BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComponentPart, SupplierQuote, ComparisonSelection, mockSupplierQuotes } from "@/data/components";
 import { cn } from "@/lib/utils";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface CostComparisonChartProps {
   parts: ComponentPart[];
@@ -10,7 +11,8 @@ interface CostComparisonChartProps {
 }
 
 export function CostComparisonChart({ parts, selections }: CostComparisonChartProps) {
-  // Calculate bar data for each component
+  const fc = useFormatCurrency();
+
   const chartData = parts.map((part) => {
     const quotes = mockSupplierQuotes.filter((q) => q.componentId === part.id);
     const minCost = Math.min(...quotes.map((q) => q.unitPrice * part.requiredQuantity));
@@ -33,11 +35,7 @@ export function CostComparisonChart({ parts, selections }: CostComparisonChartPr
   const globalMax = Math.max(...chartData.map((d) => d.maxCost));
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -65,34 +63,18 @@ export function CostComparisonChart({ parts, selections }: CostComparisonChartPr
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium truncate max-w-[200px]">{item.shortName}</span>
                     <span className="text-muted-foreground">
-                      ${item.minCost.toLocaleString()} - ${item.maxCost.toLocaleString()}
+                      {fc(item.minCost)} - {fc(item.maxCost)}
                     </span>
                   </div>
                   
-                  {/* Bar Container */}
                   <div className="relative h-8 bg-muted rounded-md overflow-hidden">
-                    {/* Range Bar (min to max) */}
                     <div
                       className="absolute h-full bg-muted-foreground/20 rounded-md"
-                      style={{
-                        left: `${minPercent}%`,
-                        width: `${maxPercent - minPercent}%`,
-                      }}
+                      style={{ left: `${minPercent}%`, width: `${maxPercent - minPercent}%` }}
                     />
+                    <div className="absolute h-full w-1 bg-primary/50" style={{ left: `${minPercent}%` }} />
+                    <div className="absolute h-full w-1 bg-destructive/50" style={{ left: `${maxPercent}%` }} />
                     
-                    {/* Min Marker */}
-                    <div
-                      className="absolute h-full w-1 bg-primary/50"
-                      style={{ left: `${minPercent}%` }}
-                    />
-                    
-                    {/* Max Marker */}
-                    <div
-                      className="absolute h-full w-1 bg-destructive/50"
-                      style={{ left: `${maxPercent}%` }}
-                    />
-                    
-                    {/* Selected Value Bar */}
                     {item.hasSelection && (
                       <motion.div
                         initial={{ width: 0 }}
@@ -102,14 +84,13 @@ export function CostComparisonChart({ parts, selections }: CostComparisonChartPr
                       />
                     )}
                     
-                    {/* Selected Value Label */}
                     {item.hasSelection && item.selectedCost && (
                       <div
                         className="absolute inset-y-0 flex items-center px-2"
                         style={{ left: Math.min(selectedPercent, 70) + "%" }}
                       >
                         <span className="text-xs font-semibold text-primary-foreground bg-primary/80 px-1.5 py-0.5 rounded">
-                          ${item.selectedCost.toLocaleString()}
+                          {fc(item.selectedCost)}
                         </span>
                       </div>
                     )}
@@ -119,7 +100,6 @@ export function CostComparisonChart({ parts, selections }: CostComparisonChartPr
             })}
           </div>
 
-          {/* Legend */}
           <div className="flex items-center gap-4 mt-6 pt-4 border-t text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <div className="h-3 w-3 rounded bg-primary" />

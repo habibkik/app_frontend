@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ComponentPart, SupplierQuote } from "@/data/components";
 import { cn } from "@/lib/utils";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface SupplierQuoteListProps {
   component: ComponentPart;
@@ -22,6 +23,7 @@ export function SupplierQuoteList({
   onSupplierClick,
   isExpanded,
 }: SupplierQuoteListProps) {
+  const fc = useFormatCurrency();
   const lowestPrice = Math.min(...quotes.map((q) => q.unitPrice));
 
   return (
@@ -38,7 +40,6 @@ export function SupplierQuoteList({
               const isSelected = quote.id === selectedQuoteId;
               const isLowest = quote.unitPrice === lowestPrice;
               const totalCost = quote.unitPrice * component.requiredQuantity;
-              const savings = ((quotes[0].unitPrice - quote.unitPrice) / quotes[0].unitPrice) * 100;
 
               return (
                 <motion.div
@@ -55,7 +56,6 @@ export function SupplierQuoteList({
                   onClick={() => onSelectQuote(quote.id)}
                 >
                   <div className="flex items-start gap-4">
-                    {/* Supplier Avatar */}
                     <Avatar className="h-10 w-10">
                       <AvatarFallback
                         className={cn(
@@ -67,7 +67,6 @@ export function SupplierQuoteList({
                       </AvatarFallback>
                     </Avatar>
 
-                    {/* Quote Details */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -100,16 +99,14 @@ export function SupplierQuoteList({
                           </div>
                         </div>
 
-                        {/* Price */}
                         <div className="text-right">
                           <p className="text-xl font-bold text-foreground">
-                            ${quote.unitPrice.toFixed(2)}
+                            {fc(quote.unitPrice)}
                           </p>
                           <p className="text-xs text-muted-foreground">per unit</p>
                         </div>
                       </div>
 
-                      {/* Certifications */}
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {quote.certifications.map((cert) => (
                           <Badge key={cert} variant="outline" className="text-xs">
@@ -118,7 +115,6 @@ export function SupplierQuoteList({
                         ))}
                       </div>
 
-                      {/* Details Row */}
                       <div className="flex items-center gap-6 mt-3 pt-3 border-t">
                         <div className="flex items-center gap-1.5">
                           <Clock className="h-4 w-4 text-muted-foreground" />
@@ -146,12 +142,11 @@ export function SupplierQuoteList({
 
                         <div className="flex-1 text-right">
                           <span className="text-sm text-muted-foreground">Total: </span>
-                          <span className="font-semibold">${totalCost.toLocaleString()}</span>
+                          <span className="font-semibold">{fc(totalCost)}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Selection Indicator */}
                     <div className="flex-shrink-0">
                       <div
                         className={cn(

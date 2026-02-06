@@ -9,6 +9,7 @@ import {
   ProductionCostEstimate,
   LogisticsCostEstimate,
 } from "../types/feasibility";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface CostBreakdownCardsProps {
   componentCosts: ComponentCostBreakdown[];
@@ -23,20 +24,18 @@ export function CostBreakdownCards({
   logisticsCost,
   totalCostPerUnit,
 }: CostBreakdownCardsProps) {
+  const fc = useFormatCurrency();
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
-
   const totalComponentCost = componentCosts.reduce((sum, c) => sum + c.totalCost, 0);
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
+      opacity: 1, y: 0,
       transition: { delay: i * 0.1, duration: 0.4 },
     }),
   };
 
-  // Pie chart data
   const pieData = [
     { name: "Components", value: totalComponentCost, color: "hsl(var(--primary))" },
     { name: "Production", value: productionCost.totalProductionCostPerUnit, color: "hsl(217, 91%, 60%)" },
@@ -60,48 +59,27 @@ export function CostBreakdownCards({
                 </div>
                 <span>Component Cost</span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={() => toggleExpand("component")}
-              >
-                {expandedCard === "component" ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => toggleExpand("component")}>
+                {expandedCard === "component" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-foreground">
-              ${totalComponentCost.toFixed(2)}
+              {fc(totalComponentCost)}
               <span className="text-sm font-normal text-muted-foreground">/unit</span>
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {componentCosts.length} components
-            </p>
-
+            <p className="text-xs text-muted-foreground mt-1">{componentCosts.length} components</p>
             {expandedCard === "component" && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="mt-4 space-y-2 border-t pt-3"
-              >
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mt-4 space-y-2 border-t pt-3">
                 {componentCosts.slice(0, 5).map((comp) => (
                   <div key={comp.componentId} className="flex justify-between text-xs">
-                    <span className="text-muted-foreground truncate max-w-[120px]">
-                      {comp.name}
-                    </span>
-                    <span className="font-medium">${comp.totalCost.toFixed(2)}</span>
+                    <span className="text-muted-foreground truncate max-w-[120px]">{comp.name}</span>
+                    <span className="font-medium">{fc(comp.totalCost)}</span>
                   </div>
                 ))}
                 {componentCosts.length > 5 && (
-                  <p className="text-xs text-muted-foreground">
-                    +{componentCosts.length - 5} more components
-                  </p>
+                  <p className="text-xs text-muted-foreground">+{componentCosts.length - 5} more components</p>
                 )}
               </motion.div>
             )}
@@ -120,47 +98,30 @@ export function CostBreakdownCards({
                 </div>
                 <span>Production Cost</span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={() => toggleExpand("production")}
-              >
-                {expandedCard === "production" ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => toggleExpand("production")}>
+                {expandedCard === "production" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-foreground">
-              ${productionCost.totalProductionCostPerUnit.toFixed(2)}
+              {fc(productionCost.totalProductionCostPerUnit)}
               <span className="text-sm font-normal text-muted-foreground">/unit</span>
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Labor, equipment & facility
-            </p>
-
+            <p className="text-xs text-muted-foreground mt-1">Labor, equipment & facility</p>
             {expandedCard === "production" && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="mt-4 space-y-2 border-t pt-3"
-              >
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mt-4 space-y-2 border-t pt-3">
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Labor</span>
-                  <span className="font-medium">${productionCost.laborCostPerUnit.toFixed(2)}</span>
+                  <span className="font-medium">{fc(productionCost.laborCostPerUnit)}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Equipment</span>
-                  <span className="font-medium">${productionCost.equipmentCostPerUnit.toFixed(2)}</span>
+                  <span className="font-medium">{fc(productionCost.equipmentCostPerUnit)}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Facility</span>
-                  <span className="font-medium">${productionCost.facilityCostPerUnit.toFixed(2)}</span>
+                  <span className="font-medium">{fc(productionCost.facilityCostPerUnit)}</span>
                 </div>
               </motion.div>
             )}
@@ -179,47 +140,30 @@ export function CostBreakdownCards({
                 </div>
                 <span>Logistics Cost</span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={() => toggleExpand("logistics")}
-              >
-                {expandedCard === "logistics" ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => toggleExpand("logistics")}>
+                {expandedCard === "logistics" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-foreground">
-              ${logisticsCost.totalLandedCostPerUnit.toFixed(2)}
+              {fc(logisticsCost.totalLandedCostPerUnit)}
               <span className="text-sm font-normal text-muted-foreground">/unit</span>
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Shipping, duties & handling
-            </p>
-
+            <p className="text-xs text-muted-foreground mt-1">Shipping, duties & handling</p>
             {expandedCard === "logistics" && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="mt-4 space-y-2 border-t pt-3"
-              >
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="mt-4 space-y-2 border-t pt-3">
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="font-medium">${logisticsCost.shippingCostPerUnit.toFixed(2)}</span>
+                  <span className="font-medium">{fc(logisticsCost.shippingCostPerUnit)}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Import Duties</span>
-                  <span className="font-medium">${logisticsCost.importDuties.toFixed(2)}</span>
+                  <span className="font-medium">{fc(logisticsCost.importDuties)}</span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Handling & Storage</span>
-                  <span className="font-medium">${logisticsCost.handlingStorage.toFixed(2)}</span>
+                  <span className="font-medium">{fc(logisticsCost.handlingStorage)}</span>
                 </div>
               </motion.div>
             )}
@@ -240,28 +184,20 @@ export function CostBreakdownCards({
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-primary">
-              ${totalCostPerUnit.toFixed(2)}
+              {fc(totalCostPerUnit)}
               <span className="text-sm font-normal text-muted-foreground">/unit</span>
             </p>
 
             <div className="mt-4 h-24">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={25}
-                    outerRadius={40}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={25} outerRadius={40} paddingAngle={2} dataKey="value">
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number) => `$${value.toFixed(2)}`}
+                    formatter={(value: number) => fc(value)}
                     contentStyle={{
                       backgroundColor: "hsl(var(--background))",
                       border: "1px solid hsl(var(--border))",
@@ -276,10 +212,7 @@ export function CostBreakdownCards({
             <div className="mt-2 space-y-1">
               {pieData.map((item) => (
                 <div key={item.name} className="flex items-center gap-2 text-xs">
-                  <div
-                    className="h-2 w-2 rounded-full"
-                    style={{ backgroundColor: item.color }}
-                  />
+                  <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
                   <span className="text-muted-foreground">{item.name}</span>
                 </div>
               ))}

@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ComponentPart, SupplierQuote } from "@/data/components";
 import { cn } from "@/lib/utils";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface ComponentCardProps {
   component: ComponentPart;
@@ -22,6 +23,7 @@ export function ComponentCard({
   onToggle,
   index,
 }: ComponentCardProps) {
+  const fc = useFormatCurrency();
   const lowestPrice = Math.min(...quotes.map((q) => q.unitPrice));
   const highestPrice = Math.max(...quotes.map((q) => q.unitPrice));
 
@@ -40,12 +42,10 @@ export function ComponentCard({
       >
         <CardContent className="p-4">
           <div className="flex items-start gap-4">
-            {/* Icon */}
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
               <Package className="h-5 w-5 text-primary" />
             </div>
 
-            {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -68,11 +68,10 @@ export function ComponentCard({
                   Qty: {component.requiredQuantity.toLocaleString()} {component.unit}
                 </span>
                 <span className="text-sm">
-                  ${lowestPrice.toFixed(2)} - ${highestPrice.toFixed(2)} / unit
+                  {fc(lowestPrice)} - {fc(highestPrice)} / unit
                 </span>
               </div>
 
-              {/* Selected Quote Preview */}
               {selectedQuote && (
                 <div className="mt-3 p-2 rounded-md bg-primary/5 border border-primary/20">
                   <div className="flex items-center justify-between">
@@ -80,7 +79,7 @@ export function ComponentCard({
                       Selected: {selectedQuote.supplierName}
                     </span>
                     <span className="text-sm font-bold">
-                      ${(selectedQuote.unitPrice * component.requiredQuantity).toLocaleString()}
+                      {fc(selectedQuote.unitPrice * component.requiredQuantity)}
                     </span>
                   </div>
                 </div>

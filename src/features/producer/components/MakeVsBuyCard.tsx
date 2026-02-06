@@ -4,12 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { MakeVsBuyAnalysis } from "../types/feasibility";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface MakeVsBuyCardProps {
   analysis: MakeVsBuyAnalysis;
 }
 
 export function MakeVsBuyCard({ analysis }: MakeVsBuyCardProps) {
+  const fc = useFormatCurrency();
   const { makeCost, buyCost, difference, savingsPercent, recommendation } = analysis;
 
   const maxCost = Math.max(makeCost, buyCost);
@@ -38,9 +40,7 @@ export function MakeVsBuyCard({ analysis }: MakeVsBuyCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Cost Comparison */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Make Option */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -54,25 +54,17 @@ export function MakeVsBuyCard({ analysis }: MakeVsBuyCardProps) {
               <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
                 recommendation === "make" ? "bg-emerald-500/10" : "bg-muted"
               }`}>
-                <Factory className={`h-4 w-4 ${
-                  recommendation === "make" ? "text-emerald-500" : "text-muted-foreground"
-                }`} />
+                <Factory className={`h-4 w-4 ${recommendation === "make" ? "text-emerald-500" : "text-muted-foreground"}`} />
               </div>
               <span className="font-medium text-sm">Make</span>
             </div>
-            <p className={`text-2xl font-bold ${
-              recommendation === "make" ? "text-emerald-600" : "text-foreground"
-            }`}>
-              ${makeCost.toFixed(2)}
+            <p className={`text-2xl font-bold ${recommendation === "make" ? "text-emerald-600" : "text-foreground"}`}>
+              {fc(makeCost)}
             </p>
             <p className="text-xs text-muted-foreground">per unit</p>
-            <Progress
-              value={makePercent}
-              className="h-1.5 mt-3"
-            />
+            <Progress value={makePercent} className="h-1.5 mt-3" />
           </motion.div>
 
-          {/* Buy Option */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -87,26 +79,18 @@ export function MakeVsBuyCard({ analysis }: MakeVsBuyCardProps) {
               <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${
                 recommendation === "buy" ? "bg-blue-500/10" : "bg-muted"
               }`}>
-                <ShoppingCart className={`h-4 w-4 ${
-                  recommendation === "buy" ? "text-blue-500" : "text-muted-foreground"
-                }`} />
+                <ShoppingCart className={`h-4 w-4 ${recommendation === "buy" ? "text-blue-500" : "text-muted-foreground"}`} />
               </div>
               <span className="font-medium text-sm">Buy</span>
             </div>
-            <p className={`text-2xl font-bold ${
-              recommendation === "buy" ? "text-blue-600" : "text-foreground"
-            }`}>
-              ${buyCost.toFixed(2)}
+            <p className={`text-2xl font-bold ${recommendation === "buy" ? "text-blue-600" : "text-foreground"}`}>
+              {fc(buyCost)}
             </p>
             <p className="text-xs text-muted-foreground">per unit (retail)</p>
-            <Progress
-              value={buyPercent}
-              className="h-1.5 mt-3"
-            />
+            <Progress value={buyPercent} className="h-1.5 mt-3" />
           </motion.div>
         </div>
 
-        {/* Savings Summary */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -122,18 +106,14 @@ export function MakeVsBuyCard({ analysis }: MakeVsBuyCardProps) {
               <p className="text-sm text-muted-foreground">
                 {recommendation === "make" ? "Savings by Manufacturing" : "Cost Difference"}
               </p>
-              <p className={`text-xl font-bold ${
-                recommendation === "make" ? "text-emerald-600" : "text-blue-600"
-              }`}>
-                ${difference.toFixed(2)} per unit
+              <p className={`text-xl font-bold ${recommendation === "make" ? "text-emerald-600" : "text-blue-600"}`}>
+                {fc(difference)} per unit
               </p>
             </div>
             <div className={`text-right px-3 py-1.5 rounded-lg ${
               recommendation === "make" ? "bg-emerald-500/20" : "bg-blue-500/20"
             }`}>
-              <p className={`text-2xl font-bold ${
-                recommendation === "make" ? "text-emerald-600" : "text-blue-600"
-              }`}>
+              <p className={`text-2xl font-bold ${recommendation === "make" ? "text-emerald-600" : "text-blue-600"}`}>
                 {savingsPercent}%
               </p>
               <p className="text-xs text-muted-foreground">
@@ -143,16 +123,11 @@ export function MakeVsBuyCard({ analysis }: MakeVsBuyCardProps) {
           </div>
         </motion.div>
 
-        {/* Recommendation Text */}
         <p className="text-sm text-center text-muted-foreground">
           {recommendation === "make" ? (
-            <>
-              Manufacturing in-house is <strong className="text-emerald-600">{savingsPercent}% cheaper</strong> than buying retail
-            </>
+            <>Manufacturing in-house is <strong className="text-emerald-600">{savingsPercent}% cheaper</strong> than buying retail</>
           ) : (
-            <>
-              Consider <strong className="text-blue-600">outsourcing or buying</strong> as manufacturing costs are high
-            </>
+            <>Consider <strong className="text-blue-600">outsourcing or buying</strong> as manufacturing costs are high</>
           )}
         </p>
       </CardContent>

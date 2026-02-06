@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { BOMComponent } from "@/data/bom";
 import { mockSuppliers, Supplier } from "@/data/suppliers";
 import { cn } from "@/lib/utils";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface BOMSupplierMatchModalProps {
   open: boolean;
@@ -26,7 +27,6 @@ export function BOMSupplierMatchModal({
 }: BOMSupplierMatchModalProps) {
   if (!component) return null;
 
-  // Get random subset of suppliers for demo
   const matchedSuppliers = mockSuppliers
     .slice(0, Math.min(component.matchedSuppliers, mockSuppliers.length))
     .map((supplier) => ({
@@ -70,6 +70,8 @@ interface SupplierMatchCardProps {
 }
 
 function SupplierMatchCard({ supplier, index }: SupplierMatchCardProps) {
+  const fc = useFormatCurrency();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -78,14 +80,12 @@ function SupplierMatchCard({ supplier, index }: SupplierMatchCardProps) {
       className="border rounded-lg p-4 hover:border-primary/50 transition-colors"
     >
       <div className="flex items-start gap-4">
-        {/* Avatar */}
         <Avatar className="h-12 w-12">
           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
             {supplier.logo}
           </AvatarFallback>
         </Avatar>
 
-        {/* Main Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -111,7 +111,6 @@ function SupplierMatchCard({ supplier, index }: SupplierMatchCardProps) {
               </div>
             </div>
 
-            {/* Match Score */}
             <div className="text-right">
               <div className={cn(
                 "text-lg font-bold",
@@ -124,7 +123,6 @@ function SupplierMatchCard({ supplier, index }: SupplierMatchCardProps) {
             </div>
           </div>
 
-          {/* Certifications */}
           <div className="flex flex-wrap gap-1.5 mt-3">
             {supplier.certifications.slice(0, 3).map((cert) => (
               <Badge key={cert} variant="outline" className="text-xs">
@@ -133,11 +131,10 @@ function SupplierMatchCard({ supplier, index }: SupplierMatchCardProps) {
             ))}
           </div>
 
-          {/* Pricing & Lead Time */}
           <div className="flex items-center gap-6 mt-3 pt-3 border-t">
             <div>
               <p className="text-xs text-muted-foreground">Est. Price</p>
-              <p className="font-semibold">${supplier.estimatedPrice.toFixed(2)}</p>
+              <p className="font-semibold">{fc(supplier.estimatedPrice)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Lead Time</p>
@@ -145,7 +142,7 @@ function SupplierMatchCard({ supplier, index }: SupplierMatchCardProps) {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">MOQ</p>
-              <p className="font-medium">${supplier.minOrderValue.toLocaleString()}</p>
+              <p className="font-medium">{fc(supplier.minOrderValue)}</p>
             </div>
 
             <div className="flex-1 flex justify-end gap-2">
