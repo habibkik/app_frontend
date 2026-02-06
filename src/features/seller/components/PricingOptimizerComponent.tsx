@@ -309,7 +309,7 @@ export function PricingOptimizerComponent() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className={`text-3xl font-bold ${s.accentColor}`}>${s.price.toFixed(2)}</p>
+                <p className={`text-2xl sm:text-3xl font-bold ${s.accentColor}`}>${s.price.toFixed(2)}</p>
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
