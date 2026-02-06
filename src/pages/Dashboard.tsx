@@ -12,29 +12,31 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardLayout, useDashboardMode, modeConfig } from "@/features/dashboard";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 function DashboardContent() {
   const { mode } = useDashboardMode();
   const config = modeConfig[mode];
+  const { symbol } = useCurrency();
 
   // Stats based on mode
   const stats = {
     buyer: [
       { title: "Active RFQs", value: "24", change: "+12%", positive: true, icon: FileText },
       { title: "Suppliers Found", value: "156", change: "+8%", positive: true, icon: Users },
-      { title: "Saved This Month", value: "$12.4K", change: "+23%", positive: true, icon: DollarSign },
+      { title: "Saved This Month", value: `${symbol}12.4K`, change: "+23%", positive: true, icon: DollarSign },
       { title: "Response Rate", value: "89%", change: "+5%", positive: true, icon: TrendingUp },
     ],
     producer: [
       { title: "Active Orders", value: "18", change: "+4%", positive: true, icon: FileText },
       { title: "Components Sourced", value: "342", change: "+15%", positive: true, icon: Users },
-      { title: "Production Value", value: "$84.2K", change: "+12%", positive: true, icon: DollarSign },
+      { title: "Production Value", value: `${symbol}84.2K`, change: "+12%", positive: true, icon: DollarSign },
       { title: "On-Time Delivery", value: "96%", change: "+2%", positive: true, icon: TrendingUp },
     ],
     seller: [
       { title: "Active Listings", value: "89", change: "+6%", positive: true, icon: FileText },
       { title: "Total Buyers", value: "1,247", change: "+18%", positive: true, icon: Users },
-      { title: "Revenue MTD", value: "$45.8K", change: "-3%", positive: false, icon: DollarSign },
+      { title: "Revenue MTD", value: `${symbol}45.8K`, change: "-3%", positive: false, icon: DollarSign },
       { title: "Conversion Rate", value: "4.2%", change: "+0.8%", positive: true, icon: TrendingUp },
     ],
   };

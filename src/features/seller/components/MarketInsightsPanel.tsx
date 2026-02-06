@@ -5,8 +5,10 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 export function MarketInsightsPanel() {
+  const fc = useFormatCurrency();
   const { marketInsight, metrics } = useCompetitorMonitorStore();
 
   if (!marketInsight) return null;
@@ -100,7 +102,7 @@ export function MarketInsightsPanel() {
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Optimal Price</span>
-              <span className="font-bold text-lg">${marketInsight.optimalPrice.toFixed(2)}</span>
+              <span className="font-bold text-lg">{fc(marketInsight.optimalPrice)}</span>
             </div>
             
             <div className="flex justify-between items-center">
@@ -123,7 +125,7 @@ export function MarketInsightsPanel() {
                 variant={shouldRaisePrice ? "default" : "destructive"}
                 className={shouldRaisePrice ? "bg-emerald-500" : ""}
               >
-                ${Math.abs(marketInsight.priceAdjustment).toFixed(2)}
+                {fc(Math.abs(marketInsight.priceAdjustment))}
               </Badge>
             </div>
 
@@ -148,22 +150,22 @@ export function MarketInsightsPanel() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Median Price</span>
-                <span className="font-medium">${marketInsight.marketStats.medianPrice.toFixed(2)}</span>
+                <span className="font-medium">{fc(marketInsight.marketStats.medianPrice)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Price Range</span>
                 <span className="font-medium">
-                  ${marketInsight.marketStats.minPrice.toFixed(2)} - ${marketInsight.marketStats.maxPrice.toFixed(2)}
+                  {fc(marketInsight.marketStats.minPrice)} - {fc(marketInsight.marketStats.maxPrice)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Std. Deviation</span>
-                <span className="font-medium">${marketInsight.marketStats.standardDeviation.toFixed(2)}</span>
+                <span className="font-medium">{fc(marketInsight.marketStats.standardDeviation)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Suggested Range</span>
                 <span className="font-medium text-primary">
-                  ${marketInsight.marketStats.suggestedPriceRange.min.toFixed(2)} - ${marketInsight.marketStats.suggestedPriceRange.max.toFixed(2)}
+                  {fc(marketInsight.marketStats.suggestedPriceRange.min)} - {fc(marketInsight.marketStats.suggestedPriceRange.max)}
                 </span>
               </div>
             </div>

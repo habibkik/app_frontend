@@ -261,15 +261,20 @@ export function fromPriceAlert(alert: PriceAlert): PriceMovementAlert {
 
 /**
  * Generate default alert message
+ * @param alert The price movement alert
+ * @param formatPrice Optional currency formatter function. Falls back to basic $ formatting.
  */
-function getDefaultAlertMessage(alert: PriceMovementAlert): string {
+export function getDefaultAlertMessage(
+  alert: PriceMovementAlert, 
+  formatPrice: (amount: number) => string = (n) => `$${n.toFixed(2)}`
+): string {
   switch (alert.type) {
     case "drop":
-      return `${alert.competitorName} dropped price to $${alert.newPrice.toFixed(2)}`;
+      return `${alert.competitorName} dropped price to ${formatPrice(alert.newPrice)}`;
     case "increase":
-      return `${alert.competitorName} raised price to $${alert.newPrice.toFixed(2)}`;
+      return `${alert.competitorName} raised price to ${formatPrice(alert.newPrice)}`;
     case "new_entry":
-      return `New competitor ${alert.competitorName} entered at $${alert.newPrice.toFixed(2)}`;
+      return `New competitor ${alert.competitorName} entered at ${formatPrice(alert.newPrice)}`;
     case "out_of_stock":
       return `${alert.competitorName} is now out of stock`;
     case "availability_change":

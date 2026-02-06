@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { formatDistanceToNow } from "date-fns";
 import type { PriceMovementAlert, AlertType } from "@/features/seller/types/competitorMonitor";
 
@@ -60,14 +61,14 @@ const alertConfig: Record<AlertType, {
   },
 };
 
-const getAlertDescription = (alert: PriceMovementAlert): string => {
+const getAlertDescription = (alert: PriceMovementAlert, fc: (amount: number) => string): string => {
   switch (alert.type) {
     case "drop":
-      return `${alert.competitorName} dropped to $${alert.newPrice.toFixed(2)}${alert.oldPrice ? ` (was $${alert.oldPrice.toFixed(2)})` : ""}`;
+      return `${alert.competitorName} dropped to ${fc(alert.newPrice)}${alert.oldPrice ? ` (was ${fc(alert.oldPrice)})` : ""}`;
     case "increase":
-      return `${alert.competitorName} rose ${alert.oldPrice ? `from $${alert.oldPrice.toFixed(2)} ` : ""}to $${alert.newPrice.toFixed(2)}`;
+      return `${alert.competitorName} rose ${alert.oldPrice ? `from ${fc(alert.oldPrice)} ` : ""}to ${fc(alert.newPrice)}`;
     case "new_entry":
-      return `${alert.competitorName} entered at $${alert.newPrice.toFixed(2)}`;
+      return `${alert.competitorName} entered at ${fc(alert.newPrice)}`;
     case "out_of_stock":
       return `${alert.competitorName} is out of stock`;
   }
@@ -75,6 +76,7 @@ const getAlertDescription = (alert: PriceMovementAlert): string => {
 
 export function PriceMovementAlerts({ onViewCompetitor }: PriceMovementAlertsProps) {
   const { alerts, dismissAlert } = useCompetitorMonitorStore();
+  const fc = useFormatCurrency();
   
   const activeAlerts = alerts.filter(a => !a.dismissed);
 
@@ -125,7 +127,7 @@ export function PriceMovementAlerts({ onViewCompetitor }: PriceMovementAlertsPro
                   
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">
-                      {getAlertDescription(alert)}
+                      {getAlertDescription(alert, fc)}
                     </p>
                     {alert.message && (
                       <p className="text-xs text-muted-foreground mt-0.5">

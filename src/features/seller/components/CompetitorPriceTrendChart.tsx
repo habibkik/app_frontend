@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import {
   ComposedChart,
   Line,
@@ -14,6 +15,7 @@ import {
 } from "recharts";
 
 interface CustomTooltipProps {
+  formatCurrency: (amount: number) => string;
   active?: boolean;
   payload?: Array<{
     name: string;
@@ -23,7 +25,7 @@ interface CustomTooltipProps {
   label?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, label, formatCurrency }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-popover border rounded-lg shadow-lg p-3 min-w-[180px]">
@@ -38,7 +40,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
                 />
                 <span className="text-sm text-muted-foreground">{entry.name}</span>
               </div>
-              <span className="text-sm font-medium">${entry.value.toFixed(2)}</span>
+              <span className="text-sm font-medium">{formatCurrency(entry.value)}</span>
             </div>
           ))}
         </div>
@@ -49,6 +51,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 };
 
 export function CompetitorPriceTrendChart() {
+  const fc = useFormatCurrency();
   const { priceTrendData } = useCompetitorMonitorStore();
 
   // Find the price drop annotation point (5 days ago)
@@ -89,7 +92,7 @@ export function CompetitorPriceTrendChart() {
                 tickFormatter={(value) => `$${value}`}
               />
               
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip formatCurrency={fc} />} />
               
               <Legend 
                 wrapperStyle={{ paddingTop: "20px" }}
