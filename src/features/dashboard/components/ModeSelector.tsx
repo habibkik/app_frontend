@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { ChevronDown, ShoppingCart, Factory, Store } from "lucide-react";
 import {
   DropdownMenu,
@@ -10,6 +11,12 @@ import { useDashboardMode, type DashboardMode } from "@/features/dashboard";
 import { modeConfig } from "@/features/dashboard/config/navigation";
 import { cn } from "@/lib/utils";
 
+const dashboardRoutes: Record<DashboardMode, string> = {
+  buyer: "/dashboard/buyer",
+  producer: "/dashboard/producer",
+  seller: "/dashboard/seller",
+};
+
 const modeIcons: Record<DashboardMode, typeof ShoppingCart> = {
   buyer: ShoppingCart,
   producer: Factory,
@@ -18,6 +25,7 @@ const modeIcons: Record<DashboardMode, typeof ShoppingCart> = {
 
 export function ModeSelector() {
   const { mode, setMode } = useDashboardMode();
+  const navigate = useNavigate();
   const CurrentIcon = modeIcons[mode];
   const currentConfig = modeConfig[mode];
 
@@ -42,7 +50,7 @@ export function ModeSelector() {
           return (
             <DropdownMenuItem
               key={modeKey}
-              onClick={() => setMode(modeKey)}
+              onClick={() => { setMode(modeKey); navigate(dashboardRoutes[modeKey]); }}
               className={cn(
                 "flex items-center gap-3 cursor-pointer",
                 isActive && "bg-secondary"
