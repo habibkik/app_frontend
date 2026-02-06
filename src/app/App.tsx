@@ -8,6 +8,7 @@ import { SavedSuppliersProvider } from "@/contexts/SavedSuppliersContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Router } from "./Router";
 
 const queryClient = new QueryClient();
@@ -17,6 +18,7 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <LanguageProvider>
+          <CurrencyProvider>
           <AuthProvider>
             <SavedSuppliersProvider>
               <ConversationsProvider>
@@ -30,6 +32,7 @@ export function App() {
               </ConversationsProvider>
             </SavedSuppliersProvider>
           </AuthProvider>
+          </CurrencyProvider>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
