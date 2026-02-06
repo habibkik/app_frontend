@@ -48,6 +48,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 // --- Mock Data ---
 const products = [
@@ -100,6 +101,7 @@ const formatTimeAgo = (dateStr: string) => {
 
 // --- Component ---
 export function PricingOptimizerComponent() {
+  const fc = useFormatCurrency();
   const [selectedProductId, setSelectedProductId] = useState(products[0].id);
   const [editingPrice, setEditingPrice] = useState(false);
   const [priceInput, setPriceInput] = useState("");
@@ -117,9 +119,8 @@ export function PricingOptimizerComponent() {
   const currentPrice = customPrice ?? product.currentPrice;
   const currentMargin = calcMargin(currentPrice, product.cost);
 
-  // Strategies derived from product
   const strategies = useMemo(() => {
-    const { cost, competitorAvg, dailySales } = product;
+    const { cost, competitorAvg } = product;
     const premiumPrice = Math.round(competitorAvg * 1.15);
     const recommendedPrice = Math.round((competitorAvg + cost * 1.35) / 2);
     const aggressivePrice = Math.round(competitorAvg * 0.88);
@@ -133,7 +134,7 @@ export function PricingOptimizerComponent() {
         volumeImpact: "-15%",
         revenueImpact: `+${Math.round(((premiumPrice - currentPrice) / currentPrice) * 100)}%`,
         description: "Higher price targets quality-conscious buyers",
-        reasoning: `Competitor average: $${competitorAvg}, position yourself premium`,
+        reasoning: `Competitor average: ${fc(competitorAvg)}, position yourself premium`,
         risk: "May lose price-sensitive customers",
         riskLevel: "Medium",
         highlight: "border-emerald-500/40 bg-emerald-500/5",
@@ -148,7 +149,7 @@ export function PricingOptimizerComponent() {
         volumeImpact: "Baseline",
         revenueImpact: "Optimal ROI",
         description: "Balances margin and volume",
-        reasoning: `Market sweet spot — matches competitor avg $${competitorAvg}`,
+        reasoning: `Market sweet spot — matches competitor avg ${fc(competitorAvg)}`,
         risk: "Low — tested positioning",
         riskLevel: "Low",
         highlight: "border-primary/40 bg-primary/5",
@@ -171,7 +172,7 @@ export function PricingOptimizerComponent() {
         dotColor: "bg-orange-500",
       },
     ];
-  }, [product, currentPrice]);
+  }, [product, currentPrice, fc]);
 
   const selectedStrat = strategies.find((s) => s.key === selectedStrategy);
   const newPrice = selectedStrat?.price ?? currentPrice;
@@ -201,11 +202,10 @@ export function PricingOptimizerComponent() {
   const handleApply = () => {
     setCustomPrice(newPrice);
     toast.success("Price updated! Monitor competitor response.", {
-      description: `${product.name} price changed to $${newPrice.toFixed(2)}`,
+      description: `${product.name} price changed to ${fc(newPrice)}`,
     });
   };
 
-  // Reset sim when product changes
   const handleProductChange = (id: string) => {
     setSelectedProductId(id);
     setCustomPrice(null);
@@ -219,7 +219,6 @@ export function PricingOptimizerComponent() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-            {/* Product Selector */}
             <div className="min-w-[220px]">
               <p className="text-xs text-muted-foreground mb-1">Product</p>
               <Select value={selectedProductId} onValueChange={handleProductChange}>
@@ -232,12 +231,10 @@ export function PricingOptimizerComponent() {
               </Select>
             </div>
 
-            {/* Current Price */}
             <div className="flex-1">
               <p className="text-xs text-muted-foreground mb-1">Current Price</p>
               {editingPrice ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold text-foreground">$</span>
                   <Input
                     type="number"
                     className="text-2xl font-bold w-32 h-10"
@@ -251,20 +248,18 @@ export function PricingOptimizerComponent() {
               ) : (
                 <button
                   onClick={() => { setPriceInput(currentPrice.toFixed(2)); setEditingPrice(true); }}
-                  className="text-3xl font-bold text-foreground hover:text-primary transition-colors cursor-text"
+                  className="text-2xl sm:text-3xl font-bold text-foreground hover:text-primary transition-colors cursor-text"
                 >
-                  ${currentPrice.toFixed(2)}
+                  {fc(currentPrice)}
                 </button>
               )}
             </div>
 
-            {/* COGS */}
             <div>
               <p className="text-xs text-muted-foreground mb-1">COGS</p>
-              <p className="text-xl font-semibold text-foreground">${product.cost.toFixed(2)}</p>
+              <p className="text-xl font-semibold text-foreground">{fc(product.cost)}</p>
             </div>
 
-            {/* Margin */}
             <div>
               <p className="text-xs text-muted-foreground mb-1">Margin</p>
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${marginBg(currentMargin)}`}>
@@ -309,7 +304,7 @@ export function PricingOptimizerComponent() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className={`text-2xl sm:text-3xl font-bold ${s.accentColor}`}>${s.price.toFixed(2)}</p>
+                <p className={`text-2xl sm:text-3xl font-bold ${s.accentColor}`}>{fc(s.price)}</p>
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
@@ -351,7 +346,6 @@ export function PricingOptimizerComponent() {
 
       {/* ===== 3 & 4: SIMULATOR + RULES ===== */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Scenario Simulator */}
         <Collapsible open={simulatorOpen} onOpenChange={setSimulatorOpen}>
           <Card>
             <CollapsibleTrigger asChild>
@@ -370,7 +364,7 @@ export function PricingOptimizerComponent() {
                 <div className="space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Price</span>
-                    <span className="font-bold text-foreground text-lg">${simPrice[0].toFixed(2)}</span>
+                    <span className="font-bold text-foreground text-lg">{fc(simPrice[0])}</span>
                   </div>
                   <Slider
                     value={simPrice}
@@ -380,8 +374,8 @@ export function PricingOptimizerComponent() {
                     step={1}
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>${simMin}</span>
-                    <span>${simMax}</span>
+                    <span>{fc(simMin)}</span>
+                    <span>{fc(simMax)}</span>
                   </div>
                 </div>
 
@@ -389,8 +383,8 @@ export function PricingOptimizerComponent() {
                   {[
                     { label: "Margin", value: `${simMargin.toFixed(1)}%`, color: marginColor(simMargin) },
                     { label: "Sales Impact", value: `${simSalesImpact > 0 ? "+" : ""}${simSalesImpact}%`, color: simSalesImpact >= 0 ? "text-emerald-600" : "text-red-500" },
-                    { label: "Daily Revenue", value: `$${simDailyRevenue.toFixed(0)}`, color: "text-foreground" },
-                    { label: "Daily Profit", value: `$${simDailyProfit.toFixed(0)}`, color: simDailyProfit > 0 ? "text-emerald-600" : "text-red-500" },
+                    { label: "Daily Revenue", value: fc(simDailyRevenue), color: "text-foreground" },
+                    { label: "Daily Profit", value: fc(simDailyProfit), color: simDailyProfit > 0 ? "text-emerald-600" : "text-red-500" },
                   ].map((item) => (
                     <div key={item.label} className="p-3 rounded-lg bg-muted/50 border border-border/50">
                       <p className="text-xs text-muted-foreground">{item.label}</p>
@@ -437,7 +431,6 @@ export function PricingOptimizerComponent() {
 
       {/* ===== 5 & 6: HISTORY + AI EXPLANATION ===== */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Price Change History */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -457,11 +450,11 @@ export function PricingOptimizerComponent() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium text-foreground">
-                          ${entry.oldPrice.toFixed(2)}
+                          {fc(entry.oldPrice)}
                         </span>
                         <ArrowRight className="h-3 w-3 text-muted-foreground" />
                         <span className="text-sm font-medium text-foreground">
-                          ${entry.newPrice.toFixed(2)}
+                          {fc(entry.newPrice)}
                         </span>
                         {reasonBadge(entry.reason)}
                       </div>
@@ -474,7 +467,6 @@ export function PricingOptimizerComponent() {
           </CardContent>
         </Card>
 
-        {/* Recommendation Explanation */}
         <Card className="bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
@@ -489,11 +481,11 @@ export function PricingOptimizerComponent() {
                 <div className="space-y-2 text-sm text-foreground">
                   <p>
                     <span className="font-medium">Market analysis:</span>{" "}
-                    <span className="text-muted-foreground">Competitors average ${product.competitorAvg}. You are positioned {currentPrice < product.competitorAvg ? "below" : "above"} market.</span>
+                    <span className="text-muted-foreground">Competitors average {fc(product.competitorAvg)}. You are positioned {currentPrice < product.competitorAvg ? "below" : "above"} market.</span>
                   </p>
                   <p>
                     <span className="font-medium">Your cost:</span>{" "}
-                    <span className="text-muted-foreground">${product.cost}, recommended margin: 35-40%</span>
+                    <span className="text-muted-foreground">{fc(product.cost)}, recommended margin: 35-40%</span>
                   </p>
                   <p>
                     <span className="font-medium">Target customer:</span>{" "}
@@ -502,7 +494,7 @@ export function PricingOptimizerComponent() {
                   <p>
                     <span className="font-medium">Recommendation:</span>{" "}
                     <span className="text-muted-foreground">
-                      Set at ${selectedStrat ? selectedStrat.price.toFixed(2) : currentPrice.toFixed(2)} to {selectedStrategy === "premium" ? "capture premium value" : selectedStrategy === "aggressive" ? "gain market share" : "stay competitive with optimal ROI"}
+                      Set at {selectedStrat ? fc(selectedStrat.price) : fc(currentPrice)} to {selectedStrategy === "premium" ? "capture premium value" : selectedStrategy === "aggressive" ? "gain market share" : "stay competitive with optimal ROI"}
                     </span>
                   </p>
                 </div>
@@ -519,7 +511,7 @@ export function PricingOptimizerComponent() {
             <div className="text-sm text-muted-foreground">
               {selectedStrat ? (
                 <span>
-                  Selected: <span className="font-medium text-foreground">{selectedStrat.title}</span> — ${currentPrice.toFixed(2)} → <span className="font-medium text-foreground">${selectedStrat.price.toFixed(2)}</span>
+                  Selected: <span className="font-medium text-foreground">{selectedStrat.title}</span> — {fc(currentPrice)} → <span className="font-medium text-foreground">{fc(selectedStrat.price)}</span>
                 </span>
               ) : (
                 "Select a strategy above to apply"
@@ -538,8 +530,8 @@ export function PricingOptimizerComponent() {
                   <AlertDialogTitle>Confirm Price Change</AlertDialogTitle>
                   <AlertDialogDescription>
                     Change <span className="font-medium text-foreground">{product.name}</span> price from{" "}
-                    <span className="font-bold text-foreground">${currentPrice.toFixed(2)}</span> to{" "}
-                    <span className="font-bold text-foreground">${newPrice.toFixed(2)}</span>?
+                    <span className="font-bold text-foreground">{fc(currentPrice)}</span> to{" "}
+                    <span className="font-bold text-foreground">{fc(newPrice)}</span>?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

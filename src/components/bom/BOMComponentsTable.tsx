@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BOMComponent, mockAlternatives, AlternativeComponent } from "@/data/bom";
 import { cn } from "@/lib/utils";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface BOMComponentsTableProps {
   components: BOMComponent[];
@@ -30,6 +31,7 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<keyof BOMComponent>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const fc = useFormatCurrency();
 
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => {
@@ -148,10 +150,10 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
                     {component.quantity} {component.unit}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    ${component.unitCost.toFixed(2)}
+                    {fc(component.unitCost)}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    ${component.totalCost.toFixed(2)}
+                    {fc(component.totalCost)}
                   </TableCell>
                   <TableCell className="text-center">
                     <div className="flex items-center justify-center gap-1">
@@ -207,6 +209,8 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
 }
 
 function AlternativeRow({ alternative }: { alternative: AlternativeComponent }) {
+  const fc = useFormatCurrency();
+
   return (
     <div className="flex items-center justify-between p-3 rounded-lg bg-background border">
       <div className="flex items-center gap-4">
@@ -218,7 +222,7 @@ function AlternativeRow({ alternative }: { alternative: AlternativeComponent }) 
       
       <div className="flex items-center gap-6">
         <div className="text-right">
-          <p className="text-sm font-medium">${alternative.unitCost.toFixed(2)}</p>
+          <p className="text-sm font-medium">{fc(alternative.unitCost)}</p>
           <p className={cn(
             "text-xs",
             alternative.savings > 0 ? "text-primary" : "text-destructive"
