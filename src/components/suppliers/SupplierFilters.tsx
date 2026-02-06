@@ -1,3 +1,4 @@
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { useState } from "react";
 import { Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ function FilterContent({
   filters: SupplierFilters; 
   onFiltersChange: (filters: SupplierFilters) => void;
 }) {
+  const fc = useFormatCurrency();
   const toggleArrayFilter = (
     key: "industries" | "countries" | "certifications",
     value: string
@@ -184,11 +186,11 @@ function FilterContent({
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>$0</span>
+                <span>{fc(0)}</span>
                 <span className="font-medium text-foreground">
-                  Up to ${filters.maxMinOrder.toLocaleString()}
+                  Up to {fc(filters.maxMinOrder)}
                 </span>
-                <span>$50,000</span>
+                <span>{fc(50000)}</span>
               </div>
             </div>
           </AccordionContent>

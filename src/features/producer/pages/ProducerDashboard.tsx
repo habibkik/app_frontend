@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { useAnalysisStore, type BOMAnalysisResult } from "@/stores/analysisStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -93,6 +94,7 @@ export default function ProducerDashboard() {
   const navigate = useNavigate();
   const producerResults = useAnalysisStore((s) => s.producerResults);
   const { symbol } = useCurrency();
+  const fc = useFormatCurrency();
 
   const bomSummary = producerResults
     ? {
@@ -185,7 +187,7 @@ export default function ProducerDashboard() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Top Component Spend</CardTitle>
-                <Badge variant="secondary" className="gap-1"><DollarSign className="h-3 w-3" /> {symbol}40K total</Badge>
+                <Badge variant="secondary" className="gap-1"><DollarSign className="h-3 w-3" /> {fc(40000)} total</Badge>
               </div>
             </CardHeader>
             <CardContent className="h-[260px]">
@@ -224,7 +226,7 @@ export default function ProducerDashboard() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Est. Total Cost</p>
-                    <p className="font-semibold">${bomSummary.cost.toLocaleString()}</p>
+                    <p className="font-semibold">{fc(bomSummary.cost)}</p>
                   </div>
                 </div>
                 <Button variant="outline" size="sm" className="mt-4" onClick={() => navigate("/dashboard/bom")}>
@@ -257,7 +259,7 @@ export default function ProducerDashboard() {
                     <TableRow key={b.name} className="cursor-pointer" onClick={() => navigate("/dashboard/bom")}>
                       <TableCell className="font-medium">{b.name}</TableCell>
                       <TableCell className="text-right">{b.components}</TableCell>
-                      <TableCell className="text-right">${b.cost.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{fc(b.cost)}</TableCell>
                       <TableCell className="text-right">{getFeasibilityBadge(b.feasibility)}</TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(b.updated), { addSuffix: true })}

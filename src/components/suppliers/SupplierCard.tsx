@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Supplier } from "@/data/suppliers";
 import { cn } from "@/lib/utils";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface SupplierCardProps {
   supplier: Supplier;
@@ -14,6 +15,7 @@ interface SupplierCardProps {
 }
 
 export function SupplierCard({ supplier, onContact, onSave, onClick, onNameClick }: SupplierCardProps) {
+  const fc = useFormatCurrency();
   return (
     <Card 
       className="group hover:shadow-lg transition-all duration-200 hover:border-primary/30 cursor-pointer"
@@ -113,7 +115,7 @@ export function SupplierCard({ supplier, onContact, onSave, onClick, onNameClick
           </div>
           <div className="text-center">
             <span className="font-semibold text-sm">
-              ${supplier.minOrderValue.toLocaleString()}
+              {fc(supplier.minOrderValue)}
             </span>
             <span className="text-xs text-muted-foreground block">Min. Order</span>
           </div>

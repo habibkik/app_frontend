@@ -1,3 +1,4 @@
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { 
   Star, 
   MapPin, 
@@ -48,6 +49,7 @@ export function SupplierDetailModal({
   onContact,
   onSave,
 }: SupplierDetailModalProps) {
+  const fc = useFormatCurrency();
   if (!supplier) return null;
 
   const googleMapsUrl = supplier.geoLocation 
@@ -132,7 +134,7 @@ export function SupplierDetailModal({
               </div>
               <div className="border-l">
                 <div className="font-bold text-lg">
-                  ${supplier.minOrderValue.toLocaleString()}
+                  {fc(supplier.minOrderValue)}
                 </div>
                 <span className="text-xs text-muted-foreground">Min. Order</span>
               </div>
@@ -374,7 +376,7 @@ export function SupplierDetailModal({
                     <div>
                       <p className="text-xs text-muted-foreground">Min. Order Value</p>
                       <p className="text-sm font-medium">
-                        ${supplier.minOrderValue.toLocaleString()} USD
+                        {fc(supplier.minOrderValue)}
                       </p>
                     </div>
                   </div>

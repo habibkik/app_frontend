@@ -30,12 +30,14 @@ import {
 } from "@/lib/comparison-storage";
 import { ComparisonSelection } from "@/data/components";
 import { cn } from "@/lib/utils";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface LoadComparisonDialogProps {
   onLoad: (selections: ComparisonSelection[]) => void;
 }
 
 export function LoadComparisonDialog({ onLoad }: LoadComparisonDialogProps) {
+  const fc = useFormatCurrency();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [comparisons, setComparisons] = useState<SavedComparison[]>([]);
@@ -155,7 +157,7 @@ export function LoadComparisonDialog({ onLoad }: LoadComparisonDialogProps) {
                             <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <DollarSign className="h-3 w-3" />
-                                ${comparison.totalCost.toLocaleString()}
+                                ${fc(comparison.totalCost)}
                               </span>
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
