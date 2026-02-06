@@ -1,73 +1,82 @@
 
-# Pricing Optimizer Component
+
+# Make All Pages Mobile Friendly
 
 ## Overview
-Create a comprehensive `PricingOptimizerComponent` in `src/features/seller/components/` with 8 sections: product header with editable price, three strategy recommendation cards (Premium/Recommended/Aggressive), a collapsible What-If calculator, automated pricing rules with toggles, price change history timeline, AI recommendation explanation, and action buttons with confirmation dialog.
+After reviewing all pages in the project, most already use responsive Tailwind classes (e.g., `grid-cols-1 sm:grid-cols-3`, `flex-col sm:flex-row`). However, several areas have mobile usability issues that need fixing. This plan addresses each problem area systematically.
 
-## Sections
+## Issues Found and Fixes
 
-### 1. Header
-- Product selector dropdown using existing `Select` UI component
-- Current price displayed large and editable inline (click-to-edit with `Input`)
-- Product cost (COGS) display
-- Current margin with color coding: green (>30%), yellow (20-30%), red (<20%)
+### 1. DashboardLayout - Remove double padding on mobile
+The `DashboardLayout` applies `p-6` to `<main>`, but each dashboard page also adds `p-4 md:p-6`. This creates excessive padding on small screens.
 
-### 2. Three Strategy Cards (Side-by-Side)
-- **Premium**: Green highlight, higher price, lower volume, higher profit per unit
-- **Recommended**: Blue highlight with "Recommended" badge, balanced margin/volume
-- **Aggressive**: Orange highlight, lower price, more volume, market share play
-- Each card shows: recommended price, expected margin, volume impact, revenue impact, description, reasoning, risk level
-- "Select" button per card (filled for recommended, outline for others)
+**Fix:** Reduce main padding to `p-2 sm:p-4 md:p-6` in `DashboardLayout.tsx`.
 
-### 3. Scenario Simulator (Collapsible)
-- Uses existing `Collapsible` component pattern (like ScenarioSimulator.tsx)
-- Price slider within market range
-- Live preview showing: price, margin %, estimated sales impact, daily revenue, daily profit
+### 2. Settings Page - Tab overflow on mobile
+The Settings page has 7 tabs in a grid that tries `grid-cols-2 lg:grid-cols-7`. On mobile, only icons show (text hidden below `sm`), but the 2-column grid with 7 items is awkward.
 
-### 4. Pricing Rules (Automation)
-- Card with 4 predefined rules
-- Each rule has a `Switch` toggle to enable/disable
-- Rules: competitor price drop response, inventory surplus discount, peak hours markup, low inventory markup
-- "Add Rule" button (disabled/placeholder)
+**Fix:** Change to `grid-cols-3 sm:grid-cols-4 lg:grid-cols-7` so tabs fit better on small screens.
 
-### 5. Price Change History
-- Timeline with vertical line and dot markers
-- Each entry: date, old price -> new price, reason badge (Manual, Rule Applied, AI Suggested)
-- 5 mock entries
+### 3. ImageMarketAnalysis - 5-column TabsList overflows on mobile
+`TabsList` uses `grid-cols-5` which is too cramped on small screens.
 
-### 6. Recommendation Explanation
-- Card with AI-generated reasoning in a styled box
-- Bullet points: market analysis, cost basis, target customer, final recommendation
+**Fix:** Change to `grid-cols-3 sm:grid-cols-5` with the remaining tabs wrapping, or use a scrollable horizontal layout.
 
-### 7. Actions (Bottom)
-- "Apply Selected Strategy" large button
-- Uses `AlertDialog` for confirmation: "Change price from $XX to $XX?"
-- Success toast after confirmation
+### 4. PricingOptimizerComponent - Strategy card prices overflow
+The `text-3xl` price in strategy cards can be large on narrow screens.
+
+**Fix:** Change price font to `text-2xl sm:text-3xl`. Also ensure the header's 4-item flex row wraps properly on small screens (it already uses `flex-col md:flex-row`, so this is fine).
+
+### 5. Competitors Page - Large file with dense layouts
+The competitors page (1732 lines) has complex nested layouts. The competitor cards and price history charts need horizontal scroll on tables.
+
+**Fix:** Wrap the price history chart area and competitor detail cards with `overflow-x-auto` where needed.
+
+### 6. BOM Page - Filter bar overflow
+The search input + category filter + tab switcher row can overflow on mobile.
+
+**Fix:** Make the filter controls stack on mobile with `flex-col sm:flex-row`.
+
+### 7. Conversations Page - Chat layout needs mobile view
+Chat interfaces typically need a list/detail pattern on mobile (show conversation list OR message view, not both).
+
+**Fix:** The page likely already handles this (it imports `ArrowLeft` suggesting a back button exists). Verify and ensure the back-to-list pattern works.
+
+### 8. Analytics Page - Chart containers too small on mobile
+Charts with `h-[240px]` or similar may be too small on mobile for readability.
+
+**Fix:** Minimal change needed -- `ResponsiveContainer` handles width. Ensure YAxis labels don't get cut off by using `width={60}` on vertical bar charts.
+
+### 9. SavedSuppliers Page - Table overflow on mobile
+The saved suppliers table likely has many columns that overflow on small screens.
+
+**Fix:** Add `overflow-x-auto` wrapper around the table, and hide non-essential columns on mobile using `hidden sm:table-cell`.
+
+### 10. Landing pages - Navigation already handles mobile
+The landing `Navigation.tsx` already has a hamburger menu with `AnimatePresence`. Login/Signup pages already have responsive split layouts. No changes needed.
+
+### 11. Global: Remove `App.css` conflicting styles
+`App.css` has `#root { max-width: 1280px; padding: 2rem; text-align: center; }` which is Vite boilerplate and could conflict with the full-width dashboard layout.
+
+**Fix:** Remove or clear the conflicting styles in `App.css`.
 
 ## Technical Details
 
-### File to create
-- `src/features/seller/components/PricingOptimizerComponent.tsx`
-
 ### Files to modify
-- `src/features/seller/index.ts` -- add export
-- `src/pages/dashboard/Pricing.tsx` -- integrate the component (add as a tab or replace existing content)
+1. `src/App.css` -- Remove Vite boilerplate styles that constrain width
+2. `src/features/dashboard/components/DashboardLayout.tsx` -- Reduce main padding on mobile
+3. `src/pages/dashboard/Settings.tsx` -- Fix tab grid columns for mobile
+4. `src/components/seller/ImageMarketAnalysis.tsx` -- Make 5-tab layout responsive
+5. `src/features/seller/components/PricingOptimizerComponent.tsx` -- Smaller price font on mobile
+6. `src/pages/dashboard/BOM.tsx` -- Stack filter controls on mobile
+7. `src/pages/dashboard/SavedSuppliers.tsx` -- Add table scroll wrapper
+8. `src/pages/dashboard/Competitors.tsx` -- Add overflow handling for charts/tables
+9. `src/pages/dashboard/Analytics.tsx` -- Ensure chart labels don't clip
 
-### Dependencies (all installed)
-- `framer-motion` for animations
-- `lucide-react` for icons (DollarSign, TrendingUp, TrendingDown, Shield, Zap, Clock, Package, Sparkles, etc.)
-- Existing UI: Card, Badge, Button, Select, Slider, Switch, Collapsible, AlertDialog, Input
-- `sonner` toast for success feedback
+### No changes needed
+- Login/Signup pages (already responsive)
+- Landing pages (already have mobile nav, responsive grids)
+- Seller/Buyer/Producer Dashboards (already use `grid-cols-1 sm:grid-cols-*` patterns)
+- RFQs page (already hides columns with `hidden md:table-cell`)
+- DashboardHeader (already has mobile search icon, responsive layout)
 
-### Mock data
-- 4 products with id, name, currentPrice, cost, competitorAvg
-- 3 strategy cards with pre-calculated values derived from selected product
-- 4 pricing rules with toggle state
-- 5 price change history entries
-- AI recommendation text
-
-### Layout
-- Responsive grid: strategy cards 3-column on desktop, stacked on mobile
-- Simulator and rules side-by-side on large screens
-- History and explanation side-by-side on large screens
-- Full-width action bar at bottom
