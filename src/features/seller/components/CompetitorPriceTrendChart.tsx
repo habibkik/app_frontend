@@ -89,7 +89,7 @@ export function CompetitorPriceTrendChart() {
                 tick={{ fontSize: 12 }}
                 className="text-muted-foreground"
                 domain={['auto', 'auto']}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => fc(value)}
               />
               
               <Tooltip content={<CustomTooltip formatCurrency={fc} />} />

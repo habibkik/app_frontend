@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
@@ -71,6 +72,7 @@ export default function SellerDashboard() {
   const navigate = useNavigate();
   const { alerts } = useCompetitorMonitorStore();
   const { symbol } = useCurrency();
+  const fc = useFormatCurrency();
   const [posts, setPosts] = useState(mockPosts);
 
   // Try loading published posts from DB
@@ -107,7 +109,7 @@ export default function SellerDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
                   { label: "Active Products", value: "1,247", icon: Package, color: "text-primary" },
-                  { label: "Sales This Month", value: `${symbol}45,800`, icon: ShoppingCart, color: "text-emerald-500" },
+                  { label: "Sales This Month", value: fc(45800), icon: ShoppingCart, color: "text-emerald-500" },
                   { label: "Average Rating", value: "4.2 ⭐", icon: Star, color: "text-amber-500" },
                 ].map((s) => (
                   <Card key={s.label} className="bg-muted/40">
@@ -204,7 +206,7 @@ export default function SellerDashboard() {
                     <TableRow key={p.name} className="cursor-pointer">
                       <TableCell className="font-medium">{p.name}</TableCell>
                       <TableCell className="text-right">{p.unitsSold}</TableCell>
-                      <TableCell className="text-right">${p.revenue.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{fc(p.revenue)}</TableCell>
                       <TableCell className="text-right">{p.rating} ⭐</TableCell>
                     </TableRow>
                   ))}

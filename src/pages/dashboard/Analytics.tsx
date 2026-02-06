@@ -54,6 +54,8 @@ import {
   filterDataByDateRange,
   calculateFilteredStats,
 } from "@/features/dashboard";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const rfqChartConfig = {
   created: { label: "Created", color: "hsl(var(--chart-1))" },
@@ -195,6 +197,8 @@ function StatCard({ title, value, change, icon: Icon, prefix = "", suffix = "" }
 }
 
 export default function AnalyticsPage() {
+  const fc = useFormatCurrency();
+  const { symbol, convert } = useCurrency();
   // Comparison mode state
   const [comparisonMode, setComparisonMode] = useState(false);
   
@@ -628,7 +632,7 @@ export default function AnalyticsPage() {
                       </div>
                       <CardTitle className="text-lg">Cost Savings</CardTitle>
                       <CardDescription>
-                        Total: ${dynamicStats.totalSavings.toLocaleString()}
+                        Total: {fc(dynamicStats.totalSavings)}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -639,11 +643,11 @@ export default function AnalyticsPage() {
                             <XAxis dataKey="month" className="text-muted-foreground" />
                             <YAxis
                               className="text-muted-foreground"
-                              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                              tickFormatter={(value) => `${symbol}${(convert(value) / 1000).toFixed(0)}k`}
                             />
                             <ChartTooltip
                               content={<ChartTooltipContent />}
-                              formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+                              formatter={(value: number) => [fc(value), ""]}
                             />
                             <Bar dataKey="savings" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
                           </BarChart>
@@ -663,7 +667,7 @@ export default function AnalyticsPage() {
                       </div>
                       <CardTitle className="text-lg">Cost Savings</CardTitle>
                       <CardDescription>
-                        Total: ${compareStats.totalSavings.toLocaleString()}
+                        Total: {fc(compareStats.totalSavings)}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -674,11 +678,11 @@ export default function AnalyticsPage() {
                             <XAxis dataKey="month" className="text-muted-foreground" />
                             <YAxis
                               className="text-muted-foreground"
-                              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                              tickFormatter={(value) => `${symbol}${(convert(value) / 1000).toFixed(0)}k`}
                             />
                             <ChartTooltip
                               content={<ChartTooltipContent />}
-                              formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+                              formatter={(value: number) => [fc(value), ""]}
                             />
                             <Bar dataKey="savings" fill="hsl(var(--chart-4))" radius={[4, 4, 0, 0]} />
                           </BarChart>
@@ -718,11 +722,11 @@ export default function AnalyticsPage() {
                           <XAxis dataKey="month" className="text-muted-foreground" />
                           <YAxis
                             className="text-muted-foreground"
-                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                            tickFormatter={(value) => `${symbol}${(convert(value) / 1000).toFixed(0)}k`}
                           />
                           <ChartTooltip
                             content={<ChartTooltipContent />}
-                            formatter={(value: number) => [`$${value.toLocaleString()}`, ""]}
+                            formatter={(value: number) => [fc(value), ""]}
                           />
                           <Legend />
                           <Line

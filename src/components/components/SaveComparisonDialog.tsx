@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { saveComparison, SavedComparison } from "@/lib/comparison-storage";
 import { ComparisonSelection } from "@/data/components";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface SaveComparisonDialogProps {
   selections: ComparisonSelection[];
@@ -30,6 +31,7 @@ export function SaveComparisonDialog({
   completionPercent,
   onSave,
 }: SaveComparisonDialogProps) {
+  const fc = useFormatCurrency();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -105,7 +107,7 @@ export function SaveComparisonDialog({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total cost:</span>
-              <span className="font-medium">${totalCost.toLocaleString()}</span>
+              <span className="font-medium">{fc(totalCost)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Completion:</span>
