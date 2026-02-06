@@ -107,7 +107,7 @@ const sellerNavigation: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Dashboard", url: "/dashboard/seller", icon: LayoutDashboard },
     ],
   },
   {

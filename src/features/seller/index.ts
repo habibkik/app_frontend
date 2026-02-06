@@ -134,3 +134,6 @@ export {
 
  // Social Publisher
  export { SocialPublisher } from "./components/SocialPublisher";
+
+ // Seller Dashboard
+ export { default as SellerDashboard } from "./pages/SellerDashboard";
