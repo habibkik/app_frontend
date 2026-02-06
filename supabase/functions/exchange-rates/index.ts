@@ -10,7 +10,7 @@ const corsHeaders = {
 let cachedRates: { rates: Record<string, number>; timestamp: number } | null = null;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-const SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "JPY", "CNY", "INR"];
+const SUPPORTED_CURRENCIES = ["USD", "EUR", "GBP", "JPY", "CNY", "INR", "DZD"];
 
 // Frankfurter doesn't support SAR/AED - use pegged rates (they're pegged to USD)
 const PEGGED_RATES: Record<string, number> = {
