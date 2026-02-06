@@ -70,7 +70,7 @@ const producerNavigation: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Dashboard", url: "/dashboard/producer", icon: LayoutDashboard },
     ],
   },
   {
