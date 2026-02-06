@@ -1,4 +1,4 @@
-import { Bell, Search, Settings, LogOut, User, CreditCard, Key } from "lucide-react";
+import { Bell, Search, Settings, LogOut, User, CreditCard, Key, Coins, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -17,10 +20,12 @@ import { ModeSelector } from "./ModeSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/features/auth";
+import { useCurrency, supportedCurrencies } from "@/contexts/CurrencyContext";
 
 export function DashboardHeader() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { currency, setCurrency } = useCurrency();
 
   const handleLogout = async () => {
     await logout();
@@ -111,6 +116,26 @@ export function DashboardHeader() {
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </DropdownMenuItem>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="cursor-pointer">
+                  <Coins className="mr-2 h-4 w-4" />
+                  Currency
+                  <span className="ml-auto text-xs text-muted-foreground">{currency}</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {supportedCurrencies.map((c) => (
+                    <DropdownMenuItem
+                      key={c.code}
+                      className="cursor-pointer"
+                      onClick={() => setCurrency(c.code)}
+                    >
+                      <span className="mr-2">{c.symbol}</span>
+                      {c.name}
+                      {currency === c.code && <Check className="ml-auto h-4 w-4" />}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
               <DropdownMenuItem className="cursor-pointer">
                 <Key className="mr-2 h-4 w-4" />
                 API Keys
