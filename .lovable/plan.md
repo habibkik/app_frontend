@@ -1,82 +1,47 @@
 
-
-# Make All Pages Mobile Friendly
+# Add Currency Selector to Profile Dropdown
 
 ## Overview
-After reviewing all pages in the project, most already use responsive Tailwind classes (e.g., `grid-cols-1 sm:grid-cols-3`, `flex-col sm:flex-row`). However, several areas have mobile usability issues that need fixing. This plan addresses each problem area systematically.
+Add a currency selection option inside the user profile dropdown menu in the top-right header. Users can switch between common currencies (USD, EUR, GBP, SAR, AED, etc.), and the selected currency will be persisted and available app-wide via a React context.
 
-## Issues Found and Fixes
+## What changes
 
-### 1. DashboardLayout - Remove double padding on mobile
-The `DashboardLayout` applies `p-6` to `<main>`, but each dashboard page also adds `p-4 md:p-6`. This creates excessive padding on small screens.
+### 1. Create CurrencyContext (`src/contexts/CurrencyContext.tsx`)
+- Follow the same pattern as `LanguageContext.tsx`
+- Stores selected currency code (e.g., "USD", "EUR")
+- Persists to `localStorage`
+- Provides `currency`, `setCurrency`, and currency symbol via context
+- Supported currencies: USD, EUR, GBP, SAR, AED, JPY, CNY, INR
 
-**Fix:** Reduce main padding to `p-2 sm:p-4 md:p-6` in `DashboardLayout.tsx`.
+### 2. Update App Provider Tree (`src/app/App.tsx`)
+- Wrap with `CurrencyProvider` alongside existing providers
 
-### 2. Settings Page - Tab overflow on mobile
-The Settings page has 7 tabs in a grid that tries `grid-cols-2 lg:grid-cols-7`. On mobile, only icons show (text hidden below `sm`), but the 2-column grid with 7 items is awkward.
+### 3. Add Currency Submenu to Profile Dropdown (`src/features/dashboard/components/DashboardHeader.tsx`)
+- Add a `DropdownMenuSub` item with a `Coins` icon labeled "Currency" showing the current code (e.g., "USD")
+- Submenu lists all supported currencies with checkmark on the active one
+- Placed between "Settings" and "API Keys" in the existing dropdown
 
-**Fix:** Change to `grid-cols-3 sm:grid-cols-4 lg:grid-cols-7` so tabs fit better on small screens.
+### 4. Update `formatCurrency` utility (`src/utils/formatters.ts`)
+- No breaking changes -- the existing function already accepts a `currency` parameter
+- Components can pass the context currency to it
 
-### 3. ImageMarketAnalysis - 5-column TabsList overflows on mobile
-`TabsList` uses `grid-cols-5` which is too cramped on small screens.
+## Technical details
 
-**Fix:** Change to `grid-cols-3 sm:grid-cols-5` with the remaining tabs wrapping, or use a scrollable horizontal layout.
+### New file: `src/contexts/CurrencyContext.tsx`
+- `CurrencyCode` type with supported codes
+- `supportedCurrencies` array with `{ code, name, symbol }`
+- `CurrencyProvider` reads/writes `localStorage` key `"preferred-currency"`
+- `useCurrency()` hook
 
-### 4. PricingOptimizerComponent - Strategy card prices overflow
-The `text-3xl` price in strategy cards can be large on narrow screens.
+### Modified: `src/app/App.tsx`
+- Import and wrap with `CurrencyProvider`
 
-**Fix:** Change price font to `text-2xl sm:text-3xl`. Also ensure the header's 4-item flex row wraps properly on small screens (it already uses `flex-col md:flex-row`, so this is fine).
+### Modified: `src/features/dashboard/components/DashboardHeader.tsx`
+- Import `DropdownMenuSub`, `DropdownMenuSubTrigger`, `DropdownMenuSubContent` from dropdown-menu
+- Import `Coins` from lucide-react and `useCurrency` from context
+- Add currency submenu item in the user dropdown between Settings and API Keys
+- Each currency option shows name and checkmark if active
 
-### 5. Competitors Page - Large file with dense layouts
-The competitors page (1732 lines) has complex nested layouts. The competitor cards and price history charts need horizontal scroll on tables.
-
-**Fix:** Wrap the price history chart area and competitor detail cards with `overflow-x-auto` where needed.
-
-### 6. BOM Page - Filter bar overflow
-The search input + category filter + tab switcher row can overflow on mobile.
-
-**Fix:** Make the filter controls stack on mobile with `flex-col sm:flex-row`.
-
-### 7. Conversations Page - Chat layout needs mobile view
-Chat interfaces typically need a list/detail pattern on mobile (show conversation list OR message view, not both).
-
-**Fix:** The page likely already handles this (it imports `ArrowLeft` suggesting a back button exists). Verify and ensure the back-to-list pattern works.
-
-### 8. Analytics Page - Chart containers too small on mobile
-Charts with `h-[240px]` or similar may be too small on mobile for readability.
-
-**Fix:** Minimal change needed -- `ResponsiveContainer` handles width. Ensure YAxis labels don't get cut off by using `width={60}` on vertical bar charts.
-
-### 9. SavedSuppliers Page - Table overflow on mobile
-The saved suppliers table likely has many columns that overflow on small screens.
-
-**Fix:** Add `overflow-x-auto` wrapper around the table, and hide non-essential columns on mobile using `hidden sm:table-cell`.
-
-### 10. Landing pages - Navigation already handles mobile
-The landing `Navigation.tsx` already has a hamburger menu with `AnimatePresence`. Login/Signup pages already have responsive split layouts. No changes needed.
-
-### 11. Global: Remove `App.css` conflicting styles
-`App.css` has `#root { max-width: 1280px; padding: 2rem; text-align: center; }` which is Vite boilerplate and could conflict with the full-width dashboard layout.
-
-**Fix:** Remove or clear the conflicting styles in `App.css`.
-
-## Technical Details
-
-### Files to modify
-1. `src/App.css` -- Remove Vite boilerplate styles that constrain width
-2. `src/features/dashboard/components/DashboardLayout.tsx` -- Reduce main padding on mobile
-3. `src/pages/dashboard/Settings.tsx` -- Fix tab grid columns for mobile
-4. `src/components/seller/ImageMarketAnalysis.tsx` -- Make 5-tab layout responsive
-5. `src/features/seller/components/PricingOptimizerComponent.tsx` -- Smaller price font on mobile
-6. `src/pages/dashboard/BOM.tsx` -- Stack filter controls on mobile
-7. `src/pages/dashboard/SavedSuppliers.tsx` -- Add table scroll wrapper
-8. `src/pages/dashboard/Competitors.tsx` -- Add overflow handling for charts/tables
-9. `src/pages/dashboard/Analytics.tsx` -- Ensure chart labels don't clip
-
-### No changes needed
-- Login/Signup pages (already responsive)
-- Landing pages (already have mobile nav, responsive grids)
-- Seller/Buyer/Producer Dashboards (already use `grid-cols-1 sm:grid-cols-*` patterns)
-- RFQs page (already hides columns with `hidden md:table-cell`)
-- DashboardHeader (already has mobile search icon, responsive layout)
-
+### Files
+- **Create**: `src/contexts/CurrencyContext.tsx`
+- **Modify**: `src/app/App.tsx`, `src/features/dashboard/components/DashboardHeader.tsx`
