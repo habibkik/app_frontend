@@ -162,7 +162,7 @@ export function ImageMarketAnalysis({
 
       {/* Tabbed Content */}
       <Tabs defaultValue="analysis" className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-5">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3 sm:grid-cols-5">
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
           <TabsTrigger value="heatmap">Heat Map</TabsTrigger>
           <TabsTrigger value="substitutes">Substitutes</TabsTrigger>

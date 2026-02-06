@@ -539,7 +539,7 @@ export default function SavedSuppliersPage() {
               </AnimatePresence>
             </div>
           ) : (
-            <Card>
+            <Card className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -556,8 +556,8 @@ export default function SavedSuppliersPage() {
                       />
                     </TableHead>
                     <TableHead>Supplier</TableHead>
-                    <TableHead>Tags</TableHead>
-                    <TableHead>Notes</TableHead>
+                    <TableHead className="hidden sm:table-cell">Tags</TableHead>
+                    <TableHead className="hidden md:table-cell">Notes</TableHead>
                     <TableHead>Rating</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -606,7 +606,7 @@ export default function SavedSuppliersPage() {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden sm:table-cell">
                             <div className="flex flex-wrap gap-1">
                               {metadata?.tags.slice(0, 2).map((tag) => (
                                 <Badge key={tag} variant="secondary" className="text-xs">
@@ -620,7 +620,7 @@ export default function SavedSuppliersPage() {
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="hidden md:table-cell">
                             {metadata?.notes ? (
                               <Tooltip>
                                 <TooltipTrigger>
