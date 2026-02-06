@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type CurrencyCode = "USD" | "EUR" | "GBP" | "SAR" | "AED" | "JPY" | "CNY" | "INR";
+export type CurrencyCode = "USD" | "EUR" | "GBP" | "SAR" | "AED" | "JPY" | "CNY" | "INR" | "DZD";
 
 export const supportedCurrencies: { code: CurrencyCode; name: string; symbol: string }[] = [
   { code: "USD", name: "US Dollar", symbol: "$" },
@@ -12,6 +12,7 @@ export const supportedCurrencies: { code: CurrencyCode; name: string; symbol: st
   { code: "JPY", name: "Japanese Yen", symbol: "¥" },
   { code: "CNY", name: "Chinese Yuan", symbol: "¥" },
   { code: "INR", name: "Indian Rupee", symbol: "₹" },
+  { code: "DZD", name: "Algerian Dinar", symbol: "د.ج" },
 ];
 
 interface ExchangeRates {
