@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { FeasibilityStatus } from "../types/feasibility";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface RecommendationBannerProps {
   status: FeasibilityStatus;
@@ -27,6 +28,8 @@ export function RecommendationBanner({
   recommendedMinOrder,
   risks,
 }: RecommendationBannerProps) {
+  const fc = useFormatCurrency();
+  
   const statusConfig = {
     feasible: {
       Icon: CheckCircle2,
@@ -34,7 +37,7 @@ export function RecommendationBanner({
       bg: "bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent",
       border: "border-emerald-500/30",
       title: "Production is Viable",
-      subtitle: `Manufacturing at $${totalCostPerUnit.toFixed(2)}/unit is recommended`,
+      subtitle: `Manufacturing at ${fc(totalCostPerUnit)}/unit is recommended`,
     },
     risky: {
       Icon: AlertTriangle,

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import { useAnalysisStore, type BOMAnalysisResult } from "@/stores/analysisStore";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,7 @@ export default function ProducerDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const producerResults = useAnalysisStore((s) => s.producerResults);
+  const { symbol } = useCurrency();
 
   const bomSummary = producerResults
     ? {
@@ -183,7 +185,7 @@ export default function ProducerDashboard() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base">Top Component Spend</CardTitle>
-                <Badge variant="secondary" className="gap-1"><DollarSign className="h-3 w-3" /> $40K total</Badge>
+                <Badge variant="secondary" className="gap-1"><DollarSign className="h-3 w-3" /> {symbol}40K total</Badge>
               </div>
             </CardHeader>
             <CardContent className="h-[260px]">

@@ -2,9 +2,11 @@ import { TrendingDown, TrendingUp, DollarSign, Users, Target, BarChart3 } from "
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 export function CompetitorMetricsCards() {
   const { metrics } = useCompetitorMonitorStore();
+  const fc = useFormatCurrency();
 
   const isAboveMarket = metrics.pricePosition > 0;
   const positionText = isAboveMarket 
@@ -19,7 +21,7 @@ export function CompetitorMetricsCards() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Market Average</p>
-              <p className="text-2xl font-bold">${metrics.marketAverage.toFixed(2)}</p>
+              <p className="text-2xl font-bold">{fc(metrics.marketAverage)}</p>
             </div>
             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
               <BarChart3 className="h-6 w-6 text-muted-foreground" />
@@ -34,7 +36,7 @@ export function CompetitorMetricsCards() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Your Price</p>
-              <p className="text-2xl font-bold">${metrics.yourPrice.toFixed(2)}</p>
+              <p className="text-2xl font-bold">{fc(metrics.yourPrice)}</p>
             </div>
             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
               <DollarSign className="h-6 w-6 text-primary" />

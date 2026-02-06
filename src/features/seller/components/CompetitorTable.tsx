@@ -36,6 +36,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { formatDistanceToNow } from "date-fns";
 import type { CompetitorTableRow, Platform } from "@/features/seller/types/competitorMonitor";
 import {
@@ -76,6 +77,7 @@ interface CompetitorTableProps {
 
 export function CompetitorTable({ onViewCompetitor }: CompetitorTableProps) {
   const { competitors, selectedPlatforms, setSelectedPlatforms, metrics } = useCompetitorMonitorStore();
+  const fc = useFormatCurrency();
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "rank", direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
@@ -263,7 +265,7 @@ export function CompetitorTable({ onViewCompetitor }: CompetitorTableProps) {
                           </span>
                         </TableCell>
                         <TableCell className={getPriceColor(competitor.isAboveYourPrice)}>
-                          <span className="font-semibold">${competitor.currentPrice.toFixed(2)}</span>
+                          <span className="font-semibold">{fc(competitor.currentPrice)}</span>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
@@ -328,7 +330,7 @@ export function CompetitorTable({ onViewCompetitor }: CompetitorTableProps) {
                               </div>
                               <div className="flex items-center gap-4 text-sm">
                                 <span className="text-muted-foreground">Your price:</span>
-                                <span className="font-medium">${metrics.yourPrice.toFixed(2)}</span>
+                                <span className="font-medium">{fc(metrics.yourPrice)}</span>
                                 <span className={competitor.isAboveYourPrice ? "text-emerald-600" : "text-destructive"}>
                                   ({competitor.isAboveYourPrice ? "They're higher" : "They're lower"})
                                 </span>

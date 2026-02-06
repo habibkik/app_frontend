@@ -30,6 +30,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 interface BOMComponent {
   name: string;
@@ -125,6 +126,7 @@ const simulateAnalysis = async (): Promise<ProducerDemoResult> => {
 
 export function ProducerInteractiveDemo() {
   const { toast } = useToast();
+  const fc = useFormatCurrency();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -424,7 +426,7 @@ export function ProducerInteractiveDemo() {
                                 className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm"
                               >
                                 <span className="text-foreground">{component.name}</span>
-                                <span className="text-muted-foreground">${component.unitCost.toFixed(2)}</span>
+                                <span className="text-muted-foreground">{fc(component.unitCost)}</span>
                               </div>
                             ))}
                             {result.components.length > 4 && (

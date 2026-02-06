@@ -26,8 +26,10 @@ import { ProducerCompetition, SubstituteProducers } from "@/components/producer"
 import { mockBOMComponents, componentCategories, BOMComponent } from "@/data/bom";
 import { AnalyzedComponent } from "@/lib/ai-analysis-service";
 import { useAnalysisStore } from "@/stores/analysisStore";
+import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 export default function BOMPage() {
+  const fc = useFormatCurrency();
   const { 
     producerResults, 
     currentImage, 
@@ -398,7 +400,7 @@ export default function BOMPage() {
                     }))}
                     attributes={{
                       componentCount: String(components.length),
-                      estimatedCost: `$${components.reduce((sum, c) => sum + c.totalCost, 0).toFixed(2)}`,
+                      estimatedCost: fc(components.reduce((sum, c) => sum + c.totalCost, 0)),
                     }}
                   />
                 </div>
@@ -460,6 +462,8 @@ function ComponentCard({
   component: BOMComponent;
   onViewSuppliers: () => void;
 }) {
+  const fc = useFormatCurrency();
+  
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -471,7 +475,7 @@ function ComponentCard({
           <h4 className="font-medium text-foreground">{component.name}</h4>
           <p className="text-xs text-muted-foreground">{component.category}</p>
         </div>
-        <span className="text-lg font-bold">${component.totalCost.toFixed(2)}</span>
+        <span className="text-lg font-bold">{fc(component.totalCost)}</span>
       </div>
 
       {component.specifications && (
