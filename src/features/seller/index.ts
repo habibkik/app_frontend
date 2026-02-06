@@ -132,6 +132,9 @@ export {
  // Content Studio
  export { ContentStudio } from "./components/ContentStudio";
 
+ // Pricing Optimizer
+ export { PricingOptimizerComponent } from "./components/PricingOptimizerComponent";
+
  // Social Publisher
  export { SocialPublisher } from "./components/SocialPublisher";
 
