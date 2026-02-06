@@ -11,6 +11,7 @@ import { IndexPage, BuyersPage, SellersPage, ProducersPage, PricingPage } from "
 
 // Buyer feature pages (still using old location during migration)
 import Suppliers from "@/pages/dashboard/Suppliers";
+import BuyerDashboard from "@/features/buyer/pages/BuyerDashboard";
 import RFQs from "@/pages/dashboard/RFQs";
 import Conversations from "@/pages/dashboard/Conversations";
 import SavedSuppliers from "@/pages/dashboard/SavedSuppliers";
@@ -54,6 +55,7 @@ export function Router() {
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
       
       {/* Buyer mode pages */}
+      <Route path="/dashboard/buyer" element={<ProtectedRoute><BuyerDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/suppliers" element={<ProtectedRoute><Suppliers /></ProtectedRoute>} />
       <Route path="/dashboard/rfqs" element={<ProtectedRoute><RFQs /></ProtectedRoute>} />
       <Route path="/dashboard/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />

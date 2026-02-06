@@ -20,6 +20,7 @@ export { DeliveryEstimates, DeliverySummary } from "@/components/buyer/DeliveryE
 export { BuyerSupplierDetailModal } from "@/components/buyer/BuyerSupplierDetailModal";
 
 // Pages
+export { default as BuyerDashboard } from "./pages/BuyerDashboard";
 export { default as SearchResultsPage } from "@/pages/dashboard/Suppliers";
 export { default as RFQBuilderPage } from "@/pages/dashboard/RFQs";
 export { default as ConversationsPage } from "@/pages/dashboard/Conversations";
