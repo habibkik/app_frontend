@@ -137,7 +137,7 @@ const sellerNavigation: NavGroup[] = [
     label: "Insights",
     items: [
       { title: "Heat Map", url: "/dashboard/heatmap", icon: Map },
-      { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
+      { title: "Seller Analytics", url: "/dashboard/seller-analytics", icon: BarChart3 },
     ],
   },
   {
