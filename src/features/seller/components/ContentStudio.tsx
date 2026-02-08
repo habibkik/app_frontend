@@ -1,4 +1,4 @@
- import React, { useState } from "react";
+ import React, { useState, useEffect } from "react";
  import { motion, AnimatePresence } from "framer-motion";
  import {
    Wand2,
@@ -42,7 +42,10 @@
  import { Label } from "@/components/ui/label";
  import { toast } from "sonner";
   import { cn } from "@/lib/utils";
-  import { useContentStudioStore } from "@/stores/contentStudioStore";
+   import { useContentStudioStore } from "@/stores/contentStudioStore";
+  import { generateMarketingContent } from "@/features/agents/miromind/contentGeneration";
+  import type { GeneratedContent as AIGeneratedContent } from "@/features/agents/miromind/contentGeneration";
+  import { supabase } from "@/integrations/supabase/client";
  
  // Types
  interface ContentProduct {
@@ -325,55 +328,130 @@
      });
    };
  
-   const handleGenerate = async () => {
-     if (!selectedProduct) {
-       toast.error("Please select a product first");
-       return;
-     }
-     if (contentTypes.size === 0) {
-       toast.error("Please select at least one content type");
-       return;
-     }
- 
-     setIsGenerating(true);
-     // Simulate API delay
-     await new Promise((resolve) => setTimeout(resolve, 2000));
- 
-     const productName = selectedProductData?.name || "Product";
-     const content = generateMockContent(productName);
-      setGeneratedContent(content);
+    const handleGenerate = async () => {
+      if (!selectedProduct) {
+        toast.error("Please select a product first");
+        return;
+      }
+      if (contentTypes.size === 0) {
+        toast.error("Please select at least one content type");
+        return;
+      }
 
-      // Push to shared store for SocialPublisher
-      addStudioItem({
-        id: Date.now().toString(),
-        productName: productName,
-        generatedAt: new Date().toISOString(),
-        headlines: content.headlines.map((h) => h.text),
-        adCopy: {
-          short: content.adCopy.find((a) => a.variant === "short")?.text || "",
-          medium: content.adCopy.find((a) => a.variant === "medium")?.text || "",
-          long: content.adCopy.find((a) => a.variant === "long")?.text || "",
-        },
-        socialCaptions: content.social.map((s) => ({
-          platform: s.platform,
-          caption: s.caption,
-          hashtags: s.hashtags,
-        })),
-      });
-     // Add to history
-     const historyItem: ContentHistoryItem = {
-       id: Date.now().toString(),
-       productId: selectedProduct,
-       productName: productName,
-       productThumbnail: selectedProductData?.imageUrl,
-       contentType: Array.from(contentTypes)[0],
-       generatedAt: new Date(),
-     };
-     setHistoryItems((prev) => [historyItem, ...prev].slice(0, 10));
- 
-     setIsGenerating(false);
-     toast.success("Content generated successfully!");
-   };
+      setIsGenerating(true);
+      const productName = selectedProductData?.name || "Product";
+      const productDescription = selectedProductData?.category || "";
+
+      try {
+        const aiResult: AIGeneratedContent = await generateMarketingContent(
+          productName,
+          productDescription,
+          targetAudience,
+          tone
+        );
+
+        // Transform AI response to local GeneratedContent format
+        const content: GeneratedContent = {
+          headlines: (aiResult.headlines || []).map((text, i) => ({
+            id: `h${i + 1}`,
+            text,
+            liked: false,
+          })),
+          adCopy: [
+            { id: "ac1", variant: "short" as const, text: aiResult.adCopy?.short || "", characterCount: (aiResult.adCopy?.short || "").length },
+            { id: "ac2", variant: "medium" as const, text: aiResult.adCopy?.medium || "", characterCount: (aiResult.adCopy?.medium || "").length },
+            { id: "ac3", variant: "long" as const, text: aiResult.adCopy?.long || "", characterCount: (aiResult.adCopy?.long || "").length },
+          ],
+          descriptions: [
+            { id: "d1", variant: "short" as const, text: aiResult.descriptions?.short || "" },
+            { id: "d2", variant: "medium" as const, text: aiResult.descriptions?.medium || "" },
+            { id: "d3", variant: "long" as const, text: aiResult.descriptions?.long || "" },
+          ],
+          email: aiResult.emailCampaign ? {
+            subjectLines: aiResult.emailCampaign.subjects || [],
+            body: aiResult.emailCampaign.body || "",
+            hook: "",
+            valueProp: "",
+            cta: "",
+          } : null,
+          social: [
+            aiResult.socialMedia?.instagram ? {
+              platform: "instagram" as const,
+              caption: aiResult.socialMedia.instagram.caption,
+              hashtags: aiResult.socialMedia.instagram.hashtags,
+              characterCount: aiResult.socialMedia.instagram.caption.length,
+              characterLimit: 2200,
+            } : null,
+            aiResult.socialMedia?.tiktok ? {
+              platform: "tiktok" as const,
+              caption: aiResult.socialMedia.tiktok.caption,
+              hashtags: aiResult.socialMedia.tiktok.hashtags,
+              characterCount: aiResult.socialMedia.tiktok.caption.length,
+              characterLimit: 2200,
+            } : null,
+            aiResult.socialMedia?.facebook ? {
+              platform: "facebook" as const,
+              caption: aiResult.socialMedia.facebook.copy,
+              hashtags: [],
+              characterCount: aiResult.socialMedia.facebook.copy.length,
+              characterLimit: 63206,
+            } : null,
+            aiResult.socialMedia?.linkedin ? {
+              platform: "linkedin" as const,
+              caption: aiResult.socialMedia.linkedin.copy,
+              hashtags: [],
+              characterCount: aiResult.socialMedia.linkedin.copy.length,
+              characterLimit: 3000,
+            } : null,
+            aiResult.socialMedia?.twitter ? {
+              platform: "twitter" as const,
+              caption: aiResult.socialMedia.twitter.copy,
+              hashtags: aiResult.socialMedia.twitter.hashtag ? [aiResult.socialMedia.twitter.hashtag] : [],
+              characterCount: aiResult.socialMedia.twitter.copy.length,
+              characterLimit: 280,
+            } : null,
+          ].filter(Boolean) as SocialCaption[],
+        };
+
+        setGeneratedContent(content);
+
+        // Push to shared store for SocialPublisher
+        addStudioItem({
+          id: Date.now().toString(),
+          productName,
+          generatedAt: new Date().toISOString(),
+          headlines: content.headlines.map((h) => h.text),
+          adCopy: {
+            short: content.adCopy.find((a) => a.variant === "short")?.text || "",
+            medium: content.adCopy.find((a) => a.variant === "medium")?.text || "",
+            long: content.adCopy.find((a) => a.variant === "long")?.text || "",
+          },
+          socialCaptions: content.social.map((s) => ({
+            platform: s.platform,
+            caption: s.caption,
+            hashtags: s.hashtags,
+          })),
+        });
+
+        // Add to history
+        const historyItem: ContentHistoryItem = {
+          id: Date.now().toString(),
+          productId: selectedProduct,
+          productName,
+          productThumbnail: selectedProductData?.imageUrl,
+          contentType: Array.from(contentTypes)[0],
+          generatedAt: new Date(),
+        };
+        setHistoryItems((prev) => [historyItem, ...prev].slice(0, 10));
+
+        toast.success("Content generated with AI successfully!");
+      } catch (error) {
+        console.error("Content generation error:", error);
+        toast.error(error instanceof Error ? error.message : "Failed to generate content");
+      } finally {
+        setIsGenerating(false);
+      }
+    };
  
    const handleCopy = async (text: string, id: string) => {
      await navigator.clipboard.writeText(text);
