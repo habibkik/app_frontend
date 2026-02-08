@@ -50,6 +50,65 @@ export type Database = {
         }
         Relationships: []
       }
+      post_engagement: {
+        Row: {
+          clicks: number
+          comments: number
+          created_at: string
+          engagement_rate: number
+          id: string
+          impressions: number
+          likes: number
+          platform: string
+          post_id: string
+          reach: number
+          recorded_at: string
+          shares: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number
+          comments?: number
+          created_at?: string
+          engagement_rate?: number
+          id?: string
+          impressions?: number
+          likes?: number
+          platform: string
+          post_id: string
+          reach?: number
+          recorded_at?: string
+          shares?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number
+          comments?: number
+          created_at?: string
+          engagement_rate?: number
+          id?: string
+          impressions?: number
+          likes?: number
+          platform?: string
+          post_id?: string
+          reach?: number
+          recorded_at?: string
+          shares?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_engagement_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       price_changes: {
         Row: {
           ai_validation: Json | null
@@ -181,30 +240,48 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          engagement_rate: number
           id: string
           platforms: string[]
           scheduled_at: string | null
           status: string
+          total_clicks: number
+          total_comments: number
+          total_impressions: number
+          total_likes: number
+          total_shares: number
           updated_at: string
           user_id: string
         }
         Insert: {
           content: string
           created_at?: string
+          engagement_rate?: number
           id?: string
           platforms: string[]
           scheduled_at?: string | null
           status?: string
+          total_clicks?: number
+          total_comments?: number
+          total_impressions?: number
+          total_likes?: number
+          total_shares?: number
           updated_at?: string
           user_id: string
         }
         Update: {
           content?: string
           created_at?: string
+          engagement_rate?: number
           id?: string
           platforms?: string[]
           scheduled_at?: string | null
           status?: string
+          total_clicks?: number
+          total_comments?: number
+          total_impressions?: number
+          total_likes?: number
+          total_shares?: number
           updated_at?: string
           user_id?: string
         }

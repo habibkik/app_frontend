@@ -1,10 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import {
   Send, Calendar as CalendarIcon, Clock, Eye, Save, Copy, Edit, Trash2,
   Sparkles, Link2, FlaskConical, CheckCircle2, AlertCircle, Globe, Upload,
   FileText, ChevronDown, ChevronRight, X, RotateCcw,
+  BarChart3, Heart, MessageSquare, Share2, MousePointerClick,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,12 @@ interface ScheduledPost {
   scheduledAt: string | null;
   status: "scheduled" | "posted" | "draft" | "failed";
   createdAt: string;
+  totalImpressions?: number;
+  totalClicks?: number;
+  totalLikes?: number;
+  totalShares?: number;
+  totalComments?: number;
+  engagementRate?: number;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -143,6 +150,44 @@ export function SocialPublisher() {
   // Posts
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load posts from DB on mount
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data, error } = await supabase
+          .from("scheduled_posts")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20);
+        if (error) throw error;
+        if (data) {
+          setScheduledPosts(
+            data.map((d: any) => ({
+              id: d.id,
+              content: d.content,
+              platforms: d.platforms,
+              scheduledAt: d.scheduled_at,
+              status: d.status as ScheduledPost["status"],
+              createdAt: d.created_at,
+              totalImpressions: d.total_impressions ?? 0,
+              totalClicks: d.total_clicks ?? 0,
+              totalLikes: d.total_likes ?? 0,
+              totalShares: d.total_shares ?? 0,
+              totalComments: d.total_comments ?? 0,
+              engagementRate: d.engagement_rate ?? 0,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Failed to load posts:", err);
+      }
+    };
+    loadPosts();
+  }, []);
 
   // Derived
   const utmPreviewUrl = useMemo(
@@ -755,42 +800,81 @@ export function SocialPublisher() {
       {scheduledPosts.length > 0 && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Scheduled Posts</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Scheduled Posts & Engagement
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="max-h-[400px]">
+            <ScrollArea className="max-h-[500px]">
               <div className="space-y-3">
-                {scheduledPosts.map((post) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-start gap-3 rounded-lg border p-3"
-                  >
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <p className="text-sm line-clamp-2">{post.content}</p>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {post.platforms.map((pid) => {
-                          const p = PLATFORMS.find((x) => x.id === pid);
-                          return p ? <span key={pid} className="text-base" title={p.name}>{p.icon}</span> : null;
-                        })}
-                        <Badge variant="outline" className={cn("text-xs", STATUS_STYLES[post.status])}>
-                          {post.status}
-                        </Badge>
-                        {post.scheduledAt && (
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(post.scheduledAt), "PPp")}
-                          </span>
+                {scheduledPosts.map((post) => {
+                  const hasEngagement = (post.totalImpressions ?? 0) > 0 || (post.totalLikes ?? 0) > 0;
+                  return (
+                    <motion.div
+                      key={post.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg border p-3 space-y-2"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <p className="text-sm line-clamp-2">{post.content}</p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {post.platforms.map((pid) => {
+                              const p = PLATFORMS.find((x) => x.id === pid);
+                              return p ? <span key={pid} className="text-base" title={p.name}>{p.icon}</span> : null;
+                            })}
+                            <Badge variant="outline" className={cn("text-xs", STATUS_STYLES[post.status])}>
+                              {post.status}
+                            </Badge>
+                            {post.scheduledAt && (
+                              <span className="text-xs text-muted-foreground">
+                                {format(new Date(post.scheduledAt), "PPp")}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {(post.status === "scheduled" || post.status === "draft") && (
+                          <Button variant="ghost" size="icon" onClick={() => handleCancelPost(post.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
                         )}
                       </div>
-                    </div>
-                    {(post.status === "scheduled" || post.status === "draft") && (
-                      <Button variant="ghost" size="icon" onClick={() => handleCancelPost(post.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    )}
-                  </motion.div>
-                ))}
+
+                      {/* Engagement Metrics Row */}
+                      {(post.status === "posted" || hasEngagement) && (
+                        <div className="flex items-center gap-4 pt-1 border-t border-border/50">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground" title="Impressions">
+                            <Eye className="h-3.5 w-3.5" />
+                            <span className="font-medium text-foreground">{(post.totalImpressions ?? 0).toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground" title="Clicks">
+                            <MousePointerClick className="h-3.5 w-3.5" />
+                            <span className="font-medium text-foreground">{(post.totalClicks ?? 0).toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground" title="Likes">
+                            <Heart className="h-3.5 w-3.5" />
+                            <span className="font-medium text-foreground">{(post.totalLikes ?? 0).toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground" title="Comments">
+                            <MessageSquare className="h-3.5 w-3.5" />
+                            <span className="font-medium text-foreground">{(post.totalComments ?? 0).toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground" title="Shares">
+                            <Share2 className="h-3.5 w-3.5" />
+                            <span className="font-medium text-foreground">{(post.totalShares ?? 0).toLocaleString()}</span>
+                          </div>
+                          {(post.engagementRate ?? 0) > 0 && (
+                            <Badge variant="secondary" className="text-xs ml-auto">
+                              {(post.engagementRate ?? 0).toFixed(1)}% engagement
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </motion.div>
+                  );
+                })}
               </div>
             </ScrollArea>
           </CardContent>
