@@ -50,6 +50,50 @@ export type Database = {
         }
         Relationships: []
       }
+      price_changes: {
+        Row: {
+          ai_validation: Json | null
+          created_at: string
+          id: string
+          new_price: number
+          old_price: number
+          product_id: string | null
+          reason: string | null
+          strategy_used: string
+          user_id: string
+        }
+        Insert: {
+          ai_validation?: Json | null
+          created_at?: string
+          id?: string
+          new_price: number
+          old_price: number
+          product_id?: string | null
+          reason?: string | null
+          strategy_used?: string
+          user_id: string
+        }
+        Update: {
+          ai_validation?: Json | null
+          created_at?: string
+          id?: string
+          new_price?: number
+          old_price?: number
+          product_id?: string | null
+          reason?: string | null
+          strategy_used?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_changes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string | null
@@ -94,6 +138,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      sales_performance: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          product_id: string | null
+          revenue: number
+          units_sold: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          product_id?: string | null
+          revenue?: number
+          units_sold?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          product_id?: string | null
+          revenue?: number
+          units_sold?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_performance_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       scheduled_posts: {
         Row: {
