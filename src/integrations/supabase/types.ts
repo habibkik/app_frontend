@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      content_templates: {
+        Row: {
+          content_json: Json
+          created_at: string
+          id: string
+          name: string
+          product_name: string
+          target_audience: string
+          tone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_json?: Json
+          created_at?: string
+          id?: string
+          name: string
+          product_name: string
+          target_audience?: string
+          tone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_json?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          product_name?: string
+          target_audience?: string
+          tone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null
