@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DollarSign,
@@ -17,6 +17,9 @@ import {
   History,
   Brain,
   Settings2,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +52,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { supabase } from "@/integrations/supabase/client";
+
+// AI Validation result type
+interface PricingValidation {
+  isValid: boolean;
+  confidence: number;
+  riskLevel: "low" | "medium" | "high";
+  summary: string;
+  reasoning: string;
+  marginAssessment: string;
+  competitivePosition: string;
+  suggestions: string[];
+  estimatedRevenueImpact: string;
+}
 
 // --- Mock Data ---
 const products = [
@@ -107,6 +124,9 @@ export function PricingOptimizerComponent() {
   const [priceInput, setPriceInput] = useState("");
   const [selectedStrategy, setSelectedStrategy] = useState<string | null>("recommended");
   const [simulatorOpen, setSimulatorOpen] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [validation, setValidation] = useState<PricingValidation | null>(null);
+  const [dbPriceHistory, setDbPriceHistory] = useState<typeof priceHistory>([]);
   const [rules, setRules] = useState([
     { id: "1", text: "If competitor drops price > 10%, reduce mine by 5%", enabled: true, icon: TrendingDown },
     { id: "2", text: "If inventory > 1000 units, apply 15% discount", enabled: false, icon: Package },
@@ -199,16 +219,112 @@ export function PricingOptimizerComponent() {
     setRules((prev) => prev.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)));
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
     setCustomPrice(newPrice);
+    
+    // Log price change to DB
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("price_changes" as any).insert({
+          user_id: user.id,
+          old_price: currentPrice,
+          new_price: newPrice,
+          strategy_used: selectedStrategy || "manual",
+          reason: selectedStrat?.title || "Manual",
+          ai_validation: validation,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to log price change:", err);
+    }
+    
     toast.success("Price updated! Monitor competitor response.", {
       description: `${product.name} price changed to ${fc(newPrice)}`,
     });
+    setValidation(null);
   };
+
+  // AI Pricing Validation
+  const handleValidate = async () => {
+    if (!selectedStrat) return;
+    setValidating(true);
+    setValidation(null);
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validate-pricing`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            productName: product.name,
+            currentPrice,
+            proposedPrice: selectedStrat.price,
+            cost: product.cost,
+            competitorAverage: product.competitorAvg,
+            strategy: selectedStrat.title,
+            dailySales: product.dailySales,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 429) throw new Error("Rate limit exceeded. Try again shortly.");
+        if (response.status === 402) throw new Error("AI credits exhausted. Add credits to continue.");
+        throw new Error("Validation failed");
+      }
+
+      const result: PricingValidation = await response.json();
+      setValidation(result);
+    } catch (err) {
+      console.error("Validation error:", err);
+      toast.error(err instanceof Error ? err.message : "Failed to validate pricing");
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  // Load price history from DB
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data, error } = await supabase
+          .from("price_changes" as any)
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(10);
+        if (error) throw error;
+        if (data && data.length > 0) {
+          setDbPriceHistory(
+            (data as any[]).map((d: any) => ({
+              date: d.created_at,
+              oldPrice: Number(d.old_price),
+              newPrice: Number(d.new_price),
+              reason: d.strategy_used === "manual" ? "Manual" : d.strategy_used === "recommended" ? "AI Suggested" : "Rule Applied",
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Failed to load price history:", err);
+      }
+    };
+    loadHistory();
+  }, []);
+
+  // Use DB history if available, fallback to mock
+  const displayHistory = dbPriceHistory.length > 0 ? dbPriceHistory : priceHistory;
 
   const handleProductChange = (id: string) => {
     setSelectedProductId(id);
     setCustomPrice(null);
+    setValidation(null);
     const p = products.find((pr) => pr.id === id) || products[0];
     setSimPrice([p.currentPrice]);
   };
@@ -442,7 +558,7 @@ export function PricingOptimizerComponent() {
             <div className="relative">
               <div className="absolute left-[9px] top-2 bottom-2 w-px bg-border" />
               <div className="space-y-4">
-                {priceHistory.map((entry, i) => (
+                {displayHistory.map((entry, i) => (
                   <div key={i} className="flex items-start gap-4 relative">
                     <div className={`h-5 w-5 rounded-full border-2 border-background z-10 flex-shrink-0 mt-0.5 ${
                       i === 0 ? "bg-primary" : "bg-muted-foreground/30"
@@ -504,6 +620,50 @@ export function PricingOptimizerComponent() {
         </Card>
       </div>
 
+      {/* AI Validation Result */}
+      {validation && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className={`border-2 ${validation.isValid ? "border-emerald-500/30 bg-emerald-500/5" : "border-destructive/30 bg-destructive/5"}`}>
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                {validation.isValid ? (
+                  <CheckCircle2 className="h-6 w-6 text-emerald-600 flex-shrink-0" />
+                ) : (
+                  <AlertTriangle className="h-6 w-6 text-destructive flex-shrink-0" />
+                )}
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="font-semibold text-foreground">{validation.summary}</h4>
+                    <Badge variant={validation.riskLevel === "low" ? "default" : validation.riskLevel === "medium" ? "secondary" : "destructive"}>
+                      {validation.riskLevel} risk
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {validation.confidence}% confidence
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{validation.reasoning}</p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span>Margin: <span className="font-medium text-foreground capitalize">{validation.marginAssessment}</span></span>
+                    <span>Position: <span className="font-medium text-foreground capitalize">{validation.competitivePosition.replace("_", " ")}</span></span>
+                    <span>Revenue: <span className="font-medium text-foreground">{validation.estimatedRevenueImpact}</span></span>
+                  </div>
+                  {validation.suggestions.length > 0 && (
+                    <div className="pt-1">
+                      <p className="text-xs font-medium text-foreground mb-1">Suggestions:</p>
+                      <ul className="text-xs text-muted-foreground space-y-0.5">
+                        {validation.suggestions.map((s, i) => (
+                          <li key={i}>• {s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
       {/* ===== 7. ACTIONS ===== */}
       <Card>
         <CardContent className="pt-6">
@@ -518,28 +678,46 @@ export function PricingOptimizerComponent() {
               )}
             </div>
 
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button size="lg" className="gap-2 min-w-[220px]" disabled={!selectedStrat || selectedStrat.price === currentPrice}>
-                  <DollarSign className="h-4 w-4" />
-                  Apply Selected Strategy
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirm Price Change</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Change <span className="font-medium text-foreground">{product.name}</span> price from{" "}
-                    <span className="font-bold text-foreground">{fc(currentPrice)}</span> to{" "}
-                    <span className="font-bold text-foreground">{fc(newPrice)}</span>?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleApply}>Confirm</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="lg"
+                className="gap-2"
+                onClick={handleValidate}
+                disabled={!selectedStrat || selectedStrat.price === currentPrice || validating}
+              >
+                {validating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+                {validating ? "Validating..." : "AI Validate"}
+              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="lg" className="gap-2 min-w-[220px]" disabled={!selectedStrat || selectedStrat.price === currentPrice}>
+                    <DollarSign className="h-4 w-4" />
+                    Apply Selected Strategy
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Price Change</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Change <span className="font-medium text-foreground">{product.name}</span> price from{" "}
+                      <span className="font-bold text-foreground">{fc(currentPrice)}</span> to{" "}
+                      <span className="font-bold text-foreground">{fc(newPrice)}</span>?
+                      {validation && !validation.isValid && (
+                        <span className="block mt-2 text-destructive font-medium">
+                          ⚠️ AI flagged this as risky: {validation.summary}
+                        </span>
+                      )}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleApply}>Confirm</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
         </CardContent>
       </Card>
