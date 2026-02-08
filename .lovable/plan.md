@@ -1,59 +1,140 @@
 
-# Auto-Convert All Prices to Selected Currency with Real Exchange Rates
 
-## Overview
-The exchange-rates backend function and `useFormatCurrency` hook are already working -- they fetch live rates and multiply amounts by the correct rate. However, many components still use hardcoded `$` with `.toLocaleString()` instead of calling the hook. This update will fix every remaining instance so that switching currency converts all amounts automatically.
+# Complete Seller Mode Workflow -- Missing Features Plan
 
-## Files to Update
+## Current State Assessment
 
-### 1. Seller Dashboard (`src/features/seller/pages/SellerDashboard.tsx`)
-- Line 110: Static `${symbol}45,800` -- convert the raw number 45800 through `fc()`
-- Line 207: `${p.revenue.toLocaleString()}` -- replace with `fc(p.revenue)`
-- Add `useFormatCurrency` import and hook call
+After a thorough audit of the codebase, here is a feature-by-feature status:
 
-### 2. Producer Dashboard (`src/features/producer/pages/ProducerDashboard.tsx`)
-- Line 186: Badge `${symbol}40K total` -- convert 40000 through `fc()` or use `symbol` with converted value
-- Line 227: `${bomSummary.cost.toLocaleString()}` -- replace with `fc(bomSummary.cost)`
-- Line 260: `${b.cost.toLocaleString()}` -- replace with `fc(b.cost)`
-- Add `useFormatCurrency` import and hook call
+| Workflow Step | Status | Details |
+|---|---|---|
+| Setup: Social accounts | DONE | Settings page has full social media connection UI |
+| Setup: Add products + COGS | MISSING | No product management page; all products are hardcoded mock arrays |
+| Price Monitoring (MiroFlow) | PARTIAL | Competitor Monitor exists with mock data; no real automated pipeline |
+| Pricing Optimization | PARTIAL | 3 strategies + simulator exist; no AI validation or performance tracking |
+| Content Generation | PARTIAL | Content Studio UI complete; uses mock data instead of real AI |
+| Social Publishing | DONE | Multi-platform, scheduling, A/B testing, UTM all working |
+| Real-Time Engagement | MISSING | No post-level metrics (impressions, clicks, conversions) |
+| Analytics and Learning | MISSING | No seller-specific analytics dashboard with AI recommendations |
 
-### 3. Analytics Page (`src/pages/dashboard/Analytics.tsx`)
-- Lines 631, 666: `${...totalSavings.toLocaleString()}` -- replace with `fc()`
-- Lines 642, 677, 721: Y-axis `tickFormatter` using `$` -- use `symbol` + converted value
-- Lines 646, 681, 725: Tooltip `formatter` using `$` -- use `fc()`
-- Add `useFormatCurrency` and `useCurrency` imports
+## Implementation Plan (Prioritized)
 
-### 4. Supplier Card (`src/components/suppliers/SupplierCard.tsx`)
-- Line 116: `${supplier.minOrderValue.toLocaleString()}` -- replace with `fc()`
-- Add `useFormatCurrency` import
+### Phase 1: Product Management (Foundation)
 
-### 5. Supplier Detail Modal (`src/components/suppliers/SupplierDetailModal.tsx`)
-- Lines 135, 377: `${supplier.minOrderValue.toLocaleString()}` -- replace with `fc()`
-- Add `useFormatCurrency` import
+Everything depends on having real products in the database.
 
-### 6. Supplier Filters (`src/components/suppliers/SupplierFilters.tsx`)
-- Lines 187-191: Hardcoded `$0`, `$50,000`, and `${filters.maxMinOrder.toLocaleString()}` -- use `symbol` prefix with converted values
-- Add `useCurrency` import
+**1a. Create `products` database table**
+- Columns: `id`, `user_id`, `name`, `category`, `image_url`, `cost` (COGS), `current_price`, `sku`, `description`, `status` (active/inactive), `created_at`, `updated_at`
+- RLS policies scoped to authenticated user
 
-### 7. Load Comparison Dialog (`src/components/components/LoadComparisonDialog.tsx`)
-- Line 158: `${comparison.totalCost.toLocaleString()}` -- replace with `fc()`
-- Add `useFormatCurrency` import
+**1b. Create Products Management page** (`src/pages/dashboard/Products.tsx`)
+- Add/edit/delete products with name, category, image, COGS, selling price
+- Table view with inline editing for quick price/cost changes
+- Import from CSV option
+- Route: `/dashboard/products`
+- Add to seller navigation in `navigation.ts`
 
-### 8. Save Comparison Dialog (`src/components/components/SaveComparisonDialog.tsx`)
-- Line 108: `${totalCost.toLocaleString()}` -- replace with `fc()`
-- Add `useFormatCurrency` import
+**1c. Wire existing components to real products**
+- Update `PricingOptimizerComponent` to load products from DB instead of mock array
+- Update `ContentStudio` product selector to query from DB
+- Update `CompetitorMonitorStore` products list from DB
 
-### 9. Competitor Price Trend Chart (`src/features/seller/components/CompetitorPriceTrendChart.tsx`)
-- Line 43: Custom tooltip uses raw `formatCurrency(entry.value)` without conversion -- pass `fc` to the tooltip instead
+### Phase 2: AI-Powered Content Generation (Replace Mocks)
 
-## Technical Approach
-- For all React components: import `useFormatCurrency`, call `const fc = useFormatCurrency()`, replace all `$${value.toLocaleString()}` and `$${value.toFixed(2)}` with `fc(value)`
-- For chart axis labels with abbreviated values (like `$12k`): use `useCurrency()` to get `symbol`, then `${symbol}${(convert(value) / 1000).toFixed(0)}k`
-- The `fc()` function already handles: USD-to-target conversion via real exchange rates, proper locale formatting, and correct currency symbol
-- No backend changes needed -- the exchange-rates edge function is already deployed and returning live rates
+**2a. Connect Content Studio to Lovable AI**
+- Update the existing `generate-marketing-content` edge function to use the Lovable AI Gateway with `google/gemini-3-flash-preview`
+- Send product details + audience + tone to AI, return structured headlines, ad copy, descriptions, email, and social captions
+- Replace `generateMockContent()` with real AI call
 
-## What Will Happen After This
-When you select a currency (e.g., EUR) from the dropdown:
-- All prices will be multiplied by the real EUR/USD rate (currently ~0.848)
-- Formatted with the correct symbol and locale rules
-- Updates happen instantly across every page
+**2b. Template Save/Reuse**
+- Create `content_templates` table (id, user_id, name, product_id, content_json, created_at)
+- Add "Save as Template" button in Content Studio
+- Add "Load Template" option in generation form
+- Templates appear in a searchable list
+
+### Phase 3: Pricing Intelligence (MiroThinker Validation + MiroRL Tracking)
+
+**3a. AI Pricing Validation**
+- Create `validate-pricing` edge function using Lovable AI
+- When user selects a strategy, call AI to validate profitability (checks margin, market position, competitor data)
+- Show validation result: green checkmark if profitable, warning if risky
+- Display AI reasoning for the validation
+
+**3b. Price Change Tracking (MiroRL)**
+- Create `price_changes` table (id, user_id, product_id, old_price, new_price, strategy_used, reason, created_at)
+- Create `sales_performance` table (id, user_id, product_id, date, units_sold, revenue, created_at)
+- When user applies a price change, log it with strategy info
+- Dashboard card: "Did this price change improve sales?" with before/after comparison
+
+### Phase 4: Post Engagement Tracking
+
+**4a. Engagement metrics table**
+- Create `post_engagement` table (id, post_id, platform, impressions, clicks, conversions, engagement_rate, measured_at)
+- For now, populate with simulated data on post creation (real API integration would come later)
+
+**4b. Post Analytics view**
+- Add engagement columns to the scheduled posts list in Social Publisher
+- Per-post detail modal showing impressions, clicks, conversions over time
+- A/B test result comparison with auto-winner selection
+
+### Phase 5: Seller Analytics Dashboard
+
+**5a. Seller-specific analytics page**
+- New component or tab within Analytics showing seller KPIs:
+  - Sales trends (daily/weekly/monthly)
+  - Top products by revenue
+  - Content performance (which posts convert best)
+  - Competitor price movement summary
+  - Best posting times (derived from engagement data)
+
+**5b. AI Learning Insights panel**
+- Create `ai-insights` edge function using Lovable AI
+- Analyze user's price changes, content performance, and engagement data
+- Generate personalized recommendations:
+  - "Instagram posts convert 2x better than Facebook for you"
+  - "Best time to post: Tues-Thurs, 6-9 PM"
+  - "This pricing strategy works well for your category"
+- Display in a card on the Seller Dashboard
+
+### Phase 6: Automated Monitoring Pipeline (MiroFlow)
+
+**6a. Competitor price inquiry edge function**
+- Create `competitor-price-check` edge function
+- Uses Lovable AI to analyze competitor websites/listings and extract prices
+- Stores results in `competitor_prices` table
+
+**6b. Scheduled monitoring**
+- Create a cron-triggered edge function that runs every 2 hours
+- Checks tracked competitors for each user's products
+- Updates the competitor monitor store with fresh data
+- Triggers alerts when prices drop significantly
+
+## Navigation Changes
+
+Add to seller navigation in `src/features/dashboard/config/navigation.ts`:
+- "Products" under a new "Setup" group (icon: Package, url: `/dashboard/products`)
+
+## New Files Summary
+
+| File | Purpose |
+|---|---|
+| `src/pages/dashboard/Products.tsx` | Product management page |
+| `src/features/seller/components/ProductsManager.tsx` | Products CRUD component |
+| `src/features/seller/components/EngagementMetrics.tsx` | Post engagement display |
+| `src/features/seller/components/AIInsightsPanel.tsx` | AI learning recommendations |
+| `supabase/functions/validate-pricing/index.ts` | AI pricing validation |
+| `supabase/functions/ai-insights/index.ts` | AI learning recommendations |
+| `supabase/functions/competitor-price-check/index.ts` | Automated price monitoring |
+
+## New Database Tables
+
+- `products` -- User's product catalog with COGS
+- `content_templates` -- Saved content generation templates
+- `price_changes` -- Price change history for MiroRL tracking
+- `sales_performance` -- Sales data for performance analysis
+- `post_engagement` -- Social post metrics
+
+## Recommended Build Order
+
+Start with **Phase 1** (Products) since it's the foundation everything else depends on, then **Phase 2** (real AI content) and **Phase 3** (pricing intelligence) in parallel, followed by Phases 4-6.
+
