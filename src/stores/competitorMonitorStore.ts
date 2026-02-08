@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+// import { supabase } from "@/integrations/supabase/client"; // Uncomment when competitor_prices table exists
 import type { 
   CompetitorTableRow, 
   PriceMovementAlert, 
@@ -455,6 +456,18 @@ export const useCompetitorMonitorStore = create<CompetitorMonitorStore>()(
       })),
       
       setSelectedPlatforms: (platforms) => set({ selectedPlatforms: platforms }),
+
+      // Realtime subscription placeholder - activate when competitor_prices table exists
+      // subscribeToRealtime: () => {
+      //   const channel = supabase
+      //     .channel("competitor-prices")
+      //     .on("postgres_changes", { event: "*", schema: "public", table: "competitor_prices" }, (payload) => {
+      //       // Update competitors list with new price data from realtime
+      //       console.log("Realtime price update:", payload);
+      //     })
+      //     .subscribe();
+      //   return () => { supabase.removeChannel(channel); };
+      // },
     }),
     {
       name: "competitor-monitor-storage",
