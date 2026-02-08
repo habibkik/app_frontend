@@ -113,12 +113,12 @@
    social: SocialCaption[];
  }
  
- // Mock Data
- const mockProducts: ContentProduct[] = [
-   { id: "1", name: "Servo Motor XR-500", imageUrl: "/placeholder.svg", category: "Motors" },
-   { id: "2", name: "Hydraulic Pump HP-200", imageUrl: "/placeholder.svg", category: "Pumps" },
-   { id: "3", name: "CNC Controller Board", imageUrl: "/placeholder.svg", category: "Electronics" },
- ];
+  // Fallback mock products (used when no DB products available)
+  const fallbackProducts: ContentProduct[] = [
+    { id: "1", name: "Servo Motor XR-500", imageUrl: "/placeholder.svg", category: "Motors" },
+    { id: "2", name: "Hydraulic Pump HP-200", imageUrl: "/placeholder.svg", category: "Pumps" },
+    { id: "3", name: "CNC Controller Board", imageUrl: "/placeholder.svg", category: "Electronics" },
+  ];
  
  const audiences = [
    { value: "ecommerce", label: "E-commerce Shoppers" },
@@ -309,11 +309,44 @@
    const [editingStates, setEditingStates] = useState<Set<string>>(new Set());
    const [editedTexts, setEditedTexts] = useState<Record<string, string>>({});
    const [copiedIds, setCopiedIds] = useState<Set<string>>(new Set());
-   const [showHistory, setShowHistory] = useState(false);
-   const [historyItems, setHistoryItems] = useState<ContentHistoryItem[]>([]);
-   const [activeTab, setActiveTab] = useState("headlines");
- 
-   const selectedProductData = mockProducts.find((p) => p.id === selectedProduct);
+    const [showHistory, setShowHistory] = useState(false);
+    const [historyItems, setHistoryItems] = useState<ContentHistoryItem[]>([]);
+    const [activeTab, setActiveTab] = useState("headlines");
+    const [templateName, setTemplateName] = useState("");
+    const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+    const [showLoadTemplate, setShowLoadTemplate] = useState(false);
+    const [savedTemplates, setSavedTemplates] = useState<Array<{ id: string; name: string; product_name: string; target_audience: string; tone: string; content_json: any; created_at: string }>>([]);
+     const [loadingTemplates, setLoadingTemplates] = useState(false);
+    const [products, setProducts] = useState<ContentProduct[]>(fallbackProducts);
+
+    // Load products from DB
+    useEffect(() => {
+      const loadProducts = async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          const { data, error } = await supabase
+            .from("products")
+            .select("id, name, image_url, category")
+            .eq("user_id", user.id)
+            .eq("status", "active");
+          if (error) throw error;
+          if (data && data.length > 0) {
+            setProducts(data.map(p => ({
+              id: p.id,
+              name: p.name,
+              imageUrl: p.image_url || "/placeholder.svg",
+              category: p.category || "General",
+            })));
+          }
+        } catch (err) {
+          console.error("Failed to load products:", err);
+        }
+      };
+      loadProducts();
+    }, []);
+
+    const selectedProductData = products.find((p) => p.id === selectedProduct);
  
    // Handlers
    const handleContentTypeToggle = (type: ContentType) => {
@@ -544,9 +577,82 @@
      toast.success("Export started - your ZIP file will download shortly");
    };
  
-   const handleSaveTemplate = () => {
-     toast.success("Template saved successfully!");
-   };
+    const handleSaveTemplate = async () => {
+      if (!generatedContent || !templateName.trim()) {
+        toast.error("Please enter a template name");
+        return;
+      }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error("Please sign in to save templates");
+          return;
+        }
+        const { error } = await supabase.from("content_templates" as any).insert({
+          user_id: user.id,
+          name: templateName.trim(),
+          product_name: selectedProductData?.name || "Unknown",
+          target_audience: targetAudience,
+          tone,
+          content_json: generatedContent,
+        });
+        if (error) throw error;
+        setTemplateName("");
+        setShowSaveTemplate(false);
+        toast.success("Template saved successfully!");
+      } catch (err) {
+        console.error("Save template error:", err);
+        toast.error("Failed to save template");
+      }
+    };
+
+    const handleLoadTemplates = async () => {
+      setShowLoadTemplate(true);
+      setLoadingTemplates(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error("Please sign in to load templates");
+          setLoadingTemplates(false);
+          return;
+        }
+        const { data, error } = await supabase
+          .from("content_templates" as any)
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        setSavedTemplates((data as any) || []);
+      } catch (err) {
+        console.error("Load templates error:", err);
+        toast.error("Failed to load templates");
+      } finally {
+        setLoadingTemplates(false);
+      }
+    };
+
+    const handleApplyTemplate = (template: typeof savedTemplates[0]) => {
+      const content = template.content_json as GeneratedContent;
+      setGeneratedContent(content);
+      setTargetAudience(template.target_audience as TargetAudience);
+      setTone(template.tone as ContentTone);
+      setShowLoadTemplate(false);
+      toast.success(`Template "${template.name}" loaded`);
+    };
+
+    const handleDeleteTemplate = async (templateId: string) => {
+      try {
+        const { error } = await supabase
+          .from("content_templates" as any)
+          .delete()
+          .eq("id", templateId);
+        if (error) throw error;
+        setSavedTemplates(prev => prev.filter(t => t.id !== templateId));
+        toast.success("Template deleted");
+      } catch (err) {
+        toast.error("Failed to delete template");
+      }
+    };
  
    const handleShare = () => {
      toast.success("Share link copied to clipboard!");
@@ -573,7 +679,7 @@
                    <SelectValue placeholder="Select a product" />
                  </SelectTrigger>
                  <SelectContent>
-                   {mockProducts.map((product) => (
+                   {products.map((product) => (
                      <SelectItem key={product.id} value={product.id}>
                        {product.name}
                      </SelectItem>
@@ -1104,21 +1210,94 @@
                </Collapsible>
              </div>
  
-             {/* Action Bar */}
-             <div className="fixed bottom-6 right-6 flex gap-2">
-               <Button variant="outline" onClick={handleSaveTemplate}>
-                 <Save className="h-4 w-4 mr-2" />
-                 Save as Template
-               </Button>
-               <Button variant="outline" onClick={handleExportZip}>
-                 <FileArchive className="h-4 w-4 mr-2" />
-                 Export ZIP
-               </Button>
-               <Button variant="outline" onClick={handleShare}>
-                 <Share2 className="h-4 w-4 mr-2" />
-                 Share
-               </Button>
-             </div>
+              {/* Action Bar */}
+              <div className="fixed bottom-6 right-6 flex gap-2 z-50">
+                <Dialog open={showSaveTemplate} onOpenChange={setShowSaveTemplate}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Save className="h-4 w-4 mr-2" />
+                      Save as Template
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Save as Template</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-2">
+                      <div className="space-y-2">
+                        <Label>Template Name</Label>
+                        <input
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          placeholder="e.g. Summer Sale - Professional"
+                          value={templateName}
+                          onChange={(e) => setTemplateName(e.target.value)}
+                        />
+                      </div>
+                      <Button onClick={handleSaveTemplate} className="w-full" disabled={!templateName.trim()}>
+                        <Save className="h-4 w-4 mr-2" />
+                        Save Template
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button variant="outline" onClick={handleLoadTemplates}>
+                  <History className="h-4 w-4 mr-2" />
+                  Load Template
+                </Button>
+                <Button variant="outline" onClick={handleExportZip}>
+                  <FileArchive className="h-4 w-4 mr-2" />
+                  Export ZIP
+                </Button>
+                <Button variant="outline" onClick={handleShare}>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+
+              {/* Load Template Dialog */}
+              <Dialog open={showLoadTemplate} onOpenChange={setShowLoadTemplate}>
+                <DialogContent className="max-w-lg max-h-[70vh]">
+                  <DialogHeader>
+                    <DialogTitle>Load Template</DialogTitle>
+                  </DialogHeader>
+                  <ScrollArea className="max-h-[50vh]">
+                    {loadingTemplates ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    ) : savedTemplates.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Save className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No saved templates yet</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {savedTemplates.map((tpl) => (
+                          <Card key={tpl.id} className="hover:shadow-sm transition-shadow">
+                            <CardContent className="p-3 flex items-center justify-between">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm truncate">{tpl.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {tpl.product_name} · {tpl.tone} · {new Date(tpl.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="flex gap-1 ml-2">
+                                <Button size="sm" variant="default" onClick={() => handleApplyTemplate(tpl)}>
+                                  Use
+                                </Button>
+                                <Button size="sm" variant="ghost" onClick={() => handleDeleteTemplate(tpl.id)}>
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </ScrollArea>
+                </DialogContent>
+              </Dialog>
            </motion.div>
          ) : (
            /* Empty State */
