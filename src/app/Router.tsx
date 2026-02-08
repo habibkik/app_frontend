@@ -24,6 +24,7 @@ import GTM from "@/pages/dashboard/GTM";
 
 // Seller feature pages (still using old location during migration)
 import SellerDashboard from "@/features/seller/pages/SellerDashboard";
+import Products from "@/pages/dashboard/Products";
 import ProducerDashboard from "@/features/producer/pages/ProducerDashboard";
 import MarketIntelligence from "@/pages/dashboard/MarketIntelligence";
 import Competitors from "@/pages/dashboard/Competitors";
@@ -70,6 +71,7 @@ export function Router() {
       
       {/* Seller mode pages */}
       <Route path="/dashboard/seller" element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>} />
+      <Route path="/dashboard/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
       <Route path="/dashboard/market" element={<ProtectedRoute><MarketIntelligence /></ProtectedRoute>} />
       <Route path="/dashboard/competitors" element={<ProtectedRoute><Competitors /></ProtectedRoute>} />
       <Route path="/dashboard/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />

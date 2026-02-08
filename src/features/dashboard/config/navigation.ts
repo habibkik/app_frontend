@@ -111,6 +111,12 @@ const sellerNavigation: NavGroup[] = [
     ],
   },
   {
+    label: "Setup",
+    items: [
+      { title: "Products", url: "/dashboard/products", icon: Package },
+    ],
+  },
+  {
     label: "Intelligence",
     items: [
       { title: "Market Intelligence", url: "/dashboard/market", icon: TrendingUp },
