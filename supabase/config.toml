@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.aggregate-engagement]
 verify_jwt = false
+
+[functions.miroflow-monitor]
+verify_jwt = false

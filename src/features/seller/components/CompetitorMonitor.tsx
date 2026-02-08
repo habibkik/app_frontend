@@ -16,7 +16,7 @@ interface CompetitorMonitorProps {
 
 export function CompetitorMonitor({ onViewCompetitor }: CompetitorMonitorProps) {
   const { toast } = useToast();
-  const { autoRefresh, refreshInterval, refreshData, competitors } = useCompetitorMonitorStore();
+  const { autoRefresh, refreshInterval, refreshData, competitors, loadFromBackend, subscribeToRealtime } = useCompetitorMonitorStore();
 
   // Detail modal state
   const [selectedCompetitor, setSelectedCompetitor] = useState<CompetitorTableRow | null>(null);
@@ -28,6 +28,17 @@ export function CompetitorMonitor({ onViewCompetitor }: CompetitorMonitorProps) 
     onViewCompetitor?.(competitor);
   }, [onViewCompetitor]);
 
+  // Load data from backend on mount
+  useEffect(() => {
+    loadFromBackend();
+  }, [loadFromBackend]);
+
+  // Subscribe to realtime alerts
+  useEffect(() => {
+    const unsubscribe = subscribeToRealtime();
+    return unsubscribe;
+  }, [subscribeToRealtime]);
+
   // Auto-refresh with specific price change detection
   useEffect(() => {
     if (!autoRefresh) return;
@@ -38,7 +49,6 @@ export function CompetitorMonitor({ onViewCompetitor }: CompetitorMonitorProps) 
       const oldPrices = new Map(competitors.map(c => [c.id, { name: c.name, price: c.currentPrice }]));
       await refreshData();
       
-      // Check for specific price changes
       const currentCompetitors = useCompetitorMonitorStore.getState().competitors;
       const changes: string[] = [];
       currentCompetitors.forEach(c => {

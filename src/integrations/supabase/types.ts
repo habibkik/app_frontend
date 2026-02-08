@@ -14,6 +14,109 @@ export type Database = {
   }
   public: {
     Tables: {
+      competitor_alerts: {
+        Row: {
+          alert_type: string
+          competitor_name: string
+          created_at: string
+          id: string
+          message: string | null
+          new_price: number
+          old_price: number | null
+          product_id: string | null
+          severity: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          alert_type?: string
+          competitor_name: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          new_price: number
+          old_price?: number | null
+          product_id?: string | null
+          severity?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          competitor_name?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          new_price?: number
+          old_price?: number | null
+          product_id?: string | null
+          severity?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_alerts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_prices: {
+        Row: {
+          collected_at: string
+          competitor_name: string
+          competitor_platform: string
+          created_at: string
+          currency: string
+          id: string
+          location: string | null
+          price: number
+          product_id: string | null
+          source: string
+          stock_status: string
+          user_id: string
+        }
+        Insert: {
+          collected_at?: string
+          competitor_name: string
+          competitor_platform?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          location?: string | null
+          price: number
+          product_id?: string | null
+          source?: string
+          stock_status?: string
+          user_id: string
+        }
+        Update: {
+          collected_at?: string
+          competitor_name?: string
+          competitor_platform?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          location?: string | null
+          price?: number
+          product_id?: string | null
+          source?: string
+          stock_status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_templates: {
         Row: {
           content_json: Json
@@ -49,6 +152,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      monitor_configs: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          interval_hours: number
+          price_drop_threshold: number
+          price_rise_threshold: number
+          product_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          interval_hours?: number
+          price_drop_threshold?: number
+          price_rise_threshold?: number
+          product_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          interval_hours?: number
+          price_drop_threshold?: number
+          price_rise_threshold?: number
+          product_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monitor_configs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       post_engagement: {
         Row: {
