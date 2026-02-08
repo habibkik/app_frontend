@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.seller-insights]
 verify_jwt = false
+
+[functions.aggregate-engagement]
+verify_jwt = false
