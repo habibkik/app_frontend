@@ -88,22 +88,26 @@
    cta: string;
  }
  
- interface SocialCaption {
-   platform: "instagram" | "tiktok" | "facebook" | "linkedin" | "twitter";
-   caption: string;
-   hashtags?: string[];
-   characterCount: number;
-   characterLimit: number;
- }
+  interface SocialCaption {
+    platform: "instagram" | "tiktok" | "facebook" | "linkedin" | "twitter";
+    caption: string;
+    hashtags?: string[];
+    sounds?: string[];
+    question?: string;
+    cta?: string;
+    characterCount: number;
+    characterLimit: number;
+  }
  
- interface ContentHistoryItem {
-   id: string;
-   productId: string;
-   productName: string;
-   productThumbnail?: string;
-   contentType: ContentType;
-   generatedAt: Date;
- }
+interface ContentHistoryItem {
+    id: string;
+    productId: string;
+    productName: string;
+    productThumbnail?: string;
+    contentType: ContentType;
+    generatedAt: Date;
+    content: GeneratedContent;
+  }
  
  interface GeneratedContent {
    headlines: GeneratedHeadline[];
@@ -419,6 +423,7 @@
               platform: "tiktok" as const,
               caption: aiResult.socialMedia.tiktok.caption,
               hashtags: aiResult.socialMedia.tiktok.hashtags,
+              sounds: aiResult.socialMedia.tiktok.sounds || [],
               characterCount: aiResult.socialMedia.tiktok.caption.length,
               characterLimit: 2200,
             } : null,
@@ -426,6 +431,8 @@
               platform: "facebook" as const,
               caption: aiResult.socialMedia.facebook.copy,
               hashtags: [],
+              question: aiResult.socialMedia.facebook.question || "",
+              cta: aiResult.socialMedia.facebook.cta || "",
               characterCount: aiResult.socialMedia.facebook.copy.length,
               characterLimit: 63206,
             } : null,
@@ -433,6 +440,7 @@
               platform: "linkedin" as const,
               caption: aiResult.socialMedia.linkedin.copy,
               hashtags: [],
+              cta: aiResult.socialMedia.linkedin.cta || "",
               characterCount: aiResult.socialMedia.linkedin.copy.length,
               characterLimit: 3000,
             } : null,
@@ -474,6 +482,7 @@
           productThumbnail: selectedProductData?.imageUrl,
           contentType: Array.from(contentTypes)[0],
           generatedAt: new Date(),
+          content,
         };
         setHistoryItems((prev) => [historyItem, ...prev].slice(0, 10));
 
@@ -542,40 +551,99 @@
      });
    };
  
-   const handleSaveEdit = (id: string, type: "adCopy" | "description") => {
-     if (!generatedContent) return;
-     const newText = editedTexts[id];
-     if (type === "adCopy") {
-       setGeneratedContent({
-         ...generatedContent,
-         adCopy: generatedContent.adCopy.map((ac) =>
-           ac.id === id ? { ...ac, text: newText, characterCount: newText.length } : ac
-         ),
-       });
-     } else {
-       setGeneratedContent({
-         ...generatedContent,
-         descriptions: generatedContent.descriptions.map((d) =>
-           d.id === id ? { ...d, text: newText } : d
-         ),
-       });
-     }
-     setEditingStates((prev) => {
-       const next = new Set(prev);
-       next.delete(id);
-       return next;
-     });
-     toast.success("Changes saved!");
-   };
+    const handleSaveEdit = (id: string, type: "adCopy" | "description" | "email") => {
+      if (!generatedContent) return;
+      const newText = editedTexts[id];
+      if (type === "adCopy") {
+        setGeneratedContent({
+          ...generatedContent,
+          adCopy: generatedContent.adCopy.map((ac) =>
+            ac.id === id ? { ...ac, text: newText, characterCount: newText.length } : ac
+          ),
+        });
+      } else if (type === "email") {
+        if (id === "email-body" && generatedContent.email) {
+          setGeneratedContent({
+            ...generatedContent,
+            email: { ...generatedContent.email, body: newText },
+          });
+        } else if (id.startsWith("subject-") && generatedContent.email) {
+          const idx = parseInt(id.replace("subject-", ""));
+          const newSubjects = [...generatedContent.email.subjectLines];
+          newSubjects[idx] = newText;
+          setGeneratedContent({
+            ...generatedContent,
+            email: { ...generatedContent.email, subjectLines: newSubjects },
+          });
+        }
+      } else {
+        setGeneratedContent({
+          ...generatedContent,
+          descriptions: generatedContent.descriptions.map((d) =>
+            d.id === id ? { ...d, text: newText } : d
+          ),
+        });
+      }
+      setEditingStates((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      toast.success("Changes saved!");
+    };
+
+    const handleRestoreHistory = (item: ContentHistoryItem) => {
+      setGeneratedContent(item.content);
+      toast.success(`Restored content for "${item.productName}"`);
+    };
  
    const handleDeleteHistory = (id: string) => {
      setHistoryItems((prev) => prev.filter((item) => item.id !== id));
      toast.success("History item deleted");
    };
  
-   const handleExportZip = () => {
-     toast.success("Export started - your ZIP file will download shortly");
-   };
+    const handleExportZip = () => {
+      if (!generatedContent) {
+        toast.error("No content to export");
+        return;
+      }
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        product: selectedProductData?.name || "Unknown",
+        audience: targetAudience,
+        tone,
+        headlines: generatedContent.headlines.map((h) => h.text),
+        adCopy: {
+          short: generatedContent.adCopy.find((a) => a.variant === "short")?.text || "",
+          medium: generatedContent.adCopy.find((a) => a.variant === "medium")?.text || "",
+          long: generatedContent.adCopy.find((a) => a.variant === "long")?.text || "",
+        },
+        descriptions: {
+          short: generatedContent.descriptions.find((d) => d.variant === "short")?.text || "",
+          medium: generatedContent.descriptions.find((d) => d.variant === "medium")?.text || "",
+          long: generatedContent.descriptions.find((d) => d.variant === "long")?.text || "",
+        },
+        email: generatedContent.email ? {
+          subjectLines: generatedContent.email.subjectLines,
+          body: generatedContent.email.body,
+        } : null,
+        social: generatedContent.social.map((s) => ({
+          platform: s.platform,
+          caption: s.caption,
+          hashtags: s.hashtags,
+        })),
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `content-studio-${selectedProductData?.name?.replace(/\s+/g, "-") || "export"}-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("Content exported as JSON file!");
+    };
  
     const handleSaveTemplate = async () => {
       if (!generatedContent || !templateName.trim()) {
@@ -790,7 +858,7 @@
              transition={{ duration: 0.3 }}
            >
              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-               <TabsList className="grid w-full grid-cols-5 mb-6">
+               <TabsList className="flex flex-wrap w-full mb-6">
                  <TabsTrigger value="headlines">Headlines</TabsTrigger>
                  <TabsTrigger value="copy">Copy</TabsTrigger>
                  <TabsTrigger value="description">Description</TabsTrigger>
@@ -1020,27 +1088,48 @@
                        <CardHeader>
                          <CardTitle className="text-base">Subject Lines</CardTitle>
                        </CardHeader>
-                       <CardContent className="space-y-3">
-                         {generatedContent.email.subjectLines.map((subject, idx) => (
-                           <div
-                             key={idx}
-                             className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                           >
-                             <p className="text-sm font-medium">{subject}</p>
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={() => handleCopy(subject, `subject-${idx}`)}
-                             >
-                               {copiedIds.has(`subject-${idx}`) ? (
-                                 <Check className="h-4 w-4 text-primary" />
-                               ) : (
-                                 <Copy className="h-4 w-4" />
-                               )}
-                             </Button>
-                           </div>
-                         ))}
-                       </CardContent>
+                        <CardContent className="space-y-3">
+                          {generatedContent.email.subjectLines.map((subject, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center justify-between gap-2 p-3 bg-muted rounded-lg"
+                            >
+                              {editingStates.has(`subject-${idx}`) ? (
+                                <input
+                                  className="flex-1 h-8 rounded-md border border-input bg-background px-2 text-sm"
+                                  value={editedTexts[`subject-${idx}`] ?? subject}
+                                  onChange={(e) =>
+                                    setEditedTexts((prev) => ({ ...prev, [`subject-${idx}`]: e.target.value }))
+                                  }
+                                />
+                              ) : (
+                                <p className="text-sm font-medium flex-1">{subject}</p>
+                              )}
+                              <div className="flex gap-1">
+                                {editingStates.has(`subject-${idx}`) ? (
+                                  <Button variant="default" size="sm" onClick={() => handleSaveEdit(`subject-${idx}`, "email")}>
+                                    <Save className="h-4 w-4" />
+                                  </Button>
+                                ) : (
+                                  <Button variant="ghost" size="sm" onClick={() => toggleEdit(`subject-${idx}`, subject)}>
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleCopy(subject, `subject-${idx}`)}
+                                >
+                                  {copiedIds.has(`subject-${idx}`) ? (
+                                    <Check className="h-4 w-4 text-primary" />
+                                  ) : (
+                                    <Copy className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </CardContent>
                      </Card>
  
                      {/* Email Body */}
@@ -1080,27 +1169,48 @@
                            </div>
                          </div>
                        </CardHeader>
-                       <CardContent>
-                         <div className="bg-muted rounded-lg p-4">
-                           <p className="text-sm whitespace-pre-line">{generatedContent.email.body}</p>
-                         </div>
-                         <div className="flex gap-2 mt-4">
-                           <Button
-                             variant="ghost"
-                             size="sm"
-                             onClick={() =>
-                               handleCopy(generatedContent.email?.body || "", "email-body")
-                             }
-                           >
-                             {copiedIds.has("email-body") ? (
-                               <Check className="h-4 w-4 mr-1 text-primary" />
-                             ) : (
-                               <Copy className="h-4 w-4 mr-1" />
-                             )}
-                             Copy
-                           </Button>
-                         </div>
-                       </CardContent>
+                        <CardContent>
+                          <div className="bg-muted rounded-lg p-4">
+                            {editingStates.has("email-body") ? (
+                              <Textarea
+                                value={editedTexts["email-body"] ?? generatedContent.email.body}
+                                onChange={(e) =>
+                                  setEditedTexts((prev) => ({ ...prev, ["email-body"]: e.target.value }))
+                                }
+                                className="min-h-[200px]"
+                              />
+                            ) : (
+                              <p className="text-sm whitespace-pre-line">{generatedContent.email.body}</p>
+                            )}
+                          </div>
+                          <div className="flex gap-2 mt-4">
+                            {editingStates.has("email-body") ? (
+                              <Button variant="default" size="sm" onClick={() => handleSaveEdit("email-body", "email")}>
+                                <Save className="h-4 w-4 mr-1" />
+                                Save
+                              </Button>
+                            ) : (
+                              <Button variant="ghost" size="sm" onClick={() => toggleEdit("email-body", generatedContent.email?.body || "")}>
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                handleCopy(generatedContent.email?.body || "", "email-body")
+                              }
+                            >
+                              {copiedIds.has("email-body") ? (
+                                <Check className="h-4 w-4 mr-1 text-primary" />
+                              ) : (
+                                <Copy className="h-4 w-4 mr-1" />
+                              )}
+                              Copy
+                            </Button>
+                          </div>
+                        </CardContent>
                      </Card>
                    </motion.div>
                  )}
@@ -1122,39 +1232,81 @@
                            <span className="font-semibold capitalize">{social.platform}</span>
                          </div>
                        </div>
-                       <CardContent className="p-4 space-y-4">
-                         <p className="text-sm leading-relaxed whitespace-pre-line">{social.caption}</p>
-                         <div className="flex items-center justify-between">
-                           <span
-                             className={cn(
-                               "text-xs",
-                               social.characterCount > social.characterLimit
-                                 ? "text-destructive"
-                                 : "text-muted-foreground"
-                             )}
-                           >
-                             {social.characterCount} / {social.characterLimit} characters
-                           </span>
-                           <div className="flex gap-2">
-                             <Button
-                               variant="ghost"
-                               size="sm"
-                               onClick={() => handleCopy(social.caption, social.platform)}
-                             >
-                               {copiedIds.has(social.platform) ? (
-                                 <Check className="h-4 w-4 mr-1 text-primary" />
-                               ) : (
-                                 <Copy className="h-4 w-4 mr-1" />
-                               )}
-                               Copy
-                             </Button>
-                             <Button variant="outline" size="sm">
-                               <Send className="h-4 w-4 mr-1" />
-                               Post Directly
-                             </Button>
-                           </div>
-                         </div>
-                       </CardContent>
+                        <CardContent className="p-4 space-y-4">
+                          <p className="text-sm leading-relaxed whitespace-pre-line">{social.caption}</p>
+
+                          {/* Hashtags */}
+                          {social.hashtags && social.hashtags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {social.hashtags.map((tag) => (
+                                <Badge key={tag} variant="secondary" className="text-xs cursor-pointer" onClick={() => handleCopy(`#${tag}`, `tag-${social.platform}-${tag}`)}>
+                                  #{tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* TikTok Sounds */}
+                          {social.platform === "tiktok" && social.sounds && social.sounds.length > 0 && (
+                            <div className="border-t pt-3">
+                              <p className="text-xs font-medium text-muted-foreground mb-2">🎵 Suggested Sounds</p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {social.sounds.map((sound) => (
+                                  <Badge key={sound} variant="outline" className="text-xs">
+                                    {sound}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Facebook Question */}
+                          {social.platform === "facebook" && social.question && (
+                            <div className="border-t pt-3">
+                              <p className="text-xs font-medium text-muted-foreground mb-1">💬 Engagement Question</p>
+                              <p className="text-sm italic">{social.question}</p>
+                            </div>
+                          )}
+
+                          {/* LinkedIn/Facebook CTA */}
+                          {(social.platform === "linkedin" || social.platform === "facebook") && social.cta && (
+                            <div className="border-t pt-3">
+                              <p className="text-xs font-medium text-muted-foreground mb-1">🎯 Call to Action</p>
+                              <Badge variant="default" className="text-xs">{social.cta}</Badge>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            <span
+                              className={cn(
+                                "text-xs",
+                                social.characterCount > social.characterLimit
+                                  ? "text-destructive"
+                                  : "text-muted-foreground"
+                              )}
+                            >
+                              {social.characterCount} / {social.characterLimit} characters
+                            </span>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleCopy(social.caption, social.platform)}
+                              >
+                                {copiedIds.has(social.platform) ? (
+                                  <Check className="h-4 w-4 mr-1 text-primary" />
+                                ) : (
+                                  <Copy className="h-4 w-4 mr-1" />
+                                )}
+                                Copy
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                <Send className="h-4 w-4 mr-1" />
+                                Post Directly
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
                      </Card>
                    </motion.div>
                  ))}
@@ -1194,13 +1346,23 @@
                                  {item.generatedAt.toLocaleDateString()}
                                </p>
                              </div>
-                             <Button
-                               variant="ghost"
-                               size="icon"
-                               onClick={() => handleDeleteHistory(item.id)}
-                             >
-                               <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                             </Button>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleRestoreHistory(item)}
+                                >
+                                  <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                                  Restore
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteHistory(item.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                                </Button>
+                              </div>
                            </div>
                          </Card>
                        ))}
