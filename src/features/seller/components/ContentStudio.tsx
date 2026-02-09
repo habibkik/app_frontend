@@ -1,4 +1,5 @@
- import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
  import { motion, AnimatePresence } from "framer-motion";
  import {
    Wand2,
@@ -109,13 +110,22 @@ interface ContentHistoryItem {
     content: GeneratedContent;
   }
  
- interface GeneratedContent {
-   headlines: GeneratedHeadline[];
-   adCopy: GeneratedAdCopy[];
-   descriptions: GeneratedDescription[];
-   email: GeneratedEmail | null;
-   social: SocialCaption[];
- }
+interface LandingPageContent {
+  heroHeadline: string;
+  heroSubheadline: string;
+  valueProposition: string;
+  featureHighlights: string[];
+  ctaText: string;
+}
+
+interface GeneratedContent {
+  headlines: GeneratedHeadline[];
+  adCopy: GeneratedAdCopy[];
+  descriptions: GeneratedDescription[];
+  email: GeneratedEmail | null;
+  social: SocialCaption[];
+  landingPage: LandingPageContent | null;
+}
  
   // Fallback mock products (used when no DB products available)
   const fallbackProducts: ContentProduct[] = [
@@ -256,10 +266,23 @@ interface ContentHistoryItem {
        platform: "twitter",
        caption: `🚀 New drop: ${productName}\n\n✓ Industrial-grade\n✓ Smart diagnostics\n✓ 5-year warranty\n\n30% off for a limited time →`,
        characterCount: 124,
-       characterLimit: 280,
-     },
-   ],
- });
+    characterLimit: 280,
+    },
+  ],
+  landingPage: {
+    heroHeadline: `Transform Your Operations with ${productName}`,
+    heroSubheadline: `The industry-leading solution trusted by 10,000+ professionals worldwide`,
+    valueProposition: `Our ${productName} combines cutting-edge technology with industrial-grade reliability to deliver unmatched performance. Whether you're scaling operations or upgrading your equipment, experience the difference that precision engineering makes.`,
+    featureHighlights: [
+      "Industrial-grade components rated for 24/7 operation",
+      "Smart diagnostics with real-time monitoring",
+      "Energy-efficient design reducing costs by 30%",
+      "Modular architecture for easy maintenance",
+      "Comprehensive 5-year warranty with 24/7 support",
+    ],
+    ctaText: "Get Started Today — 30% Off for a Limited Time",
+  },
+});
  
  // Platform icons component
  const PlatformIcon = ({ platform, className }: { platform: string; className?: string }) => {
@@ -301,7 +324,8 @@ interface ContentHistoryItem {
    }
  };
  
-  export const ContentStudio = () => {
+ export const ContentStudio = () => {
+    const navigate = useNavigate();
     const addStudioItem = useContentStudioStore((s) => s.addItem);
    // State
    const [selectedProduct, setSelectedProduct] = useState<string>("");
@@ -451,7 +475,14 @@ interface ContentHistoryItem {
               characterCount: aiResult.socialMedia.twitter.copy.length,
               characterLimit: 280,
             } : null,
-          ].filter(Boolean) as SocialCaption[],
+        ].filter(Boolean) as SocialCaption[],
+          landingPage: {
+            heroHeadline: (aiResult.headlines || [])[0] || `Transform Your Business with ${productName}`,
+            heroSubheadline: (aiResult.headlines || [])[1] || `The trusted solution for modern professionals`,
+            valueProposition: aiResult.descriptions?.medium || aiResult.descriptions?.short || "",
+            featureHighlights: aiResult.headlines?.slice(2) || [],
+            ctaText: aiResult.adCopy?.short || "Get Started Today",
+          },
         };
 
         setGeneratedContent(content);
@@ -863,8 +894,9 @@ interface ContentHistoryItem {
                  <TabsTrigger value="copy">Copy</TabsTrigger>
                  <TabsTrigger value="description">Description</TabsTrigger>
                  <TabsTrigger value="email">Email</TabsTrigger>
-                 <TabsTrigger value="social">Social</TabsTrigger>
-               </TabsList>
+                <TabsTrigger value="social">Social</TabsTrigger>
+                <TabsTrigger value="landing">Landing</TabsTrigger>
+              </TabsList>
  
                {/* Headlines Tab */}
                <TabsContent value="headlines" className="space-y-4">
@@ -907,9 +939,9 @@ interface ContentHistoryItem {
                                >
                                  <RefreshCw className="h-4 w-4" />
                                </Button>
-                               <Button variant="outline" size="sm">
-                                 Use in Ad
-                               </Button>
+                            <Button variant="outline" size="sm" onClick={() => { handleCopy(headline.text, `ad-${headline.id}`); toast.success("Headline copied — ready to paste into your ad campaign"); }}>
+                              Use in Ad
+                            </Button>
                              </div>
                            </div>
                          </CardContent>
@@ -983,10 +1015,10 @@ interface ContentHistoryItem {
                              )}
                              Copy
                            </Button>
-                           <Button variant="outline" size="sm">
-                             <Facebook className="h-4 w-4 mr-1" />
-                             Use in Facebook Ad
-                           </Button>
+                          <Button variant="outline" size="sm" onClick={() => { handleCopy(copy.text, `fb-${copy.id}`); toast.success("Ad copy copied — ready to paste into your Facebook ad"); }}>
+                            <Facebook className="h-4 w-4 mr-1" />
+                            Use in Facebook Ad
+                          </Button>
                          </div>
                        </CardContent>
                      </Card>
@@ -1009,13 +1041,18 @@ interface ContentHistoryItem {
                            <Badge variant="secondary" className="capitalize">
                              {desc.variant}
                            </Badge>
-                           <div className="flex gap-2">
-                             {desc.features?.map((f) => (
-                               <Badge key={f} variant="outline" className="text-xs">
-                                 {f}
-                               </Badge>
-                             ))}
-                           </div>
+                          <div className="flex gap-2 flex-wrap">
+                            {desc.features?.map((f) => (
+                              <Badge key={f} variant="outline" className="text-xs">
+                                {f}
+                              </Badge>
+                            ))}
+                            {desc.benefits?.map((b) => (
+                              <Badge key={b} variant="secondary" className="text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+                                ✓ {b}
+                              </Badge>
+                            ))}
+                          </div>
                          </div>
                        </CardHeader>
                        <CardContent className="space-y-4">
@@ -1300,20 +1337,143 @@ interface ContentHistoryItem {
                                 )}
                                 Copy
                               </Button>
-                              <Button variant="outline" size="sm">
-                                <Send className="h-4 w-4 mr-1" />
-                                Post Directly
-                              </Button>
+                            <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/social-publisher")}>
+                              <Send className="h-4 w-4 mr-1" />
+                              Post Directly
+                            </Button>
                             </div>
                           </div>
                         </CardContent>
                      </Card>
                    </motion.div>
                  ))}
-               </TabsContent>
-             </Tabs>
+              </TabsContent>
+
+              {/* Landing Page Tab */}
+              <TabsContent value="landing" className="space-y-4">
+                {generatedContent.landingPage ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    {/* Hero Section */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                          Hero Section
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="bg-muted rounded-lg p-6 text-center space-y-3">
+                          <h2 className="text-2xl font-bold">{generatedContent.landingPage.heroHeadline}</h2>
+                          <p className="text-muted-foreground text-lg">{generatedContent.landingPage.heroSubheadline}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.heroHeadline, "landing-hero")}>
+                            {copiedIds.has("landing-hero") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
+                            Copy Headline
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.heroSubheadline, "landing-sub")}>
+                            {copiedIds.has("landing-sub") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
+                            Copy Subheadline
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Value Proposition */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Value Proposition</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {editingStates.has("landing-vp") ? (
+                          <Textarea
+                            value={editedTexts["landing-vp"] ?? generatedContent.landingPage.valueProposition}
+                            onChange={(e) => setEditedTexts((prev) => ({ ...prev, ["landing-vp"]: e.target.value }))}
+                            className="min-h-[100px]"
+                          />
+                        ) : (
+                          <p className="text-sm leading-relaxed">{generatedContent.landingPage.valueProposition}</p>
+                        )}
+                        <div className="flex gap-2">
+                          {editingStates.has("landing-vp") ? (
+                            <Button variant="default" size="sm" onClick={() => {
+                              if (generatedContent.landingPage) {
+                                setGeneratedContent({
+                                  ...generatedContent,
+                                  landingPage: { ...generatedContent.landingPage, valueProposition: editedTexts["landing-vp"] || generatedContent.landingPage.valueProposition },
+                                });
+                              }
+                              setEditingStates((prev) => { const n = new Set(prev); n.delete("landing-vp"); return n; });
+                              toast.success("Changes saved!");
+                            }}>
+                              <Save className="h-4 w-4 mr-1" /> Save
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" size="sm" onClick={() => toggleEdit("landing-vp", generatedContent.landingPage?.valueProposition || "")}>
+                              <Edit className="h-4 w-4 mr-1" /> Edit
+                            </Button>
+                          )}
+                          <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.valueProposition, "landing-vp-copy")}>
+                            {copiedIds.has("landing-vp-copy") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
+                            Copy
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Feature Highlights */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Feature Highlights</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-3">
+                          {generatedContent.landingPage.featureHighlights.map((feature, idx) => (
+                            <li key={idx} className="flex items-start gap-3 p-3 bg-muted rounded-lg">
+                              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <Check className="h-3.5 w-3.5 text-primary" />
+                              </div>
+                              <span className="text-sm flex-1">{feature}</span>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(feature, `landing-feat-${idx}`)}>
+                                {copiedIds.has(`landing-feat-${idx}`) ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+
+                    {/* CTA Section */}
+                    <Card className="border-primary/30 bg-primary/5">
+                      <CardHeader>
+                        <CardTitle className="text-base">Call to Action</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="bg-background rounded-lg p-6 text-center">
+                          <Button size="lg" className="text-base font-semibold px-8">
+                            {generatedContent.landingPage.ctaText}
+                          </Button>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.ctaText, "landing-cta")}>
+                          {copiedIds.has("landing-cta") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
+                          Copy CTA Text
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ) : (
+                  <Card className="p-8 text-center">
+                    <p className="text-muted-foreground">No landing page content generated. Enable "Landing page copy" and regenerate.</p>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
  
-             {/* History Section */}
+            {/* History Section */}
              <div className="mt-8">
                <Collapsible open={showHistory} onOpenChange={setShowHistory}>
                  <CollapsibleTrigger asChild>
