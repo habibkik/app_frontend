@@ -1,5 +1,6 @@
 import { Bell, Search, Settings, LogOut, User, CreditCard, Key, Coins, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +25,7 @@ import { useCurrency, supportedCurrencies } from "@/contexts/CurrencyContext";
 
 export function DashboardHeader() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { currency, setCurrency } = useCurrency();
 
@@ -51,7 +53,7 @@ export function DashboardHeader() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search products, suppliers..."
+              placeholder={t("header.searchPlaceholder")}
               className="pl-10 h-9 bg-secondary/50 border-0 focus-visible:ring-1"
             />
           </div>
@@ -110,16 +112,16 @@ export function DashboardHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
                 <User className="mr-2 h-4 w-4" />
-                Profile
+                {t("header.profile")}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
-                Settings
+                {t("header.settings")}
               </DropdownMenuItem>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger className="cursor-pointer">
                   <Coins className="mr-2 h-4 w-4" />
-                  Currency
+                  {t("header.currency")}
                   <span className="ml-auto text-xs text-muted-foreground">{currency}</span>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
@@ -138,11 +140,11 @@ export function DashboardHeader() {
               </DropdownMenuSub>
               <DropdownMenuItem className="cursor-pointer">
                 <Key className="mr-2 h-4 w-4" />
-                API Keys
+                {t("header.apiKeys")}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <CreditCard className="mr-2 h-4 w-4" />
-                Billing
+                {t("header.billing")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -150,7 +152,7 @@ export function DashboardHeader() {
                 onClick={handleLogout}
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                Sign out
+                {t("header.signOut")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
