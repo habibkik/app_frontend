@@ -9,23 +9,23 @@ export interface GeneratedContent {
   targetAudience: string;
   tone: string;
 
-  headlines: string[]; // 5 variations
+  headlines: string[];
 
   adCopy: {
-    short: string; // ~30 words
-    medium: string; // ~75 words
-    long: string; // ~150 words
+    short: string;
+    medium: string;
+    long: string;
   };
 
   descriptions: {
-    short: string; // ~50 words
-    medium: string; // ~150 words
-    long: string; // ~300+ words
+    short: string;
+    medium: string;
+    long: string;
   };
 
   emailCampaign: {
-    subjects: string[]; // 3 variations
-    body: string; // HTML template
+    subjects: string[];
+    body: string;
   };
 
   socialMedia: {
@@ -54,6 +54,14 @@ export interface GeneratedContent {
       cta: string;
     };
   };
+
+  landingPage: {
+    heroHeadline: string;
+    heroSubheadline: string;
+    valueProposition: string;
+    featureHighlights: string[];
+    ctaText: string;
+  } | null;
 
   generatedAt: string;
 }
