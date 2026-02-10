@@ -476,12 +476,18 @@ interface GeneratedContent {
               characterLimit: 280,
             } : null,
         ].filter(Boolean) as SocialCaption[],
-          landingPage: {
+          landingPage: aiResult.landingPage ? {
+            heroHeadline: aiResult.landingPage.heroHeadline,
+            heroSubheadline: aiResult.landingPage.heroSubheadline,
+            valueProposition: aiResult.landingPage.valueProposition,
+            featureHighlights: aiResult.landingPage.featureHighlights,
+            ctaText: aiResult.landingPage.ctaText,
+          } : {
             heroHeadline: (aiResult.headlines || [])[0] || `Transform Your Business with ${productName}`,
             heroSubheadline: (aiResult.headlines || [])[1] || `The trusted solution for modern professionals`,
             valueProposition: aiResult.descriptions?.medium || aiResult.descriptions?.short || "",
             featureHighlights: aiResult.headlines?.slice(2) || [],
-            ctaText: aiResult.adCopy?.short || "Get Started Today",
+            ctaText: "Get Started Today",
           },
         };
 

@@ -89,6 +89,13 @@ Generate comprehensive marketing content following these EXACT specifications:
    - LinkedIn: professional B2B angle (700 chars), industry insight, connection CTA
    - Twitter/X: witty message (280 chars max), 1-2 hashtags, punchy CTA
 
+6. LANDING PAGE COPY:
+   - heroHeadline: Bold, attention-grabbing headline (8-12 words)
+   - heroSubheadline: Supporting line that elaborates (15-25 words)
+   - valueProposition: 2-3 sentence paragraph explaining why this product matters
+   - featureHighlights: 4-6 concise bullet points of key features/benefits
+   - ctaText: Action-oriented button text (2-5 words, e.g., "Start Your Free Trial", "Shop Now")
+
 Be creative, compelling, and true to the specified tone and audience throughout all content.`;
 
     const tools = [
@@ -193,9 +200,21 @@ Be creative, compelling, and true to the specified tone and audience throughout 
                 },
                 required: ["instagram", "tiktok", "facebook", "linkedin", "twitter"],
                 additionalProperties: false
+              },
+              landingPage: {
+                type: "object",
+                properties: {
+                  heroHeadline: { type: "string", description: "Bold, attention-grabbing hero headline for the landing page" },
+                  heroSubheadline: { type: "string", description: "Supporting subheadline that elaborates on the hero" },
+                  valueProposition: { type: "string", description: "2-3 sentence value proposition paragraph" },
+                  featureHighlights: { type: "array", items: { type: "string" }, description: "4-6 key feature/benefit bullet points" },
+                  ctaText: { type: "string", description: "Call-to-action button text" }
+                },
+                required: ["heroHeadline", "heroSubheadline", "valueProposition", "featureHighlights", "ctaText"],
+                additionalProperties: false
               }
             },
-            required: ["headlines", "adCopy", "descriptions", "emailCampaign", "socialMedia"],
+            required: ["headlines", "adCopy", "descriptions", "emailCampaign", "socialMedia", "landingPage"],
             additionalProperties: false
           }
         }
