@@ -1,73 +1,155 @@
 
 
-## Content Studio - Missing Features Plan
+## Full i18n Translation Plan: Arabic, French, and Spanish
 
-### Current Status
-The ContentStudio component already implements ~95% of the requirements. The following gaps remain:
+### Overview
+The i18n infrastructure (i18next, LanguageContext, LanguageSelector) is fully set up, but no component currently uses `useTranslation()` to render translated text. Switching language in the UI has no visible effect. This plan adds translation keys for the Content Studio (primary focus) and wires up the key shared components so the entire app responds to language changes.
 
-### Missing Feature 1: Landing Page Copy Tab
-The "Landing page copy" checkbox exists in content types but there is no corresponding tab or generated content for it. This is the largest gap.
+### Scope of Changes
 
-**What to add:**
-- A 6th tab "Landing" after Social
-- Generated landing page content sections: Hero headline + subheadline, value proposition block, feature highlights, testimonials placeholder, CTA section
-- Edit/copy buttons matching the pattern of other tabs
-- Update the `GeneratedContent` interface to include `landingPage` data
-- Update `generateMockContent` fallback to include landing page content
-- Map AI response to landing page format (or generate from existing content)
+#### 1. Translation Files (4 files)
+Add a `contentStudio` section with ~80 keys covering all UI labels in the Content Studio, plus a `sidebar` section for navigation items. All 4 locale files will be updated:
 
-### Missing Feature 2: Functional "Post Directly" Button
-The "Post Directly" button on each Social platform card currently does nothing. It should navigate to the Social Publisher page.
+- `src/i18n/locales/en.json` -- English keys
+- `src/i18n/locales/ar.json` -- Arabic translations
+- `src/i18n/locales/fr.json` -- French translations
+- `src/i18n/locales/es.json` -- Spanish translations
 
-**What to add:**
-- Import `useNavigate` from react-router-dom
-- On click, navigate to `/dashboard/social-publisher` (or the correct route)
+New translation sections:
+- `contentStudio` -- All Content Studio labels (Content Settings, Product, Target Audience, audiences, content types, tones, tab names, button labels, placeholder text, toast messages, history section, actions bar, landing page section labels)
+- `sidebar` -- Navigation group labels and item titles for all 3 modes (buyer, seller, producer)
 
-### Missing Feature 3: Functional "Use in Ad" / "Use in Facebook Ad" Buttons
-These buttons on Headlines and Copy tabs are non-functional stubs.
+#### 2. Content Studio Component
+**File:** `src/features/seller/components/ContentStudio.tsx`
 
-**What to add:**
-- Copy the text to clipboard and show a toast indicating it's ready to paste into an ad campaign
-- Optionally navigate to the Campaigns page with the text pre-loaded
+- Import `useTranslation` from `react-i18next`
+- Add `const { t } = useTranslation();` at the top of the component
+- Replace all hardcoded English strings with `t("contentStudio.xxx")` calls
+- This includes: card titles, labels, dropdown options (audiences, tones, content types), tab triggers, button text, toast messages, placeholder text, section headings
 
-### Missing Feature 4: Description Tab - Benefits Badges
-Features are displayed as badges but benefits are not shown, even though the data exists.
+Key strings to translate (examples):
+- "Content Settings" -> `t("contentStudio.title")`
+- "Configure your content generation" -> `t("contentStudio.subtitle")`
+- "Select a product" -> `t("contentStudio.selectProduct")`
+- "Target Audience" -> `t("contentStudio.targetAudience")`
+- "E-commerce Shoppers" -> `t("contentStudio.audiences.ecommerce")`
+- "Generate Content" -> `t("contentStudio.generate")`
+- "Generating..." -> `t("contentStudio.generating")`
+- Tab labels: "Headlines", "Copy", "Description", "Email", "Social", "Landing"
+- Button labels: "Use in Ad", "Copy", "Edit", "Save", "Post Directly", etc.
+- Section titles: "Subject Lines", "Email Body", "Hero Section", "Value Proposition", "Feature Highlights", "Call to Action"
+- History: "Recently Generated", "Restore", "Delete"
+- Actions: "Save as Template", "Load Template", "Export ZIP", "Share with Team"
 
-**What to add:**
-- Render `desc.benefits` as badges alongside features, with a different color variant to distinguish them
+#### 3. Dashboard Sidebar
+**File:** `src/features/dashboard/components/DashboardSidebar.tsx`
+
+- Import `useTranslation`
+- Translate group labels and item titles using `t("sidebar.xxx")`
+- The navigation config (`navigation.ts`) returns static English strings; the sidebar will map them through `t()` using a key lookup
+
+#### 4. Dashboard Header
+**File:** `src/features/dashboard/components/DashboardHeader.tsx`
+
+- Import `useTranslation`
+- Translate: "Search products, suppliers...", "Profile", "Settings", "Currency", "API Keys", "Billing", "Sign out"
+
+#### 5. Landing Navigation
+**File:** `src/components/landing/Navigation.tsx`
+
+- Import `useTranslation`
+- Translate nav link labels: "Try Demo", "For Buyers", "For Sellers", "For Producers", "Pricing", "Sign In", "Get Started"
 
 ### Technical Details
 
-**File to modify:** `src/features/seller/components/ContentStudio.tsx`
+**Translation key structure example (en.json):**
+```json
+{
+  "contentStudio": {
+    "title": "Content Settings",
+    "subtitle": "Configure your content generation",
+    "product": "Product",
+    "selectProduct": "Select a product",
+    "targetAudience": "Target Audience",
+    "audiences": {
+      "ecommerce": "E-commerce Shoppers",
+      "wholesale": "Wholesale Buyers",
+      "retailers": "Retailers",
+      "b2b": "Corporate/B2B",
+      "other": "Other"
+    },
+    "contentTypes": {
+      "label": "Content Types",
+      "adCopy": "Ad copy (short)",
+      "description": "Product description (long)",
+      "email": "Email campaign",
+      "social": "Social media posts",
+      "landing": "Landing page copy"
+    },
+    "tone": "Tone",
+    "tones": {
+      "professional": "Professional",
+      "friendly": "Friendly",
+      "humorous": "Humorous",
+      "urgent": "Urgent/FOMO"
+    },
+    "generate": "Generate Content",
+    "generating": "Generating...",
+    "tabs": {
+      "headlines": "Headlines",
+      "copy": "Copy",
+      "description": "Description",
+      "email": "Email",
+      "social": "Social",
+      "landing": "Landing"
+    },
+    ...
+  }
+}
+```
 
-**Changes:**
+**Arabic example:**
+```json
+{
+  "contentStudio": {
+    "title": "إعدادات المحتوى",
+    "subtitle": "قم بتكوين إنشاء المحتوى الخاص بك",
+    "product": "المنتج",
+    "selectProduct": "اختر منتجاً",
+    "targetAudience": "الجمهور المستهدف",
+    "audiences": {
+      "ecommerce": "متسوقو التجارة الإلكترونية",
+      "wholesale": "مشترو الجملة",
+      "retailers": "تجار التجزئة",
+      "b2b": "الشركات/B2B",
+      "other": "أخرى"
+    },
+    ...
+  }
+}
+```
 
-1. **New interface + state** (~line 112-118): Add `landingPage` field to `GeneratedContent`:
-   ```
-   landingPage: {
-     heroHeadline: string;
-     heroSubheadline: string;
-     valueProposition: string;
-     featureHighlights: string[];
-     ctaText: string;
-   } | null;
-   ```
+**How dropdown options are translated:**
+The static arrays (`audiences`, `contentTypeOptions`, `toneOptions`) will be moved inside the component function so they can use `t()`:
 
-2. **Mock content** (~line 150-262): Add `landingPage` section to `generateMockContent`.
+```tsx
+const audiences = [
+  { value: "ecommerce", label: t("contentStudio.audiences.ecommerce") },
+  { value: "wholesale", label: t("contentStudio.audiences.wholesale") },
+  ...
+];
+```
 
-3. **AI mapping** (~line 391-455): Map AI response to landing page format (derive from descriptions + headlines if no dedicated AI field).
+### RTL Support
+RTL layout is already handled by the LanguageContext (sets `document.documentElement.dir = "rtl"` and adds a `rtl` class). All Tailwind styles will respond automatically since the app uses standard flex/grid layouts.
 
-4. **Tabs** (~line 861-867): Add `<TabsTrigger value="landing">Landing</TabsTrigger>`.
-
-5. **New TabsContent for Landing** (after Social tab ~line 1313): Render landing page sections with hero, value prop, features list, and CTA -- each with copy/edit buttons.
-
-6. **"Post Directly" button** (~line 1303-1306): Add `onClick` handler using `useNavigate` to route to Social Publisher.
-
-7. **"Use in Ad" button** (~line 910-912): Add `onClick` to copy headline text and show toast.
-
-8. **"Use in Facebook Ad" button** (~line 986-989): Add `onClick` to copy ad copy text and show toast.
-
-9. **Benefits badges** (~line 1012-1018): After features badges, render benefits with `variant="outline"` in a different style (e.g., green-tinted).
-
-**No new dependencies required.** All changes use existing components and react-router-dom (already installed).
+### Files Modified (Total: 8)
+1. `src/i18n/locales/en.json` -- Add contentStudio, sidebar, header, landingNav sections
+2. `src/i18n/locales/ar.json` -- Arabic translations for all new keys
+3. `src/i18n/locales/fr.json` -- French translations for all new keys
+4. `src/i18n/locales/es.json` -- Spanish translations for all new keys
+5. `src/features/seller/components/ContentStudio.tsx` -- Wire up `t()` for all strings
+6. `src/features/dashboard/components/DashboardSidebar.tsx` -- Wire up `t()` for nav labels
+7. `src/features/dashboard/components/DashboardHeader.tsx` -- Wire up `t()` for header labels
+8. `src/components/landing/Navigation.tsx` -- Wire up `t()` for nav links
 
