@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
 import { HeroButton } from "@/components/ui/hero-button";
@@ -9,27 +10,25 @@ const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const navLinks = [
-    { label: "Try Demo", href: "/#demo", highlight: true },
-    { label: "For Buyers", href: "/buyers" },
-    { label: "For Sellers", href: "/sellers" },
-    { label: "For Producers", href: "/producers" },
-    { label: "Pricing", href: "/pricing" },
+    { label: t("landingNav.tryDemo"), href: "/#demo", highlight: true },
+    { label: t("landingNav.forBuyers"), href: "/buyers" },
+    { label: t("landingNav.forSellers"), href: "/sellers" },
+    { label: t("landingNav.forProducers"), href: "/producers" },
+    { label: t("landingNav.pricing"), href: "/pricing" },
   ];
 
   const handleNavClick = (href: string) => {
-    // Handle hash links (like /#demo)
     if (href.includes('#')) {
       const [path, hash] = href.split('#');
       if (location.pathname === '/' || location.pathname === path) {
-        // Already on the page, just scroll
         const element = document.getElementById(hash);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' });
         }
       } else {
-        // Navigate to the page first, then scroll
         navigate(path || '/');
         setTimeout(() => {
           const element = document.getElementById(hash);
@@ -73,7 +72,7 @@ const Navigation = () => {
           >
             {navLinks.map((link) => (
               <button
-                key={link.label}
+                key={link.href}
                 onClick={() => handleNavClick(link.href)}
                 className={`text-sm font-medium transition-colors ${
                   link.highlight 
@@ -96,10 +95,10 @@ const Navigation = () => {
           >
             <LanguageSelector variant="ghost" />
             <HeroButton variant="ghost" size="sm" asChild>
-              <Link to="/login">Sign In</Link>
+              <Link to="/login">{t("landingNav.signIn")}</Link>
             </HeroButton>
             <HeroButton variant="primary" size="sm" asChild>
-              <Link to="/signup">Get Started</Link>
+              <Link to="/signup">{t("landingNav.getStarted")}</Link>
             </HeroButton>
           </motion.div>
 
@@ -125,7 +124,7 @@ const Navigation = () => {
               <div className="py-6 space-y-4">
                 {navLinks.map((link) => (
                   <button
-                    key={link.label}
+                    key={link.href}
                     onClick={() => handleNavClick(link.href)}
                     className={`block py-2 text-base font-medium transition-colors text-left w-full ${
                       link.highlight 
@@ -142,10 +141,10 @@ const Navigation = () => {
                     <LanguageSelector variant="outline" showLabel />
                   </div>
                   <HeroButton variant="ghost" size="default" className="w-full" asChild>
-                    <Link to="/login">Sign In</Link>
+                    <Link to="/login">{t("landingNav.signIn")}</Link>
                   </HeroButton>
                   <HeroButton variant="primary" size="default" className="w-full" asChild>
-                    <Link to="/signup">Get Started</Link>
+                    <Link to="/signup">{t("landingNav.getStarted")}</Link>
                   </HeroButton>
                 </div>
               </div>

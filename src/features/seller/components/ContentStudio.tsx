@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
  import { motion, AnimatePresence } from "framer-motion";
  import {
    Wand2,
@@ -133,29 +134,6 @@ interface GeneratedContent {
     { id: "2", name: "Hydraulic Pump HP-200", imageUrl: "/placeholder.svg", category: "Pumps" },
     { id: "3", name: "CNC Controller Board", imageUrl: "/placeholder.svg", category: "Electronics" },
   ];
- 
- const audiences = [
-   { value: "ecommerce", label: "E-commerce Shoppers" },
-   { value: "wholesale", label: "Wholesale Buyers" },
-   { value: "retailers", label: "Retailers" },
-   { value: "b2b", label: "Corporate/B2B" },
-   { value: "other", label: "Other" },
- ];
- 
- const contentTypeOptions = [
-   { id: "ad_copy" as ContentType, label: "Ad copy (short)", icon: Megaphone },
-   { id: "description" as ContentType, label: "Product description (long)", icon: FileText },
-   { id: "email" as ContentType, label: "Email campaign", icon: Mail },
-   { id: "social" as ContentType, label: "Social media posts", icon: Share2 },
-   { id: "landing" as ContentType, label: "Landing page copy", icon: Globe },
- ];
- 
- const toneOptions = [
-   { value: "professional", label: "Professional" },
-   { value: "friendly", label: "Friendly" },
-   { value: "humorous", label: "Humorous" },
-   { value: "urgent", label: "Urgent/FOMO" },
- ];
  
  const generateMockContent = (productName: string): GeneratedContent => ({
    headlines: [
@@ -326,7 +304,33 @@ interface GeneratedContent {
  
  export const ContentStudio = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const addStudioItem = useContentStudioStore((s) => s.addItem);
+
+   // Dynamic translated arrays
+   const audiences = [
+     { value: "ecommerce", label: t("contentStudio.audiences.ecommerce") },
+     { value: "wholesale", label: t("contentStudio.audiences.wholesale") },
+     { value: "retailers", label: t("contentStudio.audiences.retailers") },
+     { value: "b2b", label: t("contentStudio.audiences.b2b") },
+     { value: "other", label: t("contentStudio.audiences.other") },
+   ];
+
+   const contentTypeOptions = [
+     { id: "ad_copy" as ContentType, label: t("contentStudio.contentTypes.adCopy"), icon: Megaphone },
+     { id: "description" as ContentType, label: t("contentStudio.contentTypes.description"), icon: FileText },
+     { id: "email" as ContentType, label: t("contentStudio.contentTypes.email"), icon: Mail },
+     { id: "social" as ContentType, label: t("contentStudio.contentTypes.social"), icon: Share2 },
+     { id: "landing" as ContentType, label: t("contentStudio.contentTypes.landing"), icon: Globe },
+   ];
+
+   const toneOptions = [
+     { value: "professional", label: t("contentStudio.tones.professional") },
+     { value: "friendly", label: t("contentStudio.tones.friendly") },
+     { value: "humorous", label: t("contentStudio.tones.humorous") },
+     { value: "urgent", label: t("contentStudio.tones.urgent") },
+   ];
+
    // State
    const [selectedProduct, setSelectedProduct] = useState<string>("");
    const [targetAudience, setTargetAudience] = useState<TargetAudience>("ecommerce");
@@ -391,11 +395,11 @@ interface GeneratedContent {
  
     const handleGenerate = async () => {
       if (!selectedProduct) {
-        toast.error("Please select a product first");
+        toast.error(t("contentStudio.selectProductFirst"));
         return;
       }
       if (contentTypes.size === 0) {
-        toast.error("Please select at least one content type");
+        toast.error(t("contentStudio.selectContentType"));
         return;
       }
 
@@ -523,10 +527,10 @@ interface GeneratedContent {
         };
         setHistoryItems((prev) => [historyItem, ...prev].slice(0, 10));
 
-        toast.success("Content generated with AI successfully!");
+        toast.success(t("contentStudio.contentGenerated"));
       } catch (error) {
         console.error("Content generation error:", error);
-        toast.error(error instanceof Error ? error.message : "Failed to generate content");
+        toast.error(error instanceof Error ? error.message : t("contentStudio.failedToGenerate"));
       } finally {
         setIsGenerating(false);
       }
@@ -535,7 +539,7 @@ interface GeneratedContent {
    const handleCopy = async (text: string, id: string) => {
      await navigator.clipboard.writeText(text);
      setCopiedIds((prev) => new Set(prev).add(id));
-     toast.success("Copied to clipboard!");
+     toast.success(t("contentStudio.copiedToClipboard"));
      setTimeout(() => {
        setCopiedIds((prev) => {
          const next = new Set(prev);
@@ -572,7 +576,7 @@ interface GeneratedContent {
          h.id === id ? { ...h, text: randomHeadline } : h
        ),
      });
-     toast.success("Headline regenerated!");
+     toast.success(t("contentStudio.headlineRegenerated"));
    };
  
    const toggleEdit = (id: string, currentText: string) => {
@@ -626,7 +630,7 @@ interface GeneratedContent {
         next.delete(id);
         return next;
       });
-      toast.success("Changes saved!");
+      toast.success(t("contentStudio.changesSaved"));
     };
 
     const handleRestoreHistory = (item: ContentHistoryItem) => {
@@ -636,12 +640,12 @@ interface GeneratedContent {
  
    const handleDeleteHistory = (id: string) => {
      setHistoryItems((prev) => prev.filter((item) => item.id !== id));
-     toast.success("History item deleted");
+     toast.success(t("contentStudio.historyItemDeleted"));
    };
  
     const handleExportZip = () => {
       if (!generatedContent) {
-        toast.error("No content to export");
+        toast.error(t("contentStudio.noContentToExport"));
         return;
       }
       const exportData = {
@@ -679,18 +683,18 @@ interface GeneratedContent {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast.success("Content exported as JSON file!");
+      toast.success(t("contentStudio.contentExported"));
     };
  
     const handleSaveTemplate = async () => {
       if (!generatedContent || !templateName.trim()) {
-        toast.error("Please enter a template name");
+        toast.error(t("contentStudio.enterTemplateName"));
         return;
       }
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          toast.error("Please sign in to save templates");
+          toast.error(t("contentStudio.signInToSave"));
           return;
         }
         const { error } = await supabase.from("content_templates" as any).insert({
@@ -704,10 +708,10 @@ interface GeneratedContent {
         if (error) throw error;
         setTemplateName("");
         setShowSaveTemplate(false);
-        toast.success("Template saved successfully!");
+        toast.success(t("contentStudio.templateSaved"));
       } catch (err) {
         console.error("Save template error:", err);
-        toast.error("Failed to save template");
+        toast.error(t("contentStudio.failedToSave"));
       }
     };
 
@@ -717,7 +721,7 @@ interface GeneratedContent {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          toast.error("Please sign in to load templates");
+          toast.error(t("contentStudio.signInToLoad"));
           setLoadingTemplates(false);
           return;
         }
@@ -730,7 +734,7 @@ interface GeneratedContent {
         setSavedTemplates((data as any) || []);
       } catch (err) {
         console.error("Load templates error:", err);
-        toast.error("Failed to load templates");
+        toast.error(t("contentStudio.failedToLoad"));
       } finally {
         setLoadingTemplates(false);
       }
@@ -753,14 +757,14 @@ interface GeneratedContent {
           .eq("id", templateId);
         if (error) throw error;
         setSavedTemplates(prev => prev.filter(t => t.id !== templateId));
-        toast.success("Template deleted");
+        toast.success(t("contentStudio.templateDeleted"));
       } catch (err) {
-        toast.error("Failed to delete template");
+        toast.error(t("contentStudio.failedToDelete"));
       }
     };
  
    const handleShare = () => {
-     toast.success("Share link copied to clipboard!");
+     toast.success(t("contentStudio.shareLinkCopied"));
    };
  
    return (
@@ -771,17 +775,17 @@ interface GeneratedContent {
            <CardHeader className="pb-4">
              <CardTitle className="flex items-center gap-2 text-lg">
                <Sparkles className="h-5 w-5 text-primary" />
-               Content Settings
+               {t("contentStudio.title")}
              </CardTitle>
-             <CardDescription>Configure your content generation</CardDescription>
+             <CardDescription>{t("contentStudio.subtitle")}</CardDescription>
            </CardHeader>
            <CardContent className="space-y-6">
              {/* Product Selector */}
              <div className="space-y-2">
-               <Label className="text-sm font-medium">Product</Label>
+               <Label className="text-sm font-medium">{t("contentStudio.product")}</Label>
                <Select value={selectedProduct} onValueChange={setSelectedProduct}>
                  <SelectTrigger>
-                   <SelectValue placeholder="Select a product" />
+                   <SelectValue placeholder={t("contentStudio.selectProduct")} />
                  </SelectTrigger>
                  <SelectContent>
                    {products.map((product) => (
@@ -810,7 +814,7 @@ interface GeneratedContent {
  
              {/* Target Audience */}
              <div className="space-y-2">
-               <Label className="text-sm font-medium">Target Audience</Label>
+               <Label className="text-sm font-medium">{t("contentStudio.targetAudience")}</Label>
                <Select value={targetAudience} onValueChange={(v) => setTargetAudience(v as TargetAudience)}>
                  <SelectTrigger>
                    <SelectValue />
@@ -829,7 +833,7 @@ interface GeneratedContent {
  
              {/* Content Types */}
              <div className="space-y-3">
-               <Label className="text-sm font-medium">Content Types</Label>
+               <Label className="text-sm font-medium">{t("contentStudio.contentTypes.label")}</Label>
                {contentTypeOptions.map((option) => (
                  <div key={option.id} className="flex items-center gap-3">
                    <Checkbox
@@ -849,15 +853,15 @@ interface GeneratedContent {
  
              {/* Tone Selector */}
              <div className="space-y-2">
-               <Label className="text-sm font-medium">Tone</Label>
+               <Label className="text-sm font-medium">{t("contentStudio.tone")}</Label>
                <Select value={tone} onValueChange={(v) => setTone(v as ContentTone)}>
                  <SelectTrigger>
                    <SelectValue />
                  </SelectTrigger>
                  <SelectContent>
-                   {toneOptions.map((t) => (
-                     <SelectItem key={t.value} value={t.value}>
-                       {t.label}
+                   {toneOptions.map((tOpt) => (
+                     <SelectItem key={tOpt.value} value={tOpt.value}>
+                       {tOpt.label}
                      </SelectItem>
                    ))}
                  </SelectContent>
@@ -868,17 +872,18 @@ interface GeneratedContent {
              <Button
                onClick={handleGenerate}
                disabled={isGenerating || !selectedProduct}
-               className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+               className="w-full"
+               size="lg"
              >
                {isGenerating ? (
                  <>
-                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                   Generating...
+                   <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                   {t("contentStudio.generating")}
                  </>
                ) : (
                  <>
-                   <Wand2 className="mr-2 h-5 w-5" />
-                   Generate Content
+                   <Wand2 className="h-5 w-5 mr-2" />
+                   {t("contentStudio.generate")}
                  </>
                )}
              </Button>
@@ -886,22 +891,22 @@ interface GeneratedContent {
          </Card>
        </div>
  
-       {/* Right Panel - Content Tabs */}
+       {/* Right Panel - Generated Content */}
        <div className="flex-1 min-w-0">
          {generatedContent ? (
            <motion.div
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.3 }}
+             className="space-y-6"
            >
              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-               <TabsList className="flex flex-wrap w-full mb-6">
-                 <TabsTrigger value="headlines">Headlines</TabsTrigger>
-                 <TabsTrigger value="copy">Copy</TabsTrigger>
-                 <TabsTrigger value="description">Description</TabsTrigger>
-                 <TabsTrigger value="email">Email</TabsTrigger>
-                <TabsTrigger value="social">Social</TabsTrigger>
-                <TabsTrigger value="landing">Landing</TabsTrigger>
+               <TabsList className="flex flex-wrap h-auto gap-1">
+                 <TabsTrigger value="headlines">{t("contentStudio.tabs.headlines")}</TabsTrigger>
+                 <TabsTrigger value="copy">{t("contentStudio.tabs.copy")}</TabsTrigger>
+                 <TabsTrigger value="description">{t("contentStudio.tabs.description")}</TabsTrigger>
+                 <TabsTrigger value="email">{t("contentStudio.tabs.email")}</TabsTrigger>
+                <TabsTrigger value="social">{t("contentStudio.tabs.social")}</TabsTrigger>
+                <TabsTrigger value="landing">{t("contentStudio.tabs.landing")}</TabsTrigger>
               </TabsList>
  
                {/* Headlines Tab */}
@@ -945,8 +950,8 @@ interface GeneratedContent {
                                >
                                  <RefreshCw className="h-4 w-4" />
                                </Button>
-                            <Button variant="outline" size="sm" onClick={() => { handleCopy(headline.text, `ad-${headline.id}`); toast.success("Headline copied — ready to paste into your ad campaign"); }}>
-                              Use in Ad
+                            <Button variant="outline" size="sm" onClick={() => { handleCopy(headline.text, `ad-${headline.id}`); toast.success(t("contentStudio.headlineCopiedForAd")); }}>
+                              {t("contentStudio.useInAd")}
                             </Button>
                              </div>
                            </div>
@@ -973,7 +978,7 @@ interface GeneratedContent {
                              {copy.variant}
                            </Badge>
                            <span className="text-sm text-muted-foreground">
-                             {copy.characterCount} characters
+                             {copy.characterCount} {t("common.characters")}
                            </span>
                          </div>
                        </CardHeader>
@@ -997,7 +1002,7 @@ interface GeneratedContent {
                                onClick={() => handleSaveEdit(copy.id, "adCopy")}
                              >
                                <Save className="h-4 w-4 mr-1" />
-                               Save
+                               {t("common.save")}
                              </Button>
                            ) : (
                              <Button
@@ -1006,7 +1011,7 @@ interface GeneratedContent {
                                onClick={() => toggleEdit(copy.id, copy.text)}
                              >
                                <Edit className="h-4 w-4 mr-1" />
-                               Edit
+                               {t("common.edit")}
                              </Button>
                            )}
                            <Button
@@ -1019,11 +1024,11 @@ interface GeneratedContent {
                              ) : (
                                <Copy className="h-4 w-4 mr-1" />
                              )}
-                             Copy
+                             {t("common.copy")}
                            </Button>
-                          <Button variant="outline" size="sm" onClick={() => { handleCopy(copy.text, `fb-${copy.id}`); toast.success("Ad copy copied — ready to paste into your Facebook ad"); }}>
+                          <Button variant="outline" size="sm" onClick={() => { handleCopy(copy.text, `fb-${copy.id}`); toast.success(t("contentStudio.adCopyCopiedForFb")); }}>
                             <Facebook className="h-4 w-4 mr-1" />
-                            Use in Facebook Ad
+                            {t("contentStudio.useInFacebookAd")}
                           </Button>
                          </div>
                        </CardContent>
@@ -1081,7 +1086,7 @@ interface GeneratedContent {
                                onClick={() => handleSaveEdit(desc.id, "description")}
                              >
                                <Save className="h-4 w-4 mr-1" />
-                               Save
+                               {t("common.save")}
                              </Button>
                            ) : (
                              <Button
@@ -1090,7 +1095,7 @@ interface GeneratedContent {
                                onClick={() => toggleEdit(desc.id, desc.text)}
                              >
                                <Edit className="h-4 w-4 mr-1" />
-                               Edit
+                               {t("common.edit")}
                              </Button>
                            )}
                            <Button
@@ -1103,14 +1108,14 @@ interface GeneratedContent {
                              ) : (
                                <Copy className="h-4 w-4 mr-1" />
                              )}
-                             Copy
+                             {t("common.copy")}
                            </Button>
                            <Button variant="outline" size="sm">
                              <Globe className="h-4 w-4 mr-1" />
-                             Use on Website
+                             {t("contentStudio.useOnWebsite")}
                            </Button>
                            <Button variant="outline" size="sm">
-                             Use on Amazon/OLX
+                             {t("contentStudio.useOnMarketplace")}
                            </Button>
                          </div>
                        </CardContent>
@@ -1129,7 +1134,7 @@ interface GeneratedContent {
                      {/* Subject Lines */}
                      <Card className="mb-4">
                        <CardHeader>
-                         <CardTitle className="text-base">Subject Lines</CardTitle>
+                         <CardTitle className="text-base">{t("contentStudio.subjectLines")}</CardTitle>
                        </CardHeader>
                         <CardContent className="space-y-3">
                           {generatedContent.email.subjectLines.map((subject, idx) => (
@@ -1179,22 +1184,22 @@ interface GeneratedContent {
                      <Card>
                        <CardHeader>
                          <div className="flex items-center justify-between">
-                           <CardTitle className="text-base">Email Body</CardTitle>
+                           <CardTitle className="text-base">{t("contentStudio.emailBody")}</CardTitle>
                            <div className="flex gap-2">
                              <Dialog>
                                <DialogTrigger asChild>
                                  <Button variant="outline" size="sm">
                                    <Eye className="h-4 w-4 mr-1" />
-                                   Preview
+                                   {t("contentStudio.preview")}
                                  </Button>
                                </DialogTrigger>
                                <DialogContent className="max-w-2xl">
                                  <DialogHeader>
-                                   <DialogTitle>Email Preview</DialogTitle>
+                                   <DialogTitle>{t("contentStudio.emailPreview")}</DialogTitle>
                                  </DialogHeader>
                                  <div className="border rounded-lg p-6 bg-background">
                                    <div className="border-b pb-4 mb-4">
-                                     <p className="text-sm text-muted-foreground">Subject:</p>
+                                     <p className="text-sm text-muted-foreground">{t("contentStudio.subject")}</p>
                                      <p className="font-medium">
                                        {generatedContent.email?.subjectLines[0]}
                                      </p>
@@ -1207,7 +1212,7 @@ interface GeneratedContent {
                              </Dialog>
                              <Button variant="outline" size="sm">
                                <Send className="h-4 w-4 mr-1" />
-                               Send Test
+                               {t("contentStudio.sendTest")}
                              </Button>
                            </div>
                          </div>
@@ -1230,27 +1235,25 @@ interface GeneratedContent {
                             {editingStates.has("email-body") ? (
                               <Button variant="default" size="sm" onClick={() => handleSaveEdit("email-body", "email")}>
                                 <Save className="h-4 w-4 mr-1" />
-                                Save
+                                {t("common.save")}
                               </Button>
                             ) : (
                               <Button variant="ghost" size="sm" onClick={() => toggleEdit("email-body", generatedContent.email?.body || "")}>
                                 <Edit className="h-4 w-4 mr-1" />
-                                Edit
+                                {t("common.edit")}
                               </Button>
                             )}
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() =>
-                                handleCopy(generatedContent.email?.body || "", "email-body")
-                              }
+                              onClick={() => handleCopy(generatedContent.email?.body || "", "email-body")}
                             >
                               {copiedIds.has("email-body") ? (
                                 <Check className="h-4 w-4 mr-1 text-primary" />
                               ) : (
                                 <Copy className="h-4 w-4 mr-1" />
                               )}
-                              Copy
+                              {t("common.copy")}
                             </Button>
                           </div>
                         </CardContent>
@@ -1269,20 +1272,18 @@ interface GeneratedContent {
                      transition={{ delay: index * 0.1 }}
                    >
                      <Card className="hover:shadow-md transition-shadow overflow-hidden">
-                       <div className={cn("p-4", getPlatformStyles(social.platform))}>
-                         <div className="flex items-center gap-2">
-                           <PlatformIcon platform={social.platform} className="h-5 w-5" />
-                           <span className="font-semibold capitalize">{social.platform}</span>
-                         </div>
+                       <div className={cn("px-4 py-2 flex items-center gap-2", getPlatformStyles(social.platform))}>
+                         <PlatformIcon platform={social.platform} className="h-4 w-4" />
+                         <span className="text-sm font-medium capitalize">{social.platform}</span>
                        </div>
                         <CardContent className="p-4 space-y-4">
-                          <p className="text-sm leading-relaxed whitespace-pre-line">{social.caption}</p>
+                          <p className="text-sm whitespace-pre-line">{social.caption}</p>
 
                           {/* Hashtags */}
                           {social.hashtags && social.hashtags.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5">
+                            <div className="flex flex-wrap gap-1">
                               {social.hashtags.map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-xs cursor-pointer" onClick={() => handleCopy(`#${tag}`, `tag-${social.platform}-${tag}`)}>
+                                <Badge key={tag} variant="outline" className="text-xs">
                                   #{tag}
                                 </Badge>
                               ))}
@@ -1292,10 +1293,10 @@ interface GeneratedContent {
                           {/* TikTok Sounds */}
                           {social.platform === "tiktok" && social.sounds && social.sounds.length > 0 && (
                             <div className="border-t pt-3">
-                              <p className="text-xs font-medium text-muted-foreground mb-2">🎵 Suggested Sounds</p>
-                              <div className="flex flex-wrap gap-1.5">
+                              <p className="text-xs font-medium text-muted-foreground mb-1">🎵 {t("contentStudio.tiktokSounds")}</p>
+                              <div className="flex flex-wrap gap-1">
                                 {social.sounds.map((sound) => (
-                                  <Badge key={sound} variant="outline" className="text-xs">
+                                  <Badge key={sound} variant="secondary" className="text-xs">
                                     {sound}
                                   </Badge>
                                 ))}
@@ -1306,7 +1307,7 @@ interface GeneratedContent {
                           {/* Facebook Question */}
                           {social.platform === "facebook" && social.question && (
                             <div className="border-t pt-3">
-                              <p className="text-xs font-medium text-muted-foreground mb-1">💬 Engagement Question</p>
+                              <p className="text-xs font-medium text-muted-foreground mb-1">💬 {t("contentStudio.engagementQuestion")}</p>
                               <p className="text-sm italic">{social.question}</p>
                             </div>
                           )}
@@ -1314,7 +1315,7 @@ interface GeneratedContent {
                           {/* LinkedIn/Facebook CTA */}
                           {(social.platform === "linkedin" || social.platform === "facebook") && social.cta && (
                             <div className="border-t pt-3">
-                              <p className="text-xs font-medium text-muted-foreground mb-1">🎯 Call to Action</p>
+                              <p className="text-xs font-medium text-muted-foreground mb-1">🎯 {t("contentStudio.callToAction")}</p>
                               <Badge variant="default" className="text-xs">{social.cta}</Badge>
                             </div>
                           )}
@@ -1328,7 +1329,7 @@ interface GeneratedContent {
                                   : "text-muted-foreground"
                               )}
                             >
-                              {social.characterCount} / {social.characterLimit} characters
+                              {social.characterCount} / {social.characterLimit} {t("common.characters")}
                             </span>
                             <div className="flex gap-2">
                               <Button
@@ -1341,11 +1342,11 @@ interface GeneratedContent {
                                 ) : (
                                   <Copy className="h-4 w-4 mr-1" />
                                 )}
-                                Copy
+                                {t("common.copy")}
                               </Button>
                             <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/social-publisher")}>
                               <Send className="h-4 w-4 mr-1" />
-                              Post Directly
+                              {t("contentStudio.postDirectly")}
                             </Button>
                             </div>
                           </div>
@@ -1368,7 +1369,7 @@ interface GeneratedContent {
                       <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
                           <Sparkles className="h-4 w-4 text-primary" />
-                          Hero Section
+                          {t("contentStudio.heroSection")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
@@ -1379,11 +1380,11 @@ interface GeneratedContent {
                         <div className="flex gap-2">
                           <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.heroHeadline, "landing-hero")}>
                             {copiedIds.has("landing-hero") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
-                            Copy Headline
+                            {t("contentStudio.copyHeadline")}
                           </Button>
                           <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.heroSubheadline, "landing-sub")}>
                             {copiedIds.has("landing-sub") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
-                            Copy Subheadline
+                            {t("contentStudio.copySubheadline")}
                           </Button>
                         </div>
                       </CardContent>
@@ -1392,7 +1393,7 @@ interface GeneratedContent {
                     {/* Value Proposition */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">Value Proposition</CardTitle>
+                        <CardTitle className="text-base">{t("contentStudio.valueProposition")}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         {editingStates.has("landing-vp") ? (
@@ -1414,18 +1415,18 @@ interface GeneratedContent {
                                 });
                               }
                               setEditingStates((prev) => { const n = new Set(prev); n.delete("landing-vp"); return n; });
-                              toast.success("Changes saved!");
+                              toast.success(t("contentStudio.changesSaved"));
                             }}>
-                              <Save className="h-4 w-4 mr-1" /> Save
+                              <Save className="h-4 w-4 mr-1" /> {t("common.save")}
                             </Button>
                           ) : (
                             <Button variant="ghost" size="sm" onClick={() => toggleEdit("landing-vp", generatedContent.landingPage?.valueProposition || "")}>
-                              <Edit className="h-4 w-4 mr-1" /> Edit
+                              <Edit className="h-4 w-4 mr-1" /> {t("common.edit")}
                             </Button>
                           )}
                           <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.valueProposition, "landing-vp-copy")}>
                             {copiedIds.has("landing-vp-copy") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
-                            Copy
+                            {t("common.copy")}
                           </Button>
                         </div>
                       </CardContent>
@@ -1434,7 +1435,7 @@ interface GeneratedContent {
                     {/* Feature Highlights */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-base">Feature Highlights</CardTitle>
+                        <CardTitle className="text-base">{t("contentStudio.featureHighlights")}</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <ul className="space-y-3">
@@ -1456,7 +1457,7 @@ interface GeneratedContent {
                     {/* CTA Section */}
                     <Card className="border-primary/30 bg-primary/5">
                       <CardHeader>
-                        <CardTitle className="text-base">Call to Action</CardTitle>
+                        <CardTitle className="text-base">{t("contentStudio.callToAction")}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="bg-background rounded-lg p-6 text-center">
@@ -1466,18 +1467,18 @@ interface GeneratedContent {
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => handleCopy(generatedContent.landingPage!.ctaText, "landing-cta")}>
                           {copiedIds.has("landing-cta") ? <Check className="h-4 w-4 mr-1 text-primary" /> : <Copy className="h-4 w-4 mr-1" />}
-                          Copy CTA Text
+                          {t("contentStudio.copyCta")}
                         </Button>
                       </CardContent>
                     </Card>
                   </motion.div>
                 ) : (
                   <Card className="p-8 text-center">
-                    <p className="text-muted-foreground">No landing page content generated. Enable "Landing page copy" and regenerate.</p>
+                    <p className="text-muted-foreground">{t("contentStudio.noLandingContent")}</p>
                   </Card>
                 )}
               </TabsContent>
-            </Tabs>
+           </Tabs>
  
             {/* History Section */}
              <div className="mt-8">
@@ -1486,7 +1487,7 @@ interface GeneratedContent {
                    <Button variant="ghost" className="w-full justify-between">
                      <div className="flex items-center gap-2">
                        <History className="h-4 w-4" />
-                       <span>Recently Generated ({historyItems.length})</span>
+                       <span>{t("contentStudio.recentlyGenerated")} ({historyItems.length})</span>
                      </div>
                      {showHistory ? (
                        <ChevronUp className="h-4 w-4" />
@@ -1519,7 +1520,7 @@ interface GeneratedContent {
                                   onClick={() => handleRestoreHistory(item)}
                                 >
                                   <RefreshCw className="h-3.5 w-3.5 mr-1" />
-                                  Restore
+                                  {t("contentStudio.restore")}
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -1544,26 +1545,26 @@ interface GeneratedContent {
                   <DialogTrigger asChild>
                     <Button variant="outline">
                       <Save className="h-4 w-4 mr-2" />
-                      Save as Template
+                      {t("contentStudio.saveAsTemplate")}
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Save as Template</DialogTitle>
+                      <DialogTitle>{t("contentStudio.saveAsTemplate")}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 pt-2">
                       <div className="space-y-2">
-                        <Label>Template Name</Label>
+                        <Label>{t("contentStudio.templateName")}</Label>
                         <input
                           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          placeholder="e.g. Summer Sale - Professional"
+                          placeholder={t("contentStudio.templatePlaceholder")}
                           value={templateName}
                           onChange={(e) => setTemplateName(e.target.value)}
                         />
                       </div>
                       <Button onClick={handleSaveTemplate} className="w-full" disabled={!templateName.trim()}>
                         <Save className="h-4 w-4 mr-2" />
-                        Save Template
+                        {t("contentStudio.saveTemplate")}
                       </Button>
                     </div>
                   </DialogContent>
@@ -1571,15 +1572,15 @@ interface GeneratedContent {
 
                 <Button variant="outline" onClick={handleLoadTemplates}>
                   <History className="h-4 w-4 mr-2" />
-                  Load Template
+                  {t("contentStudio.loadTemplate")}
                 </Button>
                 <Button variant="outline" onClick={handleExportZip}>
                   <FileArchive className="h-4 w-4 mr-2" />
-                  Export ZIP
+                  {t("contentStudio.exportZip")}
                 </Button>
                 <Button variant="outline" onClick={handleShare}>
                   <Share2 className="h-4 w-4 mr-2" />
-                  Share
+                  {t("contentStudio.share")}
                 </Button>
               </div>
 
@@ -1587,7 +1588,7 @@ interface GeneratedContent {
               <Dialog open={showLoadTemplate} onOpenChange={setShowLoadTemplate}>
                 <DialogContent className="max-w-lg max-h-[70vh]">
                   <DialogHeader>
-                    <DialogTitle>Load Template</DialogTitle>
+                    <DialogTitle>{t("contentStudio.loadTemplate")}</DialogTitle>
                   </DialogHeader>
                   <ScrollArea className="max-h-[50vh]">
                     {loadingTemplates ? (
@@ -1597,7 +1598,7 @@ interface GeneratedContent {
                     ) : savedTemplates.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <Save className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>No saved templates yet</p>
+                        <p>{t("common.noSavedTemplates")}</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -1612,7 +1613,7 @@ interface GeneratedContent {
                               </div>
                               <div className="flex gap-1 ml-2">
                                 <Button size="sm" variant="default" onClick={() => handleApplyTemplate(tpl)}>
-                                  Use
+                                  {t("common.use")}
                                 </Button>
                                 <Button size="sm" variant="ghost" onClick={() => handleDeleteTemplate(tpl.id)}>
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -1634,10 +1635,9 @@ interface GeneratedContent {
                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                  <Sparkles className="h-8 w-8 text-primary" />
                </div>
-               <h3 className="text-xl font-semibold mb-2">Ready to Generate Content</h3>
+               <h3 className="text-xl font-semibold mb-2">{t("contentStudio.emptyTitle")}</h3>
                <p className="text-muted-foreground max-w-md">
-                 Select a product and content types, then click "Generate Content" to create
-                 AI-powered marketing materials.
+                 {t("contentStudio.emptyDescription")}
                </p>
              </div>
            </Card>

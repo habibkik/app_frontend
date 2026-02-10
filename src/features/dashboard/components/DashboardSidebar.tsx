@@ -1,5 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Sidebar,
   SidebarContent,
@@ -19,12 +20,50 @@ import { useConversations } from "@/features/buyer";
 import { getNavigationForMode, modeConfig } from "@/features/dashboard/config/navigation";
 import { cn } from "@/lib/utils";
 
+// Map English nav titles to translation keys
+const titleKeyMap: Record<string, string> = {
+  "Dashboard": "sidebar.dashboard",
+  "Supplier Search": "sidebar.supplierSearch",
+  "My RFQs": "sidebar.myRfqs",
+  "Conversations": "sidebar.conversations",
+  "Saved Suppliers": "sidebar.savedSuppliers",
+  "Heat Map": "sidebar.heatMap",
+  "Analytics": "sidebar.analytics",
+  "Settings": "sidebar.settings",
+  "Reverse Engineering": "sidebar.reverseEngineering",
+  "Component Supply": "sidebar.componentSupply",
+  "Production Feasibility": "sidebar.productionFeasibility",
+  "Go-To-Market": "sidebar.goToMarket",
+  "Products": "sidebar.products",
+  "Market Intelligence": "sidebar.marketIntelligence",
+  "Competitor Tracking": "sidebar.competitorTracking",
+  "Pricing Strategy": "sidebar.pricingStrategy",
+  "Campaigns": "sidebar.campaigns",
+  "Content Studio": "sidebar.contentStudio",
+  "Social Publisher": "sidebar.socialPublisher",
+  "Website Builder": "sidebar.websiteBuilder",
+  "Seller Analytics": "sidebar.sellerAnalytics",
+};
+
+const groupKeyMap: Record<string, string> = {
+  "Overview": "sidebar.overview",
+  "Sourcing": "sidebar.sourcing",
+  "Insights": "sidebar.insights",
+  "Account": "sidebar.account",
+  "Production": "sidebar.production",
+  "Growth": "sidebar.growth",
+  "Setup": "sidebar.setup",
+  "Intelligence": "sidebar.intelligence",
+  "Marketing": "sidebar.marketing",
+};
+
 export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { mode } = useDashboardMode();
   const { getTotalUnreadCount } = useConversations();
+  const { t } = useTranslation();
   
   const navigation = getNavigationForMode(mode);
   const currentConfig = modeConfig[mode];
@@ -32,7 +71,6 @@ export function DashboardSidebar() {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Check if an item should show a badge
   const getBadgeCount = (url: string): number => {
     if (url === "/dashboard/conversations") {
       return totalUnread;
@@ -42,7 +80,6 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      {/* Sidebar Header with Logo */}
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
@@ -52,20 +89,19 @@ export function DashboardSidebar() {
             <div className="flex flex-col">
               <span className="text-sm font-bold text-sidebar-foreground">TradePlatform</span>
               <span className={cn("text-xs", currentConfig.color)}>
-                {currentConfig.label} Mode
+                {t(`dashboard.modes.${mode}`)}
               </span>
             </div>
           )}
         </div>
       </SidebarHeader>
 
-      {/* Navigation Groups */}
       <SidebarContent className="px-2 py-4">
         {navigation.map((group) => (
           <SidebarGroup key={group.label}>
             {!collapsed && (
               <SidebarGroupLabel className="text-xs uppercase tracking-wider text-sidebar-foreground/50 px-3 mb-2">
-                {group.label}
+                {t(groupKeyMap[group.label] || group.label)}
               </SidebarGroupLabel>
             )}
             <SidebarGroupContent>
@@ -77,7 +113,7 @@ export function DashboardSidebar() {
                       <SidebarMenuButton
                         asChild
                         isActive={isActive(item.url)}
-                        tooltip={collapsed ? item.title : undefined}
+                        tooltip={collapsed ? t(titleKeyMap[item.title] || item.title) : undefined}
                       >
                         <NavLink
                           to={item.url}
@@ -98,7 +134,7 @@ export function DashboardSidebar() {
                           </div>
                           {!collapsed && (
                             <>
-                              <span className="flex-1">{item.title}</span>
+                              <span className="flex-1">{t(titleKeyMap[item.title] || item.title)}</span>
                               {badgeCount > 0 && (
                                 <Badge 
                                   variant="destructive" 
@@ -120,7 +156,6 @@ export function DashboardSidebar() {
         ))}
       </SidebarContent>
 
-      {/* Footer */}
       <SidebarFooter className="border-t border-sidebar-border p-4">
         {!collapsed && (
           <div className="text-xs text-sidebar-foreground/50">
