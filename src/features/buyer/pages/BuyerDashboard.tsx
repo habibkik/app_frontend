@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useAnalysisStore, type SupplierDiscoveryResult } from "@/stores/analysisStore";
 import { useSavedSuppliersStore } from "@/stores/savedSuppliersStore";
@@ -61,22 +62,21 @@ const alertIconMap: Record<string, React.ReactNode> = {
   supplier: <Users className="h-4 w-4 mt-0.5 text-blue-500 shrink-0" />,
 };
 
-// ── Key actions ────────────────────────────────────────────
-
-const keyActions = [
-  { title: "Supplier Search", desc: "Find & compare suppliers", icon: Search, href: "/dashboard/suppliers" },
-  { title: "My RFQs", desc: "Manage quote requests", icon: FileText, href: "/dashboard/rfqs" },
-  { title: "Conversations", desc: "Message suppliers", icon: MessageSquare, href: "/dashboard/conversations" },
-  { title: "Saved Suppliers", desc: "View bookmarked suppliers", icon: Bookmark, href: "/dashboard/saved" },
-];
-
 // ── Component ──────────────────────────────────────────────
 
 export default function BuyerDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const buyerResults = useAnalysisStore((s) => s.buyerResults);
   const savedCount = useSavedSuppliersStore((s) => s.savedSupplierIds.size);
+
+  const keyActions = [
+    { title: t("buyerDashboard.actions.supplierSearch"), desc: t("buyerDashboard.actions.supplierSearchDesc"), icon: Search, href: "/dashboard/suppliers" },
+    { title: t("buyerDashboard.actions.myRfqs"), desc: t("buyerDashboard.actions.myRfqsDesc"), icon: FileText, href: "/dashboard/rfqs" },
+    { title: t("buyerDashboard.actions.conversations"), desc: t("buyerDashboard.actions.conversationsDesc"), icon: MessageSquare, href: "/dashboard/conversations" },
+    { title: t("buyerDashboard.actions.savedSuppliers"), desc: t("buyerDashboard.actions.savedSuppliersDesc"), icon: Bookmark, href: "/dashboard/saved" },
+  ];
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
   const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
@@ -84,19 +84,18 @@ export default function BuyerDashboard() {
   return (
     <DashboardLayout>
       <motion.div className="space-y-6 p-4 md:p-6" variants={container} initial="hidden" animate="show">
-        {/* ── 1. Welcome Card ─────────────────────────── */}
         <motion.div variants={item}>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Welcome back, {user?.firstName ?? "Buyer"}!</CardTitle>
-              <CardDescription>Here's your sourcing activity at a glance.</CardDescription>
+              <CardTitle className="text-xl">{t("buyerDashboard.welcome", { name: user?.firstName ?? "Buyer" })}</CardTitle>
+              <CardDescription>{t("buyerDashboard.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  { label: "Active RFQs", value: String(activeRFQs.length), icon: ShoppingCart, color: "text-primary" },
-                  { label: "Quotes Received", value: String(totalQuotes), icon: FileText, color: "text-emerald-500" },
-                  { label: "Saved Suppliers", value: String(savedCount), icon: Bookmark, color: "text-amber-500" },
+                  { label: t("buyerDashboard.stats.activeRfqs"), value: String(activeRFQs.length), icon: ShoppingCart, color: "text-primary" },
+                  { label: t("buyerDashboard.stats.quotesReceived"), value: String(totalQuotes), icon: FileText, color: "text-emerald-500" },
+                  { label: t("buyerDashboard.stats.savedSuppliers"), value: String(savedCount), icon: Bookmark, color: "text-amber-500" },
                 ].map((s) => (
                   <Card key={s.label} className="bg-muted/40">
                     <CardContent className="flex items-center gap-3 p-4">
@@ -113,7 +112,6 @@ export default function BuyerDashboard() {
           </Card>
         </motion.div>
 
-        {/* ── 2. Key Actions ──────────────────────────── */}
         <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {keyActions.map((a) => (
             <Card key={a.title} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(a.href)}>
@@ -131,28 +129,16 @@ export default function BuyerDashboard() {
           ))}
         </motion.div>
 
-        {/* ── 3. RFQ Status Breakdown + Quotes by Category ── */}
         <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">RFQ Status Breakdown</CardTitle>
+              <CardTitle className="text-base">{t("buyerDashboard.sections.rfqStatus")}</CardTitle>
             </CardHeader>
             <CardContent className="h-[260px] flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={rfqStatusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={4}
-                    dataKey="value"
-                    label={({ name, value }) => `${name} (${value})`}
-                  >
-                    {rfqStatusData.map((_, idx) => (
-                      <Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />
-                    ))}
+                  <Pie data={rfqStatusData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" label={({ name, value }) => `${name} (${value})`}>
+                    {rfqStatusData.map((_, idx) => (<Cell key={idx} fill={STATUS_COLORS[idx % STATUS_COLORS.length]} />))}
                   </Pie>
                   <Tooltip />
                 </PieChart>
@@ -163,8 +149,8 @@ export default function BuyerDashboard() {
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Quotes by Category</CardTitle>
-                <Badge variant="secondary" className="gap-1"><TrendingUp className="h-3 w-3" /> {totalQuotes} total</Badge>
+                <CardTitle className="text-base">{t("buyerDashboard.sections.quotesByCategory")}</CardTitle>
+                <Badge variant="secondary" className="gap-1"><TrendingUp className="h-3 w-3" /> {totalQuotes} {t("buyerDashboard.total")}</Badge>
               </div>
             </CardHeader>
             <CardContent className="h-[260px]">
@@ -181,47 +167,45 @@ export default function BuyerDashboard() {
           </Card>
         </motion.div>
 
-        {/* ── 4. Latest AI Discovery (if available) ──── */}
         {buyerResults && (
           <motion.div variants={item}>
             <Card className="border-primary/20 bg-primary/5">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Latest Supplier Discovery</CardTitle>
-                  <Badge variant="secondary">{Math.round(buyerResults.confidence * 100)}% confidence</Badge>
+                  <CardTitle className="text-base">{t("buyerDashboard.sections.latestDiscovery")}</CardTitle>
+                  <Badge variant="secondary">{Math.round(buyerResults.confidence * 100)}% {t("buyerDashboard.confidence")}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Product</p>
+                    <p className="text-sm text-muted-foreground">{t("buyerDashboard.product")}</p>
                     <p className="font-semibold">{buyerResults.productIdentification.name}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Suppliers Found</p>
+                    <p className="text-sm text-muted-foreground">{t("buyerDashboard.suppliersFound")}</p>
                     <p className="font-semibold">{buyerResults.suggestedSuppliers.length}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Est. Market Price</p>
+                    <p className="text-sm text-muted-foreground">{t("buyerDashboard.estMarketPrice")}</p>
                     <p className="font-semibold">${buyerResults.estimatedMarketPrice.min} – ${buyerResults.estimatedMarketPrice.max}</p>
                   </div>
                 </div>
                 <Button variant="outline" size="sm" className="mt-4" onClick={() => navigate("/dashboard/suppliers")}>
-                  View Suppliers <ArrowRight className="h-4 w-4 ml-1" />
+                  {t("buyerDashboard.buttons.viewSuppliers")} <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </CardContent>
             </Card>
           </motion.div>
         )}
 
-        {/* ── 5. Active RFQs Table ─────────────────────── */}
         <motion.div variants={item}>
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Active RFQs</CardTitle>
+                <CardTitle className="text-base">{t("buyerDashboard.sections.activeRfqs")}</CardTitle>
                 <Button variant="link" size="sm" className="text-xs" onClick={() => navigate("/dashboard/rfqs")}>
-                  View all RFQs
+                  {t("buyerDashboard.buttons.viewAllRfqs")}
                 </Button>
               </div>
             </CardHeader>
@@ -229,11 +213,11 @@ export default function BuyerDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right">Quotes</TableHead>
-                    <TableHead className="text-right">Status</TableHead>
-                    <TableHead className="text-right">Expires</TableHead>
+                    <TableHead>{t("buyerDashboard.tables.title")}</TableHead>
+                    <TableHead>{t("buyerDashboard.tables.category")}</TableHead>
+                    <TableHead className="text-right">{t("buyerDashboard.tables.quotes")}</TableHead>
+                    <TableHead className="text-right">{t("buyerDashboard.tables.status")}</TableHead>
+                    <TableHead className="text-right">{t("buyerDashboard.tables.expires")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -257,14 +241,13 @@ export default function BuyerDashboard() {
           </Card>
         </motion.div>
 
-        {/* ── 6. Sourcing Alerts ────────────────────────── */}
         <motion.div variants={item}>
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Sourcing Alerts</CardTitle>
+                <CardTitle className="text-base">{t("buyerDashboard.sections.sourcingAlerts")}</CardTitle>
                 <Button variant="link" size="sm" className="text-xs" onClick={() => navigate("/dashboard/suppliers")}>
-                  View supplier search
+                  {t("buyerDashboard.buttons.viewSupplierSearch")}
                 </Button>
               </div>
             </CardHeader>

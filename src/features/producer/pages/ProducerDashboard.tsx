@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useAnalysisStore, type BOMAnalysisResult } from "@/stores/analysisStore";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
@@ -9,22 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import {
-  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
-import {
-  Factory, Package, Wrench, Rocket, ArrowRight, AlertTriangle,
-  CheckCircle2, Clock, DollarSign, Layers, TrendingDown,
-} from "lucide-react";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Factory, Package, Wrench, Rocket, ArrowRight, AlertTriangle, CheckCircle2, Clock, DollarSign, Layers, TrendingDown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-// ── Mock data ──────────────────────────────────────────────
-
-const productionStats = [
-  { label: "Active BOMs", value: "18", icon: Layers, color: "text-primary" },
-  { label: "Components Tracked", value: "342", icon: Package, color: "text-amber-500" },
-  { label: "Avg Feasibility Score", value: "76/100", icon: Factory, color: "text-emerald-500" },
-];
+// ── Mock data (unchanged) ──────────────────────────────────
 
 const costBreakdownData = [
   { name: "Components", value: 45 },
@@ -33,12 +23,7 @@ const costBreakdownData = [
   { name: "Overhead", value: 15 },
 ];
 
-const COST_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-];
+const COST_COLORS = ["hsl(var(--primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"];
 
 const recentBOMs = [
   { name: "Servo Motor XR-500", components: 24, cost: 2840, feasibility: 82, updated: new Date(Date.now() - 3600000).toISOString() },
@@ -70,40 +55,34 @@ const alertIconMap: Record<string, React.ReactNode> = {
   feasibility: <CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-500 shrink-0" />,
 };
 
-// ── Key actions config ─────────────────────────────────────
-
-const keyActions = [
-  { title: "Reverse Engineering", desc: "Analyze product BOMs", icon: Wrench, href: "/dashboard/bom" },
-  { title: "Component Supply", desc: "Source & compare parts", icon: Package, href: "/dashboard/components" },
-  { title: "Feasibility Check", desc: "Evaluate production viability", icon: Factory, href: "/dashboard/feasibility" },
-  { title: "Go-To-Market", desc: "Plan product launch", icon: Rocket, href: "/dashboard/gtm" },
-];
-
-// ── Helpers ─────────────────────────────────────────────────
-
 function getFeasibilityBadge(score: number) {
   if (score >= 80) return <Badge variant="default" className="bg-emerald-500/15 text-emerald-600 border-emerald-200">{score}</Badge>;
   if (score >= 60) return <Badge variant="default" className="bg-amber-500/15 text-amber-600 border-amber-200">{score}</Badge>;
   return <Badge variant="destructive">{score}</Badge>;
 }
 
-// ── Component ──────────────────────────────────────────────
-
 export default function ProducerDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const producerResults = useAnalysisStore((s) => s.producerResults);
   const { symbol } = useCurrency();
   const fc = useFormatCurrency();
 
-  const bomSummary = producerResults
-    ? {
-        name: producerResults.productName,
-        components: producerResults.components.length,
-        cost: producerResults.totalEstimatedCost,
-        confidence: producerResults.overallConfidence,
-      }
-    : null;
+  const productionStats = [
+    { label: t("producerDashboard.stats.activeBoms"), value: "18", icon: Layers, color: "text-primary" },
+    { label: t("producerDashboard.stats.componentsTracked"), value: "342", icon: Package, color: "text-amber-500" },
+    { label: t("producerDashboard.stats.avgFeasibility"), value: "76/100", icon: Factory, color: "text-emerald-500" },
+  ];
+
+  const keyActions = [
+    { title: t("producerDashboard.actions.reverseEngineering"), desc: t("producerDashboard.actions.reverseEngineeringDesc"), icon: Wrench, href: "/dashboard/bom" },
+    { title: t("producerDashboard.actions.componentSupply"), desc: t("producerDashboard.actions.componentSupplyDesc"), icon: Package, href: "/dashboard/components" },
+    { title: t("producerDashboard.actions.feasibility"), desc: t("producerDashboard.actions.feasibilityDesc"), icon: Factory, href: "/dashboard/feasibility" },
+    { title: t("producerDashboard.actions.gtm"), desc: t("producerDashboard.actions.gtmDesc"), icon: Rocket, href: "/dashboard/gtm" },
+  ];
+
+  const bomSummary = producerResults ? { name: producerResults.productName, components: producerResults.components.length, cost: producerResults.totalEstimatedCost, confidence: producerResults.overallConfidence } : null;
 
   const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
   const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
@@ -111,12 +90,11 @@ export default function ProducerDashboard() {
   return (
     <DashboardLayout>
       <motion.div className="space-y-6 p-4 md:p-6" variants={container} initial="hidden" animate="show">
-        {/* ── 1. Welcome Card ─────────────────────────── */}
         <motion.div variants={item}>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Welcome back, {user?.firstName ?? "Producer"}!</CardTitle>
-              <CardDescription>Here's an overview of your production pipeline.</CardDescription>
+              <CardTitle className="text-xl">{t("producerDashboard.welcome", { name: user?.firstName ?? "Producer" })}</CardTitle>
+              <CardDescription>{t("producerDashboard.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -136,7 +114,6 @@ export default function ProducerDashboard() {
           </Card>
         </motion.div>
 
-        {/* ── 2. Key Actions ──────────────────────────── */}
         <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {keyActions.map((a) => (
             <Card key={a.title} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(a.href)}>
@@ -154,40 +131,25 @@ export default function ProducerDashboard() {
           ))}
         </motion.div>
 
-        {/* ── 3. Production Cost Breakdown + Component Spend ── */}
         <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Production Cost Breakdown</CardTitle>
-            </CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-base">{t("producerDashboard.sections.costBreakdown")}</CardTitle></CardHeader>
             <CardContent className="h-[260px] flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie
-                    data={costBreakdownData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={4}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {costBreakdownData.map((_, idx) => (
-                      <Cell key={idx} fill={COST_COLORS[idx % COST_COLORS.length]} />
-                    ))}
+                  <Pie data={costBreakdownData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                    {costBreakdownData.map((_, idx) => (<Cell key={idx} fill={COST_COLORS[idx % COST_COLORS.length]} />))}
                   </Pie>
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Top Component Spend</CardTitle>
-                <Badge variant="secondary" className="gap-1"><DollarSign className="h-3 w-3" /> {fc(40000)} total</Badge>
+                <CardTitle className="text-base">{t("producerDashboard.sections.topComponentSpend")}</CardTitle>
+                <Badge variant="secondary" className="gap-1"><DollarSign className="h-3 w-3" /> {fc(40000)} {t("producerDashboard.total")}</Badge>
               </div>
             </CardHeader>
             <CardContent className="h-[260px]">
@@ -204,54 +166,41 @@ export default function ProducerDashboard() {
           </Card>
         </motion.div>
 
-        {/* ── 4. Latest AI Analysis (if available) ──── */}
         {bomSummary && (
           <motion.div variants={item}>
             <Card className="border-primary/20 bg-primary/5">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Latest BOM Analysis</CardTitle>
-                  <Badge variant="secondary">{Math.round(bomSummary.confidence * 100)}% confidence</Badge>
+                  <CardTitle className="text-base">{t("producerDashboard.sections.latestBomAnalysis")}</CardTitle>
+                  <Badge variant="secondary">{Math.round(bomSummary.confidence * 100)}% {t("producerDashboard.confidence")}</Badge>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Product</p>
-                    <p className="font-semibold">{bomSummary.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Components Identified</p>
-                    <p className="font-semibold">{bomSummary.components}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Est. Total Cost</p>
-                    <p className="font-semibold">{fc(bomSummary.cost)}</p>
-                  </div>
+                  <div><p className="text-sm text-muted-foreground">{t("producerDashboard.tables.product")}</p><p className="font-semibold">{bomSummary.name}</p></div>
+                  <div><p className="text-sm text-muted-foreground">{t("producerDashboard.componentsIdentified")}</p><p className="font-semibold">{bomSummary.components}</p></div>
+                  <div><p className="text-sm text-muted-foreground">{t("producerDashboard.estTotalCost")}</p><p className="font-semibold">{fc(bomSummary.cost)}</p></div>
                 </div>
                 <Button variant="outline" size="sm" className="mt-4" onClick={() => navigate("/dashboard/bom")}>
-                  View Full BOM <ArrowRight className="h-4 w-4 ml-1" />
+                  {t("producerDashboard.buttons.viewFullBom")} <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </CardContent>
             </Card>
           </motion.div>
         )}
 
-        {/* ── 5. Recent BOMs Table ─────────────────────── */}
         <motion.div variants={item}>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Recent BOMs</CardTitle>
-            </CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-base">{t("producerDashboard.sections.recentBoms")}</CardTitle></CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Components</TableHead>
-                    <TableHead className="text-right">Est. Cost</TableHead>
-                    <TableHead className="text-right">Feasibility</TableHead>
-                    <TableHead className="text-right">Updated</TableHead>
+                    <TableHead>{t("producerDashboard.tables.product")}</TableHead>
+                    <TableHead className="text-right">{t("producerDashboard.tables.components")}</TableHead>
+                    <TableHead className="text-right">{t("producerDashboard.tables.estCost")}</TableHead>
+                    <TableHead className="text-right">{t("producerDashboard.tables.feasibility")}</TableHead>
+                    <TableHead className="text-right">{t("producerDashboard.tables.updated")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -261,9 +210,7 @@ export default function ProducerDashboard() {
                       <TableCell className="text-right">{b.components}</TableCell>
                       <TableCell className="text-right">{fc(b.cost)}</TableCell>
                       <TableCell className="text-right">{getFeasibilityBadge(b.feasibility)}</TableCell>
-                      <TableCell className="text-right text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(b.updated), { addSuffix: true })}
-                      </TableCell>
+                      <TableCell className="text-right text-xs text-muted-foreground">{formatDistanceToNow(new Date(b.updated), { addSuffix: true })}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -272,15 +219,12 @@ export default function ProducerDashboard() {
           </Card>
         </motion.div>
 
-        {/* ── 6. Supply Chain & Feasibility Alerts ──── */}
         <motion.div variants={item}>
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Supply Chain & Feasibility Alerts</CardTitle>
-                <Button variant="link" size="sm" className="text-xs" onClick={() => navigate("/dashboard/feasibility")}>
-                  View feasibility details
-                </Button>
+                <CardTitle className="text-base">{t("producerDashboard.sections.supplyChainAlerts")}</CardTitle>
+                <Button variant="link" size="sm" className="text-xs" onClick={() => navigate("/dashboard/feasibility")}>{t("producerDashboard.buttons.viewFeasibility")}</Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -289,9 +233,7 @@ export default function ProducerDashboard() {
                   {alertIconMap[a.type]}
                   <div className="min-w-0">
                     <p className="text-sm">{a.message}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(a.timestamp), { addSuffix: true })}
-                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">{formatDistanceToNow(new Date(a.timestamp), { addSuffix: true })}</p>
                   </div>
                 </div>
               ))}
