@@ -108,7 +108,45 @@
     "noAccount": "¿No tienes cuenta?",
     "hasAccount": "¿Ya tienes una cuenta?",
     "rememberMe": "Recordarme",
-    "termsAgree": "Acepto los términos y la política de privacidad"
+    "termsAgree": "Acepto los términos y la política de privacidad",
+    "signIn": "Iniciar sesión",
+    "signingIn": "Iniciando sesión...",
+    "signUpFree": "Regístrate gratis",
+    "emailAddress": "Dirección de correo",
+    "emailPlaceholder": "tu@empresa.com",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "enterCredentials": "Ingresa tus credenciales para acceder a tu cuenta",
+    "welcomeBackTitle": "Bienvenido de nuevo al comercio global",
+    "welcomeBackDesc": "Conéctate con proveedores verificados, simplifica tu abastecimiento y haz crecer tu negocio en la plataforma B2B líder mundial.",
+    "feature1": "Acceso a más de 50,000 proveedores verificados",
+    "feature2": "Inteligencia de mercado en tiempo real",
+    "feature3": "Transacciones seguras y fideicomiso",
+    "createAccount": "Crear cuenta",
+    "creatingAccount": "Creando cuenta...",
+    "fillDetails": "Completa tus datos para comenzar",
+    "startJourneyTitle": "Comienza tu viaje comercial hoy",
+    "startJourneyDesc": "Únete a miles de empresas que ya usan nuestra plataforma para comprar más inteligente, comerciar más rápido y crecer globalmente.",
+    "signupFeature1": "Prueba gratuita de 14 días, sin tarjeta",
+    "signupFeature2": "Coincidencia de proveedores por IA",
+    "signupFeature3": "Gestor de cuenta dedicado",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "companyName": "Nombre de la empresa",
+    "businessEmail": "Correo empresarial",
+    "yourRole": "Tu rol",
+    "selectRole": "Selecciona tu rol",
+    "roleBuyer": "Comprador - Busco productos",
+    "roleProducer": "Productor - Fabrico productos",
+    "roleSeller": "Vendedor - Distribuyo productos",
+    "roleOther": "Otro",
+    "createPassword": "Crea una contraseña segura",
+    "confirmPassword": "Confirmar contraseña",
+    "confirmPasswordPlaceholder": "Confirma tu contraseña",
+    "agreeTerms": "Acepto los",
+    "termsOfService": "Términos de servicio",
+    "privacyPolicy": "Política de privacidad",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "signInLink": "Iniciar sesión"
   },
   "dashboard": {
     "welcome": "Bienvenido de nuevo",
@@ -341,5 +379,348 @@
     "notFound": "Página no encontrada",
     "unauthorized": "No estás autorizado para ver esta página",
     "networkError": "Error de red. Por favor, verifica tu conexión."
+  },
+  "sellerDashboard": {
+    "welcome": "¡Bienvenido de nuevo, {{name}}!",
+    "subtitle": "Esto es lo que está pasando en tu tienda hoy.",
+    "stats": {
+      "activeProducts": "Productos activos",
+      "salesThisMonth": "Ventas este mes",
+      "averageRating": "Calificación promedio"
+    },
+    "actions": {
+      "competitors": "Monitorear competidores",
+      "competitorsDesc": "Rastrear cambios de precios y stock",
+      "pricing": "Optimizar precios",
+      "pricingDesc": "Estrategias de precios con IA",
+      "content": "Crear contenido",
+      "contentDesc": "Generar recursos de marketing",
+      "publish": "Publicar post",
+      "publishDesc": "Programar publicaciones"
+    },
+    "sections": {
+      "salesTrend": "Tendencia de ventas (30 días)",
+      "topProducts": "Top 5 productos por ingresos",
+      "topPerforming": "Productos con mejor rendimiento",
+      "competitorAlerts": "Alertas de competidores",
+      "recentPosts": "Publicaciones recientes"
+    },
+    "tables": {
+      "product": "Producto",
+      "unitsSold": "Unidades vendidas",
+      "revenue": "Ingresos",
+      "rating": "Calificación"
+    },
+    "buttons": {
+      "viewAllAlerts": "Ver todas las alertas",
+      "analytics": "Análisis"
+    },
+    "noAlerts": "No hay alertas nuevas en las últimas 24 horas.",
+    "up": "Subida"
+  },
+  "buyerDashboard": {
+    "welcome": "¡Bienvenido de nuevo, {{name}}!",
+    "subtitle": "Aquí está tu actividad de abastecimiento de un vistazo.",
+    "stats": {
+      "activeRfqs": "Solicitudes activas",
+      "quotesReceived": "Cotizaciones recibidas",
+      "savedSuppliers": "Proveedores guardados"
+    },
+    "actions": {
+      "supplierSearch": "Buscar proveedores",
+      "supplierSearchDesc": "Encontrar y comparar proveedores",
+      "myRfqs": "Mis solicitudes",
+      "myRfqsDesc": "Gestionar solicitudes de cotización",
+      "conversations": "Conversaciones",
+      "conversationsDesc": "Comunicarse con proveedores",
+      "savedSuppliers": "Proveedores guardados",
+      "savedSuppliersDesc": "Ver proveedores favoritos"
+    },
+    "sections": {
+      "rfqStatus": "Desglose de estados",
+      "quotesByCategory": "Cotizaciones por categoría",
+      "latestDiscovery": "Último descubrimiento de proveedor",
+      "activeRfqs": "Solicitudes activas",
+      "sourcingAlerts": "Alertas de abastecimiento"
+    },
+    "tables": {
+      "title": "Título",
+      "category": "Categoría",
+      "quotes": "Cotizaciones",
+      "status": "Estado",
+      "expires": "Expira"
+    },
+    "buttons": {
+      "viewAllRfqs": "Ver todas las solicitudes",
+      "viewSuppliers": "Ver proveedores",
+      "viewSupplierSearch": "Ver búsqueda de proveedores"
+    },
+    "total": "total",
+    "confidence": "confianza",
+    "product": "Producto",
+    "suppliersFound": "Proveedores encontrados",
+    "estMarketPrice": "Precio de mercado estimado"
+  },
+  "producerDashboard": {
+    "welcome": "¡Bienvenido de nuevo, {{name}}!",
+    "subtitle": "Aquí está un resumen de tu pipeline de producción.",
+    "stats": {
+      "activeBoms": "BOMs activos",
+      "componentsTracked": "Componentes rastreados",
+      "avgFeasibility": "Puntuación media de factibilidad"
+    },
+    "actions": {
+      "reverseEngineering": "Ingeniería inversa",
+      "reverseEngineeringDesc": "Analizar BOMs de productos",
+      "componentSupply": "Suministro de componentes",
+      "componentSupplyDesc": "Buscar y comparar piezas",
+      "feasibility": "Verificación de factibilidad",
+      "feasibilityDesc": "Evaluar viabilidad de producción",
+      "gtm": "Salida al mercado",
+      "gtmDesc": "Planificar lanzamiento de producto"
+    },
+    "sections": {
+      "costBreakdown": "Desglose de costos de producción",
+      "topComponentSpend": "Mayor gasto en componentes",
+      "latestBomAnalysis": "Último análisis de BOM",
+      "recentBoms": "BOMs recientes",
+      "supplyChainAlerts": "Alertas de cadena de suministro"
+    },
+    "tables": {
+      "product": "Producto",
+      "components": "Componentes",
+      "estCost": "Costo estimado",
+      "feasibility": "Factibilidad",
+      "updated": "Actualizado"
+    },
+    "buttons": {
+      "viewFullBom": "Ver BOM completo",
+      "viewFeasibility": "Ver detalles de factibilidad"
+    },
+    "total": "total",
+    "confidence": "confianza",
+    "componentsIdentified": "Componentes identificados",
+    "estTotalCost": "Costo total estimado"
+  },
+  "mainDashboard": {
+    "title": "Panel de control",
+    "uploadText": "Sube una imagen de producto para comenzar el análisis con IA",
+    "aiAnalysis": "Análisis de producto con IA"
+  },
+  "dashboardStats": {
+    "buyer": {
+      "activeRfqs": "Solicitudes activas",
+      "suppliersFound": "Proveedores encontrados",
+      "savedThisMonth": "Ahorrado este mes",
+      "responseRate": "Tasa de respuesta"
+    },
+    "producer": {
+      "bomsGenerated": "BOMs generados",
+      "componentsSourced": "Componentes obtenidos",
+      "productionValue": "Valor de producción",
+      "costAccuracy": "Precisión de costos"
+    },
+    "seller": {
+      "marketAnalyses": "Análisis de mercado",
+      "productsListed": "Productos listados",
+      "revenueMtd": "Ingresos del mes",
+      "winRate": "Tasa de éxito"
+    },
+    "fromLastMonth": "respecto al mes pasado"
+  },
+  "quickActions": {
+    "title": "Acciones rápidas",
+    "description": "Tareas comunes para {{mode}}s",
+    "buyer": {
+      "createRfq": "Nueva solicitud de cotización",
+      "browseSuppliers": "Explorar proveedores",
+      "viewAnalytics": "Ver análisis"
+    },
+    "producer": {
+      "componentSupply": "Suministro de componentes",
+      "checkFeasibility": "Verificar factibilidad",
+      "goToMarket": "Salida al mercado"
+    },
+    "seller": {
+      "marketIntelligence": "Inteligencia de mercado",
+      "viewHeatMap": "Ver mapa de calor",
+      "pricingStrategy": "Estrategia de precios"
+    }
+  },
+  "recentAnalyses": {
+    "title": "Análisis recientes",
+    "subtitle": "Tu historial de análisis IA aparecerá aquí",
+    "subtitleWithData": "Tus análisis de productos con IA recientes",
+    "emptyText": "Sube una imagen de producto arriba para iniciar tu primer análisis con IA",
+    "viewAll": "Ver todo",
+    "modeLabels": {
+      "buyer": "Abastecimiento",
+      "producer": "BOM",
+      "seller": "Mercado"
+    }
+  },
+  "hero": {
+    "badge": "Inteligencia comercial con IA",
+    "title1": "Una imagen.",
+    "title2": "Insights infinitos.",
+    "subtitle": "Sube cualquier imagen de producto. Obtén coincidencias de proveedores, costos de producción o inteligencia de mercado — impulsado por IA.",
+    "modes": {
+      "buyer": "Encontrar proveedores",
+      "buyerDesc": "Descubrir proveedores verificados y obtener cotizaciones",
+      "buyerResult": "3 proveedores encontrados",
+      "producer": "Generar BOM",
+      "producerDesc": "Ingeniería inversa de componentes y costos",
+      "producerResult": "12 componentes identificados",
+      "seller": "Analizar mercado",
+      "sellerDesc": "Obtener precios competitivos e insights",
+      "sellerResult": "Análisis de mercado listo"
+    },
+    "uploadZone": {
+      "dropHere": "Suelta una imagen de producto aquí",
+      "uploadBtn": "Subir imagen",
+      "tryDemo": "Probar demo",
+      "analyzing": "La IA está analizando tu producto...",
+      "analysisComplete": "Análisis completado",
+      "viewResults": "Ver resultados"
+    },
+    "pills": {
+      "noSignup": "Sin registro",
+      "instant": "Resultados instantáneos",
+      "free": "Demo 100% gratis"
+    },
+    "stats": {
+      "tradeVolume": "Volumen comercial",
+      "suppliers": "Proveedores",
+      "accuracy": "Precisión",
+      "analysisTime": "Tiempo de análisis"
+    }
+  },
+  "features": {
+    "badge": "Funciones con IA",
+    "title": "Una imagen desbloquea",
+    "titleHighlight": "todo",
+    "subtitle": "Desde la identificación de componentes hasta el análisis de mercado — nuestra IA transforma cualquier imagen de producto en inteligencia comercial accionable.",
+    "items": {
+      "imageIntel": "Inteligencia por imagen",
+      "imageIntelDesc": "Sube cualquier imagen de producto y deja que la IA extraiga componentes, especificaciones, proveedores y datos de mercado al instante.",
+      "componentDetection": "Detección de componentes con IA",
+      "componentDetectionDesc": "Identificación automática de materiales, piezas y requisitos de fabricación a partir de fotos de productos.",
+      "supplierMatching": "Coincidencia inteligente de proveedores",
+      "supplierMatchingDesc": "La IA hace coincidir tu producto con proveedores verificados en todo el mundo basándose en análisis de imágenes.",
+      "bomGeneration": "Generación instantánea de BOM",
+      "bomGenerationDesc": "Genera una lista de materiales completa con estimaciones de costos a partir de una sola imagen de producto.",
+      "marketIntel": "Inteligencia de mercado",
+      "marketIntelDesc": "Analiza competidores, precios de mercado y tendencias de demanda para cualquier producto que fotografíes.",
+      "pricingStrategy": "Estrategia de precios",
+      "pricingStrategyDesc": "Obtén precios recomendados por IA con escenarios de margen basados en datos de mercado reales.",
+      "multiMode": "Análisis multi-modo",
+      "multiModeDesc": "Misma imagen, diferentes insights. Cambia entre las vistas de Comprador, Productor y Vendedor.",
+      "contentGen": "Generación de contenido",
+      "contentGenDesc": "Generación automática de descripciones de productos, publicaciones sociales y textos de marketing desde tu análisis."
+    }
+  },
+  "howItWorks": {
+    "badge": "Cómo funciona",
+    "title": "De imagen a",
+    "titleHighlight": "inteligencia",
+    "subtitle": "Una imagen desbloquea todo lo que necesitas — proveedores, costos, componentes, datos de mercado y más. Sin formularios, sin catálogos, solo fotografía y listo.",
+    "steps": {
+      "step1Title": "Sube cualquier producto",
+      "step1Desc": "Simplemente suelta una imagen de producto — una foto de tu teléfono, un catálogo de proveedor o cualquier producto que quieras analizar.",
+      "step2Title": "La IA analiza todo",
+      "step2Desc": "Nuestra IA identifica instantáneamente componentes, materiales, costos, proveedores y datos de mercado de tu imagen.",
+      "step3Title": "Obtén insights por modo",
+      "step3Desc": "Elige tu objetivo: Encontrar proveedores (Comprador), generar BOM (Productor) o analizar mercado (Vendedor).",
+      "step4Title": "Toma acción",
+      "step4Desc": "Solicita cotizaciones, obtén componentes o lanza productos — todo desde una sola imagen."
+    }
+  },
+  "roleCards": {
+    "badge": "Elige tu rol",
+    "title": "Diseñado para cada lado del",
+    "titleHighlight": "comercio global",
+    "subtitle": "Ya sea que busques productos, fabriques bienes o vendas a empresas, tenemos las herramientas que necesitas para tener éxito.",
+    "buyer": {
+      "title": "Para compradores",
+      "subtitle": "Obtén productos globalmente",
+      "description": "Encuentra proveedores verificados, compara cotizaciones y gestiona pedidos de fabricantes de todo el mundo. Nuestra IA te ayuda a encontrar la coincidencia perfecta.",
+      "features": ["Coincidencia de proveedores con IA", "Sistema de cotización instantánea", "Herramientas de comparación de precios", "Seguimiento de pedidos"],
+      "button": "Empezar a comprar"
+    },
+    "producer": {
+      "title": "Para productores",
+      "subtitle": "Gestiona producción y precios",
+      "description": "Simplifica tu flujo de producción, establece precios competitivos y conéctate directamente con compradores globales.",
+      "features": ["Gestión de producción", "Herramientas de precios dinámicos", "Planificación de capacidad", "Acceso directo a compradores"],
+      "button": "Listar productos"
+    },
+    "seller": {
+      "title": "Para vendedores",
+      "subtitle": "Amplía tu alcance",
+      "description": "Lista tus productos en nuestro marketplace global, recibe leads calificados y haz crecer tus ventas B2B con análisis potentes.",
+      "features": ["Marketplace global", "Gestión de leads", "Análisis de ventas", "Sincronización de inventario"],
+      "button": "Abrir tienda"
+    }
+  },
+  "testimonials": {
+    "badge": "Testimonios",
+    "title": "La confianza de",
+    "titleHighlight": "líderes de la industria",
+    "subtitle": "Descubre cómo empresas de todo el mundo están transformando sus operaciones comerciales con nuestra plataforma.",
+    "items": {
+      "quote1": "TradePlatform redujo nuestro tiempo de descubrimiento de proveedores en un 70%. La coincidencia por IA es increíblemente precisa y la red de proveedores verificados nos da confianza en cada pedido.",
+      "role1": "Directora de Compras",
+      "quote2": "Como fabricante, tener acceso directo a compradores calificados ha transformado nuestro negocio. Hemos triplicado nuestro volumen de exportación en solo 6 meses.",
+      "role2": "CEO",
+      "quote3": "El sistema de cotizaciones es brillante. Puedo comparar cotizaciones de más de 10 proveedores en minutos en lugar de pasar semanas en correos y llamadas.",
+      "role3": "Gerente de Cadena de Suministro"
+    }
+  },
+  "cta": {
+    "badge": "Comienza con una sola imagen",
+    "title1": "Toma una foto.",
+    "title2": "Desbloquea insights.",
+    "subtitle": "Sin formularios complejos. Sin catálogos de productos. Solo sube una imagen y deja que la IA haga el resto — proveedores, costos, datos de mercado, todo en segundos.",
+    "uploadBtn": "Sube tu primera imagen",
+    "howItWorks": "Ver cómo funciona",
+    "trustText": "Sin registro • Resultados instantáneos • 100% gratis para probar"
+  },
+  "footer": {
+    "tagline": "Plataforma B2B impulsada por IA que conecta compradores, productores y vendedores en todo el mundo.",
+    "email": "hello@tradeplatform.com",
+    "availableIn": "Disponible en más de 180 países",
+    "copyright": "© 2025 TradePlatform. Todos los derechos reservados.",
+    "categories": {
+      "product": "Producto",
+      "company": "Empresa",
+      "resources": "Recursos",
+      "legal": "Legal"
+    },
+    "links": {
+      "features": "Funciones",
+      "pricing": "Precios",
+      "integrations": "Integraciones",
+      "api": "API",
+      "about": "Acerca de",
+      "blog": "Blog",
+      "careers": "Carreras",
+      "press": "Prensa",
+      "documentation": "Documentación",
+      "helpCenter": "Centro de ayuda",
+      "webinars": "Webinars",
+      "caseStudies": "Casos de estudio",
+      "privacy": "Privacidad",
+      "terms": "Términos",
+      "security": "Seguridad",
+      "cookies": "Cookies"
+    }
+  },
+  "modeSelector": {
+    "buyer": "Comprador",
+    "buyerDesc": "Buscar proveedores y productos",
+    "producer": "Productor",
+    "producerDesc": "Gestionar producción y costos",
+    "seller": "Vendedor",
+    "sellerDesc": "Vender y analizar mercados"
   }
 }

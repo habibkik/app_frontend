@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
@@ -56,18 +57,10 @@ const platformIcon: Record<string, React.ReactNode> = {
   twitter: <Twitter className="h-4 w-4" />,
 };
 
-// ── Key actions config ─────────────────────────────────────
-
-const keyActions = [
-  { title: "Monitor Competitors", desc: "Track pricing & stock changes", icon: Users, href: "/dashboard/competitors" },
-  { title: "Optimize Pricing", desc: "AI-driven pricing strategies", icon: DollarSign, href: "/dashboard/pricing" },
-  { title: "Create Content", desc: "Generate marketing assets", icon: Palette, href: "/dashboard/content-studio" },
-  { title: "Publish Post", desc: "Schedule social media posts", icon: Send, href: "/dashboard/publisher" },
-];
-
 // ── Component ──────────────────────────────────────────────
 
 export default function SellerDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { alerts } = useCompetitorMonitorStore();
@@ -75,7 +68,13 @@ export default function SellerDashboard() {
   const fc = useFormatCurrency();
   const [posts, setPosts] = useState(mockPosts);
 
-  // Try loading published posts from DB
+  const keyActions = [
+    { title: t("sellerDashboard.actions.competitors"), desc: t("sellerDashboard.actions.competitorsDesc"), icon: Users, href: "/dashboard/competitors" },
+    { title: t("sellerDashboard.actions.pricing"), desc: t("sellerDashboard.actions.pricingDesc"), icon: DollarSign, href: "/dashboard/pricing" },
+    { title: t("sellerDashboard.actions.content"), desc: t("sellerDashboard.actions.contentDesc"), icon: Palette, href: "/dashboard/content-studio" },
+    { title: t("sellerDashboard.actions.publish"), desc: t("sellerDashboard.actions.publishDesc"), icon: Send, href: "/dashboard/publisher" },
+  ];
+
   useEffect(() => {
     supabase
       .from("scheduled_posts")
@@ -102,15 +101,15 @@ export default function SellerDashboard() {
         <motion.div variants={item}>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl">Welcome back, {user?.firstName ?? "Seller"}!</CardTitle>
-              <CardDescription>Here's what's happening with your store today.</CardDescription>
+              <CardTitle className="text-xl">{t("sellerDashboard.welcome", { name: user?.firstName ?? "Seller" })}</CardTitle>
+              <CardDescription>{t("sellerDashboard.subtitle")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  { label: "Active Products", value: "1,247", icon: Package, color: "text-primary" },
-                  { label: "Sales This Month", value: fc(45800), icon: ShoppingCart, color: "text-emerald-500" },
-                  { label: "Average Rating", value: "4.2 ⭐", icon: Star, color: "text-amber-500" },
+                  { label: t("sellerDashboard.stats.activeProducts"), value: "1,247", icon: Package, color: "text-primary" },
+                  { label: t("sellerDashboard.stats.salesThisMonth"), value: fc(45800), icon: ShoppingCart, color: "text-emerald-500" },
+                  { label: t("sellerDashboard.stats.averageRating"), value: "4.2 ⭐", icon: Star, color: "text-amber-500" },
                 ].map((s) => (
                   <Card key={s.label} className="bg-muted/40">
                     <CardContent className="flex items-center gap-3 p-4">
@@ -150,8 +149,8 @@ export default function SellerDashboard() {
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Sales Trend (30 days)</CardTitle>
-                <Badge variant="secondary" className="gap-1"><TrendingUp className="h-3 w-3" /> Up 15%</Badge>
+                <CardTitle className="text-base">{t("sellerDashboard.sections.salesTrend")}</CardTitle>
+                <Badge variant="secondary" className="gap-1"><TrendingUp className="h-3 w-3" /> {t("sellerDashboard.up")} 15%</Badge>
               </div>
             </CardHeader>
             <CardContent className="h-[240px]">
@@ -169,7 +168,7 @@ export default function SellerDashboard() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Top 5 Products by Revenue</CardTitle>
+              <CardTitle className="text-base">{t("sellerDashboard.sections.topProducts")}</CardTitle>
             </CardHeader>
             <CardContent className="h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -189,16 +188,16 @@ export default function SellerDashboard() {
         <motion.div variants={item}>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Top Performing Products</CardTitle>
+              <CardTitle className="text-base">{t("sellerDashboard.sections.topPerforming")}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead className="text-right">Units Sold</TableHead>
-                    <TableHead className="text-right">Revenue</TableHead>
-                    <TableHead className="text-right">Rating</TableHead>
+                    <TableHead>{t("sellerDashboard.tables.product")}</TableHead>
+                    <TableHead className="text-right">{t("sellerDashboard.tables.unitsSold")}</TableHead>
+                    <TableHead className="text-right">{t("sellerDashboard.tables.revenue")}</TableHead>
+                    <TableHead className="text-right">{t("sellerDashboard.tables.rating")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -218,18 +217,17 @@ export default function SellerDashboard() {
 
         {/* ── 5 & 6. Competitor Alerts + Recent Posts ──── */}
         <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Competitor Alerts */}
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Competitor Alerts</CardTitle>
+                <CardTitle className="text-base">{t("sellerDashboard.sections.competitorAlerts")}</CardTitle>
                 <Button variant="link" size="sm" className="text-xs" onClick={() => navigate("/dashboard/competitors")}>
-                  View all alerts
+                  {t("sellerDashboard.buttons.viewAllAlerts")}
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {recentAlerts.length === 0 && <p className="text-sm text-muted-foreground">No new alerts in the last 24 hours.</p>}
+              {recentAlerts.length === 0 && <p className="text-sm text-muted-foreground">{t("sellerDashboard.noAlerts")}</p>}
               {recentAlerts.slice(0, 4).map((a) => (
                 <div key={a.id} className="flex items-start gap-3 rounded-md border p-3">
                   <AlertTriangle className="h-4 w-4 mt-0.5 text-destructive shrink-0" />
@@ -245,10 +243,9 @@ export default function SellerDashboard() {
             </CardContent>
           </Card>
 
-          {/* Recent Posts */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Recent Posts</CardTitle>
+              <CardTitle className="text-base">{t("sellerDashboard.sections.recentPosts")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {posts.map((p) => (
@@ -265,7 +262,7 @@ export default function SellerDashboard() {
                     </div>
                   </div>
                   <Button variant="ghost" size="sm" className="shrink-0">
-                    <Eye className="h-4 w-4 mr-1" /> Analytics
+                    <Eye className="h-4 w-4 mr-1" /> {t("sellerDashboard.buttons.analytics")}
                   </Button>
                 </div>
               ))}

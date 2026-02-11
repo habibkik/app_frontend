@@ -108,7 +108,45 @@
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "rememberMe": "Remember me",
-    "termsAgree": "I agree to the Terms and Privacy Policy"
+    "termsAgree": "I agree to the Terms and Privacy Policy",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "signUpFree": "Sign up for free",
+    "emailAddress": "Email address",
+    "emailPlaceholder": "you@company.com",
+    "passwordPlaceholder": "Enter your password",
+    "enterCredentials": "Enter your credentials to access your account",
+    "welcomeBackTitle": "Welcome back to global trade",
+    "welcomeBackDesc": "Connect with verified suppliers, streamline your sourcing, and grow your business on the world's leading B2B trade platform.",
+    "feature1": "Access 50,000+ verified suppliers",
+    "feature2": "Real-time market intelligence",
+    "feature3": "Secure transactions & escrow",
+    "createAccount": "Create account",
+    "creatingAccount": "Creating account...",
+    "fillDetails": "Fill in your details to get started",
+    "startJourneyTitle": "Start your trade journey today",
+    "startJourneyDesc": "Join thousands of businesses already using our platform to source smarter, trade faster, and grow globally.",
+    "signupFeature1": "Free 14-day trial, no credit card required",
+    "signupFeature2": "AI-powered supplier matching",
+    "signupFeature3": "Dedicated account manager",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "companyName": "Company name",
+    "businessEmail": "Business email",
+    "yourRole": "Your role",
+    "selectRole": "Select your role",
+    "roleBuyer": "Buyer - I'm sourcing products",
+    "roleProducer": "Producer - I manufacture products",
+    "roleSeller": "Seller - I distribute products",
+    "roleOther": "Other",
+    "createPassword": "Create a strong password",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "agreeTerms": "I agree to the",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLink": "Sign in"
   },
   "dashboard": {
     "welcome": "Welcome back",
@@ -341,5 +379,348 @@
     "notFound": "Page not found",
     "unauthorized": "You are not authorized to view this page",
     "networkError": "Network error. Please check your connection."
+  },
+  "sellerDashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "subtitle": "Here's what's happening with your store today.",
+    "stats": {
+      "activeProducts": "Active Products",
+      "salesThisMonth": "Sales This Month",
+      "averageRating": "Average Rating"
+    },
+    "actions": {
+      "competitors": "Monitor Competitors",
+      "competitorsDesc": "Track pricing & stock changes",
+      "pricing": "Optimize Pricing",
+      "pricingDesc": "AI-driven pricing strategies",
+      "content": "Create Content",
+      "contentDesc": "Generate marketing assets",
+      "publish": "Publish Post",
+      "publishDesc": "Schedule social media posts"
+    },
+    "sections": {
+      "salesTrend": "Sales Trend (30 days)",
+      "topProducts": "Top 5 Products by Revenue",
+      "topPerforming": "Top Performing Products",
+      "competitorAlerts": "Competitor Alerts",
+      "recentPosts": "Recent Posts"
+    },
+    "tables": {
+      "product": "Product",
+      "unitsSold": "Units Sold",
+      "revenue": "Revenue",
+      "rating": "Rating"
+    },
+    "buttons": {
+      "viewAllAlerts": "View all alerts",
+      "analytics": "Analytics"
+    },
+    "noAlerts": "No new alerts in the last 24 hours.",
+    "up": "Up"
+  },
+  "buyerDashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "subtitle": "Here's your sourcing activity at a glance.",
+    "stats": {
+      "activeRfqs": "Active RFQs",
+      "quotesReceived": "Quotes Received",
+      "savedSuppliers": "Saved Suppliers"
+    },
+    "actions": {
+      "supplierSearch": "Supplier Search",
+      "supplierSearchDesc": "Find & compare suppliers",
+      "myRfqs": "My RFQs",
+      "myRfqsDesc": "Manage quote requests",
+      "conversations": "Conversations",
+      "conversationsDesc": "Message suppliers",
+      "savedSuppliers": "Saved Suppliers",
+      "savedSuppliersDesc": "View bookmarked suppliers"
+    },
+    "sections": {
+      "rfqStatus": "RFQ Status Breakdown",
+      "quotesByCategory": "Quotes by Category",
+      "latestDiscovery": "Latest Supplier Discovery",
+      "activeRfqs": "Active RFQs",
+      "sourcingAlerts": "Sourcing Alerts"
+    },
+    "tables": {
+      "title": "Title",
+      "category": "Category",
+      "quotes": "Quotes",
+      "status": "Status",
+      "expires": "Expires"
+    },
+    "buttons": {
+      "viewAllRfqs": "View all RFQs",
+      "viewSuppliers": "View Suppliers",
+      "viewSupplierSearch": "View supplier search"
+    },
+    "total": "total",
+    "confidence": "confidence",
+    "product": "Product",
+    "suppliersFound": "Suppliers Found",
+    "estMarketPrice": "Est. Market Price"
+  },
+  "producerDashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "subtitle": "Here's an overview of your production pipeline.",
+    "stats": {
+      "activeBoms": "Active BOMs",
+      "componentsTracked": "Components Tracked",
+      "avgFeasibility": "Avg Feasibility Score"
+    },
+    "actions": {
+      "reverseEngineering": "Reverse Engineering",
+      "reverseEngineeringDesc": "Analyze product BOMs",
+      "componentSupply": "Component Supply",
+      "componentSupplyDesc": "Source & compare parts",
+      "feasibility": "Feasibility Check",
+      "feasibilityDesc": "Evaluate production viability",
+      "gtm": "Go-To-Market",
+      "gtmDesc": "Plan product launch"
+    },
+    "sections": {
+      "costBreakdown": "Production Cost Breakdown",
+      "topComponentSpend": "Top Component Spend",
+      "latestBomAnalysis": "Latest BOM Analysis",
+      "recentBoms": "Recent BOMs",
+      "supplyChainAlerts": "Supply Chain & Feasibility Alerts"
+    },
+    "tables": {
+      "product": "Product",
+      "components": "Components",
+      "estCost": "Est. Cost",
+      "feasibility": "Feasibility",
+      "updated": "Updated"
+    },
+    "buttons": {
+      "viewFullBom": "View Full BOM",
+      "viewFeasibility": "View feasibility details"
+    },
+    "total": "total",
+    "confidence": "confidence",
+    "componentsIdentified": "Components Identified",
+    "estTotalCost": "Est. Total Cost"
+  },
+  "mainDashboard": {
+    "title": "Dashboard",
+    "uploadText": "Upload a product image to get started with AI-powered analysis",
+    "aiAnalysis": "AI Product Analysis"
+  },
+  "dashboardStats": {
+    "buyer": {
+      "activeRfqs": "Active RFQs",
+      "suppliersFound": "Suppliers Found",
+      "savedThisMonth": "Saved This Month",
+      "responseRate": "Response Rate"
+    },
+    "producer": {
+      "bomsGenerated": "BOMs Generated",
+      "componentsSourced": "Components Sourced",
+      "productionValue": "Production Value",
+      "costAccuracy": "Cost Accuracy"
+    },
+    "seller": {
+      "marketAnalyses": "Market Analyses",
+      "productsListed": "Products Listed",
+      "revenueMtd": "Revenue MTD",
+      "winRate": "Win Rate"
+    },
+    "fromLastMonth": "from last month"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "description": "Common tasks for {{mode}}s",
+    "buyer": {
+      "createRfq": "Create New RFQ",
+      "browseSuppliers": "Browse Suppliers",
+      "viewAnalytics": "View Analytics"
+    },
+    "producer": {
+      "componentSupply": "Component Supply",
+      "checkFeasibility": "Check Feasibility",
+      "goToMarket": "Go-To-Market"
+    },
+    "seller": {
+      "marketIntelligence": "Market Intelligence",
+      "viewHeatMap": "View Heat Map",
+      "pricingStrategy": "Pricing Strategy"
+    }
+  },
+  "recentAnalyses": {
+    "title": "Recent Analyses",
+    "subtitle": "Your AI analysis history will appear here",
+    "subtitleWithData": "Your recent AI product analyses",
+    "emptyText": "Upload a product image above to start your first AI analysis",
+    "viewAll": "View All",
+    "modeLabels": {
+      "buyer": "Sourcing",
+      "producer": "BOM",
+      "seller": "Market"
+    }
+  },
+  "hero": {
+    "badge": "AI-Powered Trade Intelligence",
+    "title1": "One Image.",
+    "title2": "Infinite Insights.",
+    "subtitle": "Upload any product image. Get instant supplier matches, production costs, or market intelligence — powered by AI.",
+    "modes": {
+      "buyer": "Find Suppliers",
+      "buyerDesc": "Discover verified suppliers & get quotes",
+      "buyerResult": "3 suppliers found",
+      "producer": "Generate BOM",
+      "producerDesc": "Reverse-engineer components & costs",
+      "producerResult": "12 components identified",
+      "seller": "Analyze Market",
+      "sellerDesc": "Get competitive pricing & insights",
+      "sellerResult": "Market analysis ready"
+    },
+    "uploadZone": {
+      "dropHere": "Drop a product image here",
+      "uploadBtn": "Upload Image",
+      "tryDemo": "Try Demo",
+      "analyzing": "AI analyzing your product...",
+      "analysisComplete": "Analysis Complete",
+      "viewResults": "View Results"
+    },
+    "pills": {
+      "noSignup": "No signup required",
+      "instant": "Instant results",
+      "free": "100% free demo"
+    },
+    "stats": {
+      "tradeVolume": "Trade Volume",
+      "suppliers": "Suppliers",
+      "accuracy": "Accuracy",
+      "analysisTime": "Analysis Time"
+    }
+  },
+  "features": {
+    "badge": "AI-Powered Features",
+    "title": "One Image Unlocks",
+    "titleHighlight": "Everything",
+    "subtitle": "From component identification to market analysis — our AI transforms any product image into actionable trade intelligence.",
+    "items": {
+      "imageIntel": "Image-First Intelligence",
+      "imageIntelDesc": "Upload any product image and let AI extract components, specs, suppliers, and market data instantly.",
+      "componentDetection": "AI Component Detection",
+      "componentDetectionDesc": "Automatically identify materials, parts, and manufacturing requirements from product photos.",
+      "supplierMatching": "Smart Supplier Matching",
+      "supplierMatchingDesc": "AI matches your product to verified suppliers worldwide based on image analysis.",
+      "bomGeneration": "Instant BOM Generation",
+      "bomGenerationDesc": "Generate complete Bill of Materials with cost estimates from a single product image.",
+      "marketIntel": "Market Intelligence",
+      "marketIntelDesc": "Analyze competitors, market pricing, and demand trends for any product you photograph.",
+      "pricingStrategy": "Pricing Strategy",
+      "pricingStrategyDesc": "Get AI-recommended pricing with margin scenarios based on real market data.",
+      "multiMode": "Multi-Mode Analysis",
+      "multiModeDesc": "Same image, different insights. Switch between Buyer, Producer, and Seller views.",
+      "contentGen": "Content Generation",
+      "contentGenDesc": "Auto-generate product descriptions, social posts, and marketing copy from your analysis."
+    }
+  },
+  "howItWorks": {
+    "badge": "How It Works",
+    "title": "Image to",
+    "titleHighlight": "Intelligence",
+    "subtitle": "One image unlocks everything you need — suppliers, costs, components, market data, and more. No forms, no catalogs, just snap and go.",
+    "steps": {
+      "step1Title": "Upload Any Product",
+      "step1Desc": "Simply drop a product image — a photo from your phone, a supplier catalog, or any product you want to analyze.",
+      "step2Title": "AI Analyzes Everything",
+      "step2Desc": "Our AI instantly identifies components, materials, costs, suppliers, and market data from your image.",
+      "step3Title": "Get Mode-Specific Insights",
+      "step3Desc": "Choose your goal: Find suppliers (Buyer), generate BOM (Producer), or analyze market (Seller).",
+      "step4Title": "Take Action",
+      "step4Desc": "Request quotes, source components, or launch products — all from a single image upload."
+    }
+  },
+  "roleCards": {
+    "badge": "Choose Your Role",
+    "title": "Built for Every Side of",
+    "titleHighlight": "Global Trade",
+    "subtitle": "Whether you're sourcing products, manufacturing goods, or selling to businesses, we have the tools you need to succeed.",
+    "buyer": {
+      "title": "For Buyers",
+      "subtitle": "Source products globally",
+      "description": "Find verified suppliers, compare quotes, and manage orders from manufacturers worldwide. Our AI helps you discover the perfect match for your requirements.",
+      "features": ["AI-powered supplier matching", "Instant RFQ system", "Price comparison tools", "Order tracking"],
+      "button": "Start Sourcing"
+    },
+    "producer": {
+      "title": "For Producers",
+      "subtitle": "Manage production & pricing",
+      "description": "Streamline your production workflow, set competitive pricing, and connect directly with global buyers looking for your products.",
+      "features": ["Production management", "Dynamic pricing tools", "Capacity planning", "Direct buyer access"],
+      "button": "List Products"
+    },
+    "seller": {
+      "title": "For Sellers",
+      "subtitle": "Expand your reach",
+      "description": "List your products on our global marketplace, receive qualified leads, and grow your B2B sales with powerful analytics.",
+      "features": ["Global marketplace", "Lead management", "Sales analytics", "Inventory sync"],
+      "button": "Open Store"
+    }
+  },
+  "testimonials": {
+    "badge": "Testimonials",
+    "title": "Trusted by",
+    "titleHighlight": "Industry Leaders",
+    "subtitle": "See how businesses around the world are transforming their trade operations with our platform.",
+    "items": {
+      "quote1": "TradePlatform cut our supplier discovery time by 70%. The AI matching is incredibly accurate and the verified supplier network gives us confidence in every order.",
+      "role1": "Head of Procurement",
+      "quote2": "As a manufacturer, getting direct access to qualified buyers has transformed our business. We've increased our export volume by 3x in just 6 months.",
+      "role2": "CEO",
+      "quote3": "The RFQ system is brilliant. I can compare quotes from 10+ suppliers in minutes instead of spending weeks on emails and calls.",
+      "role3": "Supply Chain Manager"
+    }
+  },
+  "cta": {
+    "badge": "Start with a Single Image",
+    "title1": "Snap a Photo.",
+    "title2": "Unlock Insights.",
+    "subtitle": "No complex forms. No product catalogs. Just upload an image and let AI do the rest — suppliers, costs, market data, all in seconds.",
+    "uploadBtn": "Upload Your First Image",
+    "howItWorks": "See How It Works",
+    "trustText": "No signup required • Instant results • 100% free to try"
+  },
+  "footer": {
+    "tagline": "AI-powered B2B trade platform connecting buyers, producers, and sellers worldwide.",
+    "email": "hello@tradeplatform.com",
+    "availableIn": "Available in 180+ countries",
+    "copyright": "© 2025 TradePlatform. All rights reserved.",
+    "categories": {
+      "product": "Product",
+      "company": "Company",
+      "resources": "Resources",
+      "legal": "Legal"
+    },
+    "links": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "integrations": "Integrations",
+      "api": "API",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press",
+      "documentation": "Documentation",
+      "helpCenter": "Help Center",
+      "webinars": "Webinars",
+      "caseStudies": "Case Studies",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "security": "Security",
+      "cookies": "Cookies"
+    }
+  },
+  "modeSelector": {
+    "buyer": "Buyer",
+    "buyerDesc": "Find suppliers & source products",
+    "producer": "Producer",
+    "producerDesc": "Manage production & costs",
+    "seller": "Seller",
+    "sellerDesc": "Sell & analyze markets"
   }
 }

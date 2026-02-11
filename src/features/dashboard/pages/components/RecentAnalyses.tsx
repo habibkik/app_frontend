@@ -1,17 +1,10 @@
 /**
- * Recent Analyses Component
- * Shows history of AI product analyses
+ * Recent Analyses Component - Shows history of AI product analyses
  */
 import { motion } from "framer-motion";
-import { 
-  Package,
-  Search,
-  TrendingUp,
-  Clock,
-  ArrowRight,
-  ImageIcon,
-} from "lucide-react";
+import { Package, Search, TrendingUp, Clock, ArrowRight, ImageIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,32 +17,26 @@ const modeIcons: Record<DashboardMode, React.ElementType> = {
   seller: TrendingUp,
 };
 
-const modeLabels: Record<DashboardMode, string> = {
-  buyer: "Sourcing",
-  producer: "BOM",
-  seller: "Market",
-};
-
 interface RecentAnalysesProps {
   history: AnalysisHistoryItem[];
 }
 
 export function RecentAnalyses({ history }: RecentAnalysesProps) {
+  const { t } = useTranslation();
+
   if (history.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Recent Analyses</CardTitle>
-          <CardDescription>Your AI analysis history will appear here</CardDescription>
+          <CardTitle>{t("recentAnalyses.title")}</CardTitle>
+          <CardDescription>{t("recentAnalyses.subtitle")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Upload a product image above to start your first AI analysis
-            </p>
+            <p className="text-sm text-muted-foreground max-w-xs">{t("recentAnalyses.emptyText")}</p>
           </div>
         </CardContent>
       </Card>
@@ -60,11 +47,11 @@ export function RecentAnalyses({ history }: RecentAnalysesProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Recent Analyses</CardTitle>
-          <CardDescription>Your recent AI product analyses</CardDescription>
+          <CardTitle>{t("recentAnalyses.title")}</CardTitle>
+          <CardDescription>{t("recentAnalyses.subtitleWithData")}</CardDescription>
         </div>
         <Button variant="ghost" size="sm" className="gap-1">
-          View All
+          {t("recentAnalyses.viewAll")}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </CardHeader>
@@ -72,7 +59,6 @@ export function RecentAnalyses({ history }: RecentAnalysesProps) {
         <div className="space-y-3">
           {history.slice(0, 5).map((item, index) => {
             const ModeIcon = modeIcons[item.mode];
-            
             return (
               <motion.div
                 key={item.id}
@@ -85,12 +71,10 @@ export function RecentAnalyses({ history }: RecentAnalysesProps) {
                   <ModeIcon className="h-6 w-6 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {item.productName}
-                  </p>
+                  <p className="text-sm font-medium text-foreground truncate">{item.productName}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground">
-                      {modeLabels[item.mode]}
+                      {t(`recentAnalyses.modeLabels.${item.mode}`)}
                     </span>
                     <span>•</span>
                     <span>{item.productCategory}</span>

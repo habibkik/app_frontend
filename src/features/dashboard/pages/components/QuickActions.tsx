@@ -1,45 +1,13 @@
 /**
- * Quick Actions Component
- * Mode-specific quick action buttons
+ * Quick Actions Component - Mode-specific quick action buttons
  */
-import { 
-  FileText, 
-  Users, 
-  TrendingUp,
-  DollarSign,
-  Package,
-  Factory,
-  Map,
-} from "lucide-react";
+import { FileText, Users, TrendingUp, DollarSign, Package, Factory, Map } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { DashboardMode } from "@/features/dashboard";
-
-interface QuickAction {
-  icon: React.ElementType;
-  label: string;
-  path: string;
-}
-
-const actionsConfig: Record<DashboardMode, QuickAction[]> = {
-  buyer: [
-    { icon: FileText, label: "Create New RFQ", path: "/dashboard/rfqs" },
-    { icon: Users, label: "Browse Suppliers", path: "/dashboard/suppliers" },
-    { icon: TrendingUp, label: "View Analytics", path: "/dashboard/analytics" },
-  ],
-  producer: [
-    { icon: Package, label: "Component Supply", path: "/dashboard/components" },
-    { icon: Factory, label: "Check Feasibility", path: "/dashboard/feasibility" },
-    { icon: TrendingUp, label: "Go-To-Market", path: "/dashboard/gtm" },
-  ],
-  seller: [
-    { icon: TrendingUp, label: "Market Intelligence", path: "/dashboard/market" },
-    { icon: Map, label: "View Heat Map", path: "/dashboard/heatmap" },
-    { icon: DollarSign, label: "Pricing Strategy", path: "/dashboard/pricing" },
-  ],
-};
 
 interface QuickActionsProps {
   mode: DashboardMode;
@@ -47,25 +15,41 @@ interface QuickActionsProps {
 }
 
 export function QuickActions({ mode, config }: QuickActionsProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const actionsConfig: Record<DashboardMode, { icon: React.ElementType; labelKey: string; path: string }[]> = {
+    buyer: [
+      { icon: FileText, labelKey: "quickActions.buyer.createRfq", path: "/dashboard/rfqs" },
+      { icon: Users, labelKey: "quickActions.buyer.browseSuppliers", path: "/dashboard/suppliers" },
+      { icon: TrendingUp, labelKey: "quickActions.buyer.viewAnalytics", path: "/dashboard/analytics" },
+    ],
+    producer: [
+      { icon: Package, labelKey: "quickActions.producer.componentSupply", path: "/dashboard/components" },
+      { icon: Factory, labelKey: "quickActions.producer.checkFeasibility", path: "/dashboard/feasibility" },
+      { icon: TrendingUp, labelKey: "quickActions.producer.goToMarket", path: "/dashboard/gtm" },
+    ],
+    seller: [
+      { icon: TrendingUp, labelKey: "quickActions.seller.marketIntelligence", path: "/dashboard/market" },
+      { icon: Map, labelKey: "quickActions.seller.viewHeatMap", path: "/dashboard/heatmap" },
+      { icon: DollarSign, labelKey: "quickActions.seller.pricingStrategy", path: "/dashboard/pricing" },
+    ],
+  };
+
   const actions = actionsConfig[mode];
+  const modeLabel = t(`modeSelector.${mode}`);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quick Actions</CardTitle>
-        <CardDescription>Common tasks for {config.label.toLowerCase()}s</CardDescription>
+        <CardTitle>{t("quickActions.title")}</CardTitle>
+        <CardDescription>{t("quickActions.description", { mode: modeLabel })}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         {actions.map((action) => (
-          <Button
-            key={action.label}
-            className="w-full justify-start"
-            variant="outline"
-            onClick={() => navigate(action.path)}
-          >
+          <Button key={action.labelKey} className="w-full justify-start" variant="outline" onClick={() => navigate(action.path)}>
             <action.icon className="mr-2 h-4 w-4" />
-            {action.label}
+            {t(action.labelKey)}
           </Button>
         ))}
       </CardContent>
