@@ -1,155 +1,97 @@
 
 
-## Full i18n Translation Plan: Arabic, French, and Spanish
+## Full App-Wide i18n Translation Plan
 
-### Overview
-The i18n infrastructure (i18next, LanguageContext, LanguageSelector) is fully set up, but no component currently uses `useTranslation()` to render translated text. Switching language in the UI has no visible effect. This plan adds translation keys for the Content Studio (primary focus) and wires up the key shared components so the entire app responds to language changes.
+### Problem
+Currently, only the sidebar, header, landing navigation, and Content Studio respond to language changes. All other pages and components still show hardcoded English text -- including all 3 role dashboards (Buyer, Seller, Producer), the main Dashboard page, Login/Signup pages, all landing page sections (Hero, Features, How It Works, Role Cards, Testimonials, CTA, Footer), and the Mode Selector.
 
 ### Scope of Changes
 
-#### 1. Translation Files (4 files)
-Add a `contentStudio` section with ~80 keys covering all UI labels in the Content Studio, plus a `sidebar` section for navigation items. All 4 locale files will be updated:
+This is a large change touching **20+ files**. Here is the full breakdown:
 
-- `src/i18n/locales/en.json` -- English keys
-- `src/i18n/locales/ar.json` -- Arabic translations
-- `src/i18n/locales/fr.json` -- French translations
-- `src/i18n/locales/es.json` -- Spanish translations
+---
 
-New translation sections:
-- `contentStudio` -- All Content Studio labels (Content Settings, Product, Target Audience, audiences, content types, tones, tab names, button labels, placeholder text, toast messages, history section, actions bar, landing page section labels)
-- `sidebar` -- Navigation group labels and item titles for all 3 modes (buyer, seller, producer)
+#### Phase 1: Translation Files (4 files)
 
-#### 2. Content Studio Component
-**File:** `src/features/seller/components/ContentStudio.tsx`
+Add ~300 new translation keys to all 4 locale files covering every page:
 
-- Import `useTranslation` from `react-i18next`
-- Add `const { t } = useTranslation();` at the top of the component
-- Replace all hardcoded English strings with `t("contentStudio.xxx")` calls
-- This includes: card titles, labels, dropdown options (audiences, tones, content types), tab triggers, button text, toast messages, placeholder text, section headings
+**New sections to add:**
 
-Key strings to translate (examples):
-- "Content Settings" -> `t("contentStudio.title")`
-- "Configure your content generation" -> `t("contentStudio.subtitle")`
-- "Select a product" -> `t("contentStudio.selectProduct")`
-- "Target Audience" -> `t("contentStudio.targetAudience")`
-- "E-commerce Shoppers" -> `t("contentStudio.audiences.ecommerce")`
-- "Generate Content" -> `t("contentStudio.generate")`
-- "Generating..." -> `t("contentStudio.generating")`
-- Tab labels: "Headlines", "Copy", "Description", "Email", "Social", "Landing"
-- Button labels: "Use in Ad", "Copy", "Edit", "Save", "Post Directly", etc.
-- Section titles: "Subject Lines", "Email Body", "Hero Section", "Value Proposition", "Feature Highlights", "Call to Action"
-- History: "Recently Generated", "Restore", "Delete"
-- Actions: "Save as Template", "Load Template", "Export ZIP", "Share with Team"
+- `buyerDashboard` -- Welcome message, stats (Active RFQs, Quotes Received, Saved Suppliers), key actions, table headers (Title, Category, Quotes, Status, Expires), section titles (RFQ Status Breakdown, Quotes by Category, Latest Supplier Discovery, Active RFQs, Sourcing Alerts), button labels
+- `sellerDashboard` -- Welcome message, stats (Active Products, Sales This Month, Average Rating), key actions (Monitor Competitors, Optimize Pricing, Create Content, Publish Post), chart titles, table headers, section titles (Competitor Alerts, Recent Posts)
+- `producerDashboard` -- Welcome message, stats (Active BOMs, Components Tracked, Avg Feasibility Score), key actions, chart titles, table headers (Product, Components, Est. Cost, Feasibility, Updated), alert section
+- `mainDashboard` -- "Dashboard" title, "Upload a product image to get started", "AI Product Analysis", stats titles, quick actions labels, recent analyses labels
+- `hero` -- "One Image. Infinite Insights.", subtitle, mode labels, upload zone text, feature pills, stats labels
+- `features` -- Section badge, title, subtitle, all 8 feature cards (title + description)
+- `howItWorks` -- Section badge, title, subtitle, all 4 steps (title + description)
+- `roleCards` -- Section badge, title, subtitle, all 3 role cards (title, subtitle, description, features, button text)
+- `testimonials` -- Section badge, title, subtitle, testimonial quotes/roles
+- `cta` -- Badge, headline, description, button labels, trust text
+- `footer` -- Category labels, link labels, tagline, copyright
+- `login` -- All form labels, placeholders, hero text, features list, buttons
+- `signup` -- All form labels, placeholders, hero text, features list, role options, buttons
+- `modeSelector` -- Mode labels and descriptions
 
-#### 3. Dashboard Sidebar
-**File:** `src/features/dashboard/components/DashboardSidebar.tsx`
+**Files:**
+1. `src/i18n/locales/en.json`
+2. `src/i18n/locales/ar.json`
+3. `src/i18n/locales/fr.json`
+4. `src/i18n/locales/es.json`
 
-- Import `useTranslation`
-- Translate group labels and item titles using `t("sidebar.xxx")`
-- The navigation config (`navigation.ts`) returns static English strings; the sidebar will map them through `t()` using a key lookup
+---
 
-#### 4. Dashboard Header
-**File:** `src/features/dashboard/components/DashboardHeader.tsx`
+#### Phase 2: Dashboard Pages (5 files)
 
-- Import `useTranslation`
-- Translate: "Search products, suppliers...", "Profile", "Settings", "Currency", "API Keys", "Billing", "Sign out"
+Wire up `useTranslation()` and replace all hardcoded strings:
 
-#### 5. Landing Navigation
-**File:** `src/components/landing/Navigation.tsx`
+5. **`src/features/buyer/pages/BuyerDashboard.tsx`** -- Welcome card, stat labels, key actions (title + desc), table headers, section titles, alert messages, button labels
+6. **`src/features/seller/pages/SellerDashboard.tsx`** -- Welcome card, stat labels, key actions, chart titles, table headers, section titles, button labels
+7. **`src/features/producer/pages/ProducerDashboard.tsx`** -- Welcome card, stat labels, key actions, chart titles, table headers, alert messages
+8. **`src/features/dashboard/pages/DashboardPage.tsx`** -- Page header, card titles, "Upload a product image" text
+9. **`src/features/dashboard/pages/components/DashboardStats.tsx`** -- All stat titles, "from last month" text
+10. **`src/features/dashboard/pages/components/QuickActions.tsx`** -- All action labels, card titles
+11. **`src/features/dashboard/pages/components/RecentAnalyses.tsx`** -- Card titles, descriptions, empty state text, mode labels
 
-- Import `useTranslation`
-- Translate nav link labels: "Try Demo", "For Buyers", "For Sellers", "For Producers", "Pricing", "Sign In", "Get Started"
+---
 
-### Technical Details
+#### Phase 3: Landing Page Components (7 files)
 
-**Translation key structure example (en.json):**
-```json
-{
-  "contentStudio": {
-    "title": "Content Settings",
-    "subtitle": "Configure your content generation",
-    "product": "Product",
-    "selectProduct": "Select a product",
-    "targetAudience": "Target Audience",
-    "audiences": {
-      "ecommerce": "E-commerce Shoppers",
-      "wholesale": "Wholesale Buyers",
-      "retailers": "Retailers",
-      "b2b": "Corporate/B2B",
-      "other": "Other"
-    },
-    "contentTypes": {
-      "label": "Content Types",
-      "adCopy": "Ad copy (short)",
-      "description": "Product description (long)",
-      "email": "Email campaign",
-      "social": "Social media posts",
-      "landing": "Landing page copy"
-    },
-    "tone": "Tone",
-    "tones": {
-      "professional": "Professional",
-      "friendly": "Friendly",
-      "humorous": "Humorous",
-      "urgent": "Urgent/FOMO"
-    },
-    "generate": "Generate Content",
-    "generating": "Generating...",
-    "tabs": {
-      "headlines": "Headlines",
-      "copy": "Copy",
-      "description": "Description",
-      "email": "Email",
-      "social": "Social",
-      "landing": "Landing"
-    },
-    ...
-  }
-}
-```
+12. **`src/components/landing/Hero.tsx`** -- Headline, subtitle, mode labels, upload zone text, buttons, feature pills, stats
+13. **`src/components/landing/Features.tsx`** -- Section header, all 8 feature titles and descriptions
+14. **`src/components/landing/HowItWorks.tsx`** -- Section header, all 4 step titles and descriptions
+15. **`src/components/landing/RoleCards.tsx`** -- Section header, all 3 role cards
+16. **`src/components/landing/Testimonials.tsx`** -- Section header, testimonial text
+17. **`src/components/landing/CTA.tsx`** -- All text and buttons
+18. **`src/components/landing/Footer.tsx`** -- All link categories, link labels, tagline, copyright
 
-**Arabic example:**
-```json
-{
-  "contentStudio": {
-    "title": "إعدادات المحتوى",
-    "subtitle": "قم بتكوين إنشاء المحتوى الخاص بك",
-    "product": "المنتج",
-    "selectProduct": "اختر منتجاً",
-    "targetAudience": "الجمهور المستهدف",
-    "audiences": {
-      "ecommerce": "متسوقو التجارة الإلكترونية",
-      "wholesale": "مشترو الجملة",
-      "retailers": "تجار التجزئة",
-      "b2b": "الشركات/B2B",
-      "other": "أخرى"
-    },
-    ...
-  }
-}
-```
+---
 
-**How dropdown options are translated:**
-The static arrays (`audiences`, `contentTypeOptions`, `toneOptions`) will be moved inside the component function so they can use `t()`:
+#### Phase 4: Auth Pages (2 files)
 
-```tsx
-const audiences = [
-  { value: "ecommerce", label: t("contentStudio.audiences.ecommerce") },
-  { value: "wholesale", label: t("contentStudio.audiences.wholesale") },
-  ...
-];
-```
+19. **`src/features/auth/pages/LoginPage.tsx`** -- Form labels, placeholders, hero text, feature bullets, buttons, links
+20. **`src/features/auth/pages/SignupPage.tsx`** -- Form labels, placeholders, hero text, feature bullets, role options, buttons, links
+
+---
+
+#### Phase 5: Mode Selector (1 file)
+
+21. **`src/features/dashboard/components/ModeSelector.tsx`** -- Mode labels and descriptions (translate via `t()` using keys from `modeConfig`)
+
+---
+
+### Technical Approach
+
+All components will:
+1. Import `useTranslation` from `react-i18next`
+2. Add `const { t } = useTranslation();` at the top
+3. Replace every hardcoded English string with `t("section.key")`
+
+For static arrays defined outside components (like `features`, `steps`, `roles`, `keyActions`, `statsConfig`), they will be moved inside the component function so they can access `t()`.
+
+For the `modeConfig` in `navigation.ts`, the ModeSelector and DashboardPage will translate labels via `t()` using a lookup map (same pattern as the sidebar).
 
 ### RTL Support
-RTL layout is already handled by the LanguageContext (sets `document.documentElement.dir = "rtl"` and adds a `rtl` class). All Tailwind styles will respond automatically since the app uses standard flex/grid layouts.
+Arabic RTL is already handled by the existing LanguageContext. All flex/grid layouts will automatically flip. No additional RTL CSS changes needed.
 
-### Files Modified (Total: 8)
-1. `src/i18n/locales/en.json` -- Add contentStudio, sidebar, header, landingNav sections
-2. `src/i18n/locales/ar.json` -- Arabic translations for all new keys
-3. `src/i18n/locales/fr.json` -- French translations for all new keys
-4. `src/i18n/locales/es.json` -- Spanish translations for all new keys
-5. `src/features/seller/components/ContentStudio.tsx` -- Wire up `t()` for all strings
-6. `src/features/dashboard/components/DashboardSidebar.tsx` -- Wire up `t()` for nav labels
-7. `src/features/dashboard/components/DashboardHeader.tsx` -- Wire up `t()` for header labels
-8. `src/components/landing/Navigation.tsx` -- Wire up `t()` for nav links
+### Total: ~21 component files + 4 locale files = 25 files modified
 
