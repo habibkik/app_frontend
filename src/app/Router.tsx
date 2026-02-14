@@ -40,6 +40,7 @@ import SellerAnalytics from "@/pages/dashboard/SellerAnalytics";
 import HeatMap from "@/pages/dashboard/HeatMap";
 import Settings from "@/pages/dashboard/Settings";
 import RFQCampaignPage from "@/pages/dashboard/RFQCampaign";
+import DailyReportPage from "@/pages/dashboard/DailyReport";
 import NotFound from "@/pages/NotFound";
 
 export function Router() {
@@ -89,6 +90,7 @@ export function Router() {
       <Route path="/dashboard/seller-analytics" element={<ProtectedRoute><SellerAnalytics /></ProtectedRoute>} />
       <Route path="/dashboard/heatmap" element={<ProtectedRoute><HeatMap /></ProtectedRoute>} />
       <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/dashboard/daily-report" element={<ProtectedRoute><DailyReportPage /></ProtectedRoute>} />
       
       {/* Catch-all */}
       <Route path="*" element={<NotFound />} />

@@ -83,6 +83,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ProductSupplierContactModal } from "@/components/suppliers/ProductSupplierContactModal";
 import { CompetitorDetailModal, type CompetitorData } from "@/components/seller/CompetitorDetailModal";
 import { CompetitorMonitor } from "@/features/seller/components/CompetitorMonitor";
+import { CompetitorOutreach } from "@/features/seller/components/CompetitorOutreach";
 import type { CompetitorTableRow } from "@/features/seller/types/competitorMonitor";
 
 // Types for product analysis
@@ -320,6 +321,7 @@ export default function CompetitorsPage() {
   
   // Product analysis state
   const [activeTab, setActiveTab] = useState("competitors");
+  const [activeMainTab, setActiveMainTab] = useState("intelligence");
   const [productImage, setProductImage] = useState<string | null>(null);
   const [productFileName, setProductFileName] = useState<string | null>(null);
   const [isProductAnalyzing, setIsProductAnalyzing] = useState(false);
@@ -551,7 +553,21 @@ export default function CompetitorsPage() {
               Monitor competitor pricing, products, and market positioning
             </p>
           </div>
-          <div className="flex gap-2">
+        </div>
+
+        {/* Main Tabs: Intelligence / Outreach */}
+        <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
+            <TabsTrigger value="outreach">Outreach Tracking</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="outreach">
+            <CompetitorOutreach />
+          </TabsContent>
+
+          <TabsContent value="intelligence">
+          <div className="flex gap-2 mb-4">
             <Button variant="outline" className="gap-2">
               <RefreshCw className="h-4 w-4" />
               Sync All
@@ -764,7 +780,6 @@ export default function CompetitorsPage() {
               </DialogContent>
             </Dialog>
           </div>
-        </div>
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -1708,6 +1723,8 @@ export default function CompetitorsPage() {
                 )}
               </div>
             )}
+          </TabsContent>
+        </Tabs>
           </TabsContent>
         </Tabs>
 

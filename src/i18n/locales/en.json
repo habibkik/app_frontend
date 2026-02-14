@@ -807,5 +807,49 @@
     "sendRfq": "Send RFQ",
     "sentTitle": "RFQ Sent!",
     "sentDesc": "Your RFQ has been sent to {{count}} suppliers"
+  },
+  "dailyReport": {
+    "title": "Daily Intelligence Report",
+    "generateNow": "Generate Now",
+    "generating": "Generating...",
+    "noReports": "No Reports Yet",
+    "noReportsDesc": "Generate your first daily intelligence report to see market insights and recommendations.",
+    "keyMetrics": "Key Metrics",
+    "recommendations": "Recommendations",
+    "previousReports": "Previous Reports",
+    "productsMonitored": "Products Monitored",
+    "competitorsFound": "Competitors Found",
+    "pricesCollected": "Prices Collected",
+    "alertsTriggered": "Alerts Triggered",
+    "postsPublished": "Posts Published",
+    "totalImpressions": "Total Impressions",
+    "engagementRate": "Engagement Rate",
+    "avgCompetitorPrice": "Avg Competitor Price"
+  },
+  "outreach": {
+    "title": "Outreach Tracking",
+    "logOutreach": "Log Outreach",
+    "logResponse": "Log Response",
+    "totalOutreach": "Total Outreach",
+    "awaitingResponse": "Awaiting Response",
+    "responded": "Responded",
+    "responseRate": "Response Rate",
+    "noOutreach": "No Outreach Yet",
+    "noOutreachDesc": "Log your competitor outreach messages to track responses and prices.",
+    "competitorName": "Competitor Name",
+    "platform": "Platform",
+    "messageSent": "Message Sent",
+    "responseMessage": "Response Message",
+    "extractedPrice": "Extracted Price",
+    "saveResponse": "Save Response"
+  },
+  "feedback": {
+    "moreFeedback": "More feedback",
+    "appliedRecommendation": "I applied this recommendation",
+    "anyNotes": "Any notes? (optional)",
+    "submit": "Submit",
+    "thanks": "Thanks!",
+    "thanksDesc": "Your feedback helps improve recommendations.",
+    "feedbackRecorded": "Feedback recorded"
   }
 }

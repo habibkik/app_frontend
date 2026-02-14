@@ -807,5 +807,26 @@
     "sendRfq": "إرسال طلب عرض الأسعار",
     "sentTitle": "تم إرسال طلب عرض الأسعار!",
     "sentDesc": "تم إرسال طلبك إلى {{count}} موردين"
+  },
+  "dailyReport": {
+    "title": "تقرير الاستخبارات اليومي",
+    "generateNow": "إنشاء الآن",
+    "generating": "جاري الإنشاء...",
+    "noReports": "لا توجد تقارير بعد",
+    "noReportsDesc": "أنشئ أول تقرير استخبارات يومي لعرض رؤى السوق والتوصيات."
+  },
+  "outreach": {
+    "title": "تتبع التواصل",
+    "logOutreach": "تسجيل تواصل",
+    "logResponse": "تسجيل رد",
+    "totalOutreach": "إجمالي التواصل",
+    "responded": "تم الرد",
+    "responseRate": "معدل الرد",
+    "noOutreach": "لا يوجد تواصل بعد"
+  },
+  "feedback": {
+    "submit": "إرسال",
+    "thanks": "شكراً!",
+    "feedbackRecorded": "تم تسجيل الملاحظات"
   }
 }
