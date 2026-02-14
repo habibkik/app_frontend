@@ -316,6 +316,56 @@ export type Database = {
           },
         ]
       }
+      outreach_configs: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          frequency_hours: number
+          id: string
+          last_run_at: string | null
+          last_run_results: Json | null
+          max_contacts_per_run: number
+          message_template: string | null
+          product_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          frequency_hours?: number
+          id?: string
+          last_run_at?: string | null
+          last_run_results?: Json | null
+          max_contacts_per_run?: number
+          message_template?: string | null
+          product_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          frequency_hours?: number
+          id?: string
+          last_run_at?: string | null
+          last_run_results?: Json | null
+          max_contacts_per_run?: number
+          message_template?: string | null
+          product_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outreach_configs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_engagement: {
         Row: {
           clicks: number
