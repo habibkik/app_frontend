@@ -84,6 +84,7 @@ import { ProductSupplierContactModal } from "@/components/suppliers/ProductSuppl
 import { CompetitorDetailModal, type CompetitorData } from "@/components/seller/CompetitorDetailModal";
 import { CompetitorMonitor } from "@/features/seller/components/CompetitorMonitor";
 import { CompetitorOutreach } from "@/features/seller/components/CompetitorOutreach";
+import { PriceCollectionConfig } from "@/features/seller/components/PriceCollectionConfig";
 import type { CompetitorTableRow } from "@/features/seller/types/competitorMonitor";
 
 // Types for product analysis
@@ -560,10 +561,15 @@ export default function CompetitorsPage() {
           <TabsList className="mb-4">
             <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
             <TabsTrigger value="outreach">Outreach Tracking</TabsTrigger>
+            <TabsTrigger value="automation">Automation</TabsTrigger>
           </TabsList>
 
           <TabsContent value="outreach">
             <CompetitorOutreach />
+          </TabsContent>
+
+          <TabsContent value="automation">
+            <PriceCollectionConfig />
           </TabsContent>
 
           <TabsContent value="intelligence">

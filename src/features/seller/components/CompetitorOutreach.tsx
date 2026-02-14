@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Send, MessageSquare, CheckCircle2, XCircle, Clock, Plus, Loader2,
-  DollarSign, Filter, BarChart3,
+  DollarSign, Filter, BarChart3, Sparkles,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +44,9 @@ export function CompetitorOutreach() {
   const [responseText, setResponseText] = useState("");
   const [responsePrice, setResponsePrice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [extractedMoq, setExtractedMoq] = useState<string>("");
+  const [extractedLeadTime, setExtractedLeadTime] = useState<string>("");
 
   // New outreach dialog
   const [newDialogOpen, setNewDialogOpen] = useState(false);
@@ -91,7 +94,33 @@ export function CompetitorOutreach() {
     setSelectedInteraction(interaction);
     setResponseText("");
     setResponsePrice("");
+    setExtractedMoq("");
+    setExtractedLeadTime("");
     setLogDialogOpen(true);
+  };
+
+  const handleExtractPrice = async () => {
+    if (!responseText.trim()) return;
+    setExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("extract-price", {
+        body: { message_text: responseText },
+      });
+      if (error) throw error;
+      if (data?.success && data.data) {
+        const d = data.data;
+        if (d.price) setResponsePrice(String(d.price));
+        if (d.moq) setExtractedMoq(String(d.moq));
+        if (d.lead_time) setExtractedLeadTime(d.lead_time);
+        toast({ title: "Price Extracted", description: `Confidence: ${d.confidence}%` });
+      } else {
+        toast({ title: "No Price Found", description: "Could not extract pricing from this text.", variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Extraction Failed", description: e.message, variant: "destructive" });
+    } finally {
+      setExtracting(false);
+    }
   };
 
   const saveResponse = async () => {
@@ -289,11 +318,38 @@ export function CompetitorOutreach() {
             <div className="space-y-2">
               <Label>Response Message</Label>
               <Textarea value={responseText} onChange={(e) => setResponseText(e.target.value)} placeholder="Paste or type the response..." rows={3} />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleExtractPrice}
+                disabled={extracting || !responseText.trim()}
+                className="mt-1"
+              >
+                {extracting ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Extract with AI
+              </Button>
             </div>
             <div className="space-y-2">
               <Label>Extracted Price (optional)</Label>
               <Input type="number" value={responsePrice} onChange={(e) => setResponsePrice(e.target.value)} placeholder="e.g., 45.99" />
             </div>
+            {(extractedMoq || extractedLeadTime) && (
+              <div className="flex gap-4 text-sm">
+                {extractedMoq && (
+                  <div>
+                    <span className="text-muted-foreground">MOQ: </span>
+                    <span className="font-medium">{extractedMoq}</span>
+                  </div>
+                )}
+                {extractedLeadTime && (
+                  <div>
+                    <span className="text-muted-foreground">Lead Time: </span>
+                    <span className="font-medium">{extractedLeadTime}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setLogDialogOpen(false)}>Cancel</Button>

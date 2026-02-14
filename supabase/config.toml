@@ -38,3 +38,9 @@ verify_jwt = false
 
 [functions.daily-report]
 verify_jwt = false
+
+[functions.extract-price]
+verify_jwt = false
+
+[functions.auto-outreach]
+verify_jwt = false
