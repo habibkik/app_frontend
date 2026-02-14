@@ -103,6 +103,16 @@ const platformConfigs: SocialPlatform[] = [
       { key: "accessToken", label: "Access Token", placeholder: "Enter your Pinterest access token" },
     ],
   },
+  {
+    id: "telegram",
+    name: "Telegram",
+    icon: "✈️",
+    connected: false,
+    features: { posting: true, messaging: true, analytics: false },
+    requiredFields: [
+      { key: "botToken", label: "Bot Token (from BotFather)", placeholder: "Enter your Telegram bot token" },
+    ],
+  },
 ];
 
 export function useSocialCredentials() {

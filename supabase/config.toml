@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.miroflow-monitor]
 verify_jwt = false
+
+[functions.daily-report]
+verify_jwt = false

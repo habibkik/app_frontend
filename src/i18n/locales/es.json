@@ -807,5 +807,26 @@
     "sendRfq": "Enviar RFQ",
     "sentTitle": "¡RFQ enviado!",
     "sentDesc": "Tu RFQ ha sido enviado a {{count}} proveedores"
+  },
+  "dailyReport": {
+    "title": "Informe de inteligencia diario",
+    "generateNow": "Generar ahora",
+    "generating": "Generando...",
+    "noReports": "Sin informes",
+    "noReportsDesc": "Genera tu primer informe para ver insights y recomendaciones."
+  },
+  "outreach": {
+    "title": "Seguimiento de contactos",
+    "logOutreach": "Registrar contacto",
+    "logResponse": "Registrar respuesta",
+    "totalOutreach": "Total contactos",
+    "responded": "Respondido",
+    "responseRate": "Tasa de respuesta",
+    "noOutreach": "Sin contactos"
+  },
+  "feedback": {
+    "submit": "Enviar",
+    "thanks": "¡Gracias!",
+    "feedbackRecorded": "Comentario registrado"
   }
 }

@@ -18,6 +18,7 @@ import {
   Users,
   Settings,
   Map,
+  Newspaper,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -136,6 +137,7 @@ const sellerNavigation: NavGroup[] = [
   {
     label: "Insights",
     items: [
+      { title: "Daily Report", url: "/dashboard/daily-report", icon: Newspaper },
       { title: "Heat Map", url: "/dashboard/heatmap", icon: Map },
       { title: "Seller Analytics", url: "/dashboard/seller-analytics", icon: BarChart3 },
     ],

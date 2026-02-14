@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_feedback: {
+        Row: {
+          action_taken: string
+          created_at: string
+          feature: string
+          id: string
+          notes: string | null
+          rating: number | null
+          recommendation_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action_taken?: string
+          created_at?: string
+          feature: string
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          recommendation_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action_taken?: string
+          created_at?: string
+          feature?: string
+          id?: string
+          notes?: string | null
+          rating?: number | null
+          recommendation_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       competitor_alerts: {
         Row: {
           alert_type: string
@@ -57,6 +90,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "competitor_alerts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      competitor_interactions: {
+        Row: {
+          competitor_name: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          message_sent: string | null
+          platform: string
+          product_id: string | null
+          responded_at: string | null
+          response_price: number | null
+          response_received: string | null
+          sent_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          competitor_name: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          message_sent?: string | null
+          platform?: string
+          product_id?: string | null
+          responded_at?: string | null
+          response_price?: number | null
+          response_received?: string | null
+          sent_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          competitor_name?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          message_sent?: string | null
+          platform?: string
+          product_id?: string | null
+          responded_at?: string | null
+          response_price?: number | null
+          response_received?: string | null
+          sent_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competitor_interactions_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -149,6 +238,36 @@ export type Database = {
           target_audience?: string
           tone?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_reports: {
+        Row: {
+          created_at: string
+          id: string
+          metrics_json: Json
+          recommendations_json: Json
+          report_date: string
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metrics_json?: Json
+          recommendations_json?: Json
+          report_date?: string
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metrics_json?: Json
+          recommendations_json?: Json
+          report_date?: string
+          summary?: string | null
           user_id?: string
         }
         Relationships: []
