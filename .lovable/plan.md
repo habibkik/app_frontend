@@ -1,103 +1,128 @@
 
 
-## Add Missing Features: Email Verification, RFQ Campaign Builder, and Settings Tabs
+## Add Missing Automation & Intelligence Features
 
-### What's Being Added
+### Audit Summary: What Already Exists
 
-After auditing all 15 prompts against the codebase, three features are entirely missing:
+The app already has strong coverage of the spec:
+- Social credential management for 8 platforms (Twitter, Facebook, Instagram, LinkedIn, WhatsApp, TikTok, YouTube, Pinterest)
+- Multi-platform posting via `social-post` edge function
+- Scheduled posts processor with cron support
+- Engagement aggregation (hourly via `aggregate-engagement`)
+- MiroFlow competitor monitoring with price collection and alerts
+- Pricing Optimizer with strategy cards and scenario simulator
+- Content Studio with AI generation
+- Seller Analytics with AI insights (MiroRL)
+- Products Manager (CRUD)
+- Settings with 10 tabs including Social Media connections
 
-1. **Email Verification Page** -- A post-signup page with a 6-digit OTP input, countdown resend timer, and redirect on success.
-2. **RFQ Campaign Builder** -- A multi-step wizard (4 steps) for selecting suppliers, composing messages with templates/variables, choosing contact channels, and reviewing/sending RFQs.
-3. **Settings: Company, Billing, and Integrations tabs** -- Three new sections to complete the Settings page.
-
----
-
-### 1. Email Verification Page
-
-**New file:** `src/features/auth/pages/EmailVerificationPage.tsx`
-
-- Full-page layout matching login/signup design (gradient left panel + form right panel)
-- 6-digit OTP input using the existing `input-otp` component
-- Countdown timer (45 seconds) for the "Resend code" button
-- "Wrong email? Change email" link back to signup
-- Loading state during verification
-- On success: redirect to `/dashboard`
-- i18n ready with `useTranslation()`
-
-**New route:** `/verify-email` added to `src/app/Router.tsx`
-
-**Update:** `src/features/auth/index.ts` to export the new page
-
-**Locale updates:** Add `emailVerification` section to all 4 locale files with keys for title, subtitle, resend, wrongEmail, verifying, etc.
+### What's Missing (4 features)
 
 ---
 
-### 2. RFQ Campaign Builder
+### 1. Daily Intelligence Report System
 
-**New file:** `src/components/rfqs/RFQCampaignBuilder.tsx`
+**Problem:** The spec requires an automated daily report (8 PM) summarizing competitor prices, market changes, and recommendations -- sent via email and viewable in-dashboard.
 
-A 4-step wizard component:
+**New files:**
+- `supabase/functions/daily-report/index.ts` -- Edge function that:
+  - Queries competitor_prices, competitor_alerts, scheduled_posts, post_engagement for the last 24 hours
+  - Generates a summary using Lovable AI (Gemini) with metrics: products monitored, competitors found, new prices collected, market changes, top recommendations
+  - Stores the report in a new `daily_reports` table
+  - Returns the report (email sending can be added later when email integration is configured)
 
-- **Step 1 -- Select Suppliers:** Search input, show saved/recent suppliers, multi-select with checkboxes, selected count badge
-- **Step 2 -- Customize Message:** Template dropdown (Quick Quote, Bulk Order, Custom Spec), rich textarea with variable insertion (supplier_name, product_name, quantity, desired_delivery), character count
-- **Step 3 -- Select Channels:** Checkboxes for Email/WhatsApp/Phone (with availability indicators), email subject line input, per-channel preview
-- **Step 4 -- Review and Send:** Summary card, confirmation checkbox, send button
+- `src/features/seller/components/DailyReportViewer.tsx` -- Dashboard component showing:
+  - Latest daily report card with key metrics
+  - Historical reports list (last 7 days)
+  - Expandable sections: Market Summary, Price Changes, Competitor Activity, Recommendations
 
-Progress indicator at the top showing current step. Back/Next navigation.
+- `src/pages/dashboard/DailyReport.tsx` -- Page wrapper
 
-**New file:** `src/pages/dashboard/RFQCampaign.tsx` -- Page wrapper using DashboardLayout
+**Database:** New `daily_reports` table with columns: id, user_id, report_date, metrics_json, recommendations_json, created_at. RLS policies for user-owned data.
 
-**Update:** `src/app/Router.tsx` -- Add route `/dashboard/rfq-campaign`
-
-**Update:** `src/pages/dashboard/RFQs.tsx` -- Add "New Campaign" button linking to the campaign builder
-
-**Locale updates:** Add `rfqCampaign` section to all 4 locale files
+**Route:** `/dashboard/daily-report`
 
 ---
 
-### 3. Settings: Company, Billing, and Integrations Tabs
+### 2. Competitor Interaction Tracking
 
-**New file:** `src/components/settings/CompanySection.tsx`
-- Company name, logo upload, industry dropdown, company size dropdown, website URL, timezone, currency selector, save button
+**Problem:** The spec describes tracking messages sent to competitors and responses received (Steps 7-10 in Workflow 1). Currently no table or UI for this.
 
-**New file:** `src/components/settings/BillingSection.tsx`
-- Current plan card (plan name, price, billing date, renewal date)
-- Upgrade/downgrade button with plan comparison modal
-- Payment method display (masked card, expiration, update button)
-- Billing history table (date, description, amount, invoice link)
+**Database:** New `competitor_interactions` table:
+- id, user_id, product_id, competitor_name, platform, message_sent, response_received, response_price (extracted), confidence_score, status (sent/responded/no_response/expired), sent_at, responded_at, created_at
+- RLS policies for user-owned data
 
-**New file:** `src/components/settings/IntegrationsSection.tsx`
-- Connected services list: Slack, Google Drive, Zapier, Custom Webhooks
-- Each service: connect/disconnect button, last sync time, status badge
+**New file:** `src/features/seller/components/CompetitorOutreach.tsx` -- UI component showing:
+- Outreach history table (competitor, platform, message sent, response status, extracted price)
+- Response rate stats card
+- Filter by status (sent, responded, no response)
+- Manual "Log Response" button for recording prices from manual conversations
 
-**Update:** `src/pages/dashboard/Settings.tsx` -- Add 3 new tabs (Company, Billing, Integrations) alongside existing 7 tabs (total: 10)
+This component will be added as a tab or section within the Competitors page.
 
-**Update:** `src/components/settings/index.ts` -- Export new sections
+**Update:** `src/pages/dashboard/Competitors.tsx` to include the new outreach tracking section.
 
-**Locale updates:** Add `settings.company`, `settings.billing`, `settings.integrations` sections to all 4 locale files
+---
+
+### 3. Platform Setup Guides in Settings
+
+**Problem:** The Social Media Section shows a generic credential form. The spec wants detailed step-by-step instructions per platform (where to find Page ID, how to create a developer app, etc.).
+
+**Update:** `src/components/settings/SocialMediaSection.tsx` to add:
+- Per-platform collapsible setup guide that appears when clicking "Connect"
+- Step-by-step instructions matching the spec (e.g., Facebook: go to developers.facebook.com, create app, get Page ID from About section, generate token)
+- Visual indicators for each step (numbered steps with completion checkmarks)
+- Links to each platform's developer portal (already partially present)
+- "Test Connection" button before saving (already exists via `testCredentials`)
+
+**Update:** Add Telegram platform to `src/hooks/useSocialCredentials.ts` with fields: Bot Token (from BotFather)
+
+---
+
+### 4. MiroRL Feedback UI
+
+**Problem:** Step 13 describes a feedback loop where users rate AI recommendations and the system learns. No UI for this exists.
+
+**Database:** New `ai_feedback` table:
+- id, user_id, feature (pricing/content/competitor/report), recommendation_id, action_taken (applied/dismissed/modified), rating (1-5), notes, created_at
+- RLS policies for user-owned data
+
+**New file:** `src/components/shared/RecommendationFeedback.tsx` -- Reusable inline feedback widget:
+- Thumbs up / thumbs down buttons
+- Optional 1-5 star rating
+- "Did you apply this?" toggle
+- Brief notes field
+- Submits to `ai_feedback` table
+
+**Integration points:**
+- Add to Pricing Optimizer (after applying a strategy)
+- Add to Seller Analytics (after viewing AI insights)
+- Add to Daily Report Viewer (after reading recommendations)
 
 ---
 
 ### Technical Details
 
 **Files to create (5):**
-1. `src/features/auth/pages/EmailVerificationPage.tsx`
-2. `src/components/rfqs/RFQCampaignBuilder.tsx`
-3. `src/components/settings/CompanySection.tsx`
-4. `src/components/settings/BillingSection.tsx`
-5. `src/components/settings/IntegrationsSection.tsx`
+1. `supabase/functions/daily-report/index.ts`
+2. `src/features/seller/components/DailyReportViewer.tsx`
+3. `src/pages/dashboard/DailyReport.tsx`
+4. `src/features/seller/components/CompetitorOutreach.tsx`
+5. `src/components/shared/RecommendationFeedback.tsx`
 
-**Files to modify (7):**
-1. `src/app/Router.tsx` -- Add 2 new routes
-2. `src/features/auth/index.ts` -- Export EmailVerificationPage
-3. `src/pages/dashboard/Settings.tsx` -- Add 3 new tabs
-4. `src/components/settings/index.ts` -- Export 3 new sections
-5. `src/i18n/locales/en.json` -- Add ~120 new keys
-6. `src/i18n/locales/ar.json` -- Arabic translations
-7. `src/i18n/locales/fr.json` -- French translations
-8. `src/i18n/locales/es.json` -- Spanish translations
+**Files to modify (5):**
+1. `src/hooks/useSocialCredentials.ts` -- Add Telegram platform config
+2. `src/components/settings/SocialMediaSection.tsx` -- Add per-platform setup guides
+3. `src/pages/dashboard/Competitors.tsx` -- Add outreach tracking section
+4. `src/app/Router.tsx` -- Add daily-report route
+5. `supabase/config.toml` -- Add daily-report function config
 
-**Total: 13 files (5 new + 8 modified)**
+**Database migrations (3 tables):**
+1. `daily_reports` -- Stores generated daily intelligence reports
+2. `competitor_interactions` -- Tracks outreach messages and responses
+3. `ai_feedback` -- Stores user feedback on AI recommendations
 
-All new components will use `useTranslation()` from the start, following existing patterns. All use shadcn/ui components already installed in the project. No new dependencies needed -- `input-otp` is already installed for the OTP input.
+**Localization:** Add translation keys for all new UI components to the 4 locale files.
+
+**Total: 10 files (5 new + 5 modified) + 1 database migration**
 
