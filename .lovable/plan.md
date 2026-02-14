@@ -1,217 +1,103 @@
 
-## Full App-Wide i18n Translation Plan: Complete Implementation
 
-### Problem
-Only the sidebar, header, landing nav, and Content Studio are translated. All other pages show hardcoded English text:
-- **Dashboards**: Seller, Buyer, Producer, Main Dashboard
-- **Landing Page**: Hero, Features, HowItWorks, RoleCards, Testimonials, CTA, Footer
-- **Auth Pages**: Login, Signup
-- **Other Components**: ModeSelector, DashboardStats, QuickActions, RecentAnalyses
+## Add Missing Features: Email Verification, RFQ Campaign Builder, and Settings Tabs
 
-### Solution Overview
-This plan adds ~400 new translation keys to all 4 locale files (en, ar, fr, es) and wires up `useTranslation()` in 20+ component files. Every hardcoded string will be replaced with `t("section.key")` so the entire app responds instantly to language changes.
+### What's Being Added
 
-### Phase 1: Locale Data (4 files)
-Add new translation sections to `src/i18n/locales/{en,ar,fr,es}.json`:
+After auditing all 15 prompts against the codebase, three features are entirely missing:
 
-**New sections:**
-- `sellerDashboard` -- Welcome, stats labels, key actions, chart titles, section headers
-- `buyerDashboard` -- Welcome, stats labels, key actions, chart titles, RFQ table headers
-- `producerDashboard` -- Welcome, stats labels, key actions, charts, alerts
-- `mainDashboard` -- Dashboard title, upload text, AI analysis section, stats
-- `dashboardStats` -- All stat card titles and "from last month" text
-- `quickActions` -- Mode-specific action labels and descriptions (for buyer, seller, producer)
-- `recentAnalyses` -- Card titles, empty state text
-- `hero` -- Headline, subtitle, mode labels, descriptions, demo button text, feature pills, stats
-- `features` -- Section header, 8 feature cards with titles and descriptions
-- `howItWorks` -- Section header, 4 step titles and descriptions
-- `roleCards` -- Section header, 3 role cards (title, subtitle, features, CTA)
-- `testimonials` -- Section header, testimonial content
-- `cta` -- Badge, headline, description, buttons
-- `footer` -- Section categories, links, copyright
-- `login` -- Form labels, placeholders, left-side hero text, feature bullets, buttons, links
-- `signup` -- Form labels, placeholders, hero text, features, role options, buttons
-- `modeSelector` -- Mode labels and descriptions
+1. **Email Verification Page** -- A post-signup page with a 6-digit OTP input, countdown resend timer, and redirect on success.
+2. **RFQ Campaign Builder** -- A multi-step wizard (4 steps) for selecting suppliers, composing messages with templates/variables, choosing contact channels, and reviewing/sending RFQs.
+3. **Settings: Company, Billing, and Integrations tabs** -- Three new sections to complete the Settings page.
 
-### Phase 2: Component Wiring (20+ files)
+---
 
-**Dashboards (4 files):**
-1. `src/features/seller/pages/SellerDashboard.tsx`
-   - Welcome greeting, stat labels (Active Products, Sales This Month, Average Rating)
-   - Key action titles & descriptions (Monitor Competitors, Optimize Pricing, Create Content, Publish Post)
-   - Section headers (Sales Trend, Top Products, Competitor Alerts, Recent Posts)
-   - Table headers (Product, Units Sold, Revenue, Rating)
-   - Button labels (View all alerts, Analytics)
+### 1. Email Verification Page
 
-2. `src/features/buyer/pages/BuyerDashboard.tsx`
-   - Welcome greeting, stat labels (Active RFQs, Quotes Received, Saved Suppliers)
-   - Key action titles & descriptions (Supplier Search, My RFQs, Conversations, Saved Suppliers)
-   - Section headers (RFQ Status Breakdown, Quotes by Category, Latest Supplier Discovery, Active RFQs, Sourcing Alerts)
-   - Table headers (Title, Category, Quotes, Status, Expires)
-   - Badge "total" label, empty state messages
+**New file:** `src/features/auth/pages/EmailVerificationPage.tsx`
 
-3. `src/features/producer/pages/ProducerDashboard.tsx`
-   - Welcome greeting, stat labels, key actions, section headers
+- Full-page layout matching login/signup design (gradient left panel + form right panel)
+- 6-digit OTP input using the existing `input-otp` component
+- Countdown timer (45 seconds) for the "Resend code" button
+- "Wrong email? Change email" link back to signup
+- Loading state during verification
+- On success: redirect to `/dashboard`
+- i18n ready with `useTranslation()`
 
-4. `src/features/dashboard/pages/DashboardPage.tsx`
-   - Page title (Dashboard)
-   - "Upload a product image to get started" text
-   - AI analysis section headers
+**New route:** `/verify-email` added to `src/app/Router.tsx`
 
-**Dashboard Sub-Components (3 files):**
-5. `src/features/dashboard/pages/components/DashboardStats.tsx`
-   - Stat card titles, "from last month" text
+**Update:** `src/features/auth/index.ts` to export the new page
 
-6. `src/features/dashboard/pages/components/QuickActions.tsx`
-   - Card title, description text
-   - Move mode-specific actions inside component to use `t()`
+**Locale updates:** Add `emailVerification` section to all 4 locale files with keys for title, subtitle, resend, wrongEmail, verifying, etc.
 
-7. `src/features/dashboard/pages/components/RecentAnalyses.tsx`
-   - Card titles, empty state messages
+---
 
-**Landing Page Components (7 files):**
-8. `src/components/landing/Hero.tsx`
-   - Main headline (One Image. Infinite Insights.)
-   - Subtitle, mode labels, descriptions
-   - Upload button text, Try Demo button
-   - Feature pills (No signup required, Instant results, 100% free demo)
-   - Stats labels (Trade Volume, Suppliers, Accuracy, Analysis Time)
+### 2. RFQ Campaign Builder
 
-9. `src/components/landing/Features.tsx`
-   - Section badge, title, subtitle
-   - All 8 feature card titles and descriptions
+**New file:** `src/components/rfqs/RFQCampaignBuilder.tsx`
 
-10. `src/components/landing/HowItWorks.tsx`
-    - Section badge, title, subtitle
-    - All 4 step titles and descriptions
+A 4-step wizard component:
 
-11. `src/components/landing/RoleCards.tsx`
-    - Section badge, title, subtitle
-    - All 3 role card titles, subtitles, feature lists, button text
+- **Step 1 -- Select Suppliers:** Search input, show saved/recent suppliers, multi-select with checkboxes, selected count badge
+- **Step 2 -- Customize Message:** Template dropdown (Quick Quote, Bulk Order, Custom Spec), rich textarea with variable insertion (supplier_name, product_name, quantity, desired_delivery), character count
+- **Step 3 -- Select Channels:** Checkboxes for Email/WhatsApp/Phone (with availability indicators), email subject line input, per-channel preview
+- **Step 4 -- Review and Send:** Summary card, confirmation checkbox, send button
 
-12. `src/components/landing/Testimonials.tsx`
-    - Section badge, title, subtitle
-    - Testimonial content
+Progress indicator at the top showing current step. Back/Next navigation.
 
-13. `src/components/landing/CTA.tsx`
-    - Badge, headline, description
-    - Button labels, trust text
+**New file:** `src/pages/dashboard/RFQCampaign.tsx` -- Page wrapper using DashboardLayout
 
-14. `src/components/landing/Footer.tsx`
-    - Link categories, all link labels
-    - Tagline, copyright text
+**Update:** `src/app/Router.tsx` -- Add route `/dashboard/rfq-campaign`
 
-**Auth Pages (2 files):**
-15. `src/features/auth/pages/LoginPage.tsx`
-    - Logo brand text (TradePlatform)
-    - Hero section headline, description, feature bullets
-    - Form labels (Email address, Password), placeholders (you@company.com, Enter your password)
-    - Checkbox label (Remember me), Forgot password link text
-    - Button text (Sign in, Signing in...)
-    - Signup link text (Don't have an account?, Sign up for free)
+**Update:** `src/pages/dashboard/RFQs.tsx` -- Add "New Campaign" button linking to the campaign builder
 
-16. `src/features/auth/pages/SignupPage.tsx`
-    - Same pattern as LoginPage
+**Locale updates:** Add `rfqCampaign` section to all 4 locale files
 
-**Mode Selector (1 file):**
-17. `src/features/dashboard/components/ModeSelector.tsx`
-    - Mode labels (Buyer, Seller, Producer) and descriptions
+---
 
-### Phase 3: Technical Implementation Details
+### 3. Settings: Company, Billing, and Integrations Tabs
 
-**Static Arrays Translation Pattern:**
-For components with static arrays like `keyActions`, `modeConfig`, `features`, etc., move them INSIDE the component function so they can use `t()`:
+**New file:** `src/components/settings/CompanySection.tsx`
+- Company name, logo upload, industry dropdown, company size dropdown, website URL, timezone, currency selector, save button
 
-```tsx
-export default function SellerDashboard() {
-  const { t } = useTranslation();
-  
-  const keyActions = [
-    { title: t("sellerDashboard.actions.competitors"), desc: t("sellerDashboard.actions.competitorsDesc"), ... },
-    { title: t("sellerDashboard.actions.pricing"), desc: t("sellerDashboard.actions.pricingDesc"), ... },
-    // ...
-  ];
-  
-  // ... rest of component
-}
-```
+**New file:** `src/components/settings/BillingSection.tsx`
+- Current plan card (plan name, price, billing date, renewal date)
+- Upgrade/downgrade button with plan comparison modal
+- Payment method display (masked card, expiration, update button)
+- Billing history table (date, description, amount, invoice link)
 
-**Dynamic Translation Maps:**
-For components that need to map between untranslated config keys and translated labels (like sidebar, mode selector), use a key lookup:
+**New file:** `src/components/settings/IntegrationsSection.tsx`
+- Connected services list: Slack, Google Drive, Zapier, Custom Webhooks
+- Each service: connect/disconnect button, last sync time, status badge
 
-```tsx
-const titleKeyMap: Record<string, string> = {
-  "Home": "sidebar.home",
-  "Suppliers": "sidebar.suppliers",
-  // ...
-};
+**Update:** `src/pages/dashboard/Settings.tsx` -- Add 3 new tabs (Company, Billing, Integrations) alongside existing 7 tabs (total: 10)
 
-const translatedTitle = t(titleKeyMap[item.title] || "sidebar.default");
-```
+**Update:** `src/components/settings/index.ts` -- Export new sections
 
-### Phase 4: Locale File Structure
+**Locale updates:** Add `settings.company`, `settings.billing`, `settings.integrations` sections to all 4 locale files
 
-Example structure (en.json):
-```json
-{
-  "sellerDashboard": {
-    "welcome": "Welcome back, {{firstName}}!",
-    "subtitle": "Here's what's happening with your store today.",
-    "stats": {
-      "activeProducts": "Active Products",
-      "salesThisMonth": "Sales This Month",
-      "averageRating": "Average Rating"
-    },
-    "actions": {
-      "competitors": "Monitor Competitors",
-      "competitorsDesc": "Track pricing & stock changes",
-      "pricing": "Optimize Pricing",
-      // ...
-    },
-    "sections": {
-      "salesTrend": "Sales Trend (30 days)",
-      "topProducts": "Top 5 Products by Revenue",
-      "competitorAlerts": "Competitor Alerts",
-      "recentPosts": "Recent Posts"
-    },
-    "tables": {
-      "product": "Product",
-      "unitsSold": "Units Sold",
-      "revenue": "Revenue",
-      "rating": "Rating"
-    },
-    "buttons": {
-      "viewAllAlerts": "View all alerts",
-      "analytics": "Analytics"
-    }
-  },
-  "buyerDashboard": {
-    // Similar structure
-  },
-  // ... other sections
-}
-```
+---
 
-Arabic (ar.json) will have RTL translations. French and Spanish will follow the same key structure.
+### Technical Details
 
-### Phase 5: RTL & Mobile Verification
+**Files to create (5):**
+1. `src/features/auth/pages/EmailVerificationPage.tsx`
+2. `src/components/rfqs/RFQCampaignBuilder.tsx`
+3. `src/components/settings/CompanySection.tsx`
+4. `src/components/settings/BillingSection.tsx`
+5. `src/components/settings/IntegrationsSection.tsx`
 
-- RTL is already handled by LanguageContext (applies `dir="rtl"` and `rtl` class)
-- All flex/grid layouts will automatically flip for Arabic
-- No additional RTL CSS needed
+**Files to modify (7):**
+1. `src/app/Router.tsx` -- Add 2 new routes
+2. `src/features/auth/index.ts` -- Export EmailVerificationPage
+3. `src/pages/dashboard/Settings.tsx` -- Add 3 new tabs
+4. `src/components/settings/index.ts` -- Export 3 new sections
+5. `src/i18n/locales/en.json` -- Add ~120 new keys
+6. `src/i18n/locales/ar.json` -- Arabic translations
+7. `src/i18n/locales/fr.json` -- French translations
+8. `src/i18n/locales/es.json` -- Spanish translations
 
-### Files to Modify (Total: 24 files)
-1. `src/i18n/locales/en.json`
-2. `src/i18n/locales/ar.json`
-3. `src/i18n/locales/fr.json`
-4. `src/i18n/locales/es.json`
-5-24. The 20+ component files listed above
+**Total: 13 files (5 new + 8 modified)**
 
-### Expected Outcome
-After implementation:
-- ✅ Change language selector to Arabic/French/Spanish
-- ✅ ALL text on dashboard updates instantly
-- ✅ ALL text on landing pages updates instantly
-- ✅ ALL text on auth pages updates instantly
-- ✅ Arabic layout flips to RTL automatically
-- ✅ All translation keys follow the same pattern for consistency
+All new components will use `useTranslation()` from the start, following existing patterns. All use shadcn/ui components already installed in the project. No new dependencies needed -- `input-otp` is already installed for the OTP input.
+
