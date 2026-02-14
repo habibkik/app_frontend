@@ -184,7 +184,12 @@ export default function RFQsPage() {
               Manage your requests for quotation
             </p>
           </div>
-          <CreateRFQDialog onCreateRFQ={handleCreateRFQ} />
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => window.location.href = "/dashboard/rfq-campaign"}>
+              New Campaign
+            </Button>
+            <CreateRFQDialog onCreateRFQ={handleCreateRFQ} />
+          </div>
         </div>
 
         {/* Stats Cards */}
