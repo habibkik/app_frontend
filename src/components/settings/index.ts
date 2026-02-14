@@ -5,3 +5,6 @@ export { MessagingSection } from "./MessagingSection";
 export { ProfileSection } from "./ProfileSection";
 export { NotificationSection } from "./NotificationSection";
 export { SecuritySection } from "./SecuritySection";
+export { CompanySection } from "./CompanySection";
+export { BillingSection } from "./BillingSection";
+export { IntegrationsSection } from "./IntegrationsSection";

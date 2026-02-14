@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 // Auth feature pages
-import { LoginPage, SignupPage, ProtectedRoute, PublicRoute } from "@/features/auth";
+import { LoginPage, SignupPage, ProtectedRoute, PublicRoute, EmailVerificationPage } from "@/features/auth";
 
 // Dashboard feature pages
 import { DashboardPage } from "@/features/dashboard";
@@ -39,6 +39,7 @@ import Analytics from "@/pages/dashboard/Analytics";
 import SellerAnalytics from "@/pages/dashboard/SellerAnalytics";
 import HeatMap from "@/pages/dashboard/HeatMap";
 import Settings from "@/pages/dashboard/Settings";
+import RFQCampaignPage from "@/pages/dashboard/RFQCampaign";
 import NotFound from "@/pages/NotFound";
 
 export function Router() {
@@ -52,6 +53,7 @@ export function Router() {
       <Route path="/pricing" element={<PricingPage />} />
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
+      <Route path="/verify-email" element={<EmailVerificationPage />} />
       
       {/* Protected Dashboard routes */}
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -60,6 +62,7 @@ export function Router() {
       <Route path="/dashboard/buyer" element={<ProtectedRoute><BuyerDashboard /></ProtectedRoute>} />
       <Route path="/dashboard/suppliers" element={<ProtectedRoute><Suppliers /></ProtectedRoute>} />
       <Route path="/dashboard/rfqs" element={<ProtectedRoute><RFQs /></ProtectedRoute>} />
+      <Route path="/dashboard/rfq-campaign" element={<ProtectedRoute><RFQCampaignPage /></ProtectedRoute>} />
       <Route path="/dashboard/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
       <Route path="/dashboard/saved" element={<ProtectedRoute><SavedSuppliers /></ProtectedRoute>} />
       
