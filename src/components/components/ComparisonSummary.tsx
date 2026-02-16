@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ComponentPart, SupplierQuote, ComparisonSelection, mockSupplierQuotes } from "@/data/components";
 import { cn } from "@/lib/utils";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { useTranslation } from "react-i18next";
 
 interface ComparisonSummaryProps {
   parts: ComponentPart[];
@@ -15,6 +16,7 @@ interface ComparisonSummaryProps {
 }
 
 export function ComparisonSummary({ parts, selections, onCreateOrder }: ComparisonSummaryProps) {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
 
   const selectedQuotes = selections
@@ -58,12 +60,11 @@ export function ComparisonSummary({ parts, selections, onCreateOrder }: Comparis
 
   return (
     <div className="space-y-4">
-      {/* Progress Card */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
-              <span>Selection Progress</span>
+              <span>{t("componentSupply.selectionProgress")}</span>
               <Badge variant={completionPercent === 100 ? "default" : "secondary"}>
                 {totalSelected} / {totalParts}
               </Badge>
@@ -73,18 +74,17 @@ export function ComparisonSummary({ parts, selections, onCreateOrder }: Comparis
             <Progress value={completionPercent} className="h-2" />
             <p className="text-xs text-muted-foreground mt-2">
               {completionPercent === 100
-                ? "All components have suppliers selected"
-                : `Select suppliers for ${totalParts - totalSelected} more component${totalParts - totalSelected > 1 ? "s" : ""}`}
+                ? t("componentSupply.allComponentsSelected")
+                : t("componentSupply.selectMoreComponents", { count: totalParts - totalSelected })}
             </p>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Total Cost */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cost</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("componentSupply.totalCost")}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -92,37 +92,35 @@ export function ComparisonSummary({ parts, selections, onCreateOrder }: Comparis
             {savings > 0 && totalSelected === totalParts && (
               <p className="text-xs text-primary mt-1 flex items-center gap-1">
                 <TrendingDown className="h-3 w-3" />
-                Saving {fc(savings)} ({savingsPercent.toFixed(1)}%) vs max prices
+                {t("componentSupply.saving", { amount: fc(savings), percent: savingsPercent.toFixed(1) })}
               </p>
             )}
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Lead Time */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Est. Lead Time</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("componentSupply.estLeadTime")}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {maxLeadTime > 0 ? `${maxLeadTime} days` : "—"}
+              {maxLeadTime > 0 ? `${maxLeadTime} ${t("componentSupply.days")}` : "—"}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Based on longest supplier lead time
+              {t("componentSupply.basedOnLongest")}
             </p>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* Supplier Breakdown */}
       {sortedSuppliers.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">By Supplier</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("componentSupply.bySupplier")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {sortedSuppliers.map(([id, data]) => (
@@ -144,7 +142,6 @@ export function ComparisonSummary({ parts, selections, onCreateOrder }: Comparis
         </motion.div>
       )}
 
-      {/* Action Button */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <Button
           className="w-full"
@@ -155,12 +152,12 @@ export function ComparisonSummary({ parts, selections, onCreateOrder }: Comparis
           {totalSelected < totalParts ? (
             <>
               <AlertTriangle className="h-4 w-4 mr-2" />
-              Select All Suppliers to Continue
+              {t("componentSupply.selectAllToContinue")}
             </>
           ) : (
             <>
               <CheckCircle className="h-4 w-4 mr-2" />
-              Create Purchase Order
+              {t("componentSupply.createPurchaseOrder")}
             </>
           )}
         </Button>

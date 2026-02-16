@@ -4,12 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PricingInsight } from "@/lib/market-intel-service";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface PricingAnalysisCardProps {
   pricing: PricingInsight;
 }
 
 export function PricingAnalysisCard({ pricing }: PricingAnalysisCardProps) {
+  const { t } = useTranslation();
+
   const getDemandColor = (level: PricingInsight["demandLevel"]) => {
     switch (level) {
       case "high":
@@ -29,18 +32,17 @@ export function PricingAnalysisCard({ pricing }: PricingAnalysisCardProps) {
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
           <DollarSign className="h-4 w-4" />
-          Pricing Analysis
+          {t("market.pricingAnalysis")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="p-4 rounded-lg bg-primary/10 text-center"
           >
-            <p className="text-xs text-muted-foreground mb-1">Recommended Price</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("market.recommendedPrice")}</p>
             <p className="text-2xl font-bold text-primary">${pricing.recommendedPrice}</p>
           </motion.div>
           <motion.div
@@ -49,24 +51,20 @@ export function PricingAnalysisCard({ pricing }: PricingAnalysisCardProps) {
             transition={{ delay: 0.1 }}
             className="p-4 rounded-lg bg-muted/50 text-center"
           >
-            <p className="text-xs text-muted-foreground mb-1">Market Average</p>
+            <p className="text-xs text-muted-foreground mb-1">{t("market.marketAverage")}</p>
             <p className="text-2xl font-bold">${pricing.averagePrice}</p>
           </motion.div>
         </div>
 
-        {/* Price Range */}
         <div className="p-4 rounded-lg border">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Market Price Range</span>
+            <span className="text-sm font-medium">{t("market.marketPriceRange")}</span>
             <Badge variant={pricing.demandLevel === "high" ? "default" : "secondary"}>
-              {pricing.demandLevel} demand
+              {pricing.demandLevel} {t("market.demand")}
             </Badge>
           </div>
           <div className="relative h-8 bg-muted rounded-full overflow-hidden">
-            {/* Full range background */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20" />
-            
-            {/* Recommended price marker */}
             <motion.div
               initial={{ left: "0%" }}
               animate={{ 
@@ -82,11 +80,10 @@ export function PricingAnalysisCard({ pricing }: PricingAnalysisCardProps) {
           </div>
         </div>
 
-        {/* Competitor Prices */}
         <div>
           <p className="text-sm font-medium mb-3 flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            Competitor Pricing
+            {t("market.competitorPricing")}
           </p>
           <div className="space-y-2">
             {sortedCompetitors.map((comp, index) => {

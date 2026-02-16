@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MarketAnalysisRequest } from "@/lib/market-intel-service";
+import { useTranslation } from "react-i18next";
 
 interface MarketSearchProps {
   onAnalyze: (request: MarketAnalysisRequest) => void;
@@ -13,6 +14,7 @@ interface MarketSearchProps {
 }
 
 export function MarketSearch({ onAnalyze, isAnalyzing }: MarketSearchProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [analysisType, setAnalysisType] = useState<MarketAnalysisRequest["type"]>("product");
 
@@ -46,33 +48,31 @@ export function MarketSearch({ onAnalyze, isAnalyzing }: MarketSearchProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          AI Market Analysis
+          {t("market.aiMarketAnalysis")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Analysis Type Tabs */}
         <Tabs value={analysisType} onValueChange={(v) => setAnalysisType(v as typeof analysisType)}>
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="product">Product</TabsTrigger>
-            <TabsTrigger value="competitor">Competitors</TabsTrigger>
-            <TabsTrigger value="trend">Trends</TabsTrigger>
-            <TabsTrigger value="pricing">Pricing</TabsTrigger>
+            <TabsTrigger value="product">{t("market.product")}</TabsTrigger>
+            <TabsTrigger value="competitor">{t("market.competitors")}</TabsTrigger>
+            <TabsTrigger value="trend">{t("market.trends")}</TabsTrigger>
+            <TabsTrigger value="pricing">{t("market.pricing")}</TabsTrigger>
           </TabsList>
         </Tabs>
 
-        {/* Search Form */}
         <form onSubmit={handleSubmit} className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={
                 analysisType === "competitor"
-                  ? "Enter product or industry to analyze competitors..."
+                  ? t("market.enterCompetitorPlaceholder")
                   : analysisType === "trend"
-                  ? "Enter market or category to analyze trends..."
+                  ? t("market.enterTrendPlaceholder")
                   : analysisType === "pricing"
-                  ? "Enter product category for pricing analysis..."
-                  : "Enter product or market to analyze..."
+                  ? t("market.enterPricingPlaceholder")
+                  : t("market.enterProductPlaceholder")
               }
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -84,17 +84,16 @@ export function MarketSearch({ onAnalyze, isAnalyzing }: MarketSearchProps) {
             {isAnalyzing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Analyzing...
+                {t("market.analyzing")}
               </>
             ) : (
-              "Analyze"
+              t("market.analyze")
             )}
           </Button>
         </form>
 
-        {/* Quick Searches */}
         <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-muted-foreground py-1">Quick search:</span>
+          <span className="text-xs text-muted-foreground py-1">{t("market.quickSearch")}</span>
           {quickSearches.map((item) => (
             <Button
               key={item.query}

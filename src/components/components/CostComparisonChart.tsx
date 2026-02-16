@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ComponentPart, SupplierQuote, ComparisonSelection, mockSupplierQuotes } from "@/data/components";
 import { cn } from "@/lib/utils";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { useTranslation } from "react-i18next";
 
 interface CostComparisonChartProps {
   parts: ComponentPart[];
@@ -11,6 +12,7 @@ interface CostComparisonChartProps {
 }
 
 export function CostComparisonChart({ parts, selections }: CostComparisonChartProps) {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
 
   const chartData = parts.map((part) => {
@@ -40,7 +42,7 @@ export function CostComparisonChart({ parts, selections }: CostComparisonChartPr
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <BarChart3 className="h-4 w-4" />
-            Cost Comparison by Component
+            {t("componentSupply.costComparisonByComponent")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -103,15 +105,15 @@ export function CostComparisonChart({ parts, selections }: CostComparisonChartPr
           <div className="flex items-center gap-4 mt-6 pt-4 border-t text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <div className="h-3 w-3 rounded bg-primary" />
-              <span>Your Selection</span>
+              <span>{t("componentSupply.yourSelection")}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="h-3 w-1 bg-primary/50" />
-              <span>Lowest Price</span>
+              <span>{t("componentSupply.lowestPrice")}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="h-3 w-1 bg-destructive/50" />
-              <span>Highest Price</span>
+              <span>{t("componentSupply.highestPrice")}</span>
             </div>
           </div>
         </CardContent>

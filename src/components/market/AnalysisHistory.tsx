@@ -22,6 +22,7 @@ import {
   SavedAnalysis,
   MarketAnalysisResult 
 } from "@/lib/market-intel-service";
+import { useTranslation } from "react-i18next";
 
 interface AnalysisHistoryProps {
   onLoadAnalysis: (result: MarketAnalysisResult, query: string) => void;
@@ -29,6 +30,7 @@ interface AnalysisHistoryProps {
 }
 
 export function AnalysisHistory({ onLoadAnalysis, refreshTrigger }: AnalysisHistoryProps) {
+  const { t } = useTranslation();
   const [history, setHistory] = useState<SavedAnalysis[]>([]);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
@@ -59,10 +61,10 @@ export function AnalysisHistory({ onLoadAnalysis, refreshTrigger }: AnalysisHist
 
   const getTypeBadge = (type: SavedAnalysis["type"]) => {
     const variants: Record<typeof type, { label: string; variant: "default" | "secondary" | "outline" }> = {
-      product: { label: "Product", variant: "default" },
-      competitor: { label: "Competitor", variant: "secondary" },
-      trend: { label: "Trend", variant: "outline" },
-      pricing: { label: "Pricing", variant: "secondary" },
+      product: { label: t("market.product"), variant: "default" },
+      competitor: { label: t("market.competitors"), variant: "secondary" },
+      trend: { label: t("market.trends"), variant: "outline" },
+      pricing: { label: t("market.pricing"), variant: "secondary" },
     };
     return variants[type];
   };
@@ -73,17 +75,17 @@ export function AnalysisHistory({ onLoadAnalysis, refreshTrigger }: AnalysisHist
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <History className="h-4 w-4" />
-            Recent Analyses
+            {t("market.recentAnalyses")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center">
             <SearchIcon className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
             <p className="text-sm text-muted-foreground">
-              No analysis history yet
+              {t("market.noHistoryYet")}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Your recent market analyses will appear here
+              {t("market.recentAnalysesWillAppear")}
             </p>
           </div>
         </CardContent>
@@ -98,7 +100,7 @@ export function AnalysisHistory({ onLoadAnalysis, refreshTrigger }: AnalysisHist
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <History className="h-4 w-4" />
-              Recent Analyses
+              {t("market.recentAnalyses")}
             </CardTitle>
             <Button 
               variant="ghost" 
@@ -106,7 +108,7 @@ export function AnalysisHistory({ onLoadAnalysis, refreshTrigger }: AnalysisHist
               className="text-xs"
               onClick={() => setClearDialogOpen(true)}
             >
-              Clear All
+              {t("market.clearAll")}
             </Button>
           </div>
         </CardHeader>
@@ -166,18 +168,18 @@ export function AnalysisHistory({ onLoadAnalysis, refreshTrigger }: AnalysisHist
       <AlertDialog open={clearDialogOpen} onOpenChange={setClearDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Clear All History?</AlertDialogTitle>
+            <AlertDialogTitle>{t("market.clearAllHistory")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete all saved analyses. This action cannot be undone.
+              {t("market.clearAllDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleClearAll}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Clear All
+              {t("market.clearAll")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
