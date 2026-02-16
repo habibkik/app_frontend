@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
   Rocket,
@@ -108,6 +109,7 @@ const milestones = [
 ];
 
 export default function GTMPage() {
+  const { t } = useTranslation();
   const [activePhase, setActivePhase] = useState("strategy");
   
   const overallProgress = Math.round(
@@ -152,19 +154,19 @@ export default function GTMPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Go-To-Market</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.gtm.title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Plan and execute your product launch strategy
+              {t("pages.gtm.subtitle")}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2">
               <FileText className="h-4 w-4" />
-              Export Plan
+              {t("pages.gtm.exportPlan")}
             </Button>
             <Button className="gap-2">
               <Sparkles className="h-4 w-4" />
-              AI Strategy
+              {t("pages.gtm.aiStrategy")}
             </Button>
           </div>
         </div>

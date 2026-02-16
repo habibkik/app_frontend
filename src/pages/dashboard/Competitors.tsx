@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -311,6 +312,7 @@ const marketInsights = [
 ];
 
 export default function CompetitorsPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCompetitor, setSelectedCompetitor] = useState(mockCompetitors[0]);
@@ -549,9 +551,9 @@ export default function CompetitorsPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Competitor Tracking</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.competitors.title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Monitor competitor pricing, products, and market positioning
+              {t("pages.competitors.subtitle")}
             </p>
           </div>
         </div>
@@ -559,9 +561,9 @@ export default function CompetitorsPage() {
         {/* Main Tabs: Intelligence / Outreach */}
         <Tabs value={activeMainTab} onValueChange={setActiveMainTab} className="w-full">
           <TabsList className="mb-4">
-            <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
-            <TabsTrigger value="outreach">Outreach Tracking</TabsTrigger>
-            <TabsTrigger value="automation">Automation</TabsTrigger>
+            <TabsTrigger value="intelligence">{t("pages.competitors.intelligence")}</TabsTrigger>
+            <TabsTrigger value="outreach">{t("pages.competitors.outreachTracking")}</TabsTrigger>
+            <TabsTrigger value="automation">{t("pages.competitors.automation")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="outreach">

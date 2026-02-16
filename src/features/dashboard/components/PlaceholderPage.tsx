@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { LucideIcon, Construction } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,7 @@ export function PlaceholderPage({
   features = [],
   children 
 }: PlaceholderPageProps) {
+  const { t } = useTranslation();
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -48,15 +50,15 @@ export function PlaceholderPage({
               <div className="mx-auto h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
                 <Construction className="h-8 w-8 text-muted-foreground" />
               </div>
-              <CardTitle>Coming Soon</CardTitle>
+              <CardTitle>{t("pages.placeholder.comingSoon")}</CardTitle>
               <CardDescription>
-                This feature is under development. Connect your backend to enable full functionality.
+                {t("pages.placeholder.underDevelopment")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {features.length > 0 && (
                 <div className="space-y-4">
-                  <h4 className="text-sm font-medium text-center">Planned Features</h4>
+                  <h4 className="text-sm font-medium text-center">{t("pages.placeholder.plannedFeatures")}</h4>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {features.map((feature, index) => (
                       <div
@@ -73,7 +75,7 @@ export function PlaceholderPage({
               
               <div className="mt-6 text-center">
                 <Button variant="outline" disabled>
-                  Enable Feature
+                  {t("pages.placeholder.enableFeature")}
                 </Button>
               </div>
             </CardContent>

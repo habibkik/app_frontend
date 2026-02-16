@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { format, subMonths } from "date-fns";
 import { DateRange } from "react-day-picker";
@@ -197,6 +198,7 @@ function StatCard({ title, value, change, icon: Icon, prefix = "", suffix = "" }
 }
 
 export default function AnalyticsPage() {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
   const { symbol, convert } = useCurrency();
   // Comparison mode state
@@ -320,10 +322,10 @@ export default function AnalyticsPage() {
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                   <BarChart3 className="h-5 w-5 text-primary" />
                 </div>
-                <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+                <h1 className="text-2xl font-bold text-foreground">{t("pages.analytics.title")}</h1>
               </div>
               <p className="text-muted-foreground">
-                Insights and performance metrics for your sourcing activities
+                {t("pages.analytics.subtitle")}
               </p>
             </div>
             <div className="flex items-center gap-2">
