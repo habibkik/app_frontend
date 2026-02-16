@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
   Settings2, Play, Loader2, Clock, Zap, MessageSquare, CheckCircle2,
@@ -30,6 +31,7 @@ interface OutreachConfig {
 }
 
 export function PriceCollectionConfig() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [config, setConfig] = useState<OutreachConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -102,10 +104,10 @@ export function PriceCollectionConfig() {
         if (error) throw error;
       }
 
-      toast({ title: "Saved", description: "Automation settings updated." });
+      toast({ title: t("common.success"), description: t("automation.title") });
       await fetchConfig();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: e.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -124,12 +126,12 @@ export function PriceCollectionConfig() {
       if (error) throw error;
 
       toast({
-        title: "Collection Complete",
-        description: `${data?.sent || 0} outreach messages created.`,
+        title: t("automation.collectionComplete"),
+        description: `${data?.sent || 0} ${t("automation.messagesCreated")}`,
       });
       await fetchConfig();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: e.message, variant: "destructive" });
     } finally {
       setRunningNow(false);
     }
@@ -152,8 +154,8 @@ export function PriceCollectionConfig() {
             <CardContent className="pt-4 pb-4 flex items-center gap-3">
               <Zap className={`h-5 w-5 ${enabled ? "text-primary" : "text-muted-foreground"}`} />
               <div>
-                <p className="text-sm text-muted-foreground">Automation</p>
-                <p className="text-lg font-bold">{enabled ? "Active" : "Inactive"}</p>
+                <p className="text-sm text-muted-foreground">{t("automation.title")}</p>
+                <p className="text-lg font-bold">{enabled ? t("automation.active") : t("automation.inactive")}</p>
               </div>
             </CardContent>
           </Card>
@@ -163,8 +165,8 @@ export function PriceCollectionConfig() {
             <CardContent className="pt-4 pb-4 flex items-center gap-3">
               <Clock className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm text-muted-foreground">Frequency</p>
-                <p className="text-lg font-bold">Every {frequencyHours}h</p>
+                <p className="text-sm text-muted-foreground">{t("automation.frequency")}</p>
+                <p className="text-lg font-bold">{frequencyHours}h</p>
               </div>
             </CardContent>
           </Card>
@@ -174,11 +176,11 @@ export function PriceCollectionConfig() {
             <CardContent className="pt-4 pb-4 flex items-center gap-3">
               <MessageSquare className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm text-muted-foreground">Last Run</p>
+                <p className="text-sm text-muted-foreground">{t("automation.lastRun")}</p>
                 <p className="text-lg font-bold">
                   {config?.last_run_at
                     ? format(new Date(config.last_run_at), "PPp")
-                    : "Never"}
+                    : t("automation.never")}
                 </p>
               </div>
             </CardContent>
@@ -192,9 +194,9 @@ export function PriceCollectionConfig() {
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Last Run Result:</span>
+              <span className="text-sm font-medium">{t("automation.lastRun")}:</span>
               <Badge variant="secondary">
-                {config.last_run_results.messages_created || 0} messages created
+                {config.last_run_results.messages_created || 0} {t("automation.messagesCreated")}
               </Badge>
             </div>
           </CardContent>
@@ -206,19 +208,19 @@ export function PriceCollectionConfig() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings2 className="h-5 w-5" />
-            Automation Settings
+            {t("automation.title")}
           </CardTitle>
           <CardDescription>
-            Configure automated outreach to collect competitor pricing data.
+            {t("automation.description")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Enable Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-base">Enable Automated Outreach</Label>
+              <Label className="text-base">{t("automation.enableAutomation")}</Label>
               <p className="text-sm text-muted-foreground">
-                Automatically send pricing inquiries to competitors
+                {t("automation.enableDescription")}
               </p>
             </div>
             <Switch checked={enabled} onCheckedChange={setEnabled} />
@@ -226,7 +228,7 @@ export function PriceCollectionConfig() {
 
           {/* Frequency */}
           <div className="space-y-2">
-            <Label>Collection Frequency</Label>
+            <Label>{t("automation.frequency")}</Label>
             <Select
               value={String(frequencyHours)}
               onValueChange={(v) => setFrequencyHours(Number(v))}
@@ -235,16 +237,16 @@ export function PriceCollectionConfig() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="6">Every 6 hours (4x daily)</SelectItem>
-                <SelectItem value="12">Every 12 hours (2x daily)</SelectItem>
-                <SelectItem value="24">Once daily</SelectItem>
+                <SelectItem value="6">{t("automation.every6h")}</SelectItem>
+                <SelectItem value="12">{t("automation.every12h")}</SelectItem>
+                <SelectItem value="24">{t("automation.daily")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Max Contacts */}
           <div className="space-y-2">
-            <Label>Max Contacts Per Run: {maxContacts}</Label>
+            <Label>{t("automation.maxContacts")}: {maxContacts}</Label>
             <Slider
               value={[maxContacts]}
               onValueChange={(v) => setMaxContacts(v[0])}
@@ -253,21 +255,20 @@ export function PriceCollectionConfig() {
               step={1}
             />
             <p className="text-xs text-muted-foreground">
-              Number of competitor inquiries per automated run
+              {t("automation.maxContactsDesc")}
             </p>
           </div>
 
           {/* Message Template */}
           <div className="space-y-2">
-            <Label>Message Template</Label>
+            <Label>{t("automation.messageTemplate")}</Label>
             <Textarea
               value={messageTemplate}
               onChange={(e) => setMessageTemplate(e.target.value)}
               rows={4}
-              placeholder="Hi, I'm interested in {{product_name}}..."
             />
             <p className="text-xs text-muted-foreground">
-              Variables: {"{{product_name}}"}, {"{{price_range}}"}, {"{{category}}"}
+              {t("automation.templateVariables")}
             </p>
           </div>
 
@@ -275,7 +276,7 @@ export function PriceCollectionConfig() {
           <div className="flex gap-3">
             <Button onClick={saveConfig} disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Save Settings
+              {t("automation.saveSettings")}
             </Button>
             <Button
               variant="outline"
@@ -287,7 +288,7 @@ export function PriceCollectionConfig() {
               ) : (
                 <Play className="h-4 w-4 mr-2" />
               )}
-              Run Now
+              {t("automation.runNow")}
             </Button>
           </div>
         </CardContent>

@@ -1,25 +1,20 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import {
-  Send, MessageSquare, CheckCircle2, XCircle, Clock, Plus, Loader2,
-  DollarSign, Filter, BarChart3, Sparkles,
-} from "lucide-react";
+import { Send, MessageSquare, CheckCircle2, XCircle, Clock, Plus, Loader2, DollarSign, Filter, BarChart3, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
+// Define the structure of an interaction
 interface Interaction {
   id: string;
   competitor_name: string;
@@ -35,6 +30,7 @@ interface Interaction {
 }
 
 export function CompetitorOutreach() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,10 +41,8 @@ export function CompetitorOutreach() {
   const [responsePrice, setResponsePrice] = useState("");
   const [saving, setSaving] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [extractedMoq, setExtractedMoq] = useState<string>("");
-  const [extractedLeadTime, setExtractedLeadTime] = useState<string>("");
-
-  // New outreach dialog
+  const [extractedMoq, setExtractedMoq] = useState("");
+  const [extractedLeadTime, setExtractedLeadTime] = useState("");
   const [newDialogOpen, setNewDialogOpen] = useState(false);
   const [newCompetitor, setNewCompetitor] = useState("");
   const [newPlatform, setNewPlatform] = useState("email");
@@ -74,7 +68,9 @@ export function CompetitorOutreach() {
     }
   };
 
-  useEffect(() => { fetchInteractions(); }, []);
+  useEffect(() => {
+    fetchInteractions();
+  }, []);
 
   const filteredInteractions = statusFilter === "all"
     ? interactions
@@ -102,22 +98,29 @@ export function CompetitorOutreach() {
   const handleExtractPrice = async () => {
     if (!responseText.trim()) return;
     setExtracting(true);
+
     try {
       const { data, error } = await supabase.functions.invoke("extract-price", {
         body: { message_text: responseText },
       });
+
       if (error) throw error;
+
       if (data?.success && data.data) {
         const d = data.data;
         if (d.price) setResponsePrice(String(d.price));
         if (d.moq) setExtractedMoq(String(d.moq));
         if (d.lead_time) setExtractedLeadTime(d.lead_time);
-        toast({ title: "Price Extracted", description: `Confidence: ${d.confidence}%` });
+
+        toast({
+          title: t("outreach.priceExtracted"),
+          description: `Confidence: ${d.confidence}%`,
+        });
       } else {
-        toast({ title: "No Price Found", description: "Could not extract pricing from this text.", variant: "destructive" });
+        toast({ title: t("outreach.extractionFailed"), variant: "destructive" });
       }
     } catch (e: any) {
-      toast({ title: "Extraction Failed", description: e.message, variant: "destructive" });
+      toast({ title: t("outreach.extractionFailed"), description: e.message, variant: "destructive" });
     } finally {
       setExtracting(false);
     }
@@ -126,6 +129,7 @@ export function CompetitorOutreach() {
   const saveResponse = async () => {
     if (!selectedInteraction) return;
     setSaving(true);
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
@@ -143,11 +147,12 @@ export function CompetitorOutreach() {
         .eq("user_id", user.id);
 
       if (error) throw error;
-      toast({ title: "Response Logged", description: "Competitor response recorded successfully." });
+
+      toast({ title: t("outreach.logResponse") });
       setLogDialogOpen(false);
       await fetchInteractions();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: e.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -156,6 +161,7 @@ export function CompetitorOutreach() {
   const createOutreach = async () => {
     if (!newCompetitor.trim()) return;
     setSaving(true);
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
@@ -171,13 +177,14 @@ export function CompetitorOutreach() {
         });
 
       if (error) throw error;
-      toast({ title: "Outreach Logged", description: `Message to ${newCompetitor} recorded.` });
+
+      toast({ title: t("outreach.logOutreach") });
       setNewDialogOpen(false);
       setNewCompetitor("");
       setNewMessage("");
       await fetchInteractions();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: e.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -185,11 +192,16 @@ export function CompetitorOutreach() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "sent": return <Badge variant="outline"><Clock className="h-3 w-3 mr-1" />Sent</Badge>;
-      case "responded": return <Badge variant="default"><CheckCircle2 className="h-3 w-3 mr-1" />Responded</Badge>;
-      case "no_response": return <Badge variant="secondary"><XCircle className="h-3 w-3 mr-1" />No Response</Badge>;
-      case "expired": return <Badge variant="destructive">Expired</Badge>;
-      default: return <Badge variant="outline">{status}</Badge>;
+      case "sent":
+        return <Badge variant="outline"><Clock className="h-3 w-3 mr-1" />{t("common.status")}</Badge>;
+      case "responded":
+        return <Badge variant="default"><CheckCircle2 className="h-3 w-3 mr-1" />{t("outreach.responded")}</Badge>;
+      case "no_response":
+        return <Badge variant="secondary"><XCircle className="h-3 w-3 mr-1" />{t("outreach.awaitingResponse")}</Badge>;
+      case "expired":
+        return <Badge variant="destructive">Expired</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
@@ -204,200 +216,79 @@ export function CompetitorOutreach() {
     }
   };
 
-  if (loading) {
-    return <div className="flex items-center justify-center h-32"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
-  }
+  if (loading) return <div className="flex items-center justify-center h-32"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         {[
-          { label: "Total Outreach", value: stats.total, icon: Send },
-          { label: "Awaiting Response", value: stats.sent, icon: Clock },
-          { label: "Responded", value: stats.responded, icon: CheckCircle2 },
-          { label: "Response Rate", value: `${stats.responseRate}%`, icon: BarChart3 },
+          { label: t("outreach.totalOutreach"), value: stats.total, icon: Send },
+          { label: t("outreach.awaitingResponse"), value: stats.sent, icon: Clock },
+          { label: t("outreach.responded"), value: stats.responded, icon: CheckCircle2 },
+          { label: t("outreach.responseRate"), value: `${stats.responseRate}%`, icon: BarChart3 },
         ].map((stat, i) => (
           <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <Card>
-              <CardContent className="pt-4 pb-4 flex items-center gap-3">
-                <stat.icon className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-xl font-bold">{stat.value}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <Card><CardContent className="pt-4 pb-4 flex items-center gap-3"><stat.icon className="h-5 w-5 text-primary" /><div><p className="text-sm text-muted-foreground">{stat.label}</p><p className="text-xl font-bold">{stat.value}</p></div></CardContent></Card>
           </motion.div>
         ))}
       </div>
-
-      {/* Controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="sent">Sent</SelectItem>
-              <SelectItem value="responded">Responded</SelectItem>
-              <SelectItem value="no_response">No Response</SelectItem>
-            </SelectContent>
-          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}><SelectTrigger className="w-40"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">{t("common.all")}</SelectItem><SelectItem value="sent">Sent</SelectItem><SelectItem value="responded">{t("outreach.responded")}</SelectItem><SelectItem value="no_response">No Response</SelectItem></SelectContent></Select>
         </div>
-        <Button onClick={() => setNewDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" /> Log Outreach
-        </Button>
+        <Button onClick={() => setNewDialogOpen(true)}><Plus className="h-4 w-4 mr-2" /> {t("outreach.logOutreach")}</Button>
       </div>
-
-      {/* Interactions List */}
       {filteredInteractions.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Outreach Yet</h3>
-            <p className="text-muted-foreground text-center mb-4">Log your competitor outreach messages to track responses and prices.</p>
-            <Button onClick={() => setNewDialogOpen(true)}>Log First Outreach</Button>
-          </CardContent>
-        </Card>
+        <Card><CardContent className="flex flex-col items-center justify-center py-12">
+          <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">{t("outreach.noOutreach")}</h3>
+          <p className="text-muted-foreground text-center mb-4">{t("outreach.noOutreachDesc")}</p>
+          <Button onClick={() => setNewDialogOpen(true)}>{t("outreach.logOutreach")}</Button>
+        </CardContent></Card>
       ) : (
         <div className="space-y-2">
           {filteredInteractions.map((interaction, i) => (
             <motion.div key={interaction.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
-              <Card>
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm">
-                        {getPlatformIcon(interaction.platform)}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">{interaction.competitor_name}</h4>
-                          {getStatusBadge(interaction.status)}
-                          <span className="text-xs text-muted-foreground capitalize">{interaction.platform}</span>
-                        </div>
-                        {interaction.message_sent && (
-                          <p className="text-sm text-muted-foreground line-clamp-1">{interaction.message_sent}</p>
-                        )}
-                        {interaction.response_received && (
-                          <p className="text-sm mt-1"><span className="font-medium">Response:</span> {interaction.response_received}</p>
-                        )}
-                        {interaction.response_price != null && (
-                          <div className="flex items-center gap-1 mt-1">
-                            <DollarSign className="h-3 w-3 text-primary" />
-                            <span className="text-sm font-semibold">${interaction.response_price}</span>
-                            <span className="text-xs text-muted-foreground">(confidence: {interaction.confidence_score}%)</span>
-                          </div>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">Sent: {format(new Date(interaction.sent_at), "PPp")}</p>
-                      </div>
+              <Card><CardContent className="pt-4 pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm">{getPlatformIcon(interaction.platform)}</div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1"><h4 className="font-medium">{interaction.competitor_name}</h4>{getStatusBadge(interaction.status)}<span className="text-xs text-muted-foreground capitalize">{interaction.platform}</span></div>
+                      {interaction.message_sent && <p className="text-sm text-muted-foreground line-clamp-1">{interaction.message_sent}</p>}
+                      {interaction.response_received && <p className="text-sm mt-1"><span className="font-medium">{t("outreach.responseMessage")}:</span> {interaction.response_received}</p>}
+                      {interaction.response_price != null && (<div className="flex items-center gap-1 mt-1"><DollarSign className="h-3 w-3 text-primary" /><span className="text-sm font-semibold">${interaction.response_price}</span></div>)}
+                      <p className="text-xs text-muted-foreground mt-1">Sent: {format(new Date(interaction.sent_at), "PPp")}</p>
                     </div>
-                    {interaction.status === "sent" && (
-                      <Button variant="outline" size="sm" onClick={() => handleLogResponse(interaction)}>
-                        Log Response
-                      </Button>
-                    )}
                   </div>
-                </CardContent>
-              </Card>
+                  {interaction.status === "sent" && <Button variant="outline" size="sm" onClick={() => handleLogResponse(interaction)}>{t("outreach.logResponse")}</Button>}
+                </div>
+              </CardContent></Card>
             </motion.div>
           ))}
         </div>
       )}
-
-      {/* Log Response Dialog */}
       <Dialog open={logDialogOpen} onOpenChange={setLogDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Log Response from {selectedInteraction?.competitor_name}</DialogTitle>
-            <DialogDescription>Record the response received from this competitor.</DialogDescription>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>{t("outreach.logResponse")} - {selectedInteraction?.competitor_name}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Response Message</Label>
-              <Textarea value={responseText} onChange={(e) => setResponseText(e.target.value)} placeholder="Paste or type the response..." rows={3} />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleExtractPrice}
-                disabled={extracting || !responseText.trim()}
-                className="mt-1"
-              >
-                {extracting ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
-                Extract with AI
-              </Button>
-            </div>
-            <div className="space-y-2">
-              <Label>Extracted Price (optional)</Label>
-              <Input type="number" value={responsePrice} onChange={(e) => setResponsePrice(e.target.value)} placeholder="e.g., 45.99" />
-            </div>
-            {(extractedMoq || extractedLeadTime) && (
-              <div className="flex gap-4 text-sm">
-                {extractedMoq && (
-                  <div>
-                    <span className="text-muted-foreground">MOQ: </span>
-                    <span className="font-medium">{extractedMoq}</span>
-                  </div>
-                )}
-                {extractedLeadTime && (
-                  <div>
-                    <span className="text-muted-foreground">Lead Time: </span>
-                    <span className="font-medium">{extractedLeadTime}</span>
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="space-y-2"><Label>{t("outreach.responseMessage")}</Label><Textarea value={responseText} onChange={(e) => setResponseText(e.target.value)} rows={3} /><Button type="button" variant="outline" size="sm" onClick={handleExtractPrice} disabled={extracting || !responseText.trim()} className="mt-1">{extracting ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}{t("outreach.extractWithAI")}</Button></div>
+            <div className="space-y-2"><Label>{t("outreach.extractedPrice")}</Label><Input type="number" value={responsePrice} onChange={(e) => setResponsePrice(e.target.value)} /></div>
+            {(extractedMoq || extractedLeadTime) && (<div className="flex gap-4 text-sm">{extractedMoq && <div><span className="text-muted-foreground">{t("outreach.moq")}: </span><span className="font-medium">{extractedMoq}</span></div>}{extractedLeadTime && <div><span className="text-muted-foreground">{t("outreach.leadTime")}: </span><span className="font-medium">{extractedLeadTime}</span></div>}</div>)}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setLogDialogOpen(false)}>Cancel</Button>
-            <Button onClick={saveResponse} disabled={saving || !responseText.trim()}>
-              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-              Save Response
-            </Button>
-          </DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setLogDialogOpen(false)}>{t("common.cancel")}</Button><Button onClick={saveResponse} disabled={saving || !responseText.trim()}>{saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}{t("outreach.saveResponse")}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* New Outreach Dialog */}
       <Dialog open={newDialogOpen} onOpenChange={setNewDialogOpen}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Log New Outreach</DialogTitle>
-            <DialogDescription>Record a message sent to a competitor.</DialogDescription>
-          </DialogHeader>
+          <DialogHeader><DialogTitle>{t("outreach.logOutreach")}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Competitor Name</Label>
-              <Input value={newCompetitor} onChange={(e) => setNewCompetitor(e.target.value)} placeholder="e.g., TechSupply Co" />
-            </div>
-            <div className="space-y-2">
-              <Label>Platform</Label>
-              <Select value={newPlatform} onValueChange={setNewPlatform}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="email">Email</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                  <SelectItem value="facebook">Facebook</SelectItem>
-                  <SelectItem value="instagram">Instagram</SelectItem>
-                  <SelectItem value="telegram">Telegram</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Message Sent (optional)</Label>
-              <Textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="What did you send?" rows={3} />
-            </div>
+            <div className="space-y-2"><Label>{t("outreach.competitorName")}</Label><Input value={newCompetitor} onChange={(e) => setNewCompetitor(e.target.value)} /></div>
+            <div className="space-y-2"><Label>{t("outreach.platform")}</Label><Select value={newPlatform} onValueChange={setNewPlatform}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="email">Email</SelectItem><SelectItem value="whatsapp">WhatsApp</SelectItem><SelectItem value="facebook">Facebook</SelectItem><SelectItem value="instagram">Instagram</SelectItem><SelectItem value="telegram">Telegram</SelectItem></SelectContent></Select></div>
+            <div className="space-y-2"><Label>{t("outreach.messageSent")}</Label><Textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} rows={3} /></div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewDialogOpen(false)}>Cancel</Button>
-            <Button onClick={createOutreach} disabled={saving || !newCompetitor.trim()}>
-              {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-              Log Outreach
-            </Button>
-          </DialogFooter>
+          <DialogFooter><Button variant="outline" onClick={() => setNewDialogOpen(false)}>{t("common.cancel")}</Button><Button onClick={createOutreach} disabled={saving || !newCompetitor.trim()}>{saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}{t("outreach.logOutreach")}</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Download, FileSpreadsheet, FileText, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,7 @@ interface BOMExportActionsProps {
 }
 
 export function BOMExportActions({ components, productName }: BOMExportActionsProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
 
   const exportToCSV = () => {
@@ -42,8 +44,8 @@ export function BOMExportActions({ components, productName }: BOMExportActionsPr
     URL.revokeObjectURL(url);
 
     toast({
-      title: "Export Successful",
-      description: "BOM exported as CSV file",
+      title: t("bomComponents.exportSuccessful"),
+      description: t("bomComponents.bomExportedCSV"),
     });
   };
 
@@ -73,17 +75,16 @@ export function BOMExportActions({ components, productName }: BOMExportActionsPr
     URL.revokeObjectURL(url);
 
     toast({
-      title: "Export Successful",
-      description: "BOM exported as JSON file",
+      title: t("bomComponents.exportSuccessful"),
+      description: t("bomComponents.bomExportedJSON"),
     });
   };
 
   const copyShareLink = () => {
-    // In a real app, this would generate a shareable link
     navigator.clipboard.writeText(window.location.href);
     toast({
-      title: "Link Copied",
-      description: "Share link copied to clipboard",
+      title: t("bomComponents.linkCopied"),
+      description: t("bomComponents.shareLinkCopied"),
     });
   };
 
@@ -93,24 +94,24 @@ export function BOMExportActions({ components, productName }: BOMExportActionsPr
         <DropdownMenuTrigger asChild>
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" />
-            Export
+            {t("common.export")}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={exportToCSV}>
             <FileSpreadsheet className="h-4 w-4 mr-2" />
-            Export as CSV
+            {t("bomComponents.exportCSV")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={exportToJSON}>
             <FileText className="h-4 w-4 mr-2" />
-            Export as JSON
+            {t("bomComponents.exportJSON")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <Button variant="outline" onClick={copyShareLink}>
         <Share2 className="h-4 w-4 mr-2" />
-        Share
+        {t("bomComponents.share")}
       </Button>
     </div>
   );
