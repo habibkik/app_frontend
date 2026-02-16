@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X, Plus, Tag, StickyNote, Save } from "lucide-react";
 import {
   Dialog,
@@ -40,6 +41,7 @@ export function SupplierNotesTagsModal({
   open,
   onOpenChange,
 }: SupplierNotesTagsModalProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { getSupplierMetadata, updateSupplierNotes, setSupplierTags, getAllTags } =
     useSavedSuppliers();
@@ -87,8 +89,8 @@ export function SupplierNotesTagsModal({
     updateSupplierNotes(supplier.id, notes);
     setSupplierTags(supplier.id, tags);
     toast({
-      title: "Changes Saved",
-      description: `Notes and tags for ${supplier.name} have been updated.`,
+      title: t("pages.supplierModals.changesSaved"),
+      description: t("pages.supplierModals.notesAndTagsUpdated", { name: supplier.name }),
     });
     onOpenChange(false);
   };
@@ -106,7 +108,7 @@ export function SupplierNotesTagsModal({
             {supplier.name}
           </DialogTitle>
           <DialogDescription>
-            Add notes and tags to organize this supplier
+            {t("pages.supplierModals.addNotesAndTags")}
           </DialogDescription>
         </DialogHeader>
 

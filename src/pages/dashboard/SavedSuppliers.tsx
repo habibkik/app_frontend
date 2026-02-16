@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bookmark,
@@ -66,6 +67,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 
 export default function SavedSuppliersPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const {
     savedSuppliers,
@@ -234,10 +236,10 @@ export default function SavedSuppliersPage() {
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
               <Bookmark className="h-5 w-5 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Saved Suppliers</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.savedSuppliers.title")}</h1>
           </div>
           <p className="text-muted-foreground">
-            Manage your bookmarked suppliers with notes and tags
+            {t("pages.savedSuppliers.subtitle")}
           </p>
         </motion.div>
 

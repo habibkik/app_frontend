@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Plus, Tag, X, Check } from "lucide-react";
 import {
   Dialog,
@@ -43,6 +44,7 @@ export function BulkTagAssignModal({
   onOpenChange,
   onComplete,
 }: BulkTagAssignModalProps) {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { getAllTags, getSupplierMetadata, setSupplierTags } = useSavedSuppliers();
   
@@ -130,10 +132,10 @@ export function BulkTagAssignModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Tag className="h-5 w-5" />
-            Bulk Tag Assignment
+            {t("pages.supplierModals.bulkTagAssignment")}
           </DialogTitle>
           <DialogDescription>
-            Apply tags to {selectedIds.length} selected supplier(s)
+            {t("pages.supplierModals.applyTagsTo", { count: selectedIds.length })}
           </DialogDescription>
         </DialogHeader>
 
