@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ComponentPart, SupplierQuote } from "@/data/components";
 import { cn } from "@/lib/utils";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { useTranslation } from "react-i18next";
 
 interface ComponentCardProps {
   component: ComponentPart;
@@ -23,6 +24,7 @@ export function ComponentCard({
   onToggle,
   index,
 }: ComponentCardProps) {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
   const lowestPrice = Math.min(...quotes.map((q) => q.unitPrice));
   const highestPrice = Math.max(...quotes.map((q) => q.unitPrice));
@@ -65,10 +67,10 @@ export function ComponentCard({
               <div className="flex items-center gap-4 mt-3">
                 <Badge variant="secondary">{component.category}</Badge>
                 <span className="text-sm text-muted-foreground">
-                  Qty: {component.requiredQuantity.toLocaleString()} {component.unit}
+                  {t("componentSupply.qty")}: {component.requiredQuantity.toLocaleString()} {component.unit}
                 </span>
                 <span className="text-sm">
-                  {fc(lowestPrice)} - {fc(highestPrice)} / unit
+                  {fc(lowestPrice)} - {fc(highestPrice)} / {t("componentSupply.perUnit")}
                 </span>
               </div>
 
@@ -76,7 +78,7 @@ export function ComponentCard({
                 <div className="mt-3 p-2 rounded-md bg-primary/5 border border-primary/20">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-primary">
-                      Selected: {selectedQuote.supplierName}
+                      {t("componentSupply.selected")}: {selectedQuote.supplierName}
                     </span>
                     <span className="text-sm font-bold">
                       {fc(selectedQuote.unitPrice * component.requiredQuantity)}

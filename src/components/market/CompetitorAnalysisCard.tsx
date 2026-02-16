@@ -5,12 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CompetitorData } from "@/lib/market-intel-service";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface CompetitorAnalysisCardProps {
   competitors: CompetitorData[];
 }
 
 export function CompetitorAnalysisCard({ competitors }: CompetitorAnalysisCardProps) {
+  const { t } = useTranslation();
   const maxShare = Math.max(...competitors.map((c) => c.marketShare));
 
   return (
@@ -18,7 +20,7 @@ export function CompetitorAnalysisCard({ competitors }: CompetitorAnalysisCardPr
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
           <Building2 className="h-4 w-4" />
-          Competitor Analysis
+          {t("market.competitorAnalysis")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -34,10 +36,9 @@ export function CompetitorAnalysisCard({ competitors }: CompetitorAnalysisCardPr
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <h4 className="font-semibold">{competitor.name}</h4>
-                  <Badge variant="outline">{competitor.marketShare}% share</Badge>
+                  <Badge variant="outline">{competitor.marketShare}% {t("market.share")}</Badge>
                 </div>
 
-                {/* Market Share Bar */}
                 <div className="mt-2">
                   <Progress 
                     value={(competitor.marketShare / maxShare) * 100} 
@@ -45,15 +46,13 @@ export function CompetitorAnalysisCard({ competitors }: CompetitorAnalysisCardPr
                   />
                 </div>
 
-                {/* Price Range */}
                 <p className="text-sm text-muted-foreground mt-2">
-                  Price range: ${competitor.priceRange.min} - ${competitor.priceRange.max}
+                  {t("market.marketPriceRange")}: ${competitor.priceRange.min} - ${competitor.priceRange.max}
                 </p>
 
-                {/* Strengths & Weaknesses */}
                 <div className="grid grid-cols-2 gap-4 mt-3">
                   <div>
-                    <p className="text-xs font-medium text-primary mb-1">Strengths</p>
+                    <p className="text-xs font-medium text-primary mb-1">{t("market.strengths")}</p>
                     <div className="flex flex-wrap gap-1">
                       {competitor.strengths.slice(0, 3).map((s) => (
                         <Badge key={s} variant="secondary" className="text-xs">
@@ -63,7 +62,7 @@ export function CompetitorAnalysisCard({ competitors }: CompetitorAnalysisCardPr
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-destructive mb-1">Weaknesses</p>
+                    <p className="text-xs font-medium text-destructive mb-1">{t("market.weaknesses")}</p>
                     <div className="flex flex-wrap gap-1">
                       {competitor.weaknesses.slice(0, 2).map((w) => (
                         <Badge key={w} variant="outline" className="text-xs">
@@ -74,12 +73,11 @@ export function CompetitorAnalysisCard({ competitors }: CompetitorAnalysisCardPr
                   </div>
                 </div>
 
-                {/* Recent Activity */}
                 {competitor.recentActivity.length > 0 && (
                   <div className="mt-3 pt-3 border-t">
                     <p className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1">
                       <Activity className="h-3 w-3" />
-                      Recent Activity
+                      {t("market.recentActivity")}
                     </p>
                     <ul className="text-xs text-muted-foreground space-y-0.5">
                       {competitor.recentActivity.map((activity, i) => (

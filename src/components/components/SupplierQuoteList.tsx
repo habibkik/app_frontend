@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ComponentPart, SupplierQuote } from "@/data/components";
 import { cn } from "@/lib/utils";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { useTranslation } from "react-i18next";
 
 interface SupplierQuoteListProps {
   component: ComponentPart;
@@ -23,6 +24,7 @@ export function SupplierQuoteList({
   onSupplierClick,
   isExpanded,
 }: SupplierQuoteListProps) {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
   const lowestPrice = Math.min(...quotes.map((q) => q.unitPrice));
 
@@ -83,7 +85,7 @@ export function SupplierQuoteList({
                             </button>
                             {isLowest && (
                               <Badge variant="default" className="text-xs">
-                                Lowest
+                                {t("componentSupply.lowest")}
                               </Badge>
                             )}
                           </div>
@@ -103,7 +105,7 @@ export function SupplierQuoteList({
                           <p className="text-xl font-bold text-foreground">
                             {fc(quote.unitPrice)}
                           </p>
-                          <p className="text-xs text-muted-foreground">per unit</p>
+                          <p className="text-xs text-muted-foreground">{t("componentSupply.perUnit")}</p>
                         </div>
                       </div>
 
@@ -122,26 +124,26 @@ export function SupplierQuoteList({
                         </div>
                         <div className="flex items-center gap-1.5">
                           <Package className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">MOQ: {quote.moq.toLocaleString()}</span>
+                          <span className="text-sm">{t("componentSupply.moq")}: {quote.moq.toLocaleString()}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           {quote.inStock ? (
                             <>
                               <CheckCircle className="h-4 w-4 text-primary" />
                               <span className="text-sm text-primary">
-                                In Stock ({quote.stockQuantity?.toLocaleString()})
+                                {t("componentSupply.inStock")} ({quote.stockQuantity?.toLocaleString()})
                               </span>
                             </>
                           ) : (
                             <>
                               <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm text-muted-foreground">Made to Order</span>
+                              <span className="text-sm text-muted-foreground">{t("componentSupply.madeToOrder")}</span>
                             </>
                           )}
                         </div>
 
                         <div className="flex-1 text-right">
-                          <span className="text-sm text-muted-foreground">Total: </span>
+                          <span className="text-sm text-muted-foreground">{t("componentSupply.total")}: </span>
                           <span className="font-semibold">{fc(totalCost)}</span>
                         </div>
                       </div>

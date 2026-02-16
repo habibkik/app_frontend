@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Package, Building2, Truck, ArrowRight, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ComponentPart, SupplierQuote } from "@/data/components";
+import { useTranslation } from "react-i18next";
 
 interface SupplyChainFlowProps {
   parts: ComponentPart[];
@@ -9,7 +10,7 @@ interface SupplyChainFlowProps {
 }
 
 export function SupplyChainFlow({ parts, quotes }: SupplyChainFlowProps) {
-  // Calculate metrics
+  const { t } = useTranslation();
   const totalParts = parts.length;
   const uniqueSuppliers = new Set(quotes.map((q) => q.supplierId)).size;
   const avgLeadTime = quotes.length > 0
@@ -19,25 +20,25 @@ export function SupplyChainFlow({ parts, quotes }: SupplyChainFlowProps) {
   const flowSteps = [
     {
       icon: Package,
-      label: "Components",
+      label: t("componentSupply.components"),
       value: totalParts,
-      sublabel: "Parts Required",
+      sublabel: t("componentSupply.partsRequired"),
       color: "from-primary to-primary/70",
       bgColor: "bg-primary/10",
     },
     {
       icon: Building2,
-      label: "Suppliers",
+      label: t("componentSupply.suppliers"),
       value: uniqueSuppliers,
-      sublabel: "Active Sources",
+      sublabel: t("componentSupply.activeSources"),
       color: "from-blue-500 to-blue-400",
       bgColor: "bg-blue-500/10",
     },
     {
       icon: Truck,
-      label: "Delivery",
+      label: t("componentSupply.delivery"),
       value: avgLeadTime,
-      sublabel: "Avg. Days",
+      sublabel: t("componentSupply.avgDays"),
       color: "from-green-500 to-emerald-400",
       bgColor: "bg-green-500/10",
     },
@@ -48,7 +49,7 @@ export function SupplyChainFlow({ parts, quotes }: SupplyChainFlowProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Clock className="h-4 w-4 text-primary" />
-          Supply Chain Flow
+          {t("componentSupply.supplyChainFlow")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -81,7 +82,6 @@ export function SupplyChainFlow({ parts, quotes }: SupplyChainFlowProps) {
           ))}
         </div>
 
-        {/* Visual flow line */}
         <div className="mt-4 relative h-2 bg-muted rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
@@ -91,9 +91,9 @@ export function SupplyChainFlow({ parts, quotes }: SupplyChainFlowProps) {
           />
         </div>
         <div className="flex justify-between mt-1 text-xs text-muted-foreground">
-          <span>Procurement</span>
-          <span>Sourcing</span>
-          <span>Logistics</span>
+          <span>{t("componentSupply.procurement")}</span>
+          <span>{t("componentSupply.sourcing")}</span>
+          <span>{t("componentSupply.logistics")}</span>
         </div>
       </CardContent>
     </Card>

@@ -5,12 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TrendData } from "@/lib/market-intel-service";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface TrendAnalysisCardProps {
   trends: TrendData[];
 }
 
 export function TrendAnalysisCard({ trends }: TrendAnalysisCardProps) {
+  const { t } = useTranslation();
+
   const getTrendIcon = (direction: TrendData["direction"]) => {
     switch (direction) {
       case "up":
@@ -22,23 +25,12 @@ export function TrendAnalysisCard({ trends }: TrendAnalysisCardProps) {
     }
   };
 
-  const getTrendColor = (direction: TrendData["direction"]) => {
-    switch (direction) {
-      case "up":
-        return "text-primary";
-      case "down":
-        return "text-destructive";
-      default:
-        return "text-muted-foreground";
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
-          Market Trends
+          {t("market.marketTrends")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -67,12 +59,12 @@ export function TrendAnalysisCard({ trends }: TrendAnalysisCardProps) {
                   {trend.description}
                 </p>
                 <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                  <span>Timeframe: {trend.timeframe}</span>
+                  <span>{t("market.timeframe")}: {trend.timeframe}</span>
                 </div>
               </div>
               <div className="text-right">
                 <div className="text-sm font-medium">{trend.confidence}%</div>
-                <div className="text-xs text-muted-foreground">confidence</div>
+                <div className="text-xs text-muted-foreground">{t("market.confidence")}</div>
               </div>
             </div>
           </motion.div>
