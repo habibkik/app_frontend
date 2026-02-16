@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { 
   ChevronDown, 
@@ -28,6 +29,7 @@ interface BOMComponentsTableProps {
 }
 
 export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponentsTableProps) {
+  const { t } = useTranslation();
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<keyof BOMComponent>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -36,11 +38,7 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
       return next;
     });
   };
@@ -58,23 +56,13 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
     const aVal = a[sortField];
     const bVal = b[sortField];
     const modifier = sortDirection === "asc" ? 1 : -1;
-    
-    if (typeof aVal === "string" && typeof bVal === "string") {
-      return aVal.localeCompare(bVal) * modifier;
-    }
-    if (typeof aVal === "number" && typeof bVal === "number") {
-      return (aVal - bVal) * modifier;
-    }
+    if (typeof aVal === "string" && typeof bVal === "string") return aVal.localeCompare(bVal) * modifier;
+    if (typeof aVal === "number" && typeof bVal === "number") return (aVal - bVal) * modifier;
     return 0;
   });
 
   const SortHeader = ({ field, children }: { field: keyof BOMComponent; children: React.ReactNode }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="h-8 -ml-3 font-medium"
-      onClick={() => handleSort(field)}
-    >
+    <Button variant="ghost" size="sm" className="h-8 -ml-3 font-medium" onClick={() => handleSort(field)}>
       {children}
       <ArrowUpDown className="ml-1 h-3 w-3" />
     </Button>
@@ -86,48 +74,30 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
         <TableHeader>
           <TableRow className="bg-muted/50">
             <TableHead className="w-8"></TableHead>
-            <TableHead>
-              <SortHeader field="name">Component</SortHeader>
-            </TableHead>
-            <TableHead>
-              <SortHeader field="category">Category</SortHeader>
-            </TableHead>
-            <TableHead className="text-right">
-              <SortHeader field="quantity">Qty</SortHeader>
-            </TableHead>
-            <TableHead className="text-right">
-              <SortHeader field="unitCost">Unit Cost</SortHeader>
-            </TableHead>
-            <TableHead className="text-right">
-              <SortHeader field="totalCost">Total</SortHeader>
-            </TableHead>
-            <TableHead className="text-center">Alternatives</TableHead>
-            <TableHead className="text-center">Suppliers</TableHead>
+            <TableHead><SortHeader field="name">{t("bomComponents.component")}</SortHeader></TableHead>
+            <TableHead><SortHeader field="category">{t("bomComponents.category")}</SortHeader></TableHead>
+            <TableHead className="text-right"><SortHeader field="quantity">{t("bomComponents.qty")}</SortHeader></TableHead>
+            <TableHead className="text-right"><SortHeader field="unitCost">{t("bomComponents.unitCost")}</SortHeader></TableHead>
+            <TableHead className="text-right"><SortHeader field="totalCost">{t("bomComponents.total")}</SortHeader></TableHead>
+            <TableHead className="text-center">{t("bomComponents.alternatives")}</TableHead>
+            <TableHead className="text-center">{t("bomComponents.suppliers")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedComponents.map((component) => {
             const isExpanded = expandedRows.has(component.id);
             const alternatives = mockAlternatives[component.id] || [];
-
             return (
               <>
                 <TableRow
                   key={component.id}
-                  className={cn(
-                    "cursor-pointer transition-colors",
-                    isExpanded && "bg-muted/30"
-                  )}
+                  className={cn("cursor-pointer transition-colors", isExpanded && "bg-muted/30")}
                   onClick={() => alternatives.length > 0 && toggleRow(component.id)}
                 >
                   <TableCell className="w-8">
                     {alternatives.length > 0 && (
                       <Button variant="ghost" size="icon" className="h-6 w-6">
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
+                        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       </Button>
                     )}
                   </TableCell>
@@ -135,26 +105,14 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
                     <div>
                       <p className="font-medium text-foreground">{component.name}</p>
                       {component.specifications && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {component.specifications}
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{component.specifications}</p>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className="font-normal">
-                      {component.category}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {component.quantity} {component.unit}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {fc(component.unitCost)}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {fc(component.totalCost)}
-                  </TableCell>
+                  <TableCell><Badge variant="secondary" className="font-normal">{component.category}</Badge></TableCell>
+                  <TableCell className="text-right">{component.quantity} {component.unit}</TableCell>
+                  <TableCell className="text-right font-medium">{fc(component.unitCost)}</TableCell>
+                  <TableCell className="text-right font-medium">{fc(component.totalCost)}</TableCell>
                   <TableCell className="text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Package className="h-3.5 w-3.5 text-muted-foreground" />
@@ -162,22 +120,13 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onViewSuppliers(component);
-                      }}
-                    >
+                    <Button variant="ghost" size="sm" className="h-7" onClick={(e) => { e.stopPropagation(); onViewSuppliers(component); }}>
                       <Users className="h-3.5 w-3.5 mr-1" />
                       {component.matchedSuppliers}
                     </Button>
                   </TableCell>
                 </TableRow>
 
-                {/* Expanded alternatives row */}
                 {isExpanded && alternatives.length > 0 && (
                   <TableRow key={`${component.id}-alternatives`}>
                     <TableCell colSpan={8} className="p-0">
@@ -188,7 +137,7 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
                         className="bg-muted/20 p-4"
                       >
                         <p className="text-sm font-medium text-foreground mb-3">
-                          Alternative Components
+                          {t("bomComponents.alternativeComponents")}
                         </p>
                         <div className="grid gap-2">
                           {alternatives.map((alt) => (
@@ -209,6 +158,7 @@ export function BOMComponentsTable({ components, onViewSuppliers }: BOMComponent
 }
 
 function AlternativeRow({ alternative }: { alternative: AlternativeComponent }) {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
 
   return (
@@ -219,31 +169,26 @@ function AlternativeRow({ alternative }: { alternative: AlternativeComponent }) 
           <p className="text-xs text-muted-foreground">{alternative.supplier}</p>
         </div>
       </div>
-      
       <div className="flex items-center gap-6">
         <div className="text-right">
           <p className="text-sm font-medium">{fc(alternative.unitCost)}</p>
-          <p className={cn(
-            "text-xs",
-            alternative.savings > 0 ? "text-primary" : "text-destructive"
-          )}>
-            {alternative.savings > 0 ? `${alternative.savings}% cheaper` : `${Math.abs(alternative.savings)}% more`}
+          <p className={cn("text-xs", alternative.savings > 0 ? "text-primary" : "text-destructive")}>
+            {alternative.savings > 0
+              ? t("bomComponents.cheaper", { value: alternative.savings })
+              : t("bomComponents.more", { value: Math.abs(alternative.savings) })}
           </p>
         </div>
-        
         <div className="text-right">
-          <p className="text-sm text-muted-foreground">Lead time</p>
+          <p className="text-sm text-muted-foreground">{t("bomComponents.leadTime")}</p>
           <p className="text-sm">{alternative.leadTime}</p>
         </div>
-        
         <div className="text-right">
-          <p className="text-sm text-muted-foreground">MOQ</p>
-          <p className="text-sm">{alternative.moq} units</p>
+          <p className="text-sm text-muted-foreground">{t("bomComponents.moq")}</p>
+          <p className="text-sm">{alternative.moq} {t("bomComponents.units")}</p>
         </div>
-        
         <Button variant="outline" size="sm">
           <ExternalLink className="h-3.5 w-3.5 mr-1" />
-          View
+          {t("bomComponents.view")}
         </Button>
       </div>
     </div>
