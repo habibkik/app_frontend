@@ -5,14 +5,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Package,
-  DollarSign,
-  Tag,
-  Sparkles,
-  ArrowLeft,
-  ImageIcon,
-  Truck,
+  Package, DollarSign, Tag, Sparkles, ArrowLeft, ImageIcon, Truck,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,24 +30,13 @@ interface ImageSupplierDiscoveryProps {
 }
 
 export function ImageSupplierDiscovery({ 
-  result,
-  imagePreview,
-  onContactSupplier,
-  onSaveSupplier,
-  onContactSubstituteSupplier,
-  onNewAnalysis,
+  result, imagePreview, onContactSupplier, onSaveSupplier, onContactSubstituteSupplier, onNewAnalysis,
 }: ImageSupplierDiscoveryProps) {
+  const { t } = useTranslation();
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierMatch | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  const { 
-    productIdentification, 
-    suggestedSuppliers, 
-    substitutes, 
-    substituteSuppliers,
-    estimatedMarketPrice, 
-    confidence 
-  } = result;
+  const { productIdentification, suggestedSuppliers, substitutes, substituteSuppliers, estimatedMarketPrice, confidence } = result;
 
   const handleViewSupplierDetails = (supplier: SupplierMatch) => {
     setSelectedSupplier(supplier);
@@ -61,62 +45,42 @@ export function ImageSupplierDiscovery({
 
   return (
     <div className="space-y-6">
-      {/* Header with Product Info */}
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Image Preview Card */}
         {imagePreview && (
           <Card className="lg:w-72 flex-shrink-0">
             <CardContent className="p-4">
               <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-3">
-                <img
-                  src={imagePreview}
-                  alt="Analyzed product"
-                  className="w-full h-full object-contain"
-                />
+                <img src={imagePreview} alt="Analyzed product" className="w-full h-full object-contain" />
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full"
-                onClick={onNewAnalysis}
-              >
+              <Button variant="outline" size="sm" className="w-full" onClick={onNewAnalysis}>
                 <ImageIcon className="h-4 w-4 mr-2" />
-                Analyze New Image
+                {t("buyerDiscovery.analyzeNewImage")}
               </Button>
             </CardContent>
           </Card>
         )}
 
-        {/* Product Identification */}
         <Card className="flex-1">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
-                Product Identified
+                {t("buyerDiscovery.productIdentified")}
               </CardTitle>
               <Badge variant="secondary">
-                {confidence}% confidence
+                {t("buyerDiscovery.confidence", { value: confidence })}
               </Badge>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Product Name & Category */}
               <div>
-                <h3 className="text-xl font-bold text-foreground">
-                  {productIdentification.name}
-                </h3>
-                <p className="text-muted-foreground">
-                  {productIdentification.category}
-                </p>
+                <h3 className="text-xl font-bold text-foreground">{productIdentification.name}</h3>
+                <p className="text-muted-foreground">{productIdentification.category}</p>
               </div>
 
-              {/* Specifications */}
               <div>
-                <h4 className="text-sm font-medium text-foreground mb-2">
-                  Detected Specifications
-                </h4>
+                <h4 className="text-sm font-medium text-foreground mb-2">{t("buyerDiscovery.detectedSpecifications")}</h4>
                 <div className="flex flex-wrap gap-2">
                   {Object.entries(productIdentification.specifications).map(([key, value]) => (
                     <Badge key={key} variant="outline" className="text-xs">
@@ -127,18 +91,15 @@ export function ImageSupplierDiscovery({
                 </div>
               </div>
 
-              {/* Market Price Estimate */}
               <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
                 <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                   <DollarSign className="h-5 w-5 text-emerald-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Estimated Market Price</p>
+                  <p className="text-sm text-muted-foreground">{t("buyerDiscovery.estimatedMarketPrice")}</p>
                   <p className="text-lg font-bold text-foreground">
                     ${estimatedMarketPrice.min} - ${estimatedMarketPrice.max}
-                    <span className="text-sm font-normal text-muted-foreground ml-1">
-                      per unit
-                    </span>
+                    <span className="text-sm font-normal text-muted-foreground ml-1">{t("buyerDiscovery.perUnit")}</span>
                   </p>
                 </div>
               </div>
@@ -147,34 +108,24 @@ export function ImageSupplierDiscovery({
         </Card>
       </div>
 
-      {/* Tabbed Results */}
       <Tabs defaultValue="suppliers" className="w-full">
         <TabsList className="grid w-full max-w-lg grid-cols-3">
-          <TabsTrigger value="suppliers">Suppliers</TabsTrigger>
-          <TabsTrigger value="substitutes">Substitute Suppliers</TabsTrigger>
-          <TabsTrigger value="products">Alternative Products</TabsTrigger>
+          <TabsTrigger value="suppliers">{t("buyerDiscovery.suppliers")}</TabsTrigger>
+          <TabsTrigger value="substitutes">{t("buyerDiscovery.substituteSuppliers")}</TabsTrigger>
+          <TabsTrigger value="products">{t("buyerDiscovery.alternativeProducts")}</TabsTrigger>
         </TabsList>
 
-        {/* Suppliers Tab */}
         <TabsContent value="suppliers" className="mt-6 space-y-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <SupplierMatchResults
-              suppliers={suggestedSuppliers}
-              onContactSupplier={onContactSupplier}
-              onViewDetails={handleViewSupplierDetails}
-            />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <SupplierMatchResults suppliers={suggestedSuppliers} onContactSupplier={onContactSupplier} onViewDetails={handleViewSupplierDetails} />
           </motion.div>
           
-          {/* Delivery summary for each supplier */}
           {suggestedSuppliers.some(s => s.deliveryEstimates?.length) && (
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Truck className="h-5 w-5 text-primary" />
-                  Delivery Cost Summary
+                  {t("buyerDiscovery.deliveryCostSummary")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -189,38 +140,20 @@ export function ImageSupplierDiscovery({
           )}
         </TabsContent>
 
-        {/* Substitute Suppliers Tab */}
         <TabsContent value="substitutes" className="mt-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <SubstituteSuppliers
-              suppliers={substituteSuppliers || []}
-              onContactSupplier={onContactSubstituteSupplier}
-            />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <SubstituteSuppliers suppliers={substituteSuppliers || []} onContactSupplier={onContactSubstituteSupplier} />
           </motion.div>
         </TabsContent>
 
-        {/* Alternative Products Tab */}
         <TabsContent value="products" className="mt-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <SubstituteProducts substitutes={substitutes} />
           </motion.div>
         </TabsContent>
       </Tabs>
 
-      {/* Supplier Detail Modal */}
-      <BuyerSupplierDetailModal
-        supplier={selectedSupplier}
-        open={isDetailModalOpen}
-        onOpenChange={setIsDetailModalOpen}
-        onContact={onContactSupplier}
-        onSave={onSaveSupplier}
-      />
+      <BuyerSupplierDetailModal supplier={selectedSupplier} open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen} onContact={onContactSupplier} onSave={onSaveSupplier} />
     </div>
   );
 }
