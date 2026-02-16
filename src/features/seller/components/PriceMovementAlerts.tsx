@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "react-i18next";
 import type { PriceMovementAlert, AlertType } from "@/features/seller/types/competitorMonitor";
 
 interface PriceMovementAlertsProps {
@@ -77,6 +78,7 @@ const getAlertDescription = (alert: PriceMovementAlert, fc: (amount: number) => 
 export function PriceMovementAlerts({ onViewCompetitor }: PriceMovementAlertsProps) {
   const { alerts, dismissAlert } = useCompetitorMonitorStore();
   const fc = useFormatCurrency();
+  const { t } = useTranslation();
   
   const activeAlerts = alerts.filter(a => !a.dismissed);
 
@@ -86,12 +88,12 @@ export function PriceMovementAlerts({ onViewCompetitor }: PriceMovementAlertsPro
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <AlertCircle className="h-5 w-5" />
-            Price Movement Alerts
+            {t("priceAlerts.title")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-6">
-            No active alerts. We'll notify you when competitors change prices.
+            {t("priceAlerts.noActiveAlerts")}
           </p>
         </CardContent>
       </Card>
@@ -103,9 +105,9 @@ export function PriceMovementAlerts({ onViewCompetitor }: PriceMovementAlertsPro
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <AlertCircle className="h-5 w-5" />
-          Price Movement Alerts
+          {t("priceAlerts.title")}
           <span className="ml-auto text-sm font-normal text-muted-foreground">
-            {activeAlerts.length} active
+            {activeAlerts.length} {t("priceAlerts.active")}
           </span>
         </CardTitle>
       </CardHeader>
