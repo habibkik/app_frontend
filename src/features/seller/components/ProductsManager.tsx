@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ const emptyForm = {
 };
 
 export function ProductsManager() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -52,7 +54,7 @@ export function ProductsManager() {
       .select("*")
       .order("created_at", { ascending: false });
     if (error) {
-      toast({ title: "Error loading products", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     } else {
       setProducts((data as Product[]) || []);
     }
@@ -83,14 +85,14 @@ export function ProductsManager() {
 
   const handleSave = async () => {
     if (!form.name.trim()) {
-      toast({ title: "Name is required", variant: "destructive" });
+      toast({ title: t("products.nameRequired"), variant: "destructive" });
       return;
     }
     setSaving(true);
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      toast({ title: "Please log in", variant: "destructive" });
+      toast({ title: t("products.pleaseLogIn"), variant: "destructive" });
       setSaving(false);
       return;
     }
@@ -114,9 +116,9 @@ export function ProductsManager() {
     }
 
     if (error) {
-      toast({ title: "Error saving product", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: editingId ? "Product updated" : "Product created" });
+      toast({ title: editingId ? t("products.productUpdated") : t("products.productCreated") });
       setDialogOpen(false);
       fetchProducts();
     }
@@ -126,9 +128,9 @@ export function ProductsManager() {
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) {
-      toast({ title: "Error deleting product", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Product deleted" });
+      toast({ title: t("products.productDeleted") });
       fetchProducts();
     }
   };
@@ -162,9 +164,9 @@ export function ProductsManager() {
 
     const { error } = await supabase.from("products").insert(rows);
     if (error) {
-      toast({ title: "CSV import failed", description: error.message, variant: "destructive" });
+      toast({ title: t("products.csvImportFailed"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: `${rows.length} products imported` });
+      toast({ title: t("products.productsImported", { count: rows.length }) });
       fetchProducts();
     }
     e.target.value = "";
@@ -176,70 +178,70 @@ export function ProductsManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-muted-foreground">Manage your product catalog and pricing</p>
+          <h1 className="text-2xl font-bold">{t("products.title")}</h1>
+          <p className="text-muted-foreground">{t("products.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <label>
             <input type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
             <Button variant="outline" asChild>
-              <span><Upload className="h-4 w-4 mr-2" />Import CSV</span>
+              <span><Upload className="h-4 w-4 mr-2" />{t("products.importCSV")}</span>
             </Button>
           </label>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Product</Button>
+              <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />{t("products.addProduct")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>{editingId ? "Edit Product" : "New Product"}</DialogTitle>
+                <DialogTitle>{editingId ? t("products.editProduct") : t("products.newProduct")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pt-2">
                 <div>
-                  <Label>Product Name *</Label>
-                  <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Wireless Earbuds" />
+                  <Label>{t("products.productName")} *</Label>
+                  <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Category</Label>
+                    <Label>{t("products.category")}</Label>
                     <Select value={form.category} onValueChange={v => setForm(f => ({ ...f, category: v }))}>
-                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("common.select")} /></SelectTrigger>
                       <SelectContent>
                         {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label>SKU</Label>
-                    <Input value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} placeholder="SKU-001" />
+                    <Label>{t("products.sku")}</Label>
+                    <Input value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Cost (COGS) $</Label>
-                    <Input type="number" value={form.cost} onChange={e => setForm(f => ({ ...f, cost: e.target.value }))} placeholder="0.00" />
+                    <Label>{t("products.cogs")}</Label>
+                    <Input type="number" value={form.cost} onChange={e => setForm(f => ({ ...f, cost: e.target.value }))} />
                   </div>
                   <div>
-                    <Label>Selling Price $</Label>
-                    <Input type="number" value={form.current_price} onChange={e => setForm(f => ({ ...f, current_price: e.target.value }))} placeholder="0.00" />
+                    <Label>{t("products.sellingPrice")}</Label>
+                    <Input type="number" value={form.current_price} onChange={e => setForm(f => ({ ...f, current_price: e.target.value }))} />
                   </div>
                 </div>
                 <div>
-                  <Label>Description</Label>
+                  <Label>{t("competitorMonitor.description")}</Label>
                   <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} />
                 </div>
                 <div>
-                  <Label>Status</Label>
+                  <Label>{t("common.status")}</Label>
                   <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="active">{t("products.active")}</SelectItem>
+                      <SelectItem value="inactive">{t("products.inactive")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <Button onClick={handleSave} disabled={saving} className="w-full">
-                  {saving ? "Saving..." : editingId ? "Update Product" : "Create Product"}
+                  {saving ? t("products.saving") : editingId ? t("products.updateProduct") : t("products.createProduct")}
                 </Button>
               </div>
             </DialogContent>
@@ -248,33 +250,33 @@ export function ProductsManager() {
       </div>
 
       {loading ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">Loading products...</CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-muted-foreground">{t("products.loadingProducts")}</CardContent></Card>
       ) : products.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="font-semibold text-lg mb-2">No products yet</h3>
-            <p className="text-muted-foreground mb-4">Add your first product to get started with pricing optimization and content generation.</p>
-            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />Add Product</Button>
+            <h3 className="font-semibold text-lg mb-2">{t("products.noProducts")}</h3>
+            <p className="text-muted-foreground mb-4">{t("products.noProductsDesc")}</p>
+            <Button onClick={openCreate}><Plus className="h-4 w-4 mr-2" />{t("products.addProduct")}</Button>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>All Products ({products.length})</CardTitle>
+            <CardTitle>{t("products.allProducts")} ({products.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead className="text-right">COGS</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead className="text-right">Margin</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t("products.productName")}</TableHead>
+                  <TableHead>{t("products.category")}</TableHead>
+                  <TableHead>{t("products.sku")}</TableHead>
+                  <TableHead className="text-right">{t("products.cogs")}</TableHead>
+                  <TableHead className="text-right">{t("competitorMonitor.price")}</TableHead>
+                  <TableHead className="text-right">{t("products.margin")}</TableHead>
+                  <TableHead>{t("common.status")}</TableHead>
+                  <TableHead className="text-right">{t("common.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -291,7 +293,7 @@ export function ProductsManager() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={p.status === "active" ? "default" : "secondary"}>{p.status}</Badge>
+                      <Badge variant={p.status === "active" ? "default" : "secondary"}>{p.status === "active" ? t("products.active") : t("products.inactive")}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
