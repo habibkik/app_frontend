@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCompetitorMonitorStore } from "@/stores/competitorMonitorStore";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { useTranslation } from "react-i18next";
 import {
   ComposedChart,
   Line,
@@ -52,6 +53,7 @@ const CustomTooltip = ({ active, payload, label, formatCurrency }: CustomTooltip
 
 export function CompetitorPriceTrendChart() {
   const fc = useFormatCurrency();
+  const { t } = useTranslation();
   const { priceTrendData } = useCompetitorMonitorStore();
 
   // Find the price drop annotation point (5 days ago)
@@ -61,7 +63,7 @@ export function CompetitorPriceTrendChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Price Trend Analysis</CardTitle>
+        <CardTitle className="text-lg">{t("competitorMonitor.priceTrendAnalysis")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[350px]">
@@ -104,7 +106,7 @@ export function CompetitorPriceTrendChart() {
                 dataKey="maxPrice"
                 stroke="transparent"
                 fill="url(#rangeGradient)"
-                name="Max Price"
+                name={t("competitorMonitor.maxPrice")}
               />
               <Area
                 type="monotone"
@@ -112,7 +114,7 @@ export function CompetitorPriceTrendChart() {
                 stroke="transparent"
                 fill="#ffffff"
                 fillOpacity={1}
-                name="Min Price"
+                name={t("competitorMonitor.minPrice")}
               />
 
               {/* Market average line */}
@@ -123,7 +125,7 @@ export function CompetitorPriceTrendChart() {
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={false}
-                name="Market Avg"
+                name={t("competitorMonitor.marketAvg")}
               />
 
               {/* Your price line */}
@@ -133,7 +135,7 @@ export function CompetitorPriceTrendChart() {
                 stroke="#2563eb"
                 strokeWidth={3}
                 dot={false}
-                name="Your Price"
+                name={t("competitorMonitor.yourPrice")}
                 activeDot={{ r: 6, strokeWidth: 2 }}
               />
 
@@ -144,7 +146,7 @@ export function CompetitorPriceTrendChart() {
                   stroke="#ef4444"
                   strokeDasharray="3 3"
                   label={{
-                    value: "You dropped price",
+                    value: t("competitorMonitor.youDroppedPrice"),
                     position: "top",
                     fill: "#ef4444",
                     fontSize: 11,

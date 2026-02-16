@@ -1,12 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import {
-  Sparkles,
-  Download,
-  Send,
-  Settings2,
-  Package,
-  ArrowRight,
+  Sparkles, Download, Send, Settings2, Package, ArrowRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +16,7 @@ import { MakeVsBuyCard } from "./MakeVsBuyCard";
 import { ScenarioSimulator } from "./ScenarioSimulator";
 import { RiskFactorsPanel } from "./RiskFactorsPanel";
 import { RecommendationBanner } from "./RecommendationBanner";
+import { useTranslation } from "react-i18next";
 
 interface FeasibilityAnalysisComponentProps {
   productName?: string;
@@ -39,21 +35,19 @@ export function FeasibilityAnalysisComponent({
   onRequestRFQ,
   onExportReport,
 }: FeasibilityAnalysisComponentProps) {
+  const { t } = useTranslation();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<FeasibilityAnalysis | null>(null);
   const [scenarioResult, setScenarioResult] = useState<ScenarioResult | null>(null);
 
-  // Perform initial analysis
   const initialAnalysis = useMemo(() => {
     return performFeasibilityAnalysis(productName, components);
   }, [productName, components]);
 
-  // Use analysis state or initial analysis
   const currentAnalysis = analysis || initialAnalysis;
 
   const handleCalculateFeasibility = async () => {
     setIsAnalyzing(true);
-    // Simulate analysis delay
     await new Promise((resolve) => setTimeout(resolve, 1500));
     const result = performFeasibilityAnalysis(productName, components);
     setAnalysis(result);
@@ -62,7 +56,6 @@ export function FeasibilityAnalysisComponent({
 
   return (
     <div className="space-y-6">
-      {/* Recommendation Banner */}
       <RecommendationBanner
         status={currentAnalysis.status}
         score={currentAnalysis.score}
@@ -72,14 +65,12 @@ export function FeasibilityAnalysisComponent({
         risks={currentAnalysis.risks.length}
       />
 
-      {/* Header Section */}
       <div className="flex flex-col sm:flex-row gap-4">
-        {/* Product Info Card */}
         <Card className="flex-1">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Package className="h-4 w-4 text-primary" />
-              Product Analysis
+              {t("feasibility.productAnalysis")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -87,28 +78,21 @@ export function FeasibilityAnalysisComponent({
               <div>
                 <h3 className="text-lg font-semibold text-foreground">{productName}</h3>
                 <p className="text-sm text-muted-foreground">
-                  BOM: {components.length} components
+                  {t("feasibility.bomComponents", { count: components.length })}
                 </p>
               </div>
-              <Button
-                onClick={handleCalculateFeasibility}
-                disabled={isAnalyzing}
-                className="gap-2"
-              >
+              <Button onClick={handleCalculateFeasibility} disabled={isAnalyzing} className="gap-2">
                 {isAnalyzing ? (
                   <>
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    >
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
                       <Sparkles className="h-4 w-4" />
                     </motion.div>
-                    Analyzing...
+                    {t("feasibility.analyzing")}
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    Calculate Feasibility
+                    {t("feasibility.calculateFeasibility")}
                   </>
                 )}
               </Button>
@@ -116,19 +100,13 @@ export function FeasibilityAnalysisComponent({
           </CardContent>
         </Card>
 
-        {/* Feasibility Score */}
         <Card className="sm:w-auto">
           <CardContent className="pt-6 flex justify-center">
-            <FeasibilityScoreCircle
-              score={currentAnalysis.score}
-              status={currentAnalysis.status}
-              size="md"
-            />
+            <FeasibilityScoreCircle score={currentAnalysis.score} status={currentAnalysis.status} size="md" />
           </CardContent>
         </Card>
       </div>
 
-      {/* Cost Breakdown Cards */}
       <CostBreakdownCards
         componentCosts={currentAnalysis.componentCosts}
         productionCost={currentAnalysis.productionCost}
@@ -136,45 +114,37 @@ export function FeasibilityAnalysisComponent({
         totalCostPerUnit={currentAnalysis.totalCostPerUnit}
       />
 
-      {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Column */}
         <div className="space-y-6">
           <FeasibilityFactorsPanel factors={currentAnalysis.factors} />
           <RiskFactorsPanel risks={currentAnalysis.risks} />
         </div>
-
-        {/* Right Column */}
         <div className="space-y-6">
           <MakeVsBuyCard analysis={currentAnalysis.makeVsBuy} />
-          <ScenarioSimulator
-            analysis={currentAnalysis}
-            onScenarioChange={setScenarioResult}
-          />
+          <ScenarioSimulator analysis={currentAnalysis} onScenarioChange={setScenarioResult} />
         </div>
       </div>
 
-      {/* Action Buttons */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-3">
             {currentAnalysis.status === "feasible" && (
               <Button onClick={onProceedToProduction} className="gap-2">
                 <ArrowRight className="h-4 w-4" />
-                Proceed to Production
+                {t("feasibility.proceedToProduction")}
               </Button>
             )}
             <Button variant="outline" onClick={onOptimizeBOM} className="gap-2">
               <Settings2 className="h-4 w-4" />
-              Optimize BOM
+              {t("feasibility.optimizeBOM")}
             </Button>
             <Button variant="outline" onClick={onRequestRFQ} className="gap-2">
               <Send className="h-4 w-4" />
-              Request RFQ from All Suppliers
+              {t("feasibility.requestRFQ")}
             </Button>
             <Button variant="outline" onClick={onExportReport} className="gap-2">
               <Download className="h-4 w-4" />
-              Export Report
+              {t("feasibility.exportReport")}
             </Button>
           </div>
         </CardContent>
