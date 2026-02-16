@@ -354,10 +354,10 @@ export default function CompetitorsPage() {
 
   const handleToggleTracking = (competitor: CompetitorData) => {
     toast({
-      title: competitor.tracking ? "Tracking Stopped" : "Tracking Started",
+      title: competitor.tracking ? t("pages.competitors.trackingStopped") : t("pages.competitors.trackingStarted"),
       description: competitor.tracking 
-        ? `No longer tracking ${competitor.name}` 
-        : `Now tracking ${competitor.name}`,
+        ? t("pages.competitors.noLongerTracking", { name: competitor.name }) 
+        : t("pages.competitors.nowTracking", { name: competitor.name }),
     });
   };
 
@@ -386,8 +386,8 @@ export default function CompetitorsPage() {
   const handleAnalyzeCompetitor = async () => {
     if (!newCompetitorUrl.trim()) {
       toast({
-        title: "URL Required",
-        description: "Please enter a competitor website URL",
+        title: t("pages.competitors.urlRequired"),
+        description: t("pages.competitors.enterUrlDesc"),
         variant: "destructive",
       });
       return;
@@ -403,14 +403,14 @@ export default function CompetitorsPage() {
       if (result.success && result.data) {
         setAnalysisResult(result.data);
         toast({
-          title: "Analysis Complete",
-          description: `Successfully analyzed ${result.data.name}`,
+          title: t("pages.competitors.analysisComplete"),
+          description: t("pages.competitors.successfullyAnalyzed", { name: result.data.name }),
         });
       } else {
-        setAnalysisError(result.error || "Failed to analyze competitor");
+        setAnalysisError(result.error || t("pages.competitors.analysisFailed"));
         toast({
-          title: "Analysis Failed",
-          description: result.error || "Failed to analyze competitor",
+          title: t("pages.competitors.analysisFailed"),
+          description: result.error || t("pages.competitors.analysisFailed"),
           variant: "destructive",
         });
       }
@@ -418,7 +418,7 @@ export default function CompetitorsPage() {
       const errorMessage = error instanceof Error ? error.message : "An error occurred";
       setAnalysisError(errorMessage);
       toast({
-        title: "Error",
+        title: t("common.error"),
         description: errorMessage,
         variant: "destructive",
       });
@@ -448,8 +448,8 @@ export default function CompetitorsPage() {
   const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       toast({
-        title: "Invalid File",
-        description: "Please upload an image file",
+        title: t("pages.competitors.invalidFile"),
+        description: t("pages.competitors.uploadImageError"),
         variant: "destructive",
       });
       return;
@@ -492,11 +492,11 @@ export default function CompetitorsPage() {
     setProductAnalysisStep("Uploading image...");
 
     const steps = [
-      "Identifying product...",
-      "Analyzing specifications...",
-      "Searching suppliers...",
-      "Finding substitutes...",
-      "Generating results...",
+      t("pages.competitors.identifyingProduct"),
+      t("pages.competitors.analyzingSpecs"),
+      t("pages.competitors.searchingSuppliers"),
+      t("pages.competitors.findingSubstitutes"),
+      t("pages.competitors.generatingResults"),
     ];
 
     let stepIndex = 0;
@@ -524,19 +524,22 @@ export default function CompetitorsPage() {
       if (data?.success && data?.data) {
         setProductAnalysisResult(data.data);
         setProductAnalysisProgress(100);
-        setProductAnalysisStep("Complete!");
+        setProductAnalysisStep(t("imageUpload.steps.complete"));
         toast({
-          title: "Analysis Complete",
-          description: `Found ${data.data.suppliers?.length || 0} suppliers and ${data.data.substitutes?.length || 0} substitutes`,
+          title: t("pages.competitors.analysisComplete"),
+          description: t("pages.competitors.foundSuppliers", { 
+            count: data.data.suppliers?.length || 0,
+            name: data.data.product?.name || "product"
+          }),
         });
       } else {
-        throw new Error(data?.error || "Analysis failed");
+        throw new Error(data?.error || t("pages.competitors.failedToAnalyzeProduct"));
       }
     } catch (error) {
       clearInterval(progressInterval);
-      const errorMessage = error instanceof Error ? error.message : "Failed to analyze product";
+      const errorMessage = error instanceof Error ? error.message : t("pages.competitors.failedToAnalyzeProduct");
       toast({
-        title: "Analysis Failed",
+        title: t("pages.competitors.analysisFailed"),
         description: errorMessage,
         variant: "destructive",
       });
@@ -578,30 +581,30 @@ export default function CompetitorsPage() {
           <div className="flex gap-2 mb-4">
             <Button variant="outline" className="gap-2">
               <RefreshCw className="h-4 w-4" />
-              Sync All
+              {t("pages.competitors.syncAll")}
             </Button>
             <Dialog open={isAddDialogOpen} onOpenChange={handleCloseDialog}>
               <DialogTrigger asChild>
                 <Button className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add Competitor
+                  {t("pages.competitors.addCompetitor")}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
                 <DialogHeader>
-                  <DialogTitle>Add New Competitor</DialogTitle>
+                  <DialogTitle>{t("pages.competitors.addCompetitorTitle")}</DialogTitle>
                   <DialogDescription>
-                    Enter a competitor's website URL for AI-powered analysis.
+                    {t("pages.competitors.addCompetitorDesc")}
                   </DialogDescription>
                 </DialogHeader>
                 
                 <div className="flex-1 overflow-auto">
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label>Website URL</Label>
+                      <Label>{t("pages.competitors.websiteUrl")}</Label>
                       <div className="flex gap-2">
                         <Input
-                          placeholder="https://competitor-website.com"
+                          placeholder={t("pages.competitors.websitePlaceholder")}
                           value={newCompetitorUrl}
                           onChange={(e) => setNewCompetitorUrl(e.target.value)}
                           disabled={isAnalyzing}
@@ -614,12 +617,12 @@ export default function CompetitorsPage() {
                           {isAnalyzing ? (
                             <>
                               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Analyzing...
+                              {t("pages.competitors.analyzing")}
                             </>
                           ) : (
                             <>
                               <Sparkles className="h-4 w-4 mr-2" />
-                              Analyze
+                              {t("pages.competitors.analyze")}
                             </>
                           )}
                         </Button>
@@ -632,9 +635,9 @@ export default function CompetitorsPage() {
                         <div className="flex items-center gap-3">
                           <Loader2 className="h-5 w-5 text-primary animate-spin" />
                           <div>
-                            <p className="text-sm font-medium text-foreground">Analyzing Competitor...</p>
+                            <p className="text-sm font-medium text-foreground">{t("pages.competitors.analyzingCompetitor")}</p>
                             <p className="text-xs text-muted-foreground">
-                              AI is extracting pricing, products, and strategic insights
+                              {t("pages.competitors.aiExtracting")}
                             </p>
                           </div>
                         </div>
@@ -647,7 +650,7 @@ export default function CompetitorsPage() {
                         <div className="flex items-start gap-3">
                           <XCircle className="h-5 w-5 text-destructive mt-0.5" />
                           <div>
-                            <p className="text-sm font-medium text-destructive">Analysis Failed</p>
+                            <p className="text-sm font-medium text-destructive">{t("pages.competitors.analysisFailed")}</p>
                             <p className="text-xs text-muted-foreground">{analysisError}</p>
                           </div>
                         </div>
@@ -671,30 +674,30 @@ export default function CompetitorsPage() {
 
                           {/* Summary */}
                           <div className="space-y-2">
-                            <h4 className="text-sm font-semibold text-foreground">Summary</h4>
+                            <h4 className="text-sm font-semibold text-foreground">{t("pages.competitors.summary")}</h4>
                             <p className="text-sm text-muted-foreground">{analysisResult.summary}</p>
                           </div>
 
                           {/* Market Position */}
                           <div className="space-y-2">
-                            <h4 className="text-sm font-semibold text-foreground">Market Position</h4>
+                            <h4 className="text-sm font-semibold text-foreground">{t("pages.competitors.marketPosition")}</h4>
                             <Badge variant="secondary" className="capitalize">{analysisResult.marketPosition}</Badge>
                           </div>
 
                           {/* Pricing */}
                           <div className="space-y-2">
-                            <h4 className="text-sm font-semibold text-foreground">Pricing Strategy</h4>
+                            <h4 className="text-sm font-semibold text-foreground">{t("pages.competitors.pricingStrategy")}</h4>
                             <div className="grid grid-cols-3 gap-2 text-sm">
                               <div className="p-2 rounded-lg bg-muted/50">
-                                <p className="text-xs text-muted-foreground">Strategy</p>
+                                <p className="text-xs text-muted-foreground">{t("pages.competitors.strategy")}</p>
                                 <p className="font-medium capitalize">{analysisResult.pricing.strategy}</p>
                               </div>
                               <div className="p-2 rounded-lg bg-muted/50">
-                                <p className="text-xs text-muted-foreground">Range</p>
+                                <p className="text-xs text-muted-foreground">{t("pages.competitors.range")}</p>
                                 <p className="font-medium">{analysisResult.pricing.range}</p>
                               </div>
                               <div className="p-2 rounded-lg bg-muted/50">
-                                <p className="text-xs text-muted-foreground">Competitiveness</p>
+                                <p className="text-xs text-muted-foreground">{t("pages.competitors.competitiveness")}</p>
                                 <p className="font-medium capitalize">{analysisResult.pricing.competitiveness}</p>
                               </div>
                             </div>
@@ -703,7 +706,7 @@ export default function CompetitorsPage() {
                           {/* Products */}
                           {analysisResult.products.length > 0 && (
                             <div className="space-y-2">
-                              <h4 className="text-sm font-semibold text-foreground">Key Products</h4>
+                              <h4 className="text-sm font-semibold text-foreground">{t("pages.competitors.keyProducts")}</h4>
                               <div className="flex flex-wrap gap-1.5">
                                 {analysisResult.products.map((product, i) => (
                                   <Badge key={i} variant="outline" className="text-xs">{product}</Badge>
@@ -715,7 +718,7 @@ export default function CompetitorsPage() {
                           {/* Strengths & Weaknesses */}
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <h4 className="text-sm font-semibold text-foreground">Strengths</h4>
+                                <h4 className="text-sm font-semibold text-foreground">{t("pages.competitors.strengths")}</h4>
                               <div className="flex flex-wrap gap-1.5">
                                 {analysisResult.strengths.map((s, i) => (
                                   <Badge key={i} className="text-xs bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20">
@@ -725,7 +728,7 @@ export default function CompetitorsPage() {
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <h4 className="text-sm font-semibold text-foreground">Weaknesses</h4>
+                                <h4 className="text-sm font-semibold text-foreground">{t("pages.competitors.weaknesses")}</h4>
                               <div className="flex flex-wrap gap-1.5">
                                 {analysisResult.weaknesses.map((w, i) => (
                                   <Badge key={i} className="text-xs bg-destructive/10 text-destructive border-destructive/20">
@@ -741,7 +744,7 @@ export default function CompetitorsPage() {
                             <div className="space-y-2">
                               <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                                 <Sparkles className="h-4 w-4 text-primary" />
-                                AI Recommendations
+                                {t("pages.competitors.aiRecommendations")}
                               </h4>
                               <ul className="space-y-1.5">
                                 {analysisResult.recommendations.map((rec, i) => (
@@ -763,9 +766,9 @@ export default function CompetitorsPage() {
                         <div className="flex items-start gap-3">
                           <Sparkles className="h-5 w-5 text-primary mt-0.5" />
                           <div>
-                            <p className="text-sm font-medium text-foreground">AI-Powered Analysis</p>
+                            <p className="text-sm font-medium text-foreground">{t("pages.competitors.aiPoweredAnalysis")}</p>
                             <p className="text-xs text-muted-foreground">
-                              Enter a URL and click Analyze to get competitive intelligence including pricing, products, strengths, and strategic recommendations.
+                              {t("pages.competitors.aiPoweredAnalysisDesc")}
                             </p>
                           </div>
                         </div>
@@ -776,13 +779,13 @@ export default function CompetitorsPage() {
 
                 <DialogFooter className="border-t pt-4">
                   <Button variant="outline" onClick={handleCloseDialog}>
-                    Cancel
+                    {t("pages.competitors.cancel")}
                   </Button>
                   <Button 
                     onClick={handleCloseDialog} 
                     disabled={!analysisResult}
                   >
-                    {analysisResult ? "Add to Tracking" : "Start Tracking"}
+                    {analysisResult ? t("pages.competitors.addToTracking") : t("pages.competitors.startTracking")}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -794,15 +797,15 @@ export default function CompetitorsPage() {
           <TabsList className="grid w-full max-w-md grid-cols-2 sm:grid-cols-3">
             <TabsTrigger value="competitors" className="gap-2">
               <Eye className="h-4 w-4" />
-              Competitors
+              {t("pages.competitors.competitors")}
             </TabsTrigger>
             <TabsTrigger value="monitor" className="gap-2">
               <Activity className="h-4 w-4" />
-              Live Monitor
+              {t("pages.competitors.liveMonitor")}
             </TabsTrigger>
             <TabsTrigger value="product-analysis" className="gap-2">
               <Search className="h-4 w-4" />
-              Product Analysis
+              {t("pages.competitors.productAnalysis")}
             </TabsTrigger>
           </TabsList>
 
@@ -842,7 +845,7 @@ export default function CompetitorsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Tracked Competitors</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.competitors.trackedCompetitors")}</p>
                   <p className="text-2xl font-bold text-foreground">{mockCompetitors.filter(c => c.tracking).length}</p>
                 </div>
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -850,7 +853,7 @@ export default function CompetitorsPage() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {mockCompetitors.length} total in database
+                {mockCompetitors.length} {t("pages.competitors.totalInDatabase")}
               </p>
             </CardContent>
           </Card>
@@ -859,7 +862,7 @@ export default function CompetitorsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Your Price Position</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.competitors.yourPricePosition")}</p>
                   <p className="text-2xl font-bold text-foreground">-3.5%</p>
                 </div>
                 <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
@@ -868,7 +871,7 @@ export default function CompetitorsPage() {
               </div>
               <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
                 <ArrowDownRight className="h-3 w-3" />
-                <span>Below market average</span>
+                <span>{t("pages.competitors.belowMarketAverage")}</span>
               </div>
             </CardContent>
           </Card>
@@ -877,7 +880,7 @@ export default function CompetitorsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Price Alerts</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.competitors.priceAlerts")}</p>
                   <p className="text-2xl font-bold text-foreground">{priceAlerts.length}</p>
                 </div>
                 <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
@@ -885,7 +888,7 @@ export default function CompetitorsPage() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                In the last 24 hours
+                {t("pages.competitors.last24Hours")}
               </p>
             </CardContent>
           </Card>
@@ -894,7 +897,7 @@ export default function CompetitorsPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Products Monitored</p>
+                  <p className="text-sm text-muted-foreground">{t("pages.competitors.productsMonitored")}</p>
                   <p className="text-2xl font-bold text-foreground">4,890</p>
                 </div>
                 <div className="h-12 w-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
@@ -902,7 +905,7 @@ export default function CompetitorsPage() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Across all competitors
+                {t("pages.competitors.acrossAllCompetitors")}
               </p>
             </CardContent>
           </Card>
@@ -915,13 +918,13 @@ export default function CompetitorsPage() {
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-base">Price Index Trends</CardTitle>
-                  <CardDescription>12-month competitor pricing comparison</CardDescription>
+                  <CardTitle className="text-base">{t("pages.competitors.priceIndexTrends")}</CardTitle>
+                  <CardDescription>{t("pages.competitors.12MonthComparison")}</CardDescription>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" className="h-8 gap-1">
                     <Calendar className="h-3.5 w-3.5" />
-                    Last 12 months
+                    {t("pages.competitors.last12Months")}
                   </Button>
                 </div>
               </div>
@@ -963,7 +966,7 @@ export default function CompetitorsPage() {
                     <Line 
                       type="monotone" 
                       dataKey="yourPrice" 
-                      name="Your Price" 
+                      name={t("pages.competitors.yourPrice")} 
                       stroke="hsl(var(--primary))" 
                       strokeWidth={3}
                       dot={false}
@@ -1014,8 +1017,8 @@ export default function CompetitorsPage() {
           {/* Category Price Comparison */}
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Category Price Comparison</CardTitle>
-              <CardDescription>Your pricing vs. competitor average by category</CardDescription>
+              <CardTitle className="text-base">{t("pages.competitors.categoryPriceComparison")}</CardTitle>
+              <CardDescription>{t("pages.competitors.12MonthComparison")}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -1025,7 +1028,7 @@ export default function CompetitorsPage() {
                       <span className="font-medium text-foreground">{cat.category}</span>
                       <div className="flex items-center gap-3">
                         <span className="text-muted-foreground">
-                          ${cat.you} <span className="text-xs">vs</span> ${cat.avgCompetitor}
+                          ${cat.you} <span className="text-xs">{t("common.vs")}</span> ${cat.avgCompetitor}
                         </span>
                         <Badge 
                           variant="secondary" 
@@ -1049,8 +1052,8 @@ export default function CompetitorsPage() {
                       />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Your Price</span>
-                      <span>Avg Competitor</span>
+                      <span>{t("pages.competitors.yourPrice")}</span>
+                      <span>{t("pages.competitors.avgCompetitor")}</span>
                     </div>
                   </div>
                 ))}
@@ -1060,7 +1063,7 @@ export default function CompetitorsPage() {
                 <div className="flex items-start gap-2">
                   <Sparkles className="h-4 w-4 text-primary mt-0.5" />
                   <div className="text-xs">
-                    <p className="font-medium text-foreground">Price Optimization Tip</p>
+                    <p className="font-medium text-foreground">{t("pages.competitors.priceOptimizationTip")}</p>
                     <p className="text-muted-foreground mt-0.5">
                       CNC Controllers are priced 5.6% above market average. Consider a 3-5% reduction to improve competitiveness.
                     </p>
@@ -1077,11 +1080,11 @@ export default function CompetitorsPage() {
             <Card>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle>Competitors</CardTitle>
+                  <CardTitle>{t("pages.competitors.competitors")}</CardTitle>
                   <div className="relative w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search competitors..."
+                      placeholder={t("pages.competitors.searchCompetitors")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9 h-9"
@@ -1114,7 +1117,7 @@ export default function CompetitorsPage() {
                             <div className="flex items-center gap-2">
                               <h4 className="font-semibold text-foreground">{competitor.name}</h4>
                               {competitor.tracking && (
-                                <Badge variant="secondary" className="text-xs">Tracking</Badge>
+                                <Badge variant="secondary" className="text-xs">{t("pages.competitors.tracking")}</Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -1135,30 +1138,30 @@ export default function CompetitorsPage() {
                               handleViewCompetitorDetails(competitor);
                             }}>
                               <Eye className="h-4 w-4 mr-2" />
-                              View Details
+                              {t("pages.competitors.viewDetails")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={(e) => {
                               e.stopPropagation();
                               window.open(`https://${competitor.website}`, "_blank");
                             }}>
                               <ExternalLink className="h-4 w-4 mr-2" />
-                              Visit Website
+                              {t("pages.competitors.visitWebsite")}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <BarChart3 className="h-4 w-4 mr-2" />
-                              View Analytics
+                              {t("pages.competitors.viewAnalytics")}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>
                               {competitor.tracking ? (
                                 <>
                                   <BellOff className="h-4 w-4 mr-2" />
-                                  Stop Tracking
+                                  {t("pages.competitors.stopTracking")}
                                 </>
                               ) : (
                                 <>
                                   <Bell className="h-4 w-4 mr-2" />
-                                  Start Tracking
+                                  {t("pages.competitors.startTracking")}
                                 </>
                               )}
                             </DropdownMenuItem>
@@ -1168,24 +1171,24 @@ export default function CompetitorsPage() {
 
                       <div className="grid grid-cols-4 gap-4 mt-4">
                         <div>
-                          <p className="text-xs text-muted-foreground">Price Index</p>
+                          <p className="text-xs text-muted-foreground">{t("pages.competitors.priceIndex")}</p>
                           <div className="flex items-center gap-1">
                             <span className="font-semibold text-foreground">{competitor.priceIndex}</span>
                             {getTrendIcon(competitor.trend)}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Change</p>
+                          <p className="text-xs text-muted-foreground">{t("common.change")}</p>
                           <span className={`font-semibold ${getPriceChangeColor(competitor.priceChange)}`}>
                             {competitor.priceChange > 0 ? "+" : ""}{competitor.priceChange}%
                           </span>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Market Share</p>
+                          <p className="text-xs text-muted-foreground">{t("pages.competitors.marketShare")}</p>
                           <span className="font-semibold text-foreground">{competitor.marketShare}%</span>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">Products</p>
+                          <p className="text-xs text-muted-foreground">{t("pages.competitors.totalProducts")}</p>
                           <span className="font-semibold text-foreground">{competitor.productCount.toLocaleString()}</span>
                         </div>
                       </div>
@@ -1200,7 +1203,7 @@ export default function CompetitorsPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5 text-amber-500" />
-                  Recent Price Alerts
+                  {t("pages.competitors.recentPriceAlerts")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -1302,7 +1305,7 @@ export default function CompetitorsPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  AI Market Insights
+                  {t("pages.competitors.aiMarketInsights")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -1333,27 +1336,27 @@ export default function CompetitorsPage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Target className="h-4 w-4 text-primary" />
-                  Your Competitive Edge
+                  {t("pages.competitors.yourCompetitiveEdge")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Price Advantage</span>
+                    <span className="text-muted-foreground">{t("pages.competitors.priceAdvantage")}</span>
                     <span className="font-medium text-emerald-600">Strong</span>
                   </div>
                   <Progress value={75} className="h-2" />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Product Range</span>
+                    <span className="text-muted-foreground">{t("pages.competitors.productRange")}</span>
                     <span className="font-medium text-foreground">Good</span>
                   </div>
                   <Progress value={60} className="h-2" />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Customer Rating</span>
+                    <span className="text-muted-foreground">{t("pages.competitors.customerRating")}</span>
                     <span className="font-medium text-foreground">Average</span>
                   </div>
                   <Progress value={45} className="h-2" />
@@ -1371,10 +1374,10 @@ export default function CompetitorsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  Product Image Analysis
+                  {t("pages.competitors.productImageAnalysis")}
                 </CardTitle>
                 <CardDescription>
-                  Upload a product image to find suppliers and substitute products with their suppliers
+                  {t("pages.competitors.productAnalysisDesc")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1402,15 +1405,15 @@ export default function CompetitorsPage() {
                         <Upload className="h-8 w-8 text-primary" />
                       </div>
                       <h3 className="text-lg font-semibold text-foreground mb-2">
-                        Upload Product Image
+                        {t("pages.competitors.uploadProductImage")}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-                        Drag and drop an image or click to browse. We'll find suppliers and alternatives.
+                        {t("pages.competitors.uploadDesc")}
                       </p>
                       <div className="flex items-center gap-3 pointer-events-auto">
                         <Button onClick={() => fileInputRef.current?.click()}>
                           <Upload className="h-4 w-4 mr-2" />
-                          Upload Image
+                          {t("pages.competitors.uploadImage")}
                         </Button>
                         <Button variant="outline" onClick={() => {
                           if (fileInputRef.current) {
@@ -1419,7 +1422,7 @@ export default function CompetitorsPage() {
                           }
                         }}>
                           <Camera className="h-4 w-4 mr-2" />
-                          Camera
+                          {t("pages.competitors.camera")}
                         </Button>
                       </div>
                     </div>
@@ -1457,20 +1460,20 @@ export default function CompetitorsPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-foreground truncate">{productFileName}</p>
-                          <p className="text-xs text-muted-foreground">Ready for analysis</p>
+                          <p className="text-xs text-muted-foreground">{t("pages.competitors.readyForAnalysis")}</p>
                         </div>
                       </div>
                       <Button onClick={handleProductAnalysis} disabled={isProductAnalyzing}>
                         {isProductAnalyzing ? (
                           <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Analyzing...
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-4 w-4 mr-2" />
-                            Find Suppliers
-                          </>
+                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                             {t("pages.competitors.analyzing")}
+                           </>
+                         ) : (
+                           <>
+                             <Sparkles className="h-4 w-4 mr-2" />
+                             {t("pages.competitors.findSuppliers")}
+                           </>
                         )}
                       </Button>
                     </div>
@@ -1488,9 +1491,9 @@ export default function CompetitorsPage() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        Product Identified
+                        {t("pages.competitors.productIdentified")}
                       </CardTitle>
-                      <Badge variant="secondary">{productAnalysisResult.confidence}% confidence</Badge>
+                      <Badge variant="secondary">{t("pages.competitors.confidence", { value: productAnalysisResult.confidence })}</Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -1511,10 +1514,10 @@ export default function CompetitorsPage() {
                           <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Estimated Market Price</p>
+                          <p className="text-sm text-muted-foreground">{t("pages.competitors.estimatedMarketPrice")}</p>
                           <p className="text-lg font-bold text-foreground">
                             ${productAnalysisResult.estimatedPrice.min} - ${productAnalysisResult.estimatedPrice.max}
-                            <span className="text-sm font-normal text-muted-foreground ml-1">per unit</span>
+                            <span className="text-sm font-normal text-muted-foreground ml-1">{t("pages.competitors.perUnit")}</span>
                           </p>
                         </div>
                       </div>
@@ -1528,9 +1531,9 @@ export default function CompetitorsPage() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <ShieldCheck className="h-5 w-5 text-primary" />
-                        AI-Matched Suppliers
+                        {t("pages.competitors.aiMatchedSuppliers")}
                       </CardTitle>
-                      <Badge variant="secondary">{productAnalysisResult.suppliers?.length || 0} matches found</Badge>
+                      <Badge variant="secondary">{t("pages.competitors.matchesFound", { count: productAnalysisResult.suppliers?.length || 0 })}</Badge>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -1546,7 +1549,7 @@ export default function CompetitorsPage() {
                       >
                         {index === 0 && (
                           <div className="absolute -top-2 -right-2">
-                            <Badge className="bg-primary text-primary-foreground text-xs">Best Match</Badge>
+                            <Badge className="bg-primary text-primary-foreground text-xs">{t("pages.competitors.bestMatch")}</Badge>
                           </div>
                         )}
                         <div className="flex flex-col sm:flex-row sm:items-start gap-4">
@@ -1574,15 +1577,15 @@ export default function CompetitorsPage() {
                             </div>
                             <div className="mt-3">
                               <div className="flex items-center justify-between text-sm mb-1.5">
-                                <span className="text-muted-foreground">Match Score</span>
+                                <span className="text-muted-foreground">{t("pages.competitors.matchScore")}</span>
                                 <span className="font-medium text-foreground">{supplier.matchScore}%</span>
                               </div>
                               <Progress value={supplier.matchScore} className="h-2" />
                             </div>
                             <div className="flex flex-wrap gap-2 mt-3">
-                              <Badge variant="outline" className="text-xs">MOQ: {supplier.moq} units</Badge>
+                              <Badge variant="outline" className="text-xs">{t("pages.competitors.moq", { count: supplier.moq })}</Badge>
                               <Badge variant="outline" className="text-xs">
-                                ${supplier.priceRange.min} - ${supplier.priceRange.max}/unit
+                                {t("pages.competitors.priceRangePerUnit", { min: supplier.priceRange.min, max: supplier.priceRange.max })}
                               </Badge>
                             </div>
                           </div>
@@ -1593,7 +1596,7 @@ export default function CompetitorsPage() {
                               onClick={() => handleContactSupplier(supplier)}
                             >
                               <Mail className="h-3.5 w-3.5" />
-                              Contact
+                               {t("pages.competitors.contact")}
                             </Button>
                             <Button 
                               variant="outline" 
@@ -1602,7 +1605,7 @@ export default function CompetitorsPage() {
                               onClick={() => handleContactSupplier(supplier)}
                             >
                               <FileText className="h-3.5 w-3.5" />
-                              RFQ
+                               {t("pages.competitors.rfq")}
                             </Button>
                           </div>
                         </div>
@@ -1617,12 +1620,12 @@ export default function CompetitorsPage() {
                     <CardHeader className="pb-3">
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Repeat2 className="h-5 w-5 text-amber-500" />
-                        Substitute Products with Suppliers
+                        {t("pages.competitors.substitutesTitle")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Similar products that could serve your needs with potential cost savings
+                        {t("pages.competitors.substitutesDesc")}
                       </p>
                       <div className="space-y-4">
                         {productAnalysisResult.substitutes.map((substitute, index) => (

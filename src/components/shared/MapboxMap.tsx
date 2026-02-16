@@ -3,6 +3,7 @@
  * Interactive map with markers, clustering, and popups
  */
 import { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import Map, { 
   Marker, 
   Popup, 
@@ -49,6 +50,7 @@ export function MapboxMap({
   height = 400,
   onEntityClick,
 }: MapboxMapProps) {
+  const { t } = useTranslation();
   const [popupInfo, setPopupInfo] = useState<MapEntity | null>(null);
 
   // Calculate bounds to fit all markers
@@ -112,10 +114,9 @@ export function MapboxMap({
           <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
             <MapPin className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="font-semibold text-lg mb-2">Mapbox Token Required</h3>
+          <h3 className="font-semibold text-lg mb-2">{t("mapbox.tokenRequired")}</h3>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
-            Add your Mapbox access token to enable the interactive map.
-            Set VITE_MAPBOX_ACCESS_TOKEN in your environment.
+            {t("mapbox.tokenDesc")}
           </p>
         </CardContent>
       </Card>
@@ -129,9 +130,9 @@ export function MapboxMap({
           <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
             <MapPin className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="font-semibold text-lg mb-2">No Location Data</h3>
+          <h3 className="font-semibold text-lg mb-2">{t("mapbox.noLocationData")}</h3>
           <p className="text-muted-foreground text-sm">
-            Upload a product image to discover entities with location data
+            {t("mapbox.noLocationDesc")}
           </p>
         </CardContent>
       </Card>
@@ -202,17 +203,17 @@ export function MapboxMap({
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {popupInfo.matchScore && (
                     <Badge variant="secondary" className="text-xs">
-                      {popupInfo.matchScore}% match
+                      {t("mapbox.matchScore", { value: popupInfo.matchScore })}
                     </Badge>
                   )}
                   {popupInfo.marketShare && (
                     <Badge variant="outline" className="text-xs">
-                      {popupInfo.marketShare} share
+                      {t("mapbox.marketShare", { value: popupInfo.marketShare })}
                     </Badge>
                   )}
                   {popupInfo.demandConcentration && (
                     <Badge variant="outline" className="text-xs">
-                      {popupInfo.demandConcentration}% demand
+                      {t("mapbox.demandConcentration", { value: popupInfo.demandConcentration })}
                     </Badge>
                   )}
                 </div>
@@ -230,7 +231,7 @@ export function MapboxMap({
                   onClick={() => window.open(getGoogleMapsUrl(popupInfo), "_blank")}
                 >
                   <MapPin className="h-3 w-3 mr-1" />
-                  Open in Google Maps
+                  {t("mapbox.openGoogleMaps")}
                 </Button>
               </div>
             </Popup>
