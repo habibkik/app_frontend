@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, isToday, isYesterday } from "date-fns";
 import {
@@ -109,16 +110,17 @@ function ConversationList({
   searchQuery,
   onSearchChange,
 }: ConversationListProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col h-full border-r">
       {/* Header */}
       <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold mb-3">Messages</h2>
+        <h2 className="text-lg font-semibold mb-3">{t("pages.conversations.messagesHeader")}</h2>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search conversations..."
+            placeholder={t("pages.conversations.searchConversations")}
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9"
@@ -179,7 +181,7 @@ function ConversationList({
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No conversations found</p>
+              <p className="text-sm">{t("pages.conversations.noConversationsFound")}</p>
             </div>
           )}
         </div>
@@ -197,6 +199,7 @@ interface MessageThreadProps {
 }
 
 function MessageThread({ conversation, onSendMessage, onBack, isMobile, isTyping }: MessageThreadProps) {
+  const { t } = useTranslation();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -245,9 +248,9 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile, isTyping
           <h3 className="font-semibold truncate">{conversation.supplierName}</h3>
           <p className="text-xs text-muted-foreground">
             {conversation.isOnline ? (
-              <span className="text-success">Online</span>
+              <span className="text-success">{t("pages.conversations.online")}</span>
             ) : (
-              "Offline"
+              t("pages.conversations.offline")
             )}
             {" · "}
             {conversation.supplierIndustry}
@@ -260,7 +263,7 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile, isTyping
                 <Phone className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Call</TooltipContent>
+            <TooltipContent>{t("pages.conversations.call")}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -268,7 +271,7 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile, isTyping
                 <Video className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Video call</TooltipContent>
+            <TooltipContent>{t("pages.conversations.videoCall")}</TooltipContent>
           </Tooltip>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -279,11 +282,11 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile, isTyping
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <Info className="h-4 w-4 mr-2" />
-                View supplier profile
+                {t("pages.conversations.viewSupplierProfile")}
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Archive className="h-4 w-4 mr-2" />
-                Archive conversation
+                {t("pages.conversations.archiveConversation")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -417,33 +420,33 @@ function MessageThread({ conversation, onSendMessage, onBack, isMobile, isTyping
       {/* Input */}
       <div className="p-4 border-t">
         <div className="flex items-end gap-2">
-          <div className="flex gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10">
-                  <Paperclip className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Attach file</TooltipContent>
-            </Tooltip>
-          </div>
-          <div className="flex-1 relative">
-            <Textarea
-              placeholder="Type a message..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="min-h-[44px] max-h-[120px] resize-none pr-10"
-              rows={1}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 bottom-1 h-8 w-8"
-            >
-              <Smile className="h-4 w-4" />
-            </Button>
-          </div>
+           <div className="flex gap-1">
+             <Tooltip>
+               <TooltipTrigger asChild>
+                 <Button variant="ghost" size="icon" className="h-10 w-10">
+                   <Paperclip className="h-5 w-5" />
+                 </Button>
+               </TooltipTrigger>
+               <TooltipContent>{t("pages.conversations.attachFile")}</TooltipContent>
+             </Tooltip>
+           </div>
+           <div className="flex-1 relative">
+             <Textarea
+               placeholder={t("pages.conversations.typeMessage")}
+               value={newMessage}
+               onChange={(e) => setNewMessage(e.target.value)}
+               onKeyDown={handleKeyDown}
+               className="min-h-[44px] max-h-[120px] resize-none pr-10"
+               rows={1}
+             />
+             <Button
+               variant="ghost"
+               size="icon"
+               className="absolute right-1 bottom-1 h-8 w-8"
+             >
+               <Smile className="h-4 w-4" />
+             </Button>
+           </div>
           <Button
             onClick={handleSend}
             disabled={!newMessage.trim()}

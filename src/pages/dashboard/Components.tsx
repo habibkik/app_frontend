@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Package, Search, Filter, History, Trash2 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
@@ -35,6 +36,7 @@ import { calculateSupplyChainRisk } from "@/lib/supply-chain-risk";
 import { useComponentSupplierStore, type ComponentSupplierMatch } from "@/stores/componentSupplierStore";
 
 export default function ComponentsPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -112,8 +114,8 @@ export default function ComponentsPage() {
 
   const handleCreateOrder = () => {
     toast({
-      title: "Purchase Order Created",
-      description: "Your order has been submitted to the selected suppliers.",
+      title: t("pages.componentSupply.purchaseOrderCreated"),
+      description: t("pages.componentSupply.orderSubmitted"),
     });
   };
 
@@ -159,9 +161,9 @@ export default function ComponentsPage() {
               <Package className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Component Supply</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t("pages.componentSupply.title")}</h1>
               <p className="text-muted-foreground">
-                Compare suppliers and build optimal component packages
+                {t("pages.componentSupply.subtitle")}
               </p>
             </div>
           </div>
@@ -193,21 +195,21 @@ export default function ComponentsPage() {
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search components..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
-                  <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-full sm:w-[180px]">
-                      <Filter className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
+                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                     <Input
+                       placeholder={t("pages.componentSupply.searchPlaceholder")}
+                       value={searchQuery}
+                       onChange={(e) => setSearchQuery(e.target.value)}
+                       className="pl-9"
+                     />
+                   </div>
+                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                     <SelectTrigger className="w-full sm:w-[180px]">
+                       <Filter className="h-4 w-4 mr-2" />
+                       <SelectValue placeholder={t("pages.componentSupply.categoryLabel")} />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="all">{t("pages.componentSupply.allCategories")}</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat} value={cat}>
                           {cat}
@@ -266,24 +268,24 @@ export default function ComponentsPage() {
 
             {/* Search History */}
             {searchHistory.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <History className="h-4 w-4" />
-                      Search History
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={clearHistory}
-                      className="h-6 px-2 text-xs"
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Clear
-                    </Button>
-                  </CardTitle>
-                </CardHeader>
+               <Card>
+                 <CardHeader className="pb-3">
+                   <CardTitle className="text-sm flex items-center justify-between">
+                     <div className="flex items-center gap-2">
+                       <History className="h-4 w-4" />
+                       {t("pages.componentSupply.searchHistory")}
+                     </div>
+                     <Button
+                       variant="ghost"
+                       size="sm"
+                       onClick={clearHistory}
+                       className="h-6 px-2 text-xs"
+                     >
+                       <Trash2 className="h-3 w-3 mr-1" />
+                       {t("pages.componentSupply.clear")}
+                     </Button>
+                   </CardTitle>
+                 </CardHeader>
                 <CardContent className="pt-0">
                   <ScrollArea className="h-[200px]">
                     <div className="space-y-2">
@@ -321,12 +323,12 @@ export default function ComponentsPage() {
           setSelectedSupplier(null);
         }}
         onContact={(supplier) => {
-          toast({
-            title: "Quote Requested",
-            description: `Your request has been sent to ${supplier.name}.`,
-          });
-          setIsDetailModalOpen(false);
-        }}
+           toast({
+             title: t("pages.componentSupply.quoteRequested"),
+             description: `${t("pages.componentSupply.yourRequestHasBeenSent")} ${supplier.name}.`,
+           });
+           setIsDetailModalOpen(false);
+         }}
       />
     </DashboardLayout>
   );
