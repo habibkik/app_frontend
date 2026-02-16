@@ -3,17 +3,21 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardModeProvider } from "@/features/dashboard";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { DashboardHeader } from "./DashboardHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { isRTL } = useLanguage();
+  const side = isRTL ? "right" : "left";
+
   return (
     <DashboardModeProvider>
       <SidebarProvider>
         <div className="min-h-screen flex w-full">
-          <DashboardSidebar />
+          <DashboardSidebar side={side} />
           <SidebarInset className="flex flex-col flex-1">
             <DashboardHeader />
             <main className="flex-1 p-2 sm:p-4 md:p-6 bg-background">
