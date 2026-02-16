@@ -37,50 +37,7 @@ interface ModeConfig {
   accentColor: string;
 }
 
-const modeConfigs: Record<string, ModeConfig> = {
-  buyer: {
-    icon: Search,
-    title: "Find Suppliers for Any Product",
-    subtitle: "Upload a product image and we'll find matching suppliers, pricing, and alternatives",
-    buttonText: "Find Suppliers",
-    processingSteps: [
-      "Identifying product...",
-      "Analyzing specifications...",
-      "Matching suppliers...",
-      "Comparing prices...",
-      "Finding alternatives...",
-    ],
-    accentColor: "text-blue-500",
-  },
-  producer: {
-    icon: Package,
-    title: "Reverse Engineer Any Product",
-    subtitle: "Upload a product image to generate a complete Bill of Materials with cost estimates",
-    buttonText: "Generate BOM",
-    processingSteps: [
-      "Scanning product structure...",
-      "Identifying components...",
-      "Analyzing materials...",
-      "Estimating costs...",
-      "Generating BOM...",
-    ],
-    accentColor: "text-amber-500",
-  },
-  seller: {
-    icon: TrendingUp,
-    title: "Analyze Market Opportunity",
-    subtitle: "Upload a product image to get competitor insights, pricing strategy, and market data",
-    buttonText: "Analyze Market",
-    processingSteps: [
-      "Identifying product...",
-      "Scanning market data...",
-      "Finding competitors...",
-      "Analyzing pricing...",
-      "Generating insights...",
-    ],
-    accentColor: "text-emerald-500",
-  },
-};
+import { useTranslation } from "react-i18next";
 
 interface UniversalImageUploadProps {
   onAnalysisComplete?: () => void;
@@ -91,7 +48,54 @@ export function UniversalImageUpload({
   onAnalysisComplete,
   compact = false,
 }: UniversalImageUploadProps) {
+  const { t } = useTranslation();
   const { mode } = useDashboardMode();
+  
+  const modeConfigs: Record<string, ModeConfig> = {
+    buyer: {
+      icon: Search,
+      title: t("imageUpload.buyer.title"),
+      subtitle: t("imageUpload.buyer.subtitle"),
+      buttonText: t("imageUpload.buyer.buttonText"),
+      processingSteps: [
+        t("imageUpload.steps.identifying"),
+        t("imageUpload.steps.specs"),
+        t("imageUpload.steps.matching"),
+        t("imageUpload.steps.comparing"),
+        t("imageUpload.steps.alternatives"),
+      ],
+      accentColor: "text-blue-500",
+    },
+    producer: {
+      icon: Package,
+      title: t("imageUpload.producer.title"),
+      subtitle: t("imageUpload.producer.subtitle"),
+      buttonText: t("imageUpload.producer.buttonText"),
+      processingSteps: [
+        t("imageUpload.steps.scanning"),
+        t("imageUpload.steps.components"),
+        t("imageUpload.steps.materials"),
+        t("imageUpload.steps.estimating"),
+        t("imageUpload.steps.generating"),
+      ],
+      accentColor: "text-amber-500",
+    },
+    seller: {
+      icon: TrendingUp,
+      title: t("imageUpload.seller.title"),
+      subtitle: t("imageUpload.seller.subtitle"),
+      buttonText: t("imageUpload.seller.buttonText"),
+      processingSteps: [
+        t("imageUpload.steps.identifying"),
+        t("imageUpload.steps.market"),
+        t("imageUpload.steps.competitors"),
+        t("imageUpload.steps.pricing"),
+        t("imageUpload.steps.insights"),
+      ],
+      accentColor: "text-emerald-500",
+    },
+  };
+
   const config = modeConfigs[mode];
   const ModeIcon = config.icon;
   const { toast } = useToast();
@@ -210,8 +214,11 @@ export function UniversalImageUpload({
           setBuyerResults(result);
           analysisSuccessful = true;
           toast({
-            title: "Supplier Discovery Complete",
-            description: `Found ${result.suggestedSuppliers.length} matching suppliers for ${result.productIdentification.name}`,
+            title: t("imageUpload.analysisComplete"),
+            description: t("imageUpload.foundSuppliers", { 
+              count: result.suggestedSuppliers.length,
+              name: result.productIdentification.name 
+            }),
           });
           break;
         }
@@ -227,8 +234,11 @@ export function UniversalImageUpload({
             });
             analysisSuccessful = true;
             toast({
-              title: "BOM Analysis Complete",
-              description: `Identified ${result.components.length} components for ${result.productName}`,
+              title: t("imageUpload.bomComplete"),
+              description: t("imageUpload.identifiedComponents", { 
+                count: result.components.length,
+                name: result.productName 
+              }),
             });
           }
           break;
@@ -238,8 +248,8 @@ export function UniversalImageUpload({
           setSellerResults(result);
           analysisSuccessful = true;
           toast({
-            title: "Market Analysis Complete",
-            description: `Found ${result.competitors.length} competitors and pricing insights`,
+            title: t("imageUpload.marketComplete"),
+            description: t("imageUpload.foundCompetitors", { count: result.competitors.length }),
           });
           break;
         }
@@ -248,15 +258,15 @@ export function UniversalImageUpload({
       clearInterval(progressInterval);
       
       if (analysisSuccessful) {
-        setAnalysisProgress(100, "Complete!");
+        setAnalysisProgress(100, t("imageUpload.steps.complete"));
         await new Promise((resolve) => setTimeout(resolve, 500));
         onAnalysisComplete?.();
       }
     } catch (error) {
       console.error("Analysis error:", error);
       toast({
-        title: "Analysis Failed",
-        description: "There was an error analyzing your image. Please try again.",
+        title: t("imageUpload.analysisFailed"),
+        description: t("imageUpload.errorAnalyzing"),
         variant: "destructive",
       });
     } finally {
@@ -334,7 +344,7 @@ export function UniversalImageUpload({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="h-4 w-4" />
-                  Upload Image
+                  {t("imageUpload.uploadImage")}
                 </Button>
                 <Button
                   variant="outline"
@@ -343,12 +353,12 @@ export function UniversalImageUpload({
                   onClick={handleCameraCapture}
                 >
                   <Camera className="h-4 w-4" />
-                  Camera
+                  {t("imageUpload.camera")}
                 </Button>
               </div>
               
               <p className="text-xs text-muted-foreground mt-4">
-                Supports JPG, PNG, WebP • Max 10MB
+                {t("imageUpload.supports")}
               </p>
             </div>
           </motion.div>
@@ -416,7 +426,7 @@ export function UniversalImageUpload({
                     {fileName}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Ready for analysis
+                    {t("imageUpload.ready")}
                   </p>
                 </div>
               </div>
@@ -430,7 +440,7 @@ export function UniversalImageUpload({
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Analyzing...
+                    {t("imageUpload.processing")}
                   </>
                 ) : (
                   <>
