@@ -17,6 +17,7 @@ import {
   Phone,
   Globe,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,8 @@ export function SupplierMatchResults({
   onContactSupplier,
   onViewDetails,
 }: SupplierMatchResultsProps) {
+  const { t } = useTranslation();
+
   if (suppliers.length === 0) {
     return (
       <Card>
@@ -44,9 +47,9 @@ export function SupplierMatchResults({
           <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
             <Package className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="font-semibold text-lg mb-2">No Suppliers Matched</h3>
+          <h3 className="font-semibold text-lg mb-2">{t("buyerDiscovery.noSuppliersMatched")}</h3>
           <p className="text-muted-foreground text-sm">
-            Upload a product image to find matching suppliers
+            {t("buyerDiscovery.uploadToFind")}
           </p>
         </CardContent>
       </Card>
@@ -68,10 +71,10 @@ export function SupplierMatchResults({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            AI-Matched Suppliers
+            {t("buyerDiscovery.aiMatchedSuppliers")}
           </CardTitle>
           <Badge variant="secondary" className="font-normal">
-            {suppliers.length} matches found
+            {t("buyerDiscovery.matchesFound", { count: suppliers.length })}
           </Badge>
         </div>
       </CardHeader>
@@ -88,20 +91,17 @@ export function SupplierMatchResults({
               index === 0 && "ring-2 ring-primary/20 border-primary/30"
             )}
           >
-            {/* Best Match Badge */}
             {index === 0 && (
               <div className="absolute -top-2 -right-2">
                 <Badge className="bg-primary text-primary-foreground text-xs">
-                  Best Match
+                  {t("buyerDiscovery.bestMatch")}
                 </Badge>
               </div>
             )}
 
             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-              {/* Supplier Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-3">
-                  {/* Avatar/Logo */}
                   <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <span className="text-lg font-bold text-primary">
                       {supplier.name.charAt(0)}
@@ -137,35 +137,20 @@ export function SupplierMatchResults({
                       </span>
                     </div>
 
-                    {/* Quick Contact Icons */}
                     {supplier.contact && (
                       <div className="flex items-center gap-2 mt-2">
                         {supplier.contact.email && (
-                          <a 
-                            href={`mailto:${supplier.contact.email}`}
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                            title={supplier.contact.email}
-                          >
+                          <a href={`mailto:${supplier.contact.email}`} className="text-muted-foreground hover:text-primary transition-colors" title={supplier.contact.email}>
                             <Mail className="h-4 w-4" />
                           </a>
                         )}
                         {supplier.contact.phone && (
-                          <a 
-                            href={`tel:${supplier.contact.phone}`}
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                            title={supplier.contact.phone}
-                          >
+                          <a href={`tel:${supplier.contact.phone}`} className="text-muted-foreground hover:text-primary transition-colors" title={supplier.contact.phone}>
                             <Phone className="h-4 w-4" />
                           </a>
                         )}
                         {supplier.contact.website && (
-                          <a 
-                            href={supplier.contact.website}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-muted-foreground hover:text-primary transition-colors"
-                            title={supplier.contact.website}
-                          >
+                          <a href={supplier.contact.website} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" title={supplier.contact.website}>
                             <Globe className="h-4 w-4" />
                           </a>
                         )}
@@ -174,25 +159,20 @@ export function SupplierMatchResults({
                   </div>
                 </div>
 
-                {/* Match Score */}
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-sm mb-1.5">
-                    <span className="text-muted-foreground">Match Score</span>
+                    <span className="text-muted-foreground">{t("buyerDiscovery.matchScore")}</span>
                     <span className="font-medium text-foreground">{supplier.matchScore}%</span>
                   </div>
-                  <Progress 
-                    value={supplier.matchScore} 
-                    className="h-2"
-                  />
+                  <Progress value={supplier.matchScore} className="h-2" />
                 </div>
 
-                {/* Key Details */}
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Badge variant="outline" className="text-xs">
-                    MOQ: {supplier.moq} units
+                    MOQ: {supplier.moq} {t("bomComponents.units")}
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    ${supplier.priceRange.min} - ${supplier.priceRange.max}/unit
+                    ${supplier.priceRange.min} - ${supplier.priceRange.max}/{t("buyerDiscovery.perUnit")}
                   </Badge>
                   {supplier.businessProfile?.yearEstablished && (
                     <Badge variant="outline" className="text-xs">
@@ -201,46 +181,32 @@ export function SupplierMatchResults({
                   )}
                   {supplier.businessProfile?.companySize && (
                     <Badge variant="outline" className="text-xs">
-                      {supplier.businessProfile.companySize} employees
+                      {supplier.businessProfile.companySize} {t("settings.company.employees")}
                     </Badge>
                   )}
                 </div>
 
-                {/* Certifications */}
                 {supplier.businessProfile?.certifications && supplier.businessProfile.certifications.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {supplier.businessProfile.certifications.slice(0, 4).map((cert) => (
-                      <Badge key={cert} variant="secondary" className="text-xs">
-                        {cert}
-                      </Badge>
+                      <Badge key={cert} variant="secondary" className="text-xs">{cert}</Badge>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Actions */}
               <div className="flex sm:flex-col gap-2 sm:w-32">
-                <Button 
-                  size="sm" 
-                  className="flex-1 sm:w-full"
-                  onClick={() => onContactSupplier?.(supplier)}
-                >
-                  Contact
+                <Button size="sm" className="flex-1 sm:w-full" onClick={() => onContactSupplier?.(supplier)}>
+                  {t("buyerDiscovery.contact")}
                   <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex-1 sm:w-full"
-                  onClick={() => onViewDetails?.(supplier)}
-                >
-                  Details
+                <Button variant="outline" size="sm" className="flex-1 sm:w-full" onClick={() => onViewDetails?.(supplier)}>
+                  {t("common.details")}
                   <ExternalLink className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </div>
             </div>
 
-            {/* Expandable Business Profile */}
             {(supplier.geoLocation || supplier.contact || supplier.businessProfile) && (
               <div className="mt-4">
                 <BusinessProfileCard

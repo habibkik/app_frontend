@@ -1356,5 +1356,119 @@
     "sells": "Sells: {{product}}",
     "threat": "{{level}} threat",
     "productSimilarity": "Product Similarity"
+  },
+  "feasibilityScore": {
+    "score": "Score",
+    "productionViable": "Production Viable",
+    "needsOptimization": "Needs Optimization",
+    "notRecommended": "Not Recommended"
+  },
+  "recommendationBanner": {
+    "productionViable": "Production is Viable",
+    "manufacturingRecommended": "Manufacturing at {{cost}}/unit is recommended",
+    "productionHasRisks": "Production Has Risks",
+    "risksIdentified": "{{count}} risk(s) identified that may affect production",
+    "notRecommended": "Not Recommended for In-House Production",
+    "notRecommendedSubtitle": "Consider outsourcing or alternative sourcing strategies",
+    "minOrder": "Min order",
+    "breakEven": "Break-even",
+    "units": "units",
+    "contractManufacturing": "Consider contract manufacturing",
+    "importFinishedGoods": "Explore importing finished goods",
+    "quickWins": "Quick wins:",
+    "quickWinsDetail": "Address supply chain risks and optimize component sourcing to improve feasibility score"
+  },
+  "feasibilityFactors": {
+    "keyFactors": "Key Factors",
+    "componentAvailability": "Component Availability",
+    "leadTime": "Lead Time",
+    "singleSupplierRisk": "Single Supplier Risk",
+    "costCompetitiveness": "Cost Competitiveness",
+    "localSourcing": "Local Sourcing",
+    "basedOnSupplierDb": "Based on supplier database matches",
+    "avgLeadTime": "Average lead time: {{days}} days",
+    "affected": "Affected: {{components}}",
+    "comparedToMarket": "Compared to market average pricing",
+    "localImported": "Local: {{local}}%, Imported: {{imported}}%"
+  },
+  "makeVsBuy": {
+    "title": "Make vs Buy Decision",
+    "recommendMake": "Recommend Make",
+    "recommendBuy": "Recommend Buy",
+    "make": "Make",
+    "buy": "Buy",
+    "perUnit": "per unit",
+    "perUnitRetail": "per unit (retail)",
+    "savingsByManufacturing": "Savings by Manufacturing",
+    "costDifference": "Cost Difference",
+    "cheaper": "cheaper",
+    "more": "more",
+    "manufacturingCheaper": "Manufacturing in-house is <strong>{{percent}}% cheaper</strong> than buying retail",
+    "considerOutsourcing": "Consider <strong>outsourcing or buying</strong> as manufacturing costs are high"
+  },
+  "costBreakdown": {
+    "componentCost": "Component Cost",
+    "productionCost": "Production Cost",
+    "logisticsCost": "Logistics Cost",
+    "totalCost": "Total Cost",
+    "perUnit": "/unit",
+    "components": "{{count}} components",
+    "laborEquipmentFacility": "Labor, equipment & facility",
+    "shippingDutiesHandling": "Shipping, duties & handling",
+    "labor": "Labor",
+    "equipment": "Equipment",
+    "facility": "Facility",
+    "shipping": "Shipping",
+    "importDuties": "Import Duties",
+    "handlingStorage": "Handling & Storage",
+    "moreComponents": "+{{count}} more components"
+  },
+  "scenarioSimulator": {
+    "title": "Scenario Simulation",
+    "productionVolume": "Production Volume",
+    "units": "units",
+    "componentCostIncrease": "Component Cost Increase",
+    "laborCostPerHour": "Labor Cost per Hour",
+    "projectedUnitCost": "Projected Unit Cost",
+    "vsBaseline": "vs baseline",
+    "volumeDiscountApplied": "{{percent}}% volume discount applied",
+    "volumeDiscountTip": "Volume discount of {{discount}}% kicks in at {{threshold}} units",
+    "nextDiscountTier": "Next discount tier ({{discount}}%) at {{threshold}} units",
+    "resetToDefaults": "Reset to Defaults"
+  },
+  "riskFactors": {
+    "title": "Risk Factors",
+    "riskAssessment": "Risk Assessment",
+    "noRisks": "No significant risks identified",
+    "productionLooksSolid": "Your production plan looks solid",
+    "critical": "Critical",
+    "warning": "Warning",
+    "info": "Info",
+    "mitigationStrategy": "Mitigation Strategy"
+  },
+  "bomSupplierMatch": {
+    "matchedSuppliersFor": "Matched Suppliers for",
+    "match": "Match",
+    "estPrice": "Est. Price",
+    "save": "Save",
+    "contact": "Contact"
+  },
+  "resultsBadge": {
+    "results": "Results"
+  },
+  "globalAnalysis": {
+    "analyzing": "Analyzing..."
+  },
+  "recommendationFeedback": {
+    "moreFeedback": "More feedback",
+    "appliedRecommendation": "I applied this recommendation",
+    "anyNotes": "Any notes? (optional)",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "feedbackRecorded": "Feedback recorded",
+    "signInRequired": "Sign in required",
+    "signInToFeedback": "Please sign in to provide feedback.",
+    "thanks": "Thanks!",
+    "thanksDesc": "Your feedback helps improve recommendations."
   }
 }
