@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import {
   Factory,
@@ -60,6 +61,7 @@ const mockProjects = [
 ];
 
 export default function FeasibilityPage() {
+  const { t } = useTranslation();
   const [selectedProject, setSelectedProject] = useState(mockProjects[0]);
   const [activeTab, setActiveTab] = useState("analysis");
 
@@ -119,19 +121,19 @@ export default function FeasibilityPage() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Production Feasibility</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.feasibility.pageTitle")}</h1>
             <p className="text-muted-foreground mt-1">
-              Analyze production capabilities, costs, and viability
+              {t("pages.feasibility.pageSubtitle")}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className="gap-2" onClick={handleExportReport}>
               <Download className="h-4 w-4" />
-              Export Report
+              {t("pages.feasibility.exportReport")}
             </Button>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
-              New Analysis
+              {t("pages.feasibility.newAnalysis")}
             </Button>
           </div>
         </div>
@@ -142,14 +144,14 @@ export default function FeasibilityPage() {
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
               <div className="flex-1">
                 <label className="text-sm font-medium text-foreground mb-2 block">
-                  Select Product / BOM
+                  {t("pages.feasibility.selectProductBOM")}
                 </label>
                 <Select
                   value={selectedProject.id}
                   onValueChange={(v) => setSelectedProject(mockProjects.find(p => p.id === v) || mockProjects[0])}
                 >
                   <SelectTrigger className="w-full sm:max-w-md">
-                    <SelectValue placeholder="Select a project" />
+                    <SelectValue placeholder={t("pages.feasibility.selectProject")} />
                   </SelectTrigger>
                   <SelectContent>
                     {mockProjects.map((project) => (
@@ -170,17 +172,17 @@ export default function FeasibilityPage() {
               {/* Quick Stats */}
               <div className="flex gap-4 flex-wrap">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-foreground">{selectedProject.score}</p>
-                  <p className="text-xs text-muted-foreground">Score</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-foreground">${selectedProject.estimatedCost.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">Unit Cost</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-foreground">{selectedProject.timeline}</p>
-                  <p className="text-xs text-muted-foreground">Timeline</p>
-                </div>
+                   <p className="text-2xl font-bold text-foreground">{selectedProject.score}</p>
+                   <p className="text-xs text-muted-foreground">{t("pages.feasibility.score")}</p>
+                 </div>
+                 <div className="text-center">
+                   <p className="text-2xl font-bold text-foreground">${selectedProject.estimatedCost.toFixed(2)}</p>
+                   <p className="text-xs text-muted-foreground">{t("pages.feasibility.unitCost")}</p>
+                 </div>
+                 <div className="text-center">
+                   <p className="text-2xl font-bold text-foreground">{selectedProject.timeline}</p>
+                   <p className="text-xs text-muted-foreground">{t("pages.feasibility.timeline")}</p>
+                 </div>
                 <div className="flex items-center">
                   {getStatusBadge(selectedProject.status)}
                 </div>
@@ -192,8 +194,8 @@ export default function FeasibilityPage() {
         {/* Tabs for different views */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="analysis">Full Analysis</TabsTrigger>
-            <TabsTrigger value="history">Analysis History</TabsTrigger>
+            <TabsTrigger value="analysis">{t("pages.feasibility.fullAnalysis")}</TabsTrigger>
+            <TabsTrigger value="history">{t("pages.feasibility.analysisHistory")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analysis" className="mt-6">
@@ -213,7 +215,7 @@ export default function FeasibilityPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-primary" />
-                  Recent Analyses
+                  {t("pages.feasibility.recentAnalyses")}
                 </CardTitle>
               </CardHeader>
               <CardContent>

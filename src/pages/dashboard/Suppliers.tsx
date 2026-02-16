@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, SlidersHorizontal, Grid3X3, List, ArrowUpDown, Sparkles, ImageIcon, DollarSign, Package, Clock, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ import { analyzeForSourcing } from "@/features/agents/miromind/api";
 type SortOption = "rating" | "reviews" | "response" | "minOrder";
 
 export default function SuppliersPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { saveSupplier, removeSupplier, isSupplierSaved } = useSavedSuppliers();
   const { 
@@ -226,14 +228,14 @@ export default function SuppliersPage() {
     if (isSaved) {
       removeSupplier(supplier.id);
       toast({
-        title: "Supplier Removed",
-        description: `${supplier.name} has been removed from your saved suppliers.`,
+        title: t("pages.suppliers.supplierRemoved"),
+        description: `${supplier.name} ${t("pages.suppliers.hasBeenRemoved")}`,
       });
     } else {
       saveSupplier(supplier);
       toast({
-        title: "Supplier Saved",
-        description: `${supplier.name} has been added to your saved suppliers.`,
+        title: t("pages.suppliers.supplierSaved"),
+        description: `${supplier.name} ${t("pages.suppliers.hasBeenAdded")}`,
       });
     }
   };
@@ -257,9 +259,9 @@ export default function SuppliersPage() {
         {/* Page Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Supplier Discovery</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.suppliers.title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Find suppliers by uploading a product image or browse our network
+              {t("pages.suppliers.subtitle")}
             </p>
           </div>
         </div>
@@ -269,7 +271,7 @@ export default function SuppliersPage() {
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="ai-results" className="gap-2">
               <Sparkles className="h-4 w-4" />
-              AI Results
+              {t("pages.suppliers.aiResults")}
               {buyerResults && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   {buyerResults.suggestedSuppliers.length}
@@ -278,7 +280,7 @@ export default function SuppliersPage() {
             </TabsTrigger>
             <TabsTrigger value="browse" className="gap-2">
               <Search className="h-4 w-4" />
-              Browse All
+              {t("pages.suppliers.browseAll")}
             </TabsTrigger>
           </TabsList>
 
@@ -312,16 +314,16 @@ export default function SuppliersPage() {
                     {/* Left: Upload Zone */}
                     <div className="space-y-4">
                       <div className="text-center lg:text-left">
-                        <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto lg:mx-0 mb-4 shadow-lg shadow-primary/20">
-                          <ImageIcon className="h-7 w-7 text-primary-foreground" />
-                        </div>
-                        <h3 className="text-xl font-bold text-foreground mb-2">
-                          Drop Your Product Image
-                        </h3>
-                        <p className="text-muted-foreground text-sm">
-                          Our AI instantly identifies your product and activates a dedicated agent team.
-                        </p>
-                      </div>
+                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mx-auto lg:mx-0 mb-4 shadow-lg shadow-primary/20">
+                           <ImageIcon className="h-7 w-7 text-primary-foreground" />
+                         </div>
+                         <h3 className="text-xl font-bold text-foreground mb-2">
+                           {t("pages.suppliers.dropProductImage")}
+                         </h3>
+                         <p className="text-muted-foreground text-sm">
+                           {t("pages.suppliers.aiInstantlyIdentifies")}
+                         </p>
+                       </div>
                       <UniversalImageUpload 
                         onAnalysisComplete={handleAnalysisComplete}
                       />
@@ -330,81 +332,81 @@ export default function SuppliersPage() {
                     {/* Right: AI Agent Team Benefits */}
                     <div className="bg-gradient-to-br from-muted/50 to-muted rounded-2xl p-6 border border-border/50">
                       <div className="flex items-center gap-3 mb-6">
-                        <div className="relative">
-                          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                            <Sparkles className="h-6 w-6 text-white" />
-                          </div>
-                          <span className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-background animate-pulse" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-foreground">AI Agent Team</h4>
-                          <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Working 24/7 for you</p>
-                        </div>
-                      </div>
+                         <div className="relative">
+                           <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                             <Sparkles className="h-6 w-6 text-white" />
+                           </div>
+                           <span className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 rounded-full border-2 border-background animate-pulse" />
+                         </div>
+                         <div>
+                           <h4 className="font-bold text-foreground">{t("pages.suppliers.aiAgentTeam")}</h4>
+                           <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">{t("pages.suppliers.working247")}</p>
+                         </div>
+                       </div>
 
                       <div className="space-y-4">
                         {/* Feature 1: Supplier Matching */}
-                        <div className="flex gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                            <Search className="h-5 w-5 text-blue-500" />
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-foreground text-sm">Best Supplier Deals</h5>
-                            <p className="text-xs text-muted-foreground">
-                              Agents scan thousands of suppliers to find the best prices, MOQs, and terms for your exact product.
-                            </p>
-                          </div>
-                        </div>
+                         <div className="flex gap-3">
+                           <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                             <Search className="h-5 w-5 text-blue-500" />
+                           </div>
+                           <div>
+                             <h5 className="font-semibold text-foreground text-sm">{t("pages.suppliers.bestSupplierDeals")}</h5>
+                             <p className="text-xs text-muted-foreground">
+                               {t("pages.suppliers.agentsScanThousands")}
+                             </p>
+                           </div>
+                         </div>
 
                         {/* Feature 2: Price Negotiation */}
-                        <div className="flex gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                            <DollarSign className="h-5 w-5 text-emerald-500" />
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-foreground text-sm">Price Intelligence</h5>
-                            <p className="text-xs text-muted-foreground">
-                              Get real-time market pricing data and leverage insights to negotiate better deals.
-                            </p>
-                          </div>
-                        </div>
+                         <div className="flex gap-3">
+                           <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                             <DollarSign className="h-5 w-5 text-emerald-500" />
+                           </div>
+                           <div>
+                             <h5 className="font-semibold text-foreground text-sm">{t("pages.suppliers.priceIntelligence")}</h5>
+                             <p className="text-xs text-muted-foreground">
+                               {t("pages.suppliers.getRealTimeMarketPricing")}
+                             </p>
+                           </div>
+                         </div>
 
                         {/* Feature 3: Substitutes */}
-                        <div className="flex gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                            <Package className="h-5 w-5 text-purple-500" />
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-foreground text-sm">Smart Substitutes</h5>
-                            <p className="text-xs text-muted-foreground">
-                              Discover alternative products that match your specs at better prices or availability.
-                            </p>
-                          </div>
-                        </div>
+                         <div className="flex gap-3">
+                           <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                             <Package className="h-5 w-5 text-purple-500" />
+                           </div>
+                           <div>
+                             <h5 className="font-semibold text-foreground text-sm">{t("pages.suppliers.smartSubstitutes")}</h5>
+                             <p className="text-xs text-muted-foreground">
+                               {t("pages.suppliers.discoverAlternativeProducts")}
+                             </p>
+                           </div>
+                         </div>
 
                         {/* Feature 4: Continuous Monitoring */}
-                        <div className="flex gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center flex-shrink-0">
-                            <Clock className="h-5 w-5 text-orange-500" />
-                          </div>
-                          <div>
-                            <h5 className="font-semibold text-foreground text-sm">24/7 Monitoring</h5>
-                            <p className="text-xs text-muted-foreground">
-                              Agents continuously monitor for price drops, new suppliers, and better opportunities.
-                            </p>
-                          </div>
-                        </div>
+                         <div className="flex gap-3">
+                           <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                             <Clock className="h-5 w-5 text-orange-500" />
+                           </div>
+                           <div>
+                             <h5 className="font-semibold text-foreground text-sm">{t("pages.suppliers.monitoring247")}</h5>
+                             <p className="text-xs text-muted-foreground">
+                               {t("pages.suppliers.agentsContinuouslyMonitor")}
+                             </p>
+                           </div>
+                         </div>
                       </div>
 
-                      <div className="mt-6 pt-4 border-t border-border/50">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Powered by MiroMind AI</span>
-                          <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
-                            Active
-                          </Badge>
-                        </div>
-                      </div>
+                       <div className="mt-6 pt-4 border-t border-border/50">
+                         <div className="flex items-center justify-between text-xs">
+                           <span className="text-muted-foreground">{t("pages.suppliers.poweredByMiroMindAI")}</span>
+                           <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse" />
+                             {t("pages.suppliers.active")}
+                           </Badge>
+                         </div>
+                       </div>
                     </div>
                   </div>
                 </motion.div>
@@ -416,16 +418,16 @@ export default function SuppliersPage() {
           <TabsContent value="browse" className="mt-6">
             {/* Search Bar */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search by name, industry, location, or specialization..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-11"
-                />
-              </div>
+               <div className="relative flex-1">
+                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                 <Input
+                   type="search"
+                   placeholder={t("pages.suppliers.searchPlaceholder")}
+                   value={searchQuery}
+                   onChange={(e) => setSearchQuery(e.target.value)}
+                   className="pl-10 h-11"
+                 />
+               </div>
               <div className="flex gap-2">
                 {/* Mobile Filter Button */}
                 <div className="lg:hidden">

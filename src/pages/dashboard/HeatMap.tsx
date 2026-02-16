@@ -3,6 +3,7 @@
  * Regional market opportunity visualization with interactive Mapbox map
  */
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon } from "lucide-react";
 
 import { DashboardLayout } from "@/features/dashboard";
@@ -15,23 +16,24 @@ import { useModeStore } from "@/stores/modeStore";
 
 const modeContent = {
   buyer: {
-    title: "Regional Supplier Heat Map",
-    description: "View supplier locations and density by region",
-    mapTitle: "Supplier Locations",
+    title: "pages.heatMap.regionalSupplierHeatMap",
+    description: "pages.heatMap.viewSupplierLocations",
+    mapTitle: "pages.heatMap.supplierLocationsMap",
   },
   producer: {
-    title: "Manufacturing Heat Map",
-    description: "View competitor factories and production capacity by region",
-    mapTitle: "Competitor Locations",
+    title: "pages.heatMap.manufacturingHeatMap",
+    description: "pages.heatMap.viewCompetitorFactories",
+    mapTitle: "pages.heatMap.competitorLocationsMap",
   },
   seller: {
-    title: "Market Heat Map",
-    description: "View demand concentration and opportunities by region",
-    mapTitle: "Market Overview",
+    title: "pages.heatMap.marketHeatMap",
+    description: "pages.heatMap.viewDemandConcentration",
+    mapTitle: "pages.heatMap.marketOverviewMap",
   },
 };
 
 function HeatMapContent() {
+  const { t } = useTranslation();
   const mode = useModeStore((state) => state.mode);
   const { sellerResults, buyerResults, producerResults } = useAnalysisStore();
   const mapEntities = useMapEntities(mode);
@@ -79,32 +81,32 @@ function HeatMapContent() {
             <Map className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">{content.title}</h1>
-            <p className="text-muted-foreground">{content.description}</p>
+            <h1 className="text-2xl font-bold">{t(content.title)}</h1>
+            <p className="text-muted-foreground">{t(content.description)}</p>
           </div>
         </div>
 
-        {/* View Toggle */}
-        <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-          <Button
-            variant={viewMode === "map" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setViewMode("map")}
-            className="gap-2"
-          >
-            <MapIcon className="h-4 w-4" />
-            Map
-          </Button>
-          <Button
-            variant={viewMode === "grid" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setViewMode("grid")}
-            className="gap-2"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Grid
-          </Button>
-        </div>
+          {/* View Toggle */}
+          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+            <Button
+              variant={viewMode === "map" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("map")}
+              className="gap-2"
+            >
+              <MapIcon className="h-4 w-4" />
+              {t("pages.heatMap.mapView")}
+            </Button>
+            <Button
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="gap-2"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {t("pages.heatMap.gridView")}
+            </Button>
+          </div>
       </div>
 
       {/* Summary Stats */}
@@ -114,7 +116,7 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <Globe className="h-4 w-4" />
-                {mode === "buyer" ? "Suppliers Found" : "Regions Analyzed"}
+                {mode === "buyer" ? t("pages.heatMap.suppliersFound") : t("pages.heatMap.regionsAnalyzed")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -128,7 +130,7 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <TrendingUp className="h-4 w-4" />
-                {mode === "buyer" ? "Avg Match Score" : "High Demand"}
+                {mode === "buyer" ? t("pages.heatMap.avgMatchScore") : t("pages.heatMap.highDemand")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -142,7 +144,7 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <Map className="h-4 w-4" />
-                {mode === "buyer" ? "With Location Data" : "Top Region"}
+                {mode === "buyer" ? t("pages.heatMap.withLocationData") : t("pages.heatMap.topRegion")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -156,7 +158,7 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <DollarSign className="h-4 w-4" />
-                {mode === "buyer" ? "Countries" : "Avg Growth"}
+                {mode === "buyer" ? t("pages.heatMap.countries") : t("pages.heatMap.avgGrowth")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -192,10 +194,9 @@ function HeatMapContent() {
             <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
               <Map className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">No Heat Map Data Yet</h3>
+            <h3 className="font-semibold text-lg mb-2">{t("pages.heatMap.noHeatMapData")}</h3>
             <p className="text-muted-foreground text-sm max-w-md mx-auto">
-              Upload a product image in Market Intelligence to generate regional market analysis data
-              with geographic locations.
+              {t("pages.heatMap.uploadProductImage")}
             </p>
           </CardContent>
         </Card>
