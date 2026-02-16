@@ -1345,5 +1345,119 @@
     "sells": "Vende: {{product}}",
     "threat": "amenaza {{level}}",
     "productSimilarity": "Similitud del producto"
+  },
+  "feasibilityScore": {
+    "score": "Puntuación",
+    "productionViable": "Producción viable",
+    "needsOptimization": "Necesita optimización",
+    "notRecommended": "No recomendado"
+  },
+  "recommendationBanner": {
+    "productionViable": "La producción es viable",
+    "manufacturingRecommended": "Se recomienda fabricar a {{cost}}/unidad",
+    "productionHasRisks": "La producción tiene riesgos",
+    "risksIdentified": "{{count}} riesgo(s) identificado(s) que pueden afectar la producción",
+    "notRecommended": "No recomendado para producción interna",
+    "notRecommendedSubtitle": "Considera la subcontratación o estrategias alternativas",
+    "minOrder": "Pedido mín",
+    "breakEven": "Punto de equilibrio",
+    "units": "unidades",
+    "contractManufacturing": "Considera la fabricación por contrato",
+    "importFinishedGoods": "Explora importar productos terminados",
+    "quickWins": "Victorias rápidas:",
+    "quickWinsDetail": "Aborda los riesgos de la cadena de suministro y optimiza el abastecimiento de componentes para mejorar la puntuación de factibilidad"
+  },
+  "feasibilityFactors": {
+    "keyFactors": "Factores clave",
+    "componentAvailability": "Disponibilidad de componentes",
+    "leadTime": "Tiempo de entrega",
+    "singleSupplierRisk": "Riesgo de proveedor único",
+    "costCompetitiveness": "Competitividad de costos",
+    "localSourcing": "Abastecimiento local",
+    "basedOnSupplierDb": "Basado en coincidencias de proveedores",
+    "avgLeadTime": "Tiempo promedio de entrega: {{days}} días",
+    "affected": "Afectado: {{components}}",
+    "comparedToMarket": "Comparado con precios promedio del mercado",
+    "localImported": "Local: {{local}}%, Importado: {{imported}}%"
+  },
+  "makeVsBuy": {
+    "title": "Decisión Fabricar vs Comprar",
+    "recommendMake": "Recomendar fabricar",
+    "recommendBuy": "Recomendar comprar",
+    "make": "Fabricar",
+    "buy": "Comprar",
+    "perUnit": "por unidad",
+    "perUnitRetail": "por unidad (minorista)",
+    "savingsByManufacturing": "Ahorro por fabricación",
+    "costDifference": "Diferencia de costo",
+    "cheaper": "más barato",
+    "more": "más caro",
+    "manufacturingCheaper": "La fabricación interna es <strong>{{percent}}% más barata</strong> que comprar al por menor",
+    "considerOutsourcing": "Considera <strong>subcontratar o comprar</strong> ya que los costos de fabricación son altos"
+  },
+  "costBreakdown": {
+    "componentCost": "Costo de componentes",
+    "productionCost": "Costo de producción",
+    "logisticsCost": "Costo logístico",
+    "totalCost": "Costo total",
+    "perUnit": "/unidad",
+    "components": "{{count}} componentes",
+    "laborEquipmentFacility": "Mano de obra, equipo e instalaciones",
+    "shippingDutiesHandling": "Envío, aranceles y manipulación",
+    "labor": "Mano de obra",
+    "equipment": "Equipo",
+    "facility": "Instalación",
+    "shipping": "Envío",
+    "importDuties": "Aranceles de importación",
+    "handlingStorage": "Manipulación y almacenamiento",
+    "moreComponents": "+{{count}} componentes más"
+  },
+  "scenarioSimulator": {
+    "title": "Simulación de escenarios",
+    "productionVolume": "Volumen de producción",
+    "units": "unidades",
+    "componentCostIncrease": "Aumento del costo de componentes",
+    "laborCostPerHour": "Costo de mano de obra por hora",
+    "projectedUnitCost": "Costo unitario proyectado",
+    "vsBaseline": "vs línea base",
+    "volumeDiscountApplied": "Descuento por volumen de {{percent}}% aplicado",
+    "volumeDiscountTip": "El descuento por volumen de {{discount}}% aplica a {{threshold}} unidades",
+    "nextDiscountTier": "Siguiente nivel de descuento ({{discount}}%) a {{threshold}} unidades",
+    "resetToDefaults": "Restablecer valores"
+  },
+  "riskFactors": {
+    "title": "Factores de riesgo",
+    "riskAssessment": "Evaluación de riesgos",
+    "noRisks": "No se identificaron riesgos significativos",
+    "productionLooksSolid": "Tu plan de producción se ve sólido",
+    "critical": "Crítico",
+    "warning": "Advertencia",
+    "info": "Info",
+    "mitigationStrategy": "Estrategia de mitigación"
+  },
+  "bomSupplierMatch": {
+    "matchedSuppliersFor": "Proveedores coincidentes para",
+    "match": "Coincidencia",
+    "estPrice": "Precio est.",
+    "save": "Guardar",
+    "contact": "Contactar"
+  },
+  "resultsBadge": {
+    "results": "Resultados"
+  },
+  "globalAnalysis": {
+    "analyzing": "Analizando..."
+  },
+  "recommendationFeedback": {
+    "moreFeedback": "Más comentarios",
+    "appliedRecommendation": "Apliqué esta recomendación",
+    "anyNotes": "¿Alguna nota? (opcional)",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "feedbackRecorded": "Comentario registrado",
+    "signInRequired": "Inicio de sesión requerido",
+    "signInToFeedback": "Inicia sesión para dar tu opinión.",
+    "thanks": "¡Gracias!",
+    "thanksDesc": "Tus comentarios ayudan a mejorar las recomendaciones."
   }
 }

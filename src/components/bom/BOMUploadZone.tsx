@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Upload, FileImage, FileText, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ interface BOMUploadZoneProps {
 }
 
 export function BOMUploadZone({ onAnalyze, isAnalyzing }: BOMUploadZoneProps) {
+  const { t } = useTranslation();
   const [dragActive, setDragActive] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
@@ -27,7 +29,6 @@ export function BOMUploadZone({ onAnalyze, isAnalyzing }: BOMUploadZoneProps) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
     const droppedFiles = Array.from(e.dataTransfer.files);
     setFiles((prev) => [...prev, ...droppedFiles]);
   }, []);
@@ -58,7 +59,6 @@ export function BOMUploadZone({ onAnalyze, isAnalyzing }: BOMUploadZoneProps) {
 
   return (
     <div className="space-y-4">
-      {/* Drop Zone */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -82,24 +82,22 @@ export function BOMUploadZone({ onAnalyze, isAnalyzing }: BOMUploadZoneProps) {
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           disabled={isAnalyzing}
         />
-        
         <div className="flex flex-col items-center justify-center text-center">
           <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
             <Upload className="h-6 w-6 text-primary" />
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-1">
-            Upload Product Files
+            {t("bomComponents.uploadProductFiles")}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Drop product images, specs, or documentation here
+            {t("bomComponents.dropFiles")}
           </p>
           <p className="text-xs text-muted-foreground">
-            Supports: JPG, PNG, PDF, DOC, XLS
+            {t("bomComponents.supportsFormats")}
           </p>
         </div>
       </motion.div>
 
-      {/* File List */}
       {files.length > 0 && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
@@ -108,7 +106,7 @@ export function BOMUploadZone({ onAnalyze, isAnalyzing }: BOMUploadZoneProps) {
         >
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-foreground">
-              {files.length} file{files.length > 1 ? "s" : ""} selected
+              {t("bomComponents.filesSelected", { count: files.length })}
             </p>
             <Button
               variant="ghost"
@@ -116,7 +114,7 @@ export function BOMUploadZone({ onAnalyze, isAnalyzing }: BOMUploadZoneProps) {
               onClick={() => setFiles([])}
               disabled={isAnalyzing}
             >
-              Clear all
+              {t("bomComponents.clearAll")}
             </Button>
           </div>
           
@@ -154,12 +152,10 @@ export function BOMUploadZone({ onAnalyze, isAnalyzing }: BOMUploadZoneProps) {
             {isAnalyzing ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Analyzing Product...
+                {t("bomComponents.analyzingProduct")}
               </>
             ) : (
-              <>
-                Analyze & Generate BOM
-              </>
+              t("bomComponents.analyzeGenerateBOM")
             )}
           </Button>
         </motion.div>

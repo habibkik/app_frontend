@@ -1345,5 +1345,119 @@
     "sells": "Vend : {{product}}",
     "threat": "menace {{level}}",
     "productSimilarity": "Similitude du produit"
+  },
+  "feasibilityScore": {
+    "score": "Score",
+    "productionViable": "Production viable",
+    "needsOptimization": "Nécessite une optimisation",
+    "notRecommended": "Non recommandé"
+  },
+  "recommendationBanner": {
+    "productionViable": "La production est viable",
+    "manufacturingRecommended": "La fabrication à {{cost}}/unité est recommandée",
+    "productionHasRisks": "La production comporte des risques",
+    "risksIdentified": "{{count}} risque(s) identifié(s) pouvant affecter la production",
+    "notRecommended": "Non recommandé pour la production interne",
+    "notRecommendedSubtitle": "Envisagez la sous-traitance ou des stratégies d'approvisionnement alternatives",
+    "minOrder": "Commande min",
+    "breakEven": "Seuil de rentabilité",
+    "units": "unités",
+    "contractManufacturing": "Envisagez la fabrication sous contrat",
+    "importFinishedGoods": "Explorez l'importation de produits finis",
+    "quickWins": "Gains rapides :",
+    "quickWinsDetail": "Adressez les risques de chaîne d'approvisionnement et optimisez l'approvisionnement en composants pour améliorer le score de faisabilité"
+  },
+  "feasibilityFactors": {
+    "keyFactors": "Facteurs clés",
+    "componentAvailability": "Disponibilité des composants",
+    "leadTime": "Délai de livraison",
+    "singleSupplierRisk": "Risque fournisseur unique",
+    "costCompetitiveness": "Compétitivité des coûts",
+    "localSourcing": "Approvisionnement local",
+    "basedOnSupplierDb": "Basé sur les correspondances fournisseurs",
+    "avgLeadTime": "Délai moyen : {{days}} jours",
+    "affected": "Affecté : {{components}}",
+    "comparedToMarket": "Comparé aux prix moyens du marché",
+    "localImported": "Local : {{local}}%, Importé : {{imported}}%"
+  },
+  "makeVsBuy": {
+    "title": "Décision Fabriquer vs Acheter",
+    "recommendMake": "Recommander Fabriquer",
+    "recommendBuy": "Recommander Acheter",
+    "make": "Fabriquer",
+    "buy": "Acheter",
+    "perUnit": "par unité",
+    "perUnitRetail": "par unité (détail)",
+    "savingsByManufacturing": "Économies par la fabrication",
+    "costDifference": "Différence de coût",
+    "cheaper": "moins cher",
+    "more": "plus cher",
+    "manufacturingCheaper": "La fabrication interne est <strong>{{percent}}% moins chère</strong> que l'achat au détail",
+    "considerOutsourcing": "Envisagez la <strong>sous-traitance ou l'achat</strong> car les coûts de fabrication sont élevés"
+  },
+  "costBreakdown": {
+    "componentCost": "Coût des composants",
+    "productionCost": "Coût de production",
+    "logisticsCost": "Coût logistique",
+    "totalCost": "Coût total",
+    "perUnit": "/unité",
+    "components": "{{count}} composants",
+    "laborEquipmentFacility": "Main-d'œuvre, équipement et installation",
+    "shippingDutiesHandling": "Expédition, droits et manutention",
+    "labor": "Main-d'œuvre",
+    "equipment": "Équipement",
+    "facility": "Installation",
+    "shipping": "Expédition",
+    "importDuties": "Droits d'importation",
+    "handlingStorage": "Manutention et stockage",
+    "moreComponents": "+{{count}} composants supplémentaires"
+  },
+  "scenarioSimulator": {
+    "title": "Simulation de scénario",
+    "productionVolume": "Volume de production",
+    "units": "unités",
+    "componentCostIncrease": "Augmentation du coût des composants",
+    "laborCostPerHour": "Coût de main-d'œuvre par heure",
+    "projectedUnitCost": "Coût unitaire projeté",
+    "vsBaseline": "vs référence",
+    "volumeDiscountApplied": "Remise volume de {{percent}}% appliquée",
+    "volumeDiscountTip": "La remise volume de {{discount}}% s'applique à {{threshold}} unités",
+    "nextDiscountTier": "Prochain palier ({{discount}}%) à {{threshold}} unités",
+    "resetToDefaults": "Réinitialiser"
+  },
+  "riskFactors": {
+    "title": "Facteurs de risque",
+    "riskAssessment": "Évaluation des risques",
+    "noRisks": "Aucun risque significatif identifié",
+    "productionLooksSolid": "Votre plan de production semble solide",
+    "critical": "Critique",
+    "warning": "Avertissement",
+    "info": "Info",
+    "mitigationStrategy": "Stratégie d'atténuation"
+  },
+  "bomSupplierMatch": {
+    "matchedSuppliersFor": "Fournisseurs correspondants pour",
+    "match": "Correspondance",
+    "estPrice": "Prix est.",
+    "save": "Enregistrer",
+    "contact": "Contacter"
+  },
+  "resultsBadge": {
+    "results": "Résultats"
+  },
+  "globalAnalysis": {
+    "analyzing": "Analyse en cours..."
+  },
+  "recommendationFeedback": {
+    "moreFeedback": "Plus de commentaires",
+    "appliedRecommendation": "J'ai appliqué cette recommandation",
+    "anyNotes": "Des notes ? (optionnel)",
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "feedbackRecorded": "Commentaire enregistré",
+    "signInRequired": "Connexion requise",
+    "signInToFeedback": "Veuillez vous connecter pour donner votre avis.",
+    "thanks": "Merci !",
+    "thanksDesc": "Vos commentaires aident à améliorer les recommandations."
   }
 }

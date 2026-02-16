@@ -1345,5 +1345,119 @@
     "sells": "يبيع: {{product}}",
     "threat": "تهديد {{level}}",
     "productSimilarity": "تشابه المنتج"
+  },
+  "feasibilityScore": {
+    "score": "الدرجة",
+    "productionViable": "الإنتاج قابل للتنفيذ",
+    "needsOptimization": "يحتاج تحسين",
+    "notRecommended": "غير موصى به"
+  },
+  "recommendationBanner": {
+    "productionViable": "الإنتاج قابل للتنفيذ",
+    "manufacturingRecommended": "يوصى بالتصنيع بـ {{cost}}/وحدة",
+    "productionHasRisks": "الإنتاج يحتوي على مخاطر",
+    "risksIdentified": "{{count}} خطر (مخاطر) محددة قد تؤثر على الإنتاج",
+    "notRecommended": "غير موصى به للإنتاج الداخلي",
+    "notRecommendedSubtitle": "فكر في الاستعانة بمصادر خارجية أو استراتيجيات بديلة",
+    "minOrder": "الحد الأدنى للطلب",
+    "breakEven": "نقطة التعادل",
+    "units": "وحدات",
+    "contractManufacturing": "فكر في التصنيع التعاقدي",
+    "importFinishedGoods": "استكشف استيراد المنتجات الجاهزة",
+    "quickWins": "مكاسب سريعة:",
+    "quickWinsDetail": "عالج مخاطر سلسلة التوريد وحسّن توريد المكونات لتحسين درجة الجدوى"
+  },
+  "feasibilityFactors": {
+    "keyFactors": "العوامل الرئيسية",
+    "componentAvailability": "توفر المكونات",
+    "leadTime": "وقت التسليم",
+    "singleSupplierRisk": "خطر المورد الواحد",
+    "costCompetitiveness": "تنافسية التكلفة",
+    "localSourcing": "التوريد المحلي",
+    "basedOnSupplierDb": "بناءً على تطابقات قاعدة بيانات الموردين",
+    "avgLeadTime": "متوسط وقت التسليم: {{days}} أيام",
+    "affected": "المتأثر: {{components}}",
+    "comparedToMarket": "مقارنة بمتوسط أسعار السوق",
+    "localImported": "محلي: {{local}}%، مستورد: {{imported}}%"
+  },
+  "makeVsBuy": {
+    "title": "قرار التصنيع مقابل الشراء",
+    "recommendMake": "يوصى بالتصنيع",
+    "recommendBuy": "يوصى بالشراء",
+    "make": "تصنيع",
+    "buy": "شراء",
+    "perUnit": "لكل وحدة",
+    "perUnitRetail": "لكل وحدة (تجزئة)",
+    "savingsByManufacturing": "التوفير من التصنيع",
+    "costDifference": "فرق التكلفة",
+    "cheaper": "أرخص",
+    "more": "أغلى",
+    "manufacturingCheaper": "التصنيع الداخلي <strong>أرخص بـ {{percent}}%</strong> من الشراء بالتجزئة",
+    "considerOutsourcing": "فكر في <strong>الاستعانة بمصادر خارجية أو الشراء</strong> حيث أن تكاليف التصنيع مرتفعة"
+  },
+  "costBreakdown": {
+    "componentCost": "تكلفة المكونات",
+    "productionCost": "تكلفة الإنتاج",
+    "logisticsCost": "تكلفة اللوجستيات",
+    "totalCost": "التكلفة الإجمالية",
+    "perUnit": "/وحدة",
+    "components": "{{count}} مكونات",
+    "laborEquipmentFacility": "العمالة والمعدات والمنشأة",
+    "shippingDutiesHandling": "الشحن والرسوم والمناولة",
+    "labor": "العمالة",
+    "equipment": "المعدات",
+    "facility": "المنشأة",
+    "shipping": "الشحن",
+    "importDuties": "رسوم الاستيراد",
+    "handlingStorage": "المناولة والتخزين",
+    "moreComponents": "+{{count}} مكونات إضافية"
+  },
+  "scenarioSimulator": {
+    "title": "محاكاة السيناريو",
+    "productionVolume": "حجم الإنتاج",
+    "units": "وحدات",
+    "componentCostIncrease": "زيادة تكلفة المكونات",
+    "laborCostPerHour": "تكلفة العمالة بالساعة",
+    "projectedUnitCost": "تكلفة الوحدة المتوقعة",
+    "vsBaseline": "مقابل خط الأساس",
+    "volumeDiscountApplied": "تم تطبيق خصم {{percent}}% على الحجم",
+    "volumeDiscountTip": "خصم الحجم {{discount}}% يبدأ عند {{threshold}} وحدة",
+    "nextDiscountTier": "مستوى الخصم التالي ({{discount}}%) عند {{threshold}} وحدة",
+    "resetToDefaults": "إعادة التعيين"
+  },
+  "riskFactors": {
+    "title": "عوامل الخطر",
+    "riskAssessment": "تقييم المخاطر",
+    "noRisks": "لم يتم تحديد مخاطر كبيرة",
+    "productionLooksSolid": "خطة الإنتاج الخاصة بك تبدو متينة",
+    "critical": "حرج",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "mitigationStrategy": "استراتيجية التخفيف"
+  },
+  "bomSupplierMatch": {
+    "matchedSuppliersFor": "الموردون المتطابقون لـ",
+    "match": "التطابق",
+    "estPrice": "السعر المقدر",
+    "save": "حفظ",
+    "contact": "تواصل"
+  },
+  "resultsBadge": {
+    "results": "النتائج"
+  },
+  "globalAnalysis": {
+    "analyzing": "جاري التحليل..."
+  },
+  "recommendationFeedback": {
+    "moreFeedback": "المزيد من الملاحظات",
+    "appliedRecommendation": "طبّقت هذه التوصية",
+    "anyNotes": "أي ملاحظات؟ (اختياري)",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "feedbackRecorded": "تم تسجيل الملاحظات",
+    "signInRequired": "تسجيل الدخول مطلوب",
+    "signInToFeedback": "يرجى تسجيل الدخول لتقديم ملاحظاتك.",
+    "thanks": "شكراً!",
+    "thanksDesc": "ملاحظاتك تساعد في تحسين التوصيات."
   }
 }
