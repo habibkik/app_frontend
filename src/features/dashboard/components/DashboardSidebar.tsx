@@ -57,7 +57,11 @@ const groupKeyMap: Record<string, string> = {
   "Marketing": "sidebar.marketing",
 };
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+  side?: "left" | "right";
+}
+
+export function DashboardSidebar({ side = "left" }: DashboardSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
@@ -79,7 +83,7 @@ export function DashboardSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+    <Sidebar collapsible="icon" side={side} className={side === "right" ? "border-l border-sidebar-border" : "border-r border-sidebar-border"}>
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center flex-shrink-0">
