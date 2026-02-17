@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Shield, Key, Smartphone, History, AlertTriangle, Check, X } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +33,7 @@ interface Session {
 }
 
 export function SecuritySection() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [settings, setSettings] = useState<SecuritySettings>({
     twoFactorEnabled: false,
@@ -70,8 +72,8 @@ export function SecuritySection() {
   const handleChangePassword = () => {
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Passwords Don't Match",
-        description: "Please make sure your passwords match",
+        title: t("security.passwordsDontMatch"),
+        description: t("security.passwordsDontMatchDesc"),
         variant: "destructive",
       });
       return;
@@ -79,17 +81,16 @@ export function SecuritySection() {
 
     if (newPassword.length < 8) {
       toast({
-        title: "Password Too Short",
-        description: "Password must be at least 8 characters",
+        title: t("security.passwordTooShort"),
+        description: t("security.passwordTooShortDesc"),
         variant: "destructive",
       });
       return;
     }
 
-    // Simulate password change
     toast({
-      title: "Password Changed",
-      description: "Your password has been updated successfully",
+      title: t("security.passwordChanged"),
+      description: t("security.passwordChangedDesc"),
     });
     setIsChangingPassword(false);
     setCurrentPassword("");
@@ -99,15 +100,15 @@ export function SecuritySection() {
 
   const handleRevokeSession = (sessionId: string) => {
     toast({
-      title: "Session Revoked",
-      description: "The session has been terminated",
+      title: t("security.sessionRevoked"),
+      description: t("security.sessionRevokedDesc"),
     });
   };
 
   const handleRevokeAllSessions = () => {
     toast({
-      title: "All Sessions Revoked",
-      description: "All other sessions have been terminated",
+      title: t("security.allSessionsRevoked"),
+      description: t("security.allSessionsRevokedDesc"),
     });
   };
 
@@ -118,48 +119,40 @@ export function SecuritySection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
-            Password
+            {t("security.password")}
           </CardTitle>
-          <CardDescription>
-            Change your password or enable two-factor authentication
-          </CardDescription>
+          <CardDescription>{t("security.passwordDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label>Password</Label>
-              <p className="text-sm text-muted-foreground">
-                Last changed 30 days ago
-              </p>
+              <Label>{t("security.password")}</Label>
+              <p className="text-sm text-muted-foreground">{t("security.lastChanged")}</p>
             </div>
-            <Button variant="outline" onClick={() => setIsChangingPassword(true)}>
-              Change Password
-            </Button>
+            <Button variant="outline" onClick={() => setIsChangingPassword(true)}>{t("security.changePassword")}</Button>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t">
             <div className="space-y-0.5">
               <Label className="flex items-center gap-2">
-                Two-Factor Authentication
+                {t("security.twoFactor")}
                 {settings.twoFactorEnabled ? (
-                  <Badge className="bg-success/10 text-success">Enabled</Badge>
+                  <Badge className="bg-success/10 text-success">{t("security.enabled")}</Badge>
                 ) : (
-                  <Badge variant="outline">Disabled</Badge>
+                  <Badge variant="outline">{t("security.disabled")}</Badge>
                 )}
               </Label>
-              <p className="text-sm text-muted-foreground">
-                Add an extra layer of security to your account
-              </p>
+              <p className="text-sm text-muted-foreground">{t("security.twoFactorDesc")}</p>
             </div>
             <Switch
               checked={settings.twoFactorEnabled}
               onCheckedChange={(checked) => {
                 setSettings(prev => ({ ...prev, twoFactorEnabled: checked }));
                 toast({
-                  title: checked ? "2FA Enabled" : "2FA Disabled",
+                  title: checked ? t("security.twoFaEnabled") : t("security.twoFaDisabled"),
                   description: checked 
-                    ? "Two-factor authentication is now active" 
-                    : "Two-factor authentication has been disabled",
+                    ? t("security.twoFaEnabledDesc") 
+                    : t("security.twoFaDisabledDesc"),
                 });
               }}
             />
@@ -167,10 +160,8 @@ export function SecuritySection() {
 
           <div className="flex items-center justify-between pt-4 border-t">
             <div className="space-y-0.5">
-              <Label>Login Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                Get notified when someone logs into your account
-              </p>
+              <Label>{t("security.loginNotifications")}</Label>
+              <p className="text-sm text-muted-foreground">{t("security.loginNotificationsDesc")}</p>
             </div>
             <Switch
               checked={settings.loginNotifications}
@@ -188,15 +179,11 @@ export function SecuritySection() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
-              Active Sessions
+              {t("security.activeSessions")}
             </CardTitle>
-            <CardDescription>
-              Manage your active sessions across devices
-            </CardDescription>
+            <CardDescription>{t("security.activeSessionsDesc")}</CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={handleRevokeAllSessions}>
-            Revoke All Others
-          </Button>
+          <Button variant="outline" size="sm" onClick={handleRevokeAllSessions}>{t("security.revokeAllOthers")}</Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -212,9 +199,7 @@ export function SecuritySection() {
                   <div>
                     <p className="font-medium flex items-center gap-2">
                       {session.device}
-                      {session.current && (
-                        <Badge className="bg-success/10 text-success">Current</Badge>
-                      )}
+                      {session.current && <Badge className="bg-success/10 text-success">{t("security.current")}</Badge>}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {session.location} • {session.lastActive}
@@ -228,7 +213,7 @@ export function SecuritySection() {
                     onClick={() => handleRevokeSession(session.id)}
                   >
                     <X className="h-4 w-4 mr-1" />
-                    Revoke
+                    {t("security.revoke")}
                   </Button>
                 )}
               </div>
@@ -242,23 +227,17 @@ export function SecuritySection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="h-5 w-5" />
-            Danger Zone
+            {t("security.dangerZone")}
           </CardTitle>
-          <CardDescription>
-            Irreversible and destructive actions
-          </CardDescription>
+          <CardDescription>{t("security.dangerZoneDesc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label>Delete Account</Label>
-              <p className="text-sm text-muted-foreground">
-                Permanently delete your account and all data
-              </p>
+              <Label>{t("security.deleteAccount")}</Label>
+              <p className="text-sm text-muted-foreground">{t("security.deleteAccountDesc")}</p>
             </div>
-            <Button variant="destructive">
-              Delete Account
-            </Button>
+            <Button variant="destructive">{t("security.deleteAccount")}</Button>
           </div>
         </CardContent>
       </Card>
@@ -267,14 +246,12 @@ export function SecuritySection() {
       <Dialog open={isChangingPassword} onOpenChange={setIsChangingPassword}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>
-              Enter your current password and choose a new one
-            </DialogDescription>
+            <DialogTitle>{t("security.changePasswordTitle")}</DialogTitle>
+            <DialogDescription>{t("security.changePasswordDesc")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="current-password">Current Password</Label>
+              <Label htmlFor="current-password">{t("security.currentPassword")}</Label>
               <Input
                 id="current-password"
                 type="password"
@@ -283,7 +260,7 @@ export function SecuritySection() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
+              <Label htmlFor="new-password">{t("security.newPassword")}</Label>
               <Input
                 id="new-password"
                 type="password"
@@ -292,7 +269,7 @@ export function SecuritySection() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Label htmlFor="confirm-password">{t("security.confirmNewPassword")}</Label>
               <Input
                 id="confirm-password"
                 type="password"
@@ -302,12 +279,10 @@ export function SecuritySection() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsChangingPassword(false)}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setIsChangingPassword(false)}>{t("common.cancel")}</Button>
             <Button onClick={handleChangePassword}>
               <Check className="h-4 w-4 mr-2" />
-              Change Password
+              {t("security.changePassword")}
             </Button>
           </DialogFooter>
         </DialogContent>

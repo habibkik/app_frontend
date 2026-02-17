@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { User, Camera, Save } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,6 +29,7 @@ interface ProfileData {
 }
 
 export function ProfileSection() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [profile, setProfile] = useState<ProfileData>({
     firstName: "John",
@@ -43,12 +45,11 @@ export function ProfileSection() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSaving(false);
     toast({
-      title: "Profile Updated",
-      description: "Your profile has been saved successfully",
+      title: t("profileSection.profileUpdated"),
+      description: t("profileSection.profileUpdatedDesc"),
     });
   };
 
@@ -62,14 +63,11 @@ export function ProfileSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Profile Information
+            {t("profileSection.title")}
           </CardTitle>
-          <CardDescription>
-            Update your personal information and preferences
-          </CardDescription>
+          <CardDescription>{t("profileSection.description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Avatar Section */}
           <div className="flex items-center gap-6">
             <Avatar className="h-20 w-20">
               <AvatarImage src="" />
@@ -80,74 +78,41 @@ export function ProfileSection() {
             <div>
               <Button variant="outline" size="sm">
                 <Camera className="h-4 w-4 mr-2" />
-                Change Photo
+                {t("profileSection.changePhoto")}
               </Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                JPG, PNG or GIF. Max size 2MB.
-              </p>
+              <p className="text-xs text-muted-foreground mt-2">{t("profileSection.photoHint")}</p>
             </div>
           </div>
 
-          {/* Form Fields */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                value={profile.firstName}
-                onChange={(e) => updateField("firstName", e.target.value)}
-              />
+              <Label htmlFor="firstName">{t("profileSection.firstName")}</Label>
+              <Input id="firstName" value={profile.firstName} onChange={(e) => updateField("firstName", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                value={profile.lastName}
-                onChange={(e) => updateField("lastName", e.target.value)}
-              />
+              <Label htmlFor="lastName">{t("profileSection.lastName")}</Label>
+              <Input id="lastName" value={profile.lastName} onChange={(e) => updateField("lastName", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={profile.email}
-                onChange={(e) => updateField("email", e.target.value)}
-              />
+              <Label htmlFor="email">{t("profileSection.email")}</Label>
+              <Input id="email" type="email" value={profile.email} onChange={(e) => updateField("email", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={profile.phone}
-                onChange={(e) => updateField("phone", e.target.value)}
-              />
+              <Label htmlFor="phone">{t("profileSection.phone")}</Label>
+              <Input id="phone" value={profile.phone} onChange={(e) => updateField("phone", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company">Company</Label>
-              <Input
-                id="company"
-                value={profile.company}
-                onChange={(e) => updateField("company", e.target.value)}
-              />
+              <Label htmlFor="company">{t("profileSection.company")}</Label>
+              <Input id="company" value={profile.company} onChange={(e) => updateField("company", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Input
-                id="role"
-                value={profile.role}
-                onChange={(e) => updateField("role", e.target.value)}
-              />
+              <Label htmlFor="role">{t("profileSection.role")}</Label>
+              <Input id="role" value={profile.role} onChange={(e) => updateField("role", e.target.value)} />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="timezone">Timezone</Label>
-              <Select 
-                value={profile.timezone} 
-                onValueChange={(value) => updateField("timezone", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <Label htmlFor="timezone">{t("profileSection.timezone")}</Label>
+              <Select value={profile.timezone} onValueChange={(value) => updateField("timezone", value)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="America/New_York">Eastern Time (ET)</SelectItem>
                   <SelectItem value="America/Chicago">Central Time (CT)</SelectItem>
@@ -162,20 +127,15 @@ export function ProfileSection() {
               </Select>
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                value={profile.bio}
-                onChange={(e) => updateField("bio", e.target.value)}
-                rows={3}
-              />
+              <Label htmlFor="bio">{t("profileSection.bio")}</Label>
+              <Textarea id="bio" value={profile.bio} onChange={(e) => updateField("bio", e.target.value)} rows={3} />
             </div>
           </div>
 
           <div className="flex justify-end">
             <Button onClick={handleSave} disabled={isSaving}>
               <Save className="h-4 w-4 mr-2" />
-              {isSaving ? "Saving..." : "Save Changes"}
+              {isSaving ? t("profileSection.saving") : t("profileSection.saveChanges")}
             </Button>
           </div>
         </CardContent>

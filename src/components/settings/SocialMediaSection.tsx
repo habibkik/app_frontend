@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { Share2, Check, X, ExternalLink, Loader2, ChevronDown, ChevronRight, Info } from "lucide-react";
 
@@ -120,6 +121,7 @@ const platformSetupGuides: Record<string, { steps: string[]; tips?: string }> = 
 };
 
 export function SocialMediaSection() {
+  const { t } = useTranslation();
   const { platforms, loading, connecting, connectPlatform, disconnectPlatform } = useSocialCredentials();
   const [configuringPlatform, setConfiguringPlatform] = useState<SocialPlatform | null>(null);
   const [credentials, setCredentials] = useState<Record<string, string>>({});
@@ -137,11 +139,8 @@ export function SocialMediaSection() {
 
   const handleSaveConnection = async () => {
     if (!configuringPlatform) return;
-    const missingFields = configuringPlatform.requiredFields.filter(
-      (field) => !credentials[field.key]?.trim()
-    );
+    const missingFields = configuringPlatform.requiredFields.filter((field) => !credentials[field.key]?.trim());
     if (missingFields.length > 0) return;
-
     const result = await connectPlatform(configuringPlatform.id, credentials);
     if (result.success) {
       setConfiguringPlatform(null);
@@ -153,7 +152,7 @@ export function SocialMediaSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />Social Media Integrations</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />{t("socialMedia.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
@@ -170,41 +169,32 @@ export function SocialMediaSection() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />Social Media Integrations</CardTitle>
-          <CardDescription>Connect your social media accounts to post content and manage messages from your own accounts</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />{t("socialMedia.title")}</CardTitle>
+          <CardDescription>{t("socialMedia.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
             {platforms.map((platform, index) => (
-              <motion.div
-                key={platform.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
+              <motion.div key={platform.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}
+                className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg font-bold">
-                    {platform.icon}
-                  </div>
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-lg font-bold">{platform.icon}</div>
                   <div>
                     <h4 className="font-medium">{platform.name}</h4>
                     {platform.connected ? (
-                      <p className="text-sm text-primary flex items-center gap-1">
-                        <Check className="h-3 w-3" />{platform.username}
-                      </p>
+                      <p className="text-sm text-primary flex items-center gap-1"><Check className="h-3 w-3" />{platform.username}</p>
                     ) : (
-                      <p className="text-sm text-muted-foreground">Not connected</p>
+                      <p className="text-sm text-muted-foreground">{t("socialMedia.notConnected")}</p>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {platform.connected ? (
                     <Button variant="outline" size="sm" onClick={() => handleDisconnect(platform.id)}>
-                      <X className="h-4 w-4 mr-1" />Disconnect
+                      <X className="h-4 w-4 mr-1" />{t("socialMedia.disconnect")}
                     </Button>
                   ) : (
-                    <Button size="sm" onClick={() => handleConnect(platform)}>Connect</Button>
+                    <Button size="sm" onClick={() => handleConnect(platform)}>{t("socialMedia.connect")}</Button>
                   )}
                 </div>
               </motion.div>
@@ -213,12 +203,11 @@ export function SocialMediaSection() {
         </CardContent>
       </Card>
 
-      {/* Connected Platforms Summary */}
       {platforms.some((p) => p.connected) && (
         <Card>
           <CardHeader>
-            <CardTitle>Connected Accounts</CardTitle>
-            <CardDescription>These accounts are ready for posting and messaging</CardDescription>
+            <CardTitle>{t("socialMedia.connectedAccounts")}</CardTitle>
+            <CardDescription>{t("socialMedia.connectedAccountsDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -234,28 +223,23 @@ export function SocialMediaSection() {
         </Card>
       )}
 
-      {/* Configuration Dialog with Setup Guide */}
       <Dialog open={!!configuringPlatform} onOpenChange={() => setConfiguringPlatform(null)}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <span className="text-2xl">{configuringPlatform?.icon}</span>
-              Connect {configuringPlatform?.name}
+              {t("socialMedia.connectTitle", { name: configuringPlatform?.name })}
             </DialogTitle>
-            <DialogDescription>
-              Enter your API credentials to connect your {configuringPlatform?.name} account.
-              Your credentials are stored securely and only you can access them.
-            </DialogDescription>
+            <DialogDescription>{t("socialMedia.connectDesc", { name: configuringPlatform?.name })}</DialogDescription>
           </DialogHeader>
 
-          {/* Setup Guide */}
           {guide && (
             <Collapsible open={showGuide} onOpenChange={setShowGuide}>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" className="w-full justify-between text-sm mb-2 h-auto py-2">
                   <span className="flex items-center gap-2">
                     <Info className="h-4 w-4 text-primary" />
-                    Setup Guide — How to get your credentials
+                    {t("socialMedia.setupGuide")}
                   </span>
                   {showGuide ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                 </Button>
@@ -264,15 +248,13 @@ export function SocialMediaSection() {
                 <div className="border rounded-lg p-4 mb-4 bg-muted/30 space-y-3">
                   {guide.steps.map((step, i) => (
                     <div key={i} className="flex gap-3">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                        {i + 1}
-                      </div>
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">{i + 1}</div>
                       <p className="text-sm text-muted-foreground">{step}</p>
                     </div>
                   ))}
                   {guide.tips && (
                     <div className="mt-3 p-3 border rounded bg-background text-sm text-muted-foreground">
-                      💡 <strong>Tip:</strong> {guide.tips}
+                      💡 <strong>{t("socialMedia.tip")}:</strong> {guide.tips}
                     </div>
                   )}
                 </div>
@@ -284,36 +266,26 @@ export function SocialMediaSection() {
             {configuringPlatform?.requiredFields.map((field) => (
               <div key={field.key} className="space-y-2">
                 <Label htmlFor={field.key}>{field.label}</Label>
-                <Input
-                  id={field.key}
-                  type="password"
-                  placeholder={field.placeholder}
-                  value={credentials[field.key] || ""}
-                  onChange={(e) => setCredentials((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                />
+                <Input id={field.key} type="password" placeholder={field.placeholder}
+                  value={credentials[field.key] || ""} onChange={(e) => setCredentials((prev) => ({ ...prev, [field.key]: e.target.value }))} />
               </div>
             ))}
-
             <div className="text-sm text-muted-foreground pt-2">
-              <a
-                href={developerPortalUrls[configuringPlatform?.id || ""] || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline inline-flex items-center gap-1"
-              >
-                Open {configuringPlatform?.name} Developer Portal
+              <a href={developerPortalUrls[configuringPlatform?.id || ""] || "#"} target="_blank" rel="noopener noreferrer"
+                className="text-primary hover:underline inline-flex items-center gap-1">
+                {t("socialMedia.openPortal", { name: configuringPlatform?.name })}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfiguringPlatform(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setConfiguringPlatform(null)}>{t("common.cancel")}</Button>
             <Button onClick={handleSaveConnection} disabled={connecting}>
               {connecting ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Connecting...</>
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{t("socialMedia.connecting")}</>
               ) : (
-                <><Check className="h-4 w-4 mr-2" />Connect</>
+                <><Check className="h-4 w-4 mr-2" />{t("socialMedia.connect")}</>
               )}
             </Button>
           </DialogFooter>
