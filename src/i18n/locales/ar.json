@@ -1597,7 +1597,9 @@
     "stockStatus": "حالة المخزون",
     "outOfStock": "نفذ من المخزون",
     "unitsAvailable": "وحدات متاحة",
-    "noTeamInfo": "لا تتوفر معلومات عن الفريق",
+    "noTeamInfo": "لا تتوفر معلومات عن الفريق"
+  },
+  "pages": {
     "suppliers": {
       "title": "الموردون",
       "subtitle": "ارفع صورة منتج أو تصفح الموردين",

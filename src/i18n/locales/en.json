@@ -1608,7 +1608,9 @@
     "stockStatus": "Stock Status",
     "outOfStock": "Out of Stock",
     "unitsAvailable": "units available",
-    "noTeamInfo": "No team information available",
+    "noTeamInfo": "No team information available"
+  },
+  "pages": {
     "suppliers": {
       "title": "Suppliers",
       "subtitle": "Upload a product image or browse suppliers",
