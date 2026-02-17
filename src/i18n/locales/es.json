@@ -809,7 +809,7 @@
     "sentDesc": "Tu RFQ ha sido enviado a {{count}} proveedores"
   },
   "dailyReport": {
-    "title": "Informe de inteligencia diario",
+    "title": "Informe diario",
     "generateNow": "Generar ahora",
     "generating": "Generando...",
     "noReports": "Sin informes",
@@ -982,7 +982,7 @@
   },
   "products": {
     "title": "Productos",
-    "subtitle": "Administra tu catálogo de productos y precios",
+    "subtitle": "Catálogo y precios",
     "addProduct": "Agregar producto",
     "importCSV": "Importar CSV",
     "editProduct": "Editar producto",
@@ -1011,8 +1011,8 @@
     "productsImported": "{{count}} productos importados"
   },
   "sellerAnalytics": {
-    "title": "Análisis de vendedor",
-    "subtitle": "Métricas de rendimiento, análisis de IA y aprendizajes MiroRL",
+    "title": "Análisis",
+    "subtitle": "Rendimiento e insights de IA",
     "revenue": "Ingresos",
     "unitsSold": "Unidades vendidas",
     "priceChanges": "Cambios de precio",
@@ -1048,8 +1048,8 @@
     "noDataDesc": "Agrega productos y comienza a vender para ver datos de análisis."
   },
   "socialPublisher": {
-    "title": "Editor social",
-    "subtitle": "Compón, programa y publica en todos tus canales sociales.",
+    "title": "Editor",
+    "subtitle": "Programa y publica en canales sociales",
     "content": "Contenido",
     "selectContentSource": "Seleccionar fuente de contenido",
     "fromContentStudio": "Desde el Estudio de contenido",
@@ -1599,8 +1599,8 @@
     "unitsAvailable": "unidades disponibles",
     "noTeamInfo": "No hay información del equipo disponible",
     "suppliers": {
-      "title": "Descubrimiento de proveedores",
-      "subtitle": "Encuentra proveedores cargando una imagen de producto o navega por nuestra red",
+      "title": "Proveedores",
+      "subtitle": "Sube una imagen o busca proveedores",
       "aiResults": "Resultados de IA",
       "browseAll": "Explorar todo",
       "dropProductImage": "Suelta tu imagen de producto",
@@ -1633,8 +1633,8 @@
       "noSuppliers": "No se encontraron proveedores"
     },
     "componentSupply": {
-      "title": "Suministro de componentes",
-      "subtitle": "Compara proveedores y construye paquetes de componentes óptimos",
+      "title": "Componentes",
+      "subtitle": "Comparar y obtener componentes",
       "searchPlaceholder": "Buscar componentes...",
       "categoryLabel": "Categoría",
       "allCategories": "Todas las categorías",
@@ -1647,14 +1647,14 @@
       "yourRequestHasBeenSent": "Tu solicitud ha sido enviada a"
     },
     "heatMap": {
-      "regionalSupplierHeatMap": "Mapa de calor regional de proveedores",
-      "viewSupplierLocations": "Ver ubicaciones de proveedores y densidad por región",
+      "regionalSupplierHeatMap": "Mapa de proveedores",
+      "viewSupplierLocations": "Ubicaciones de proveedores por región",
       "supplierLocationsMap": "Ubicaciones de proveedores",
-      "manufacturingHeatMap": "Mapa de calor manufacturero",
-      "viewCompetitorFactories": "Ver fábricas competidoras y capacidad de producción por región",
+      "manufacturingHeatMap": "Mapa manufacturero",
+      "viewCompetitorFactories": "Fábricas y capacidad por región",
       "competitorLocationsMap": "Ubicaciones de competidores",
-      "marketHeatMap": "Mapa de calor del mercado",
-      "viewDemandConcentration": "Ver concentración de demanda y oportunidades por región",
+      "marketHeatMap": "Mapa de mercado",
+      "viewDemandConcentration": "Demanda y oportunidades por región",
       "marketOverviewMap": "Resumen del mercado",
       "mapView": "Mapa",
       "gridView": "Cuadrícula",
@@ -1670,8 +1670,8 @@
       "uploadProductImage": "Carga una imagen de producto en Inteligencia de mercado para generar datos de análisis regional con ubicaciones geográficas."
     },
     "feasibility": {
-      "pageTitle": "Viabilidad de producción",
-      "pageSubtitle": "Analiza capacidades de producción, costos y viabilidad",
+      "pageTitle": "Factibilidad",
+      "pageSubtitle": "Costos de producción y viabilidad",
       "exportReport": "Exportar informe",
       "newAnalysis": "Nuevo análisis",
       "selectProductBOM": "Seleccionar producto / BOM",
@@ -1685,7 +1685,7 @@
       "recentAnalyses": "Análisis recientes"
     },
     "conversations": {
-      "title": "Conversaciones",
+      "title": "Mensajes",
       "messagesHeader": "Mensajes",
       "searchConversations": "Buscar conversaciones...",
       "noConversationsFound": "No se encontraron conversaciones",
@@ -1701,8 +1701,8 @@
       "sendMessage": "Enviar"
     },
     "competitors": {
-      "title": "Seguimiento de competidores",
-      "subtitle": "Monitorea precios, productos y posicionamiento de competidores",
+      "title": "Competidores",
+      "subtitle": "Seguimiento de precios, productos y posición",
       "intelligence": "Inteligencia",
       "outreachTracking": "Seguimiento de alcance",
       "automation": "Automatización",
@@ -1809,8 +1809,8 @@
       "foundSuppliersAndSubstitutes": "Encontrados {{suppliers}} proveedores y {{substitutes}} sustitutos"
     },
     "savedSuppliers": {
-      "title": "Proveedores guardados",
-      "subtitle": "Gestiona tus proveedores favoritos con notas y etiquetas",
+      "title": "Guardados",
+      "subtitle": "Tus proveedores favoritos",
       "saved": "Guardados",
       "verified": "Verificados",
       "tags": "Etiquetas",
@@ -1843,7 +1843,7 @@
     },
     "analytics": {
       "title": "Análisis",
-      "subtitle": "Perspectivas y métricas de rendimiento para tus actividades de aprovisionamiento",
+      "subtitle": "Rendimiento e insights de abastecimiento",
       "export": "Exportar",
       "comparisonMode": "Modo comparación",
       "currentPeriod": "Período actual",
@@ -1869,7 +1869,7 @@
     },
     "gtm": {
       "title": "Salida al mercado",
-      "subtitle": "Planifica y ejecuta tu estrategia de lanzamiento de producto",
+      "subtitle": "Estrategia de lanzamiento de producto",
       "exportPlan": "Exportar plan",
       "aiStrategy": "Estrategia IA",
       "overallProgress": "Progreso general",

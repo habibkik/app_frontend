@@ -809,7 +809,7 @@
     "sentDesc": "Your RFQ has been sent to {{count}} suppliers"
   },
   "dailyReport": {
-    "title": "Daily Intelligence Report",
+    "title": "Daily Report",
     "generateNow": "Generate Now",
     "generating": "Generating...",
     "noReports": "No Reports Yet",
@@ -993,7 +993,7 @@
   },
   "products": {
     "title": "Products",
-    "subtitle": "Manage your product catalog and pricing",
+    "subtitle": "Catalog & pricing",
     "addProduct": "Add Product",
     "importCSV": "Import CSV",
     "editProduct": "Edit Product",
@@ -1022,8 +1022,8 @@
     "productsImported": "{{count}} products imported"
   },
   "sellerAnalytics": {
-    "title": "Seller Analytics",
-    "subtitle": "Performance metrics, AI insights, and MiroRL learnings",
+    "title": "Analytics",
+    "subtitle": "Performance & AI insights",
     "revenue": "Revenue",
     "unitsSold": "Units Sold",
     "priceChanges": "Price Changes",
@@ -1059,8 +1059,8 @@
     "noDataDesc": "Add products and start selling to see analytics data."
   },
   "socialPublisher": {
-    "title": "Social Publisher",
-    "subtitle": "Compose, schedule, and publish across all your social channels.",
+    "title": "Publisher",
+    "subtitle": "Schedule & publish to social channels",
     "content": "Content",
     "selectContentSource": "Select content source",
     "fromContentStudio": "From Content Studio",
@@ -1610,8 +1610,8 @@
     "unitsAvailable": "units available",
     "noTeamInfo": "No team information available",
     "suppliers": {
-      "title": "Supplier Discovery",
-      "subtitle": "Find suppliers by uploading a product image or browse our network",
+      "title": "Suppliers",
+      "subtitle": "Upload a product image or browse suppliers",
       "aiResults": "AI Results",
       "browseAll": "Browse All",
       "dropProductImage": "Drop Your Product Image",
@@ -1644,8 +1644,8 @@
       "noSuppliers": "No suppliers found"
     },
     "componentSupply": {
-      "title": "Component Supply",
-      "subtitle": "Compare suppliers and build optimal component packages",
+      "title": "Components",
+      "subtitle": "Compare & source components",
       "searchPlaceholder": "Search components...",
       "categoryLabel": "Category",
       "allCategories": "All Categories",
@@ -1658,14 +1658,14 @@
       "yourRequestHasBeenSent": "Your request has been sent to"
     },
     "heatMap": {
-      "regionalSupplierHeatMap": "Regional Supplier Heat Map",
-      "viewSupplierLocations": "View supplier locations and density by region",
+      "regionalSupplierHeatMap": "Supplier Heat Map",
+      "viewSupplierLocations": "Supplier locations by region",
       "supplierLocationsMap": "Supplier Locations",
-      "manufacturingHeatMap": "Manufacturing Heat Map",
-      "viewCompetitorFactories": "View competitor factories and production capacity by region",
+      "manufacturingHeatMap": "Manufacturing Map",
+      "viewCompetitorFactories": "Factories & capacity by region",
       "competitorLocationsMap": "Competitor Locations",
-      "marketHeatMap": "Market Heat Map",
-      "viewDemandConcentration": "View demand concentration and opportunities by region",
+      "marketHeatMap": "Market Map",
+      "viewDemandConcentration": "Demand & opportunities by region",
       "marketOverviewMap": "Market Overview",
       "mapView": "Map",
       "gridView": "Grid",
@@ -1681,8 +1681,8 @@
       "uploadProductImage": "Upload a product image in Market Intelligence to generate regional market analysis data with geographic locations."
     },
     "feasibility": {
-      "pageTitle": "Production Feasibility",
-      "pageSubtitle": "Analyze production capabilities, costs, and viability",
+      "pageTitle": "Feasibility",
+      "pageSubtitle": "Production costs & viability",
       "exportReport": "Export Report",
       "newAnalysis": "New Analysis",
       "selectProductBOM": "Select Product / BOM",
@@ -1696,7 +1696,7 @@
       "recentAnalyses": "Recent Analyses"
     },
     "conversations": {
-      "title": "Conversations",
+      "title": "Messages",
       "messagesHeader": "Messages",
       "searchConversations": "Search conversations...",
       "noConversationsFound": "No conversations found",
@@ -1712,8 +1712,8 @@
       "sendMessage": "Send"
     },
     "competitors": {
-      "title": "Competitor Tracking",
-      "subtitle": "Monitor competitor pricing, products, and market positioning",
+      "title": "Competitors",
+      "subtitle": "Track pricing, products & market position",
       "intelligence": "Intelligence",
       "outreachTracking": "Outreach Tracking",
       "automation": "Automation",
@@ -1820,8 +1820,8 @@
       "foundSuppliersAndSubstitutes": "Found {{suppliers}} suppliers and {{substitutes}} substitutes"
     },
     "savedSuppliers": {
-      "title": "Saved Suppliers",
-      "subtitle": "Manage your bookmarked suppliers with notes and tags",
+      "title": "Saved",
+      "subtitle": "Your bookmarked suppliers",
       "saved": "Saved",
       "verified": "Verified",
       "tags": "Tags",
@@ -1854,7 +1854,7 @@
     },
     "analytics": {
       "title": "Analytics",
-      "subtitle": "Insights and performance metrics for your sourcing activities",
+      "subtitle": "Sourcing performance & insights",
       "export": "Export",
       "comparisonMode": "Comparison Mode",
       "currentPeriod": "Current Period",
@@ -1880,7 +1880,7 @@
     },
     "gtm": {
       "title": "Go-To-Market",
-      "subtitle": "Plan and execute your product launch strategy",
+      "subtitle": "Product launch strategy",
       "exportPlan": "Export Plan",
       "aiStrategy": "AI Strategy",
       "overallProgress": "Overall Progress",

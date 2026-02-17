@@ -809,7 +809,7 @@
     "sentDesc": "Votre RFQ a été envoyé à {{count}} fournisseurs"
   },
   "dailyReport": {
-    "title": "Rapport d'intelligence quotidien",
+    "title": "Rapport quotidien",
     "generateNow": "Générer maintenant",
     "generating": "Génération en cours...",
     "noReports": "Aucun rapport",
@@ -982,7 +982,7 @@
   },
   "products": {
     "title": "Produits",
-    "subtitle": "Gérez votre catalogue de produits et vos prix",
+    "subtitle": "Catalogue et tarification",
     "addProduct": "Ajouter un produit",
     "importCSV": "Importer CSV",
     "editProduct": "Modifier le produit",
@@ -1011,8 +1011,8 @@
     "productsImported": "{{count}} produits importés"
   },
   "sellerAnalytics": {
-    "title": "Analytique vendeur",
-    "subtitle": "Métriques de performance, analyses IA et apprentissages MiroRL",
+    "title": "Analytique",
+    "subtitle": "Performance et analyses IA",
     "revenue": "Revenus",
     "unitsSold": "Unités vendues",
     "priceChanges": "Changements de prix",
@@ -1048,8 +1048,8 @@
     "noDataDesc": "Ajoutez des produits et commencez à vendre pour voir les données analytiques."
   },
   "socialPublisher": {
-    "title": "Éditeur social",
-    "subtitle": "Composez, planifiez et publiez sur tous vos canaux sociaux.",
+    "title": "Éditeur",
+    "subtitle": "Planifiez et publiez sur vos canaux sociaux",
     "content": "Contenu",
     "selectContentSource": "Sélectionner la source de contenu",
     "fromContentStudio": "Depuis le Studio de contenu",
@@ -1599,8 +1599,8 @@
     "unitsAvailable": "unités disponibles",
     "noTeamInfo": "Aucune information d'équipe disponible",
     "suppliers": {
-      "title": "Découverte de fournisseurs",
-      "subtitle": "Trouvez des fournisseurs en téléchargeant une image de produit ou parcourez notre réseau",
+      "title": "Fournisseurs",
+      "subtitle": "Téléchargez une image ou parcourez les fournisseurs",
       "aiResults": "Résultats IA",
       "browseAll": "Parcourir tout",
       "dropProductImage": "Déposez votre image de produit",
@@ -1633,8 +1633,8 @@
       "noSuppliers": "Aucun fournisseur trouvé"
     },
     "componentSupply": {
-      "title": "Approvisionnement en composants",
-      "subtitle": "Comparez les fournisseurs et construisez des packages de composants optimaux",
+      "title": "Composants",
+      "subtitle": "Comparer et sourcer des composants",
       "searchPlaceholder": "Rechercher des composants...",
       "categoryLabel": "Catégorie",
       "allCategories": "Toutes les catégories",
@@ -1647,14 +1647,14 @@
       "yourRequestHasBeenSent": "Votre demande a été envoyée à"
     },
     "heatMap": {
-      "regionalSupplierHeatMap": "Carte de chaleur régionale des fournisseurs",
-      "viewSupplierLocations": "Afficher les emplacements des fournisseurs et la densité par région",
+      "regionalSupplierHeatMap": "Carte fournisseurs",
+      "viewSupplierLocations": "Emplacements des fournisseurs par région",
       "supplierLocationsMap": "Emplacements des fournisseurs",
-      "manufacturingHeatMap": "Carte de chaleur manufacturière",
-      "viewCompetitorFactories": "Afficher les usines concurrentes et la capacité de production par région",
+      "manufacturingHeatMap": "Carte manufacturière",
+      "viewCompetitorFactories": "Usines et capacités par région",
       "competitorLocationsMap": "Emplacements des concurrents",
-      "marketHeatMap": "Carte de chaleur du marché",
-      "viewDemandConcentration": "Afficher la concentration de la demande et les opportunités par région",
+      "marketHeatMap": "Carte marché",
+      "viewDemandConcentration": "Demande et opportunités par région",
       "marketOverviewMap": "Aperçu du marché",
       "mapView": "Carte",
       "gridView": "Grille",
@@ -1670,8 +1670,8 @@
       "uploadProductImage": "Téléchargez une image de produit dans Intelligence du marché pour générer des données d'analyse régionale avec des emplacements géographiques."
     },
     "feasibility": {
-      "pageTitle": "Faisabilité de la production",
-      "pageSubtitle": "Analysez les capacités de production, les coûts et la viabilité",
+      "pageTitle": "Faisabilité",
+      "pageSubtitle": "Coûts de production et viabilité",
       "exportReport": "Exporter le rapport",
       "newAnalysis": "Nouvelle analyse",
       "selectProductBOM": "Sélectionner le produit / BOM",
@@ -1685,7 +1685,7 @@
       "recentAnalyses": "Analyses récentes"
     },
     "conversations": {
-      "title": "Conversations",
+      "title": "Messages",
       "messagesHeader": "Messages",
       "searchConversations": "Rechercher des conversations...",
       "noConversationsFound": "Aucune conversation trouvée",
@@ -1701,8 +1701,8 @@
       "sendMessage": "Envoyer"
     },
     "competitors": {
-      "title": "Suivi des concurrents",
-      "subtitle": "Surveillez les prix, produits et positionnement des concurrents",
+      "title": "Concurrents",
+      "subtitle": "Suivez prix, produits et position marché",
       "intelligence": "Intelligence",
       "outreachTracking": "Suivi de sensibilisation",
       "automation": "Automatisation",
@@ -1809,8 +1809,8 @@
       "foundSuppliersAndSubstitutes": "Trouvé {{suppliers}} fournisseurs et {{substitutes}} substituts"
     },
     "savedSuppliers": {
-      "title": "Fournisseurs enregistrés",
-      "subtitle": "Gérez vos fournisseurs favoris avec des notes et des étiquettes",
+      "title": "Enregistrés",
+      "subtitle": "Vos fournisseurs favoris",
       "saved": "Enregistrés",
       "verified": "Vérifiés",
       "tags": "Étiquettes",
@@ -1843,7 +1843,7 @@
     },
     "analytics": {
       "title": "Analytique",
-      "subtitle": "Aperçus et métriques de performance pour vos activités d'approvisionnement",
+      "subtitle": "Performance et aperçus d'approvisionnement",
       "export": "Exporter",
       "comparisonMode": "Mode comparaison",
       "currentPeriod": "Période actuelle",
@@ -1869,7 +1869,7 @@
     },
     "gtm": {
       "title": "Mise sur le marché",
-      "subtitle": "Planifiez et exécutez votre stratégie de lancement",
+      "subtitle": "Stratégie de lancement produit",
       "exportPlan": "Exporter le plan",
       "aiStrategy": "Stratégie IA",
       "overallProgress": "Progression globale",

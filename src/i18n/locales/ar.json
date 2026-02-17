@@ -809,7 +809,7 @@
     "sentDesc": "تم إرسال طلبك إلى {{count}} موردين"
   },
   "dailyReport": {
-    "title": "تقرير الاستخبارات اليومي",
+    "title": "التقرير اليومي",
     "generateNow": "إنشاء الآن",
     "generating": "جاري الإنشاء...",
     "noReports": "لا توجد تقارير بعد",
@@ -982,7 +982,7 @@
   },
   "products": {
     "title": "المنتجات",
-    "subtitle": "إدارة كتالوج المنتجات والأسعار",
+    "subtitle": "الكتالوج والأسعار",
     "addProduct": "إضافة منتج",
     "importCSV": "استيراد CSV",
     "editProduct": "تعديل المنتج",
@@ -1011,8 +1011,8 @@
     "productsImported": "تم استيراد {{count}} منتج"
   },
   "sellerAnalytics": {
-    "title": "تحليلات البائع",
-    "subtitle": "مقاييس الأداء ورؤى الذكاء الاصطناعي وتعلم MiroRL",
+    "title": "التحليلات",
+    "subtitle": "الأداء ورؤى الذكاء الاصطناعي",
     "revenue": "الإيرادات",
     "unitsSold": "الوحدات المباعة",
     "priceChanges": "تغييرات الأسعار",
@@ -1048,8 +1048,8 @@
     "noDataDesc": "أضف منتجات وابدأ البيع لرؤية بيانات التحليل."
   },
   "socialPublisher": {
-    "title": "الناشر الاجتماعي",
-    "subtitle": "أنشئ وجدول وانشر عبر جميع قنواتك الاجتماعية.",
+    "title": "الناشر",
+    "subtitle": "جدولة ونشر على القنوات الاجتماعية",
     "content": "المحتوى",
     "selectContentSource": "اختر مصدر المحتوى",
     "fromContentStudio": "من استوديو المحتوى",
@@ -1599,8 +1599,8 @@
     "unitsAvailable": "وحدات متاحة",
     "noTeamInfo": "لا تتوفر معلومات عن الفريق",
     "suppliers": {
-      "title": "اكتشاف الموردين",
-      "subtitle": "ابحث عن الموردين بتحميل صورة منتج أو تصفح شبكتنا",
+      "title": "الموردون",
+      "subtitle": "ارفع صورة منتج أو تصفح الموردين",
       "aiResults": "نتائج الذكاء الاصطناعي",
       "browseAll": "تصفح الكل",
       "dropProductImage": "أفلت صورة منتجك",
@@ -1633,8 +1633,8 @@
       "noSuppliers": "لم يتم العثور على موردين"
     },
     "componentSupply": {
-      "title": "إمداد المكونات",
-      "subtitle": "قارن الموردين وأنشئ حزم مكونات مثالية",
+      "title": "المكونات",
+      "subtitle": "مقارنة وتوريد المكونات",
       "searchPlaceholder": "البحث عن المكونات...",
       "categoryLabel": "الفئة",
       "allCategories": "جميع الفئات",
@@ -1647,14 +1647,14 @@
       "yourRequestHasBeenSent": "تم إرسال طلبك إلى"
     },
     "heatMap": {
-      "regionalSupplierHeatMap": "خريطة حرارية إقليمية للموردين",
-      "viewSupplierLocations": "عرض مواقع الموردين والكثافة حسب المنطقة",
+      "regionalSupplierHeatMap": "خريطة الموردين",
+      "viewSupplierLocations": "مواقع الموردين حسب المنطقة",
       "supplierLocationsMap": "مواقع الموردين",
-      "manufacturingHeatMap": "خريطة حرارية التصنيع",
-      "viewCompetitorFactories": "عرض مصانع المنافسين وقدرة الإنتاج حسب المنطة",
+      "manufacturingHeatMap": "خريطة التصنيع",
+      "viewCompetitorFactories": "المصانع والقدرات حسب المنطقة",
       "competitorLocationsMap": "مواقع المنافسين",
-      "marketHeatMap": "خريطة حرارية السوق",
-      "viewDemandConcentration": "عرض تركيز الطلب والفرص حسب المنطقة",
+      "marketHeatMap": "خريطة السوق",
+      "viewDemandConcentration": "الطلب والفرص حسب المنطقة",
       "marketOverviewMap": "نظرة عامة على السوق",
       "mapView": "الخريطة",
       "gridView": "شبكة",
@@ -1670,8 +1670,8 @@
       "uploadProductImage": "قم بتحميل صورة منتج في ذكاء السوق لإنشاء بيانات تحليل إقليمية مع المواقع الجغرافية."
     },
     "feasibility": {
-      "pageTitle": "جدوى الإنتاج",
-      "pageSubtitle": "تحليل قدرات الإنتاج والتكاليف والجدوى",
+      "pageTitle": "الجدوى",
+      "pageSubtitle": "تكاليف الإنتاج والجدوى",
       "exportReport": "تقرير التصدير",
       "newAnalysis": "تحليل جديد",
       "selectProductBOM": "تحديد المنتج / BOM",
@@ -1685,7 +1685,7 @@
       "recentAnalyses": "التحليلات الأخيرة"
     },
     "conversations": {
-      "title": "المحادثات",
+      "title": "الرسائل",
       "messagesHeader": "الرسائل",
       "searchConversations": "البحث في المحادثات...",
       "noConversationsFound": "لم يتم العثور على محادثات",
@@ -1701,8 +1701,8 @@
       "sendMessage": "إرسال"
     },
     "competitors": {
-      "title": "تتبع المنافسين",
-      "subtitle": "راقب أسعار المنافسين والمنتجات وموقعهم في السوق",
+      "title": "المنافسون",
+      "subtitle": "تتبع الأسعار والمنتجات والموقع السوقي",
       "intelligence": "الاستخبارات",
       "outreachTracking": "تتبع التواصل",
       "automation": "الأتمتة",
@@ -1809,8 +1809,8 @@
       "foundSuppliersAndSubstitutes": "تم العثور على {{suppliers}} موردين و {{substitutes}} بدائل"
     },
     "savedSuppliers": {
-      "title": "الموردون المحفوظون",
-      "subtitle": "إدارة الموردين المفضلين لديك مع الملاحظات والعلامات",
+      "title": "المحفوظون",
+      "subtitle": "الموردون المفضلون لديك",
       "saved": "المحفوظون",
       "verified": "الموثقون",
       "tags": "العلامات",
@@ -1843,7 +1843,7 @@
     },
     "analytics": {
       "title": "التحليلات",
-      "subtitle": "رؤى ومقاييس الأداء لأنشطة التوريد الخاصة بك",
+      "subtitle": "أداء التوريد والرؤى",
       "export": "تصدير",
       "comparisonMode": "وضع المقارنة",
       "currentPeriod": "الفترة الحالية",
@@ -1869,7 +1869,7 @@
     },
     "gtm": {
       "title": "الذهاب إلى السوق",
-      "subtitle": "خطط ونفذ استراتيجية إطلاق منتجك",
+      "subtitle": "استراتيجية إطلاق المنتج",
       "exportPlan": "تصدير الخطة",
       "aiStrategy": "استراتيجية الذكاء الاصطناعي",
       "overallProgress": "التقدم العام",
