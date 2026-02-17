@@ -794,7 +794,7 @@ export default function CompetitorsPage() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2 sm:grid-cols-3">
+          <TabsList className="w-full max-w-md grid grid-cols-3 overflow-x-auto">
             <TabsTrigger value="competitors" className="gap-2">
               <Eye className="h-4 w-4" />
               {t("pages.competitors.competitors")}
@@ -1081,7 +1081,7 @@ export default function CompetitorsPage() {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle>{t("pages.competitors.competitors")}</CardTitle>
-                  <div className="relative w-64">
+                  <div className="relative w-full sm:w-64">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       placeholder={t("pages.competitors.searchCompetitors")}
@@ -1169,7 +1169,7 @@ export default function CompetitorsPage() {
                         </DropdownMenu>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-4 mt-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
                         <div>
                           <p className="text-xs text-muted-foreground">{t("pages.competitors.priceIndex")}</p>
                           <div className="flex items-center gap-1">

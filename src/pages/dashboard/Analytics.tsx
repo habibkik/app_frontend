@@ -458,12 +458,14 @@ export default function AnalyticsPage() {
 
         {/* Charts Tabs */}
         <Tabs defaultValue="rfq-trends" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="rfq-trends">RFQ Trends</TabsTrigger>
-            <TabsTrigger value="cost-savings">Cost Savings</TabsTrigger>
-            <TabsTrigger value="response-times">Response Times</TabsTrigger>
-            <TabsTrigger value="insights">Insights</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto">
+            <TabsList>
+              <TabsTrigger value="rfq-trends">RFQ Trends</TabsTrigger>
+              <TabsTrigger value="cost-savings">Cost Savings</TabsTrigger>
+              <TabsTrigger value="response-times">Response Times</TabsTrigger>
+              <TabsTrigger value="insights">Insights</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* RFQ Trends Tab */}
           <TabsContent value="rfq-trends">

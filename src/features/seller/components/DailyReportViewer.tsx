@@ -127,9 +127,9 @@ export function DailyReportViewer() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Daily Intelligence Report</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Daily Intelligence Report</h2>
           <p className="text-muted-foreground">
             {latestReport
               ? `Last generated: ${format(new Date(latestReport.created_at), "PPp")}`
@@ -177,7 +177,7 @@ export function DailyReportViewer() {
               </Card>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-2">
+              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 mt-2">
                 {[
                   { label: "Products Monitored", value: metrics?.productsMonitored || 0, icon: Package, color: "text-primary" },
                   { label: "Competitors Found", value: metrics?.competitorsFound || 0, icon: Users, color: "text-primary" },

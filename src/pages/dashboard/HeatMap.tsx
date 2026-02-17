@@ -75,19 +75,19 @@ function HeatMapContent() {
   return (
     <div className="space-y-6">
       {/* Header with View Toggle */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Map className="h-6 w-6 text-primary" />
+          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Map className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">{t(content.title)}</h1>
-            <p className="text-muted-foreground">{t(content.description)}</p>
+            <h1 className="text-xl sm:text-2xl font-bold">{t(content.title)}</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">{t(content.description)}</p>
           </div>
         </div>
 
           {/* View Toggle */}
-          <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+          <div className="flex items-center gap-2 bg-muted rounded-lg p-1 self-start sm:self-auto">
             <Button
               variant={viewMode === "map" ? "default" : "ghost"}
               size="sm"
