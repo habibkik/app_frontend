@@ -1597,7 +1597,9 @@
     "stockStatus": "Estado de stock",
     "outOfStock": "Agotado",
     "unitsAvailable": "unidades disponibles",
-    "noTeamInfo": "No hay información del equipo disponible",
+    "noTeamInfo": "No hay información del equipo disponible"
+  },
+  "pages": {
     "suppliers": {
       "title": "Proveedores",
       "subtitle": "Sube una imagen o busca proveedores",
