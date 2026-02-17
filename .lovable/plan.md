@@ -1,107 +1,102 @@
 
 
-# Complete Remaining i18n: All Hardcoded Strings
+# Make All Components Mobile Responsive
 
 ## Summary
-There are still ~40 files with hardcoded English strings that don't update when switching languages. This plan covers every remaining file, organized by category.
+After a thorough audit of the codebase, many pages already use basic responsive patterns (`sm:`, `lg:` breakpoints, `flex-col sm:flex-row`), but several critical areas have mobile issues including overflow problems, fixed-width elements, non-scrollable tab lists, hard-coded grid columns, and oversized text/padding on small screens.
 
-## Files to Update
+## Issues Found
 
-### Category 1: Major Dashboard Pages (15 files)
-These are the page-level components with the most hardcoded strings:
+### 1. HeatMap Page - Header overflow
+- The header and view toggle buttons are side-by-side on all screen sizes (`flex items-center justify-between`) with no wrapping, causing overflow on mobile.
+- Fix: Stack header and toggle on mobile using `flex-col sm:flex-row`.
 
-| File | Hardcoded strings count (approx) |
-|------|--------------------------------|
-| `Competitors.tsx` (1755 lines) | ~200+ strings |
-| `Suppliers.tsx` (644 lines) | ~50 strings |
-| `Components.tsx` (333 lines) | ~30 strings |
-| `SavedSuppliers.tsx` (761 lines) | ~60 strings |
-| `HeatMap.tsx` (213 lines) | ~25 strings |
-| `MarketIntelligence.tsx` (345 lines) | ~40 strings |
-| `Feasibility.tsx` (258 lines) | ~30 strings |
-| `Conversations.tsx` (593 lines) | ~40 strings |
-| `Analytics.tsx` (898 lines) | ~50 strings |
-| `GTM.tsx` (530 lines) | ~80 strings |
-| `Pricing.tsx` (18 lines) | 2 strings |
-| `Products.tsx` | 0 (uses sub-component) |
-| `WebsiteBuilder.tsx` | ~8 strings (via PlaceholderPage) |
-| `DailyReport.tsx` | 0 (uses sub-component) |
-| `SellerAnalytics.tsx` | 0 (uses sub-component) |
+### 2. Competitors Page - Multiple issues
+- **Tab lists**: `grid-cols-2 sm:grid-cols-3` on inner tabs is fine, but the outer main tabs (`TabsList className="mb-4"`) has no responsive wrapping -- 3 tabs can overflow.
+- **Competitor cards**: The `grid-cols-4` stats grid inside each competitor card (line 1172) has no responsive breakpoint -- 4 columns on a 375px screen is too cramped.
+- **Right sidebar**: The `lg:grid-cols-3` layout means the sidebar is full-width on mobile, but the search input has a fixed `w-64` (line 1084) that can overflow.
+- **Product analysis supplier cards**: Already uses `flex-col sm:flex-row` -- good.
+- Fix: Make tab lists scrollable, stats grid use `grid-cols-2` on mobile, remove fixed `w-64`.
 
-### Category 2: Market Analysis Components (5 files)
-None of these use `useTranslation`:
-- `MarketSearch.tsx` -- "AI Market Analysis", "Product", "Competitors", "Trends", "Pricing", "Analyze", "Analyzing...", placeholders, quick search labels
-- `AnalysisSummaryCard.tsx` -- "Analysis Summary", "Key Insights", "Sources"
-- `CompetitorAnalysisCard.tsx` -- "Competitor Analysis", "Strengths", "Weaknesses", "Recent Activity", "share"
-- `PricingAnalysisCard.tsx` -- "Pricing Analysis", "Recommended Price", "Market Average", "Market Price Range", "Competitor Pricing"
-- `TrendAnalysisCard.tsx` -- "Market Trends", "Timeframe", "confidence"
-- `AnalysisHistory.tsx` -- "Recent Analyses", "No analysis history yet", "Clear All", "Clear All History?", "Cancel"
+### 3. Analytics Page - Tab list overflow
+- The `TabsList` (line 461) with 4 tabs has no responsive handling -- tabs will compress or overflow.
+- The comparison mode date pickers section can overflow on very small screens.
+- Fix: Make TabsList horizontally scrollable on mobile using `overflow-x-auto`.
 
-### Category 3: Component Supply Chain (7 files)
-None use `useTranslation`:
-- `ComponentCard.tsx` -- "Qty:", "Selected:"
-- `SupplierQuoteList.tsx` -- "Lowest", "MOQ:", "Lead time:", "In Stock", "Low Stock", "Select"
-- `ComparisonSummary.tsx` -- "Build Summary", "Components Selected", "Total Estimated Cost", "Create Purchase Order", "Avg. Lead Time"
-- `CostComparisonChart.tsx` -- "Cost Comparison", "No selections", "Selected"
-- `SupplyChainFlow.tsx` -- "Supply Chain Overview", "Components", "Parts Required", "Suppliers", "Available", "Avg. Lead Time", "Days"
-- `SupplyChainRiskPanel.tsx` -- "Supply Chain Risk", "Overall Risk Score", risk factor labels
-- `ComponentSupplierDetailModal.tsx` -- modal labels
-- `SaveComparisonDialog.tsx` / `LoadComparisonDialog.tsx` -- dialog labels
+### 4. GTM Page - Multiple fixed layouts
+- Stats cards grid `sm:grid-cols-2 lg:grid-cols-4` is fine.
+- The `lg:grid-cols-3` main layout works.
+- But phase cards have `flex items-center justify-between` with status badge and percentage that can wrap awkwardly.
+- Channel strategy cards have multi-element flex rows.
+- Fix: Minor tweaks to wrap progress labels on small screens.
 
-### Category 4: Seller Feature Components (5 files)
-These don't use `useTranslation`:
-- `CompetitorMonitorDetailModal.tsx` -- "Overview", "Price History", "Contact", tab labels, stock badges
-- `PricingOptimizerComponent.tsx` (726 lines) -- extensive pricing UI labels
-- `SellerAnalyticsDashboard.tsx` (562 lines) -- analytics labels, chart titles
-- `DailyReportViewer.tsx` (289 lines) -- report section labels
-- `SocialPublisher.tsx` (964 lines) -- publishing UI labels
+### 5. SavedSuppliers Page - Stats grid
+- `sm:grid-cols-4` means on mobile all 4 stat cards stack, but the labels ("Saved", "Verified", "Tags", "Avg. Rating") are hardcoded English -- already covered by i18n plan.
+- The list view table will overflow horizontally on mobile.
+- Fix: Add `overflow-x-auto` wrapper around table, change stats to `grid-cols-2` on mobile.
 
-### Category 5: Shared Components (2 files)
-- `UniversalImageUpload.tsx` -- mode-specific strings like "Find Suppliers for Any Product", processing steps
-- `MapboxMap.tsx` -- "No location data available", marker tooltips
-- `PlaceholderPage.tsx` -- "Coming Soon", "Planned Features", "Enable Feature"
+### 6. Conversations Page - Already good
+- Already handles mobile with `isMobileView` state and shows/hides conversation list vs thread.
+- Minor: Fixed `max-w-[70%]` on messages is fine.
 
-### Category 6: Supplier Modals (2 files)
-- `SupplierNotesTagsModal.tsx` -- "Notes & Tags", "Save", suggested tag labels
-- `BulkTagAssignModal.tsx` -- "Assign Tags", suggested tags, buttons
+### 7. Components Page - Minor issues
+- Main grid `lg:grid-cols-3` works well.
+- Search history sidebar stacks below on mobile.
+- Already uses `flex-col sm:flex-row` for filters.
 
-## Implementation Approach
+### 8. Feasibility Page - Already good
+- Uses `flex-col sm:flex-row` for headers and project selector.
 
-### Step 1: Add ~400 new translation keys to `en.json`
-Organized into sections:
-- `pages.competitors.*`, `pages.suppliers.*`, `pages.components.*`, `pages.savedSuppliers.*`
-- `pages.heatMap.*`, `pages.marketIntel.*`, `pages.feasibility.*`, `pages.conversations.*`
-- `pages.analytics.*`, `pages.gtm.*`, `pages.pricing.*`, `pages.websiteBuilder.*`
-- `market.*` (MarketSearch, AnalysisSummary, CompetitorAnalysis, PricingAnalysis, TrendAnalysis, AnalysisHistory)
-- `componentSupply.*` (ComponentCard, SupplierQuoteList, ComparisonSummary, CostComparison, SupplyChainFlow, SupplyChainRisk)
-- `competitorDetail.*` (CompetitorMonitorDetailModal)
-- `pricingOptimizer.*` (PricingOptimizerComponent)
-- `sellerAnalytics.*` (SellerAnalyticsDashboard)
-- `dailyReport.*` (DailyReportViewer)
-- `socialPublisher.*` (SocialPublisher)
-- `imageUpload.*` (UniversalImageUpload)
-- `supplierModals.*` (SupplierNotesTagsModal, BulkTagAssignModal)
-- `placeholder.*` (PlaceholderPage)
+### 9. Seller Feature Components (PricingOptimizer, SellerAnalytics, DailyReport, SocialPublisher)
+- These are large components (500-960 lines) likely with fixed grids and non-scrollable tabs.
+- Need horizontal scroll on tab lists and responsive grid adjustments.
 
-### Step 2: Mirror all keys to `fr.json`, `es.json`, `ar.json`
-Translate all new keys into French, Spanish, and Arabic.
+### 10. Landing Pages (Buyers, Sellers, Producers, Pricing)
+- Need to verify grid layouts adapt properly.
 
-### Step 3: Update all ~40 files
-For each file:
-1. Add `import { useTranslation } from "react-i18next";`
-2. Add `const { t } = useTranslation();`
-3. Replace every hardcoded string with `t("section.key")`
+## Implementation Plan
 
-Due to the large scope, this will be implemented in batches:
-- **Batch 1**: Market components + Component Supply chain (12 files)
-- **Batch 2**: Major pages (Suppliers, Components, HeatMap, Feasibility, Pricing, Conversations)
-- **Batch 3**: Large pages (Competitors, SavedSuppliers, Analytics, GTM)
-- **Batch 4**: Seller components (PricingOptimizer, SellerAnalytics, DailyReport, SocialPublisher, CompetitorDetailModal)
-- **Batch 5**: Shared components + modals (UniversalImageUpload, MapboxMap, PlaceholderPage, SupplierNotesTagsModal, BulkTagAssignModal)
+### Step 1: Fix HeatMap header stacking
+- Change header from `flex items-center justify-between` to `flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4`
+- Make view toggle buttons full-width on mobile
 
-## Notes
-- `Competitors.tsx` at 1755 lines is the single largest file and will require the most work
-- Static mock data strings (company names, addresses) will remain in English as they represent real-world data
-- Toast messages throughout all pages will also be translated
-- Processing step strings in `UniversalImageUpload` will be translated per mode
+### Step 2: Fix Competitors Page
+- Make outer TabsList scrollable with `w-full overflow-x-auto`
+- Change competitor stats grid from `grid-cols-4` to `grid-cols-2 sm:grid-cols-4`
+- Change search input from `w-64` to `w-full sm:w-64`
+- Fix right sidebar competitor detail labels to wrap properly
+
+### Step 3: Fix Analytics Page
+- Wrap TabsList in a scrollable container: `overflow-x-auto`
+- Make comparison mode date picker section stack vertically on small screens
+
+### Step 4: Fix SavedSuppliers Page
+- Change stats grid from `sm:grid-cols-4` to `grid-cols-2 sm:grid-cols-4`
+- Wrap list-view table in `overflow-x-auto`
+- Ensure tag filter pills wrap properly (already uses `flex-wrap`)
+
+### Step 5: Fix GTM Page
+- Phase card status row: allow wrapping on mobile
+- Channel strategy: minor layout tweaks for small screens
+
+### Step 6: Fix Seller Components
+- PricingOptimizerComponent: Add responsive grid breakpoints, scrollable tabs
+- SellerAnalyticsDashboard: Responsive stat cards, scrollable tabs
+- DailyReportViewer: Responsive sections
+- SocialPublisher: Responsive tabs and grid layouts
+
+### Step 7: Global TabsList pattern
+- For all pages with 3+ tabs, ensure `TabsList` has the class `w-full overflow-x-auto` so tabs can scroll horizontally on narrow screens
+
+## Technical Details
+
+All changes use existing Tailwind responsive prefixes (`sm:`, `md:`, `lg:`) and standard patterns:
+- `flex-col sm:flex-row` for stacking
+- `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` for card grids
+- `overflow-x-auto` for horizontal scroll on tables and tab lists
+- `w-full sm:w-64` instead of fixed widths
+- `text-xl sm:text-2xl` for responsive font sizes
+- `p-3 sm:p-6` for responsive padding
+
+No new dependencies are needed. Approximately 15-20 files will be modified with targeted line-level changes.
 
