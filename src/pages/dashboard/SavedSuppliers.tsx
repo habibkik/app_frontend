@@ -244,7 +244,7 @@ export default function SavedSuppliersPage() {
         </motion.div>
 
         {/* Stats */}
-        <div className="grid gap-4 sm:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">

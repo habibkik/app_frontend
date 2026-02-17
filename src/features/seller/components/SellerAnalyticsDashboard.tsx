@@ -408,11 +408,13 @@ export function SellerAnalyticsDashboard() {
         {/* Charts */}
         <motion.div variants={item}>
           <Tabs defaultValue="revenue" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="revenue">Revenue</TabsTrigger>
-              <TabsTrigger value="engagement">Engagement</TabsTrigger>
-              <TabsTrigger value="pricing">Price History</TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto">
+              <TabsList>
+                <TabsTrigger value="revenue">Revenue</TabsTrigger>
+                <TabsTrigger value="engagement">Engagement</TabsTrigger>
+                <TabsTrigger value="pricing">Price History</TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Revenue Chart */}
             <TabsContent value="revenue">
