@@ -1,17 +1,7 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { 
-  Key, 
-  Eye, 
-  EyeOff, 
-  Copy, 
-  Trash2, 
-  Plus,
-  Check,
-  AlertCircle,
-  Bot,
-  Zap,
-} from "lucide-react";
+import { Key, Eye, EyeOff, Copy, Trash2, Plus, Check, AlertCircle, Bot, Zap } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,20 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 
 interface APIKey {
@@ -47,24 +27,8 @@ interface APIKey {
 }
 
 const initialKeys: APIKey[] = [
-  {
-    id: "1",
-    name: "OpenAI Production",
-    service: "openai",
-    key: "sk-proj-xxxxxxxxxxxxxxxxxxxxx",
-    lastUsed: "2 hours ago",
-    status: "active",
-    createdAt: "2024-01-15",
-  },
-  {
-    id: "2",
-    name: "Anthropic Claude",
-    service: "anthropic",
-    key: "sk-ant-xxxxxxxxxxxxxxxxxxxxx",
-    lastUsed: "1 day ago",
-    status: "active",
-    createdAt: "2024-01-10",
-  },
+  { id: "1", name: "OpenAI Production", service: "openai", key: "sk-proj-xxxxxxxxxxxxxxxxxxxxx", lastUsed: "2 hours ago", status: "active", createdAt: "2024-01-15" },
+  { id: "2", name: "Anthropic Claude", service: "anthropic", key: "sk-ant-xxxxxxxxxxxxxxxxxxxxx", lastUsed: "1 day ago", status: "active", createdAt: "2024-01-10" },
 ];
 
 const serviceOptions = [
@@ -77,6 +41,7 @@ const serviceOptions = [
 ];
 
 export function APIKeysSection() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [apiKeys, setApiKeys] = useState<APIKey[]>(initialKeys);
   const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({});
@@ -91,30 +56,19 @@ export function APIKeysSection() {
 
   const copyKey = (key: string) => {
     navigator.clipboard.writeText(key);
-    toast({
-      title: "Copied!",
-      description: "API key copied to clipboard",
-    });
+    toast({ title: t("apiKeys.copied"), description: t("apiKeys.copiedDesc") });
   };
 
   const deleteKey = (id: string) => {
     setApiKeys(prev => prev.filter(key => key.id !== id));
-    toast({
-      title: "Key Deleted",
-      description: "API key has been removed",
-    });
+    toast({ title: t("apiKeys.keyDeleted"), description: t("apiKeys.keyDeletedDesc") });
   };
 
   const addNewKey = () => {
     if (!newKeyName || !newKeyValue || !newKeyService) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
+      toast({ title: t("apiKeys.missingInfo"), description: t("apiKeys.missingInfoDesc"), variant: "destructive" });
       return;
     }
-
     const newKey: APIKey = {
       id: Date.now().toString(),
       name: newKeyName,
@@ -124,17 +78,12 @@ export function APIKeysSection() {
       status: "active",
       createdAt: new Date().toISOString().split("T")[0],
     };
-
     setApiKeys(prev => [...prev, newKey]);
     setNewKeyName("");
     setNewKeyValue("");
     setNewKeyService("");
     setIsAddingKey(false);
-    
-    toast({
-      title: "Key Added",
-      description: "New API key has been saved securely",
-    });
+    toast({ title: t("apiKeys.keyAdded"), description: t("apiKeys.keyAddedDesc") });
   };
 
   const getStatusColor = (status: APIKey["status"]) => {
@@ -152,42 +101,28 @@ export function APIKeysSection() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              API Keys
+              {t("apiKeys.title")}
             </CardTitle>
-            <CardDescription>
-              Manage your API keys for AI services and external integrations
-            </CardDescription>
+            <CardDescription>{t("apiKeys.description")}</CardDescription>
           </div>
           <Dialog open={isAddingKey} onOpenChange={setIsAddingKey}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add API Key
-              </Button>
+              <Button><Plus className="h-4 w-4 mr-2" />{t("apiKeys.addApiKey")}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New API Key</DialogTitle>
-                <DialogDescription>
-                  Add a new API key for external services. Keys are stored securely.
-                </DialogDescription>
+                <DialogTitle>{t("apiKeys.addNewApiKey")}</DialogTitle>
+                <DialogDescription>{t("apiKeys.addNewApiKeyDesc")}</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="key-name">Key Name</Label>
-                  <Input
-                    id="key-name"
-                    placeholder="e.g., OpenAI Production"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
-                  />
+                  <Label htmlFor="key-name">{t("apiKeys.keyName")}</Label>
+                  <Input id="key-name" placeholder={t("apiKeys.keyNamePlaceholder")} value={newKeyName} onChange={(e) => setNewKeyName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="service">Service</Label>
+                  <Label htmlFor="service">{t("apiKeys.service")}</Label>
                   <Select value={newKeyService} onValueChange={setNewKeyService}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a service" />
-                    </SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder={t("apiKeys.selectService")} /></SelectTrigger>
                     <SelectContent>
                       {serviceOptions.map((service) => (
                         <SelectItem key={service.value} value={service.value}>
@@ -201,24 +136,13 @@ export function APIKeysSection() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="api-key">API Key</Label>
-                  <Input
-                    id="api-key"
-                    type="password"
-                    placeholder="sk-..."
-                    value={newKeyValue}
-                    onChange={(e) => setNewKeyValue(e.target.value)}
-                  />
+                  <Label htmlFor="api-key">{t("apiKeys.apiKey")}</Label>
+                  <Input id="api-key" type="password" placeholder="sk-..." value={newKeyValue} onChange={(e) => setNewKeyValue(e.target.value)} />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddingKey(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={addNewKey}>
-                  <Check className="h-4 w-4 mr-2" />
-                  Save Key
-                </Button>
+                <Button variant="outline" onClick={() => setIsAddingKey(false)}>{t("common.cancel")}</Button>
+                <Button onClick={addNewKey}><Check className="h-4 w-4 mr-2" />{t("apiKeys.saveKey")}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -228,8 +152,8 @@ export function APIKeysSection() {
             {apiKeys.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Key className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                <p>No API keys configured</p>
-                <p className="text-sm">Add your first API key to get started</p>
+                <p>{t("apiKeys.noKeys")}</p>
+                <p className="text-sm">{t("apiKeys.noKeysHint")}</p>
               </div>
             ) : (
               apiKeys.map((apiKey, index) => (
@@ -243,48 +167,23 @@ export function APIKeysSection() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                       <h4 className="font-medium">{apiKey.name}</h4>
-                      <Badge variant="outline" className={getStatusColor(apiKey.status)}>
-                        {apiKey.status}
-                      </Badge>
+                      <Badge variant="outline" className={getStatusColor(apiKey.status)}>{apiKey.status}</Badge>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <code className="text-sm text-muted-foreground font-mono">
-                        {visibleKeys[apiKey.id] 
-                          ? apiKey.key 
-                          : apiKey.key.replace(/./g, "•").slice(0, 24) + "..."
-                        }
+                        {visibleKeys[apiKey.id] ? apiKey.key : apiKey.key.replace(/./g, "•").slice(0, 24) + "..."}
                       </code>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Last used: {apiKey.lastUsed} • Created: {apiKey.createdAt}
+                      {t("apiKeys.lastUsed")}: {apiKey.lastUsed} • {t("apiKeys.created")}: {apiKey.createdAt}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => toggleKeyVisibility(apiKey.id)}
-                    >
-                      {visibleKeys[apiKey.id] ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                    <Button variant="ghost" size="icon" onClick={() => toggleKeyVisibility(apiKey.id)}>
+                      {visibleKeys[apiKey.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => copyKey(apiKey.key)}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteKey(apiKey.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => copyKey(apiKey.key)}><Copy className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => deleteKey(apiKey.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </div>
                 </motion.div>
               ))
@@ -293,17 +192,13 @@ export function APIKeysSection() {
         </CardContent>
       </Card>
 
-      {/* Info Card */}
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="pt-6">
           <div className="flex gap-4">
             <AlertCircle className="h-5 w-5 text-primary flex-shrink-0" />
             <div>
-              <h4 className="font-medium text-primary">Security Note</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                API keys are encrypted and stored securely. Never share your API keys publicly. 
-                Consider rotating keys periodically for enhanced security.
-              </p>
+              <h4 className="font-medium text-primary">{t("apiKeys.securityNote")}</h4>
+              <p className="text-sm text-muted-foreground mt-1">{t("apiKeys.securityNoteDesc")}</p>
             </div>
           </div>
         </CardContent>
