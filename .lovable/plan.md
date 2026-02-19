@@ -1,60 +1,79 @@
 
 
-## Expand Demo Data and Add Seller Map Points
+## Bulk Demand Signal Detection
 
-### 1. Expand Demo Data to 20 Entries Each
+A new Seller-mode page that aggregates and visualizes demand signals across social and search platforms (Facebook, TikTok, Instagram, Google, YouTube, Pinterest, X/Twitter) to help sellers identify trending products, rising niches, and geographic demand hotspots.
 
-**File: `src/data/demoMapData.ts`**
+### What gets built
 
-Add 14 more buyer supplier entries and 15 more producer factory entries to reach 20 each, spread across diverse global locations (Africa, Middle East, Southeast Asia, Eastern Europe, Oceania, etc.) with varied match scores, price ranges, and market shares.
+**1. New page: `/dashboard/demand-signals`**
+A full-featured dashboard with:
+- Platform selector chips (Facebook, TikTok, Instagram, Google Trends, YouTube, Pinterest, X/Twitter) with multi-select
+- "Scan for Signals" button that calls an AI-powered edge function
+- Results displayed in 4 sections:
+  - **Trending Products** -- cards showing product name, platform source, trend score (0-100), volume indicator, and growth direction
+  - **Rising Niches** -- emerging categories with momentum scores and platform breakdown
+  - **Geographic Hotspots** -- regions with strongest demand signals (reuses existing map entity types for potential Heat Map integration)
+  - **Signal Timeline** -- a line/area chart showing signal strength over time per platform
 
-### 2. Add Seller Demo Map Entities (Potential Clients + Demand Points)
+**2. New edge function: `demand-signal-scan`**
+- Accepts: product keywords (optional), selected platforms, user location
+- Uses Lovable AI (Gemini 2.5 Flash) to generate realistic demand intelligence based on the user's product catalog and selected platforms
+- Returns structured JSON with trending products, niches, geographic hotspots, and time-series data
+- No external API keys required
 
-Currently, seller mode only renders region-level markers (broad areas like "North America"). The user wants individual point markers representing potential clients and demand hotspots.
+**3. Navigation integration**
+- Add "Demand Signals" to seller navigation under the "Intelligence" group with a `Radar` icon
 
-**File: `src/stores/analysisStore.ts`**
-- Add a `clientType` optional field to `MapEntity`: `"potential_client" | "demand_point"` so we can distinguish marker types visually.
+**4. Demo/mock data**
+- Pre-populated demo results so the page isn't empty before the user clicks "Scan"
+- 20+ signal entries across all 7 platforms
 
-**File: `src/data/demoMapData.ts`**
-- Add a new `DEMO_SELLER_MAP_ENTITIES` array with ~20 entries of type `"competitor"` but with a `clientType` field. Examples:
-  - Potential clients: retail chains, distributors, e-commerce platforms in major cities
-  - Demand points: trending markets, trade hubs, emerging consumer hotspots
+### Files to create/modify
 
-**File: `src/pages/dashboard/HeatMap.tsx`**
-- Change the seller branch from `mapEntities = []` to use `DEMO_SELLER_MAP_ENTITIES` as fallback demo data, so the map shows both region markers AND individual client/demand point pins.
+| File | Action |
+|------|--------|
+| `src/pages/dashboard/DemandSignals.tsx` | Create -- page wrapper |
+| `src/features/seller/components/DemandSignalsDashboard.tsx` | Create -- main component with platform selector, scan button, results grid, timeline chart |
+| `src/data/demoDemandSignals.ts` | Create -- demo data (20+ signals across platforms) |
+| `supabase/functions/demand-signal-scan/index.ts` | Create -- edge function using Lovable AI |
+| `src/features/dashboard/config/navigation.ts` | Edit -- add "Demand Signals" nav item to seller Intelligence group |
+| `src/app/Router.tsx` | Edit -- add route `/dashboard/demand-signals` |
 
-**File: `src/components/shared/MapcnHeatMap.tsx`**
-- Add a new seller entity layer (alongside the existing region markers) that renders `MapMarker` components for each seller entity.
-- Use distinct marker icons/colors:
-  - Potential clients: green markers with a `Users` icon
-  - Demand points: orange markers with a `TrendingUp` icon
-- Add a `SellerEntityPopup` component showing client name, type badge, demand score, and transport estimate.
-- Update `MapLegend` for seller mode to include the new marker types.
-- Update `MapFilterBar` to allow filtering seller entities by type (client vs demand).
+### Technical details
 
-### Technical Details
-
-**New MapEntity fields:**
+**DemandSignal type:**
 ```text
-MapEntity {
-  ...existing fields
-  clientType?: "potential_client" | "demand_point"  // seller mode only
-  demandScore?: number                               // 0-100, for demand points
+{
+  id: string
+  platform: "facebook" | "tiktok" | "instagram" | "google" | "youtube" | "pinterest" | "twitter"
+  signalType: "trending_product" | "rising_niche" | "geographic_hotspot"
+  name: string
+  category: string
+  trendScore: number        // 0-100
+  volume: "high" | "medium" | "low"
+  growth: "surging" | "rising" | "stable" | "declining"
+  region?: string
+  geoLocation?: GeoLocation
+  confidence: number        // 0-100
+  detectedAt: string        // ISO timestamp
+  keywords: string[]
+  engagementMetrics?: {
+    mentions: number
+    hashtags: number
+    searchVolume: number
+  }
 }
 ```
 
-**New demo data structure (20 seller entries):**
-- 10 potential clients (retailers, distributors) across major commercial cities
-- 10 demand points (trending markets) across emerging and established regions
+**Edge function approach:**
+- POST body: `{ platforms: string[], keywords?: string[], userProducts?: string[] }`
+- Calls Lovable AI Gateway (Gemini 2.5 Flash) with a structured prompt
+- Returns `{ signals: DemandSignal[], summary: string, scannedAt: string }`
 
-**Map rendering for seller mode:**
-- Region markers (Flame icon, existing) stay as-is for broad demand areas
-- Entity markers (new) render alongside regions for granular client/demand visibility
-- Both layers are independently filterable
-
-**Files changed:**
-- `src/stores/analysisStore.ts` — add `clientType` and `demandScore` to `MapEntity`
-- `src/data/demoMapData.ts` — expand buyer (20), producer (20), add seller entities (20)
-- `src/pages/dashboard/HeatMap.tsx` — wire seller entities to the map
-- `src/components/shared/MapcnHeatMap.tsx` — render seller entity markers, popup, legend update
+**UI layout:**
+- Top: platform chips + keyword input + "Scan" button
+- Summary cards row: Total Signals, Surging Trends, Top Platform, Top Region
+- Tab view: Trending Products | Rising Niches | Geographic Hotspots | Timeline
+- Each tab shows filtered, sorted cards with platform badges and trend indicators
 
