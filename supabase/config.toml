@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.auto-outreach]
 verify_jwt = false
+
+[functions.demand-signal-scan]
+verify_jwt = false

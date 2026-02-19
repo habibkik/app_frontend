@@ -19,6 +19,7 @@ import {
   Settings,
   Map,
   Newspaper,
+  Radar,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -123,6 +124,7 @@ const sellerNavigation: NavGroup[] = [
       { title: "Market Intelligence", url: "/dashboard/market", icon: TrendingUp },
       { title: "Competitor Tracking", url: "/dashboard/competitors", icon: Users },
       { title: "Pricing Strategy", url: "/dashboard/pricing", icon: DollarSign },
+      { title: "Demand Signals", url: "/dashboard/demand-signals", icon: Radar },
     ],
   },
   {
