@@ -726,10 +726,19 @@ export function MapClusterLayer<T = Record<string, unknown>>({
     map.on("mouseleave", `${sid}-unclustered-point`, () => { map.getCanvas().style.cursor = ""; });
 
     return () => {
-      if (map.getLayer(`${sid}-clusters`)) map.removeLayer(`${sid}-clusters`);
-      if (map.getLayer(`${sid}-cluster-count`)) map.removeLayer(`${sid}-cluster-count`);
-      if (map.getLayer(`${sid}-unclustered-point`)) map.removeLayer(`${sid}-unclustered-point`);
-      if (map.getSource(sid)) map.removeSource(sid);
+      // Guard: MapLibre sets _removed=true after map.remove() is called.
+      // React may run this cleanup after the map is already destroyed, so we
+      // must check before touching any layers/sources to avoid the
+      // "Cannot read properties of undefined (reading 'getLayer')" crash.
+      try {
+        if ((map as any)._removed) return;
+        if (map.getLayer(`${sid}-clusters`)) map.removeLayer(`${sid}-clusters`);
+        if (map.getLayer(`${sid}-cluster-count`)) map.removeLayer(`${sid}-cluster-count`);
+        if (map.getLayer(`${sid}-unclustered-point`)) map.removeLayer(`${sid}-unclustered-point`);
+        if (map.getSource(sid)) map.removeSource(sid);
+      } catch {
+        // Map was destroyed before cleanup ran — safe to ignore
+      }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, isLoaded]);
