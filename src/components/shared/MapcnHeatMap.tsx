@@ -4,7 +4,7 @@
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
 import { useState, useMemo, useEffect } from "react";
-import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users } from "lucide-react";
+import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users, Radar } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MapPopup, MapClusterLayer, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -292,6 +292,13 @@ function SellerPopup({ region, userCoords }: { region: MarketHeatMapRegion; user
 // ============================================================
 function SellerEntityPopup({ entity, userCoords }: { entity: MapEntity; userCoords: UserCoords | null }) {
   const isClient = entity.clientType === "potential_client";
+  const isSignal = entity.clientType === "demand_signal";
+  const badgeStyle = isSignal
+    ? "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400"
+    : isClient
+    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
+    : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400";
+  const badgeLabel = isSignal ? "Demand Signal" : isClient ? "Potential Client" : "Demand Point";
   return (
     <div className="p-3 min-w-[220px] max-w-[280px]">
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -314,11 +321,9 @@ function SellerEntityPopup({ entity, userCoords }: { entity: MapEntity; userCoor
         <div className="flex items-center gap-1.5 mt-1">
           <Badge
             variant="secondary"
-            className={`text-xs px-1.5 py-0 ${
-              isClient ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
-            }`}
+            className={`text-xs px-1.5 py-0 ${badgeStyle}`}
           >
-            {isClient ? "Potential Client" : "Demand Point"}
+            {badgeLabel}
           </Badge>
         </div>
       </div>
@@ -491,6 +496,9 @@ function MapLegend({ mode }: { mode: DashboardMode }) {
         <span className="flex items-center gap-1.5">
           <LegendDot color="#f59e0b" /> Demand Point
         </span>
+        <span className="flex items-center gap-1.5">
+          <LegendDot color="#8b5cf6" /> Demand Signal Hotspot
+        </span>
       </div>
     </div>
   );
@@ -505,7 +513,7 @@ interface FilterState {
   minMatchScore: number;
   // Seller
   demandLevels: string[];
-  sellerEntityTypes: string[]; // "potential_client" | "demand_point"
+  sellerEntityTypes: string[]; // "potential_client" | "demand_point" | "demand_signal"
   // Producer
   minMarketSharePct: number;
 }
@@ -633,6 +641,17 @@ function MapFilterBar({
               const next = filters.sellerEntityTypes.includes("demand_point")
                 ? filters.sellerEntityTypes.filter((t) => t !== "demand_point")
                 : [...filters.sellerEntityTypes, "demand_point"];
+              onChange({ ...filters, sellerEntityTypes: next });
+            }}
+          />
+          <DemandChip
+            label="Signals"
+            color="#8b5cf6"
+            active={filters.sellerEntityTypes.includes("demand_signal")}
+            onClick={() => {
+              const next = filters.sellerEntityTypes.includes("demand_signal")
+                ? filters.sellerEntityTypes.filter((t) => t !== "demand_signal")
+                : [...filters.sellerEntityTypes, "demand_signal"];
               onChange({ ...filters, sellerEntityTypes: next });
             }}
           />
@@ -907,6 +926,9 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
           {mode === "seller" &&
             filteredEntities.map((entity) => {
               const isClient = entity.clientType === "potential_client";
+              const isSignal = entity.clientType === "demand_signal";
+              const color = isSignal ? "#8b5cf6" : isClient ? "#10b981" : "#f59e0b";
+              const icon = isSignal ? Radar : isClient ? Users : TrendingUp;
               return (
                 <MapMarker
                   key={entity.id}
@@ -916,8 +938,8 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                 >
                   <MarkerContent>
                     <MarkerDot
-                      color={isClient ? "#10b981" : "#f59e0b"}
-                      icon={isClient ? Users : TrendingUp}
+                      color={color}
+                      icon={icon}
                       active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id}
                     />
                   </MarkerContent>
