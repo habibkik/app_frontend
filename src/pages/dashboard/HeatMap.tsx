@@ -17,7 +17,7 @@ import { MapcnHeatMap } from "@/components/shared/MapcnHeatMap";
 import { useAnalysisStore, useMapEntities } from "@/stores/analysisStore";
 import { useModeStore } from "@/stores/modeStore";
 import { DEMO_HEAT_MAP_REGIONS } from "@/data/demoMarketData";
-import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES } from "@/data/demoMapData";
+import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES, DEMO_SELLER_MAP_ENTITIES } from "@/data/demoMapData";
 import type { MarketHeatMapRegion, MapEntity } from "@/stores/analysisStore";
 
 const modeContent = {
@@ -61,7 +61,7 @@ function HeatMapContent() {
       ? hasRealEntities ? realMapEntities : DEMO_BUYER_MAP_ENTITIES
       : mode === "producer"
       ? hasRealEntities ? realMapEntities : DEMO_PRODUCER_MAP_ENTITIES
-      : []; // seller uses regions, not entities
+      : hasRealEntities ? realMapEntities : DEMO_SELLER_MAP_ENTITIES;
 
   const regions =
     mode === "seller"
@@ -70,7 +70,7 @@ function HeatMapContent() {
 
   const isShowingDemo =
     mode === "seller"
-      ? !hasRealRegions
+      ? !hasRealRegions && !hasRealEntities
       : !hasRealEntities;
 
   const content = modeContent[mode];
