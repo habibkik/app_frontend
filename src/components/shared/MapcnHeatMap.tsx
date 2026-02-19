@@ -286,6 +286,84 @@ function BuyerClusterLayer({ entities }: { entities: MapEntity[] }) {
 }
 
 // ============================================================
+// COLOR LEGEND PANEL
+// ============================================================
+function LegendDot({ color }: { color: string }) {
+  return (
+    <span
+      className="w-3 h-3 rounded-full inline-block shrink-0 border border-white/20"
+      style={{ backgroundColor: color }}
+    />
+  );
+}
+
+function MapLegend({ mode }: { mode: DashboardMode }) {
+  if (mode === "buyer") {
+    return (
+      <div className="px-4 py-3 border-t bg-muted/30">
+        <p className="text-xs font-semibold text-foreground mb-2">Match Score</p>
+        <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <LegendDot color="#10b981" /> 80 – 100% — Top match
+          </span>
+          <span className="flex items-center gap-1.5">
+            <LegendDot color="#3b82f6" /> 60 – 79% — Good match
+          </span>
+          <span className="flex items-center gap-1.5">
+            <LegendDot color="#94a3b8" /> Below 60% — Fair match
+          </span>
+          <span className="flex items-center gap-x-3 ml-auto opacity-60">
+            Cluster size: <span className="flex items-center gap-1"><LegendDot color="#10b981" />&lt;5</span>
+            <span className="flex items-center gap-1"><LegendDot color="#3b82f6" />5–20</span>
+            <span className="flex items-center gap-1"><LegendDot color="#6366f1" />20+</span>
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "producer") {
+    return (
+      <div className="px-4 py-3 border-t bg-muted/30">
+        <p className="text-xs font-semibold text-foreground mb-2">Competitor Factories</p>
+        <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <LegendDot color="#7c3aed" /> Factory location
+          </span>
+          <span className="flex items-center gap-1.5 opacity-75 ml-1">
+            Marker size reflects market share · Click a pin for details
+          </span>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground/70">Market Share Guide:</span>
+          <span>Large share (&gt;20%) — dominant regional player</span>
+          <span>Medium (10–20%) — significant presence</span>
+          <span>Small (&lt;10%) — niche / emerging competitor</span>
+        </div>
+      </div>
+    );
+  }
+
+  // seller
+  return (
+    <div className="px-4 py-3 border-t bg-muted/30">
+      <p className="text-xs font-semibold text-foreground mb-2">Demand Level</p>
+      <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <LegendDot color="#ef4444" /> High demand — strong opportunity
+        </span>
+        <span className="flex items-center gap-1.5">
+          <LegendDot color="#f59e0b" /> Medium demand — moderate opportunity
+        </span>
+        <span className="flex items-center gap-1.5">
+          <LegendDot color="#3b82f6" /> Low demand — emerging market
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // MAIN COMPONENT
 // ============================================================
 export function MapcnHeatMap({ entities, regions, mode, height = 500, className }: MapcnHeatMapProps) {
@@ -315,22 +393,6 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className 
 
   return (
     <Card className={`overflow-hidden p-0 ${className ?? ""}`}>
-      {/* Legend for buyer cluster colors */}
-      {mode === "buyer" && (
-        <div className="px-4 py-2 border-b flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-          <span className="font-medium text-foreground">Cluster size:</span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full inline-block bg-emerald-500" /> Small (&lt;5)
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full inline-block bg-blue-500" /> Medium (5–20)
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full inline-block bg-indigo-500" /> Large (20+)
-          </span>
-          <span className="ml-auto opacity-70">Click a point to see supplier details · Scroll to zoom &amp; expand clusters</span>
-        </div>
-      )}
 
       <div style={{ height }} className="w-full">
         <Map center={[centerLng, centerLat]} zoom={1.8} className="w-full h-full">
@@ -389,6 +451,9 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className 
               ))}
         </Map>
       </div>
+
+      {/* Color legend panel — always shown below the map */}
+      <MapLegend mode={mode} />
     </Card>
   );
 }
