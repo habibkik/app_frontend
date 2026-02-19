@@ -67,13 +67,29 @@ function getOpportunityVariant(opportunity?: string): "default" | "secondary" | 
 // ============================================================
 // MARKER DOT COMPONENT
 // ============================================================
-function MarkerDot({ color, icon: Icon }: { color: string; icon: React.ElementType }) {
+function MarkerDot({ color, icon: Icon, active }: { color: string; icon: React.ElementType; active?: boolean }) {
   return (
-    <div
-      className="w-9 h-9 rounded-full flex items-center justify-center border-2 border-white shadow-lg transition-transform hover:scale-110"
-      style={{ backgroundColor: color }}
-    >
-      <Icon className="h-4 w-4 text-white" />
+    <div className="relative flex items-center justify-center">
+      {active && (
+        <span
+          className="absolute w-14 h-14 rounded-full animate-ping opacity-40"
+          style={{ backgroundColor: color }}
+        />
+      )}
+      {active && (
+        <span
+          className="absolute w-14 h-14 rounded-full animate-pulse opacity-25"
+          style={{ backgroundColor: color }}
+        />
+      )}
+      <div
+        className={`relative w-9 h-9 rounded-full flex items-center justify-center border-2 shadow-lg transition-transform hover:scale-110 ${
+          active ? "border-white ring-2 ring-white/60 scale-110" : "border-white"
+        }`}
+        style={{ backgroundColor: color }}
+      >
+        <Icon className="h-4 w-4 text-white" />
+      </div>
     </div>
   );
 }
@@ -771,7 +787,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                 onClick={() => handleClickEntity(entity)}
               >
                 <MarkerContent>
-                  <MarkerDot color="#7c3aed" icon={Factory} />
+                  <MarkerDot color="#7c3aed" icon={Factory} active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id} />
                 </MarkerContent>
               </MapMarker>
             ))}
@@ -819,6 +835,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                     <MarkerDot
                       color={getDemandMarkerColor(region.demand)}
                       icon={Flame}
+                      active={activeRegion?.region === region.region || pinnedRegion?.region === region.region}
                     />
                   </MarkerContent>
                 </MapMarker>
