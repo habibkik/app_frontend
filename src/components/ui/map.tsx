@@ -349,10 +349,10 @@ export function MapMarker({
   const { map, isLoaded } = useMap();
   const markerRef = useRef<maplibregl.Marker | null>(null);
   const elementRef = useRef<HTMLDivElement>(document.createElement("div"));
+  // ── FIX: use state so children see a live (non-null) marker instance ──
+  const [markerState, setMarkerState] = useState<maplibregl.Marker | null>(null);
   const [popup, setPopup] = useState<maplibregl.Popup | null>(null);
-  const [tooltipPopup, setTooltipPopup] = useState<maplibregl.Popup | null>(
-    null
-  );
+  const [tooltipPopup, setTooltipPopup] = useState<maplibregl.Popup | null>(null);
 
   useEffect(() => {
     if (!map || !isLoaded) return;
@@ -376,10 +376,12 @@ export function MapMarker({
     if (onDragEnd) marker.on("dragend", () => onDragEnd(marker.getLngLat()));
 
     markerRef.current = marker;
+    setMarkerState(marker); // ← trigger re-render so children get the real marker
 
     return () => {
       marker.remove();
       markerRef.current = null;
+      setMarkerState(null);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, isLoaded]);
@@ -392,7 +394,7 @@ export function MapMarker({
   return (
     <MarkerContext.Provider
       value={{
-        marker: markerRef.current,
+        marker: markerState, // ← live state, not stale ref
         popup,
         tooltipPopup,
         setPopup,
@@ -528,7 +530,9 @@ interface MarkerTooltipProps extends Omit<PopupOptions, "className" | "closeButt
 export function MarkerTooltip({ children, className, ...popupOptions }: MarkerTooltipProps) {
   const { map, isLoaded } = useMap();
   const { marker } = useContext(MarkerContext);
-  const tooltipRef = useRef<maplibregl.Popup | null>(null);
+  // FIX: use a stable container div (same pattern as MarkerPopup) so createPortal
+  // always has a valid DOM target — avoids the "null on first render" bug.
+  const containerRef = useRef<HTMLDivElement>(document.createElement("div"));
 
   useEffect(() => {
     if (!map || !isLoaded || !marker) return;
@@ -538,36 +542,30 @@ export function MarkerTooltip({ children, className, ...popupOptions }: MarkerTo
       closeOnClick: false,
       offset: 15,
       ...popupOptions,
-    });
+    }).setDOMContent(containerRef.current);
 
     const el = marker.getElement();
 
-    const show = () => {
-      tooltip.setLngLat(marker.getLngLat()).addTo(map);
-    };
+    const show = () => tooltip.setLngLat(marker.getLngLat()).addTo(map);
     const hide = () => tooltip.remove();
 
     el.addEventListener("mouseenter", show);
     el.addEventListener("mouseleave", hide);
 
-    tooltipRef.current = tooltip;
-
     return () => {
       el.removeEventListener("mouseenter", show);
       el.removeEventListener("mouseleave", hide);
       tooltip.remove();
-      tooltipRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, isLoaded, marker]);
 
-  if (!tooltipRef.current) return null;
-
+  // Always portal into the stable container — no null guard needed
   return createPortal(
     <div className={cn("px-2 py-1 rounded bg-popover text-popover-foreground text-xs font-medium shadow border", className)}>
       {children}
     </div>,
-    tooltipRef.current.getElement() ?? document.createElement("div")
+    containerRef.current
   );
 }
 
