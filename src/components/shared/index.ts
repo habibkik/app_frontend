@@ -9,3 +9,4 @@ export { MapboxMap } from "./MapboxMap";
 export { LocationMarker } from "./LocationMarker";
 export { MapPopupCard } from "./MapPopupCard";
 export { BusinessProfileCard } from "./BusinessProfileCard";
+export { MapcnHeatMap } from "./MapcnHeatMap";
