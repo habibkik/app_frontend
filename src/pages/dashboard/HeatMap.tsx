@@ -1,18 +1,21 @@
 /**
  * Heat Map Page
- * Regional market opportunity visualization with interactive Mapbox map
+ * Regional market opportunity visualization with interactive mapcn map (MapLibre GL, no API key)
  */
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon } from "lucide-react";
+import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical } from "lucide-react";
 
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MarketHeatMap } from "@/components/seller/MarketHeatMap";
-import { MapboxMap } from "@/components/shared/MapboxMap";
+import { MapcnHeatMap } from "@/components/shared/MapcnHeatMap";
 import { useAnalysisStore, useMapEntities } from "@/stores/analysisStore";
 import { useModeStore } from "@/stores/modeStore";
+import { DEMO_HEAT_MAP_REGIONS } from "@/data/demoMarketData";
+import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES } from "@/data/demoMapData";
 
 const modeContent = {
   buyer: {
@@ -36,26 +39,43 @@ function HeatMapContent() {
   const { t } = useTranslation();
   const mode = useModeStore((state) => state.mode);
   const { sellerResults, buyerResults, producerResults } = useAnalysisStore();
-  const mapEntities = useMapEntities(mode);
+  const realMapEntities = useMapEntities(mode);
   const [viewMode, setViewMode] = useState<"map" | "grid">("map");
-  
-  // Get regions based on mode
-  const regions = sellerResults?.marketHeatMap || [];
+
+  // Determine if we have real analysis data
+  const hasRealEntities = realMapEntities.length > 0;
+  const hasRealRegions = (sellerResults?.marketHeatMap?.length ?? 0) > 0;
+
+  // Pick data: prefer real, fall back to demo
+  const mapEntities =
+    mode === "buyer"
+      ? hasRealEntities ? realMapEntities : DEMO_BUYER_MAP_ENTITIES
+      : mode === "producer"
+      ? hasRealEntities ? realMapEntities : DEMO_PRODUCER_MAP_ENTITIES
+      : []; // seller uses regions, not entities
+
+  const regions =
+    mode === "seller"
+      ? sellerResults?.marketHeatMap ?? DEMO_HEAT_MAP_REGIONS
+      : [];
+
+  const isShowingDemo =
+    mode === "seller"
+      ? !hasRealRegions
+      : !hasRealEntities;
+
   const content = modeContent[mode];
 
-  // Check if we have any data
-  const hasMapData = mapEntities.length > 0;
-  const hasGridData = regions.length > 0;
-  const hasAnyData = hasMapData || hasGridData;
-
-  // Calculate summary stats
+  // Summary stats
   const totalRegions = regions.length;
   const highDemandCount = regions.filter((r) => r.demand === "high").length;
   const avgGrowth =
     regions.length > 0
       ? (
-          regions.reduce((sum, r) => sum + parseFloat(r.growth.replace("%", "").replace("+", "")), 0) /
-          regions.length
+          regions.reduce(
+            (sum, r) => sum + parseFloat(r.growth.replace("%", "").replace("+", "")),
+            0
+          ) / regions.length
         ).toFixed(1)
       : "0";
   const topRegion = regions.reduce(
@@ -66,11 +86,16 @@ function HeatMapContent() {
     { name: "N/A", growth: -Infinity }
   );
 
-  // Calculate entity stats
   const entityCount = mapEntities.length;
-  const avgMatchScore = mapEntities.length > 0 && mapEntities[0].matchScore
-    ? Math.round(mapEntities.reduce((sum, e) => sum + (e.matchScore || 0), 0) / mapEntities.length)
-    : null;
+  const avgMatchScore =
+    mode === "buyer" && mapEntities.length > 0 && mapEntities[0].matchScore
+      ? Math.round(
+          mapEntities.reduce((sum, e) => sum + (e.matchScore || 0), 0) /
+            mapEntities.length
+        )
+      : null;
+
+  const hasAnyData = mapEntities.length > 0 || regions.length > 0;
 
   return (
     <div className="space-y-6">
@@ -81,32 +106,42 @@ function HeatMapContent() {
             <Map className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">{t(content.title)}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">{t(content.description)}</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold">{t(content.title)}</h1>
+              {isShowingDemo && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  <FlaskConical className="h-3 w-3" />
+                  Demo data
+                </Badge>
+              )}
+            </div>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {t(content.description)}
+            </p>
           </div>
         </div>
 
-          {/* View Toggle */}
-          <div className="flex items-center gap-2 bg-muted rounded-lg p-1 self-start sm:self-auto">
-            <Button
-              variant={viewMode === "map" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("map")}
-              className="gap-2"
-            >
-              <MapIcon className="h-4 w-4" />
-              {t("pages.heatMap.mapView")}
-            </Button>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className="gap-2"
-            >
-              <LayoutGrid className="h-4 w-4" />
-              {t("pages.heatMap.gridView")}
-            </Button>
-          </div>
+        {/* View Toggle */}
+        <div className="flex items-center gap-2 bg-muted rounded-lg p-1 self-start sm:self-auto">
+          <Button
+            variant={viewMode === "map" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("map")}
+            className="gap-2"
+          >
+            <MapIcon className="h-4 w-4" />
+            {t("pages.heatMap.mapView")}
+          </Button>
+          <Button
+            variant={viewMode === "grid" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("grid")}
+            className="gap-2"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            {t("pages.heatMap.gridView")}
+          </Button>
+        </div>
       </div>
 
       {/* Summary Stats */}
@@ -116,12 +151,16 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <Globe className="h-4 w-4" />
-                {mode === "buyer" ? t("pages.heatMap.suppliersFound") : t("pages.heatMap.regionsAnalyzed")}
+                {mode === "buyer"
+                  ? t("pages.heatMap.suppliersFound")
+                  : mode === "producer"
+                  ? "Competitor Factories"
+                  : t("pages.heatMap.regionsAnalyzed")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">
-                {mode === "buyer" ? entityCount : totalRegions}
+                {mode === "seller" ? totalRegions : entityCount}
               </p>
             </CardContent>
           </Card>
@@ -130,12 +169,22 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <TrendingUp className="h-4 w-4" />
-                {mode === "buyer" ? t("pages.heatMap.avgMatchScore") : t("pages.heatMap.highDemand")}
+                {mode === "buyer"
+                  ? t("pages.heatMap.avgMatchScore")
+                  : mode === "producer"
+                  ? "Countries Covered"
+                  : t("pages.heatMap.highDemand")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-primary">
-                {mode === "buyer" ? (avgMatchScore ? `${avgMatchScore}%` : "N/A") : highDemandCount}
+                {mode === "buyer"
+                  ? avgMatchScore
+                    ? `${avgMatchScore}%`
+                    : "N/A"
+                  : mode === "producer"
+                  ? new Set(mapEntities.map((e) => e.geoLocation.country)).size
+                  : highDemandCount}
               </p>
             </CardContent>
           </Card>
@@ -144,12 +193,20 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <Map className="h-4 w-4" />
-                {mode === "buyer" ? t("pages.heatMap.withLocationData") : t("pages.heatMap.topRegion")}
+                {mode === "buyer"
+                  ? "Countries"
+                  : mode === "producer"
+                  ? "Top Market Share"
+                  : t("pages.heatMap.topRegion")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">
-                {mode === "buyer" ? entityCount : topRegion.name}
+                {mode === "buyer"
+                  ? new Set(mapEntities.map((e) => e.geoLocation.country)).size
+                  : mode === "producer"
+                  ? mapEntities[0]?.marketShare ?? "N/A"
+                  : topRegion.name}
               </p>
             </CardContent>
           </Card>
@@ -158,46 +215,46 @@ function HeatMapContent() {
             <CardHeader className="pb-2">
               <CardDescription className="flex items-center gap-1.5">
                 <DollarSign className="h-4 w-4" />
-                {mode === "buyer" ? t("pages.heatMap.countries") : t("pages.heatMap.avgGrowth")}
+                {mode === "buyer"
+                  ? "Price Range"
+                  : mode === "producer"
+                  ? "Price Range"
+                  : t("pages.heatMap.avgGrowth")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-primary">
-                {mode === "buyer" 
-                  ? new Set(mapEntities.map(e => e.geoLocation.country)).size
-                  : `+${avgGrowth}%`}
+                {mode === "seller"
+                  ? `+${avgGrowth}%`
+                  : mapEntities[0]?.priceRange
+                  ? `$${mapEntities[0].priceRange.min}–$${mapEntities[0].priceRange.max}`
+                  : "N/A"}
               </p>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* Map View */}
+      {/* Map View — mapcn (no API key needed) */}
       {viewMode === "map" && (
-        <MapboxMap
+        <MapcnHeatMap
           entities={mapEntities}
+          regions={regions}
           mode={mode}
-          height={500}
+          height={520}
           className="shadow-lg"
         />
       )}
 
       {/* Grid View */}
-      {viewMode === "grid" && (
+      {viewMode === "grid" && mode === "seller" && (
         <MarketHeatMap regions={regions} />
       )}
 
-      {/* Empty state */}
-      {!hasAnyData && (
+      {viewMode === "grid" && mode !== "seller" && (
         <Card>
-          <CardContent className="py-12 text-center">
-            <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <Map className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">{t("pages.heatMap.noHeatMapData")}</h3>
-            <p className="text-muted-foreground text-sm max-w-md mx-auto">
-              {t("pages.heatMap.uploadProductImage")}
-            </p>
+          <CardContent className="py-10 text-center text-muted-foreground text-sm">
+            Grid view is available for Seller mode only. Switch to Seller mode or use Map view.
           </CardContent>
         </Card>
       )}
