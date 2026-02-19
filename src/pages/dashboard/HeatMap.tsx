@@ -2,7 +2,7 @@
  * Heat Map Page
  * Regional market opportunity visualization with interactive mapcn map (MapLibre GL, no API key)
  */
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical, Layers } from "lucide-react";
 
@@ -11,12 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MarketHeatMap } from "@/components/seller/MarketHeatMap";
+import { BuyerSupplierGrid } from "@/components/buyer/BuyerSupplierGrid";
 import { MapcnHeatMap } from "@/components/shared/MapcnHeatMap";
 import { useAnalysisStore, useMapEntities } from "@/stores/analysisStore";
 import { useModeStore } from "@/stores/modeStore";
 import { DEMO_HEAT_MAP_REGIONS } from "@/data/demoMarketData";
 import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES } from "@/data/demoMapData";
-import type { MarketHeatMapRegion } from "@/stores/analysisStore";
+import type { MarketHeatMapRegion, MapEntity } from "@/stores/analysisStore";
 
 const modeContent = {
   buyer: {
@@ -44,6 +45,8 @@ function HeatMapContent() {
   const [viewMode, setViewMode] = useState<"map" | "grid">("map");
   /** Region selected from the grid — triggers flyTo + popup on the map */
   const [activeRegion, setActiveRegion] = useState<MarketHeatMapRegion | null>(null);
+  /** Entity (supplier/producer) selected from grid — triggers flyTo on the map */
+  const [activeEntity, setActiveEntity] = useState<MapEntity | null>(null);
   /** Map projection toggle */
   const [projection, setProjection] = useState<"mercator" | "globe">("mercator");
 
@@ -275,25 +278,40 @@ function HeatMapContent() {
           height={520}
           className="shadow-lg"
           activeRegion={activeRegion}
+          activeEntity={activeEntity}
           projection={projection}
         />
       )}
 
-      {/* Grid View */}
+      {/* Grid View — Seller: region cards */}
       {viewMode === "grid" && mode === "seller" && (
         <MarketHeatMap
           regions={regions}
           onSelectRegion={(region) => {
             setActiveRegion(region);
+            setActiveEntity(null);
             setViewMode("map");
           }}
         />
       )}
 
-      {viewMode === "grid" && mode !== "seller" && (
+      {/* Grid View — Buyer: supplier cards */}
+      {viewMode === "grid" && mode === "buyer" && (
+        <BuyerSupplierGrid
+          entities={mapEntities}
+          onSelectEntity={(entity) => {
+            setActiveEntity(entity);
+            setActiveRegion(null);
+            setViewMode("map");
+          }}
+        />
+      )}
+
+      {/* Grid View — Producer: fallback */}
+      {viewMode === "grid" && mode === "producer" && (
         <Card>
           <CardContent className="py-10 text-center text-muted-foreground text-sm">
-            Grid view is available for Seller mode only. Switch to Seller mode or use Map view.
+            Grid view is not yet available for Producer mode. Switch to Map view.
           </CardContent>
         </Card>
       )}
