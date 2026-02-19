@@ -41,6 +41,7 @@ import HeatMap from "@/pages/dashboard/HeatMap";
 import Settings from "@/pages/dashboard/Settings";
 import RFQCampaignPage from "@/pages/dashboard/RFQCampaign";
 import DailyReportPage from "@/pages/dashboard/DailyReport";
+import DemandSignals from "@/pages/dashboard/DemandSignals";
 import NotFound from "@/pages/NotFound";
 
 export function Router() {
@@ -84,6 +85,7 @@ export function Router() {
       <Route path="/dashboard/content-studio" element={<ProtectedRoute><ContentStudioPage /></ProtectedRoute>} />
       <Route path="/dashboard/publisher" element={<ProtectedRoute><SocialPublisherPage /></ProtectedRoute>} />
       <Route path="/dashboard/website" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
+      <Route path="/dashboard/demand-signals" element={<ProtectedRoute><DemandSignals /></ProtectedRoute>} />
       
       {/* Shared pages */}
       <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
