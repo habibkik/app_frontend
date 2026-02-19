@@ -4,7 +4,7 @@
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
 import { useState, useMemo, useEffect } from "react";
-import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane } from "lucide-react";
+import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MapPopup, MapClusterLayer, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -288,6 +288,50 @@ function SellerPopup({ region, userCoords }: { region: MarketHeatMapRegion; user
 }
 
 // ============================================================
+// SELLER ENTITY POPUP (potential client / demand point)
+// ============================================================
+function SellerEntityPopup({ entity, userCoords }: { entity: MapEntity; userCoords: UserCoords | null }) {
+  const isClient = entity.clientType === "potential_client";
+  return (
+    <div className="p-3 min-w-[220px] max-w-[280px]">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h4 className="font-semibold text-sm leading-tight">{entity.name}</h4>
+        {entity.demandScore !== undefined && (
+          <span className="text-sm font-bold text-foreground whitespace-nowrap">{entity.demandScore}%</span>
+        )}
+      </div>
+      <div className="space-y-1 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <MapPin className="h-3 w-3 shrink-0" />
+          <span>{entity.geoLocation.city}, {entity.geoLocation.country}</span>
+        </div>
+        {entity.priceRange && (
+          <div className="flex items-center gap-1.5">
+            <Star className="h-3 w-3 shrink-0" />
+            <span>Price: ${entity.priceRange.min} – ${entity.priceRange.max}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 mt-1">
+          <Badge
+            variant="secondary"
+            className={`text-xs px-1.5 py-0 ${
+              isClient ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+            }`}
+          >
+            {isClient ? "Potential Client" : "Demand Point"}
+          </Badge>
+        </div>
+      </div>
+      <TransportChip
+        lat={entity.geoLocation.latitude}
+        lng={entity.geoLocation.longitude}
+        userCoords={userCoords}
+      />
+    </div>
+  );
+}
+
+// ============================================================
 // BUYER CLUSTER MAP (inner component, rendered inside <Map>)
 // ============================================================
 interface SelectedPoint {
@@ -439,6 +483,15 @@ function MapLegend({ mode }: { mode: DashboardMode }) {
           <LegendDot color="#3b82f6" /> Low demand — emerging market
         </span>
       </div>
+      <p className="text-xs font-semibold text-foreground mb-2 mt-3">Entity Types</p>
+      <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <LegendDot color="#10b981" /> Potential Client
+        </span>
+        <span className="flex items-center gap-1.5">
+          <LegendDot color="#f59e0b" /> Demand Point
+        </span>
+      </div>
     </div>
   );
 }
@@ -452,6 +505,7 @@ interface FilterState {
   minMatchScore: number;
   // Seller
   demandLevels: string[];
+  sellerEntityTypes: string[]; // "potential_client" | "demand_point"
   // Producer
   minMarketSharePct: number;
 }
@@ -460,6 +514,7 @@ const DEFAULT_FILTERS: FilterState = {
   search: "",
   minMatchScore: 0,
   demandLevels: [],
+  sellerEntityTypes: [],
   minMarketSharePct: 0,
 };
 
@@ -497,6 +552,7 @@ function MapFilterBar({
     filters.search !== "" ||
     filters.minMatchScore > 0 ||
     filters.demandLevels.length > 0 ||
+    filters.sellerEntityTypes.length > 0 ||
     filters.minMarketSharePct > 0;
 
   const toggleDemand = (level: string) => {
@@ -557,6 +613,29 @@ function MapFilterBar({
           <DemandChip label="High" color="#ef4444" active={filters.demandLevels.includes("high")} onClick={() => toggleDemand("high")} />
           <DemandChip label="Medium" color="#f59e0b" active={filters.demandLevels.includes("medium")} onClick={() => toggleDemand("medium")} />
           <DemandChip label="Low" color="#3b82f6" active={filters.demandLevels.includes("low")} onClick={() => toggleDemand("low")} />
+          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">Type:</span>
+          <DemandChip
+            label="Clients"
+            color="#10b981"
+            active={filters.sellerEntityTypes.includes("potential_client")}
+            onClick={() => {
+              const next = filters.sellerEntityTypes.includes("potential_client")
+                ? filters.sellerEntityTypes.filter((t) => t !== "potential_client")
+                : [...filters.sellerEntityTypes, "potential_client"];
+              onChange({ ...filters, sellerEntityTypes: next });
+            }}
+          />
+          <DemandChip
+            label="Demand"
+            color="#f59e0b"
+            active={filters.sellerEntityTypes.includes("demand_point")}
+            onClick={() => {
+              const next = filters.sellerEntityTypes.includes("demand_point")
+                ? filters.sellerEntityTypes.filter((t) => t !== "demand_point")
+                : [...filters.sellerEntityTypes, "demand_point"];
+              onChange({ ...filters, sellerEntityTypes: next });
+            }}
+          />
         </div>
       )}
 
@@ -688,6 +767,9 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
         const pct = parseFloat((e.marketShare ?? "0").replace("%", ""));
         if (pct < filters.minMarketSharePct) return false;
       }
+      if (mode === "seller" && filters.sellerEntityTypes.length > 0) {
+        if (!e.clientType || !filters.sellerEntityTypes.includes(e.clientType)) return false;
+      }
       return true;
     });
   }, [entities, filters, mode]);
@@ -707,11 +789,15 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
   const firstRegionLng = filteredRegions[0]?.geoLocation?.longitude ?? regions[0]?.geoLocation?.longitude ?? 20;
   const firstRegionLat = filteredRegions[0]?.geoLocation?.latitude ?? regions[0]?.geoLocation?.latitude ?? 20;
 
-  const centerLng = mode === "seller" ? firstRegionLng : firstEntityLng;
-  const centerLat = mode === "seller" ? firstRegionLat : firstEntityLat;
+  const centerLng = mode === "seller"
+    ? (filteredEntities[0]?.geoLocation.longitude ?? firstRegionLng)
+    : firstEntityLng;
+  const centerLat = mode === "seller"
+    ? (filteredEntities[0]?.geoLocation.latitude ?? firstRegionLat)
+    : firstEntityLat;
 
-  const totalCount = mode === "seller" ? regions.length : entities.length;
-  const resultCount = mode === "seller" ? filteredRegions.length : filteredEntities.length;
+  const totalCount = mode === "seller" ? regions.length + entities.length : entities.length;
+  const resultCount = mode === "seller" ? filteredRegions.length + filteredEntities.length : filteredEntities.length;
 
   if (entities.length === 0 && regions.length === 0) {
     return (
@@ -816,6 +902,42 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                   </MarkerContent>
                 </MapMarker>
               ))}
+
+          {/* SELLER MODE — entity markers (potential clients + demand points) */}
+          {mode === "seller" &&
+            filteredEntities.map((entity) => {
+              const isClient = entity.clientType === "potential_client";
+              return (
+                <MapMarker
+                  key={entity.id}
+                  longitude={entity.geoLocation.longitude}
+                  latitude={entity.geoLocation.latitude}
+                  onClick={() => handleClickEntity(entity)}
+                >
+                  <MarkerContent>
+                    <MarkerDot
+                      color={isClient ? "#10b981" : "#f59e0b"}
+                      icon={isClient ? Users : TrendingUp}
+                      active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id}
+                    />
+                  </MarkerContent>
+                </MapMarker>
+              );
+            })}
+
+          {/* SELLER entity pinned popup */}
+          {mode === "seller" && pinnedEntity && (
+            <MapPopup
+              longitude={pinnedEntity.geoLocation.longitude}
+              latitude={pinnedEntity.geoLocation.latitude}
+              anchor="bottom"
+              offset={20}
+              closeButton
+              onClose={() => setPinnedEntity(null)}
+            >
+              <SellerEntityPopup entity={pinnedEntity} userCoords={userCoords} />
+            </MapPopup>
+          )}
 
           {/* SELLER pinned popup — stays open until closed */}
           {mode === "seller" && pinnedRegion && !openPopupRegion && (

@@ -564,6 +564,10 @@ export interface MapEntity {
   marketShare?: string;
   demandConcentration?: number;
   priceRange?: { min: number; max: number };
+  /** Seller mode only — distinguishes potential clients from demand hotspots */
+  clientType?: "potential_client" | "demand_point";
+  /** 0-100 demand score for demand points */
+  demandScore?: number;
 }
 
 export const useMapEntities = (mode: DashboardMode): MapEntity[] => {
