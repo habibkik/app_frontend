@@ -183,12 +183,15 @@ export function Map({
       ...rest,
     });
 
-    if (projection) {
-      // MapLibre projection support
-      (map as any).setProjection?.(projection);
-    }
-
     map.on("load", () => {
+      // Set projection after style is fully loaded to avoid "Style is not done loading" error
+      if (projection) {
+        try {
+          (map as any).setProjection?.(projection);
+        } catch {
+          // setProjection not supported — safe to ignore
+        }
+      }
       setIsLoaded(true);
     });
 
