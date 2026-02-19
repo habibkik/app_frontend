@@ -4,11 +4,12 @@
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
 import { useState, useMemo, useEffect } from "react";
-import { Package, Factory, Flame, TrendingUp, MapPin, Star, X } from "lucide-react";
+import { Factory, Flame, TrendingUp, MapPin, Star, X, Search } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MarkerTooltip, MapClusterLayer, MapPopup, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { MapEntity, MarketHeatMapRegion } from "@/stores/analysisStore";
 import type { DashboardMode } from "@/features/dashboard";
 
@@ -368,6 +369,163 @@ function MapLegend({ mode }: { mode: DashboardMode }) {
 }
 
 // ============================================================
+// FILTER BAR
+// ============================================================
+interface FilterState {
+  search: string;
+  // Buyer
+  minMatchScore: number;
+  // Seller
+  demandLevels: string[];
+  // Producer
+  minMarketSharePct: number;
+}
+
+const DEFAULT_FILTERS: FilterState = {
+  search: "",
+  minMatchScore: 0,
+  demandLevels: [],
+  minMarketSharePct: 0,
+};
+
+function DemandChip({ label, color, active, onClick }: { label: string; color: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+        active
+          ? "text-white border-transparent"
+          : "bg-background text-muted-foreground border-border hover:border-foreground/40"
+      }`}
+      style={active ? { backgroundColor: color, borderColor: color } : {}}
+    >
+      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: active ? "white" : color }} />
+      {label}
+    </button>
+  );
+}
+
+function MapFilterBar({
+  mode,
+  filters,
+  onChange,
+  resultCount,
+  totalCount,
+}: {
+  mode: DashboardMode;
+  filters: FilterState;
+  onChange: (f: FilterState) => void;
+  resultCount: number;
+  totalCount: number;
+}) {
+  const hasActiveFilters =
+    filters.search !== "" ||
+    filters.minMatchScore > 0 ||
+    filters.demandLevels.length > 0 ||
+    filters.minMarketSharePct > 0;
+
+  const toggleDemand = (level: string) => {
+    const next = filters.demandLevels.includes(level)
+      ? filters.demandLevels.filter((d) => d !== level)
+      : [...filters.demandLevels, level];
+    onChange({ ...filters, demandLevels: next });
+  };
+
+  return (
+    <div className="px-3 py-2.5 border-b bg-background flex flex-wrap items-center gap-2">
+      {/* Search */}
+      <div className="relative flex-1 min-w-[160px] max-w-xs">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+        <Input
+          value={filters.search}
+          onChange={(e) => onChange({ ...filters, search: e.target.value })}
+          placeholder={
+            mode === "buyer" ? "Search suppliers…" :
+            mode === "producer" ? "Search factories…" :
+            "Search regions…"
+          }
+          className="pl-8 h-8 text-xs"
+        />
+        {filters.search && (
+          <button
+            onClick={() => onChange({ ...filters, search: "" })}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Mode-specific filters */}
+      {mode === "buyer" && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Min score:</span>
+          {[0, 60, 80].map((threshold) => (
+            <button
+              key={threshold}
+              onClick={() => onChange({ ...filters, minMatchScore: threshold })}
+              className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                filters.minMatchScore === threshold
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-muted-foreground border-border hover:border-foreground/40"
+              }`}
+            >
+              {threshold === 0 ? "All" : `${threshold}%+`}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {mode === "seller" && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Demand:</span>
+          <DemandChip label="High" color="#ef4444" active={filters.demandLevels.includes("high")} onClick={() => toggleDemand("high")} />
+          <DemandChip label="Medium" color="#f59e0b" active={filters.demandLevels.includes("medium")} onClick={() => toggleDemand("medium")} />
+          <DemandChip label="Low" color="#3b82f6" active={filters.demandLevels.includes("low")} onClick={() => toggleDemand("low")} />
+        </div>
+      )}
+
+      {mode === "producer" && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">Min share:</span>
+          {[0, 10, 20].map((threshold) => (
+            <button
+              key={threshold}
+              onClick={() => onChange({ ...filters, minMarketSharePct: threshold })}
+              className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                filters.minMarketSharePct === threshold
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-muted-foreground border-border hover:border-foreground/40"
+              }`}
+            >
+              {threshold === 0 ? "All" : `${threshold}%+`}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Result count + clear */}
+      <div className="ml-auto flex items-center gap-2 shrink-0">
+        <span className="text-xs text-muted-foreground">
+          {resultCount} / {totalCount}
+        </span>
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs gap-1 px-2 text-muted-foreground"
+            onClick={() => onChange(DEFAULT_FILTERS)}
+          >
+            <X className="h-3 w-3" />
+            Clear
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // FLY-TO HELPER — runs inside <Map> so it can access useMap()
 // ============================================================
 function FlyToRegion({
@@ -399,6 +557,12 @@ function FlyToRegion({
 // MAIN COMPONENT
 // ============================================================
 export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion, projection = "mercator" }: MapcnHeatMapProps) {
+  // Filter state
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+
+  // Reset filters when mode changes
+  useEffect(() => { setFilters(DEFAULT_FILTERS); }, [mode]);
+
   // Track which seller region should have its popup auto-opened after flyTo completes
   const [openPopupRegion, setOpenPopupRegion] = useState<string | null>(null);
 
@@ -407,13 +571,44 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
     setOpenPopupRegion(null);
   }, [activeRegion]);
 
-  const firstEntityLng = entities[0]?.geoLocation.longitude ?? 20;
-  const firstEntityLat = entities[0]?.geoLocation.latitude ?? 20;
-  const firstRegionLng = regions[0]?.geoLocation?.longitude ?? 20;
-  const firstRegionLat = regions[0]?.geoLocation?.latitude ?? 20;
+  // ── Apply filters ──────────────────────────────────────────
+  const filteredEntities = useMemo(() => {
+    const q = filters.search.toLowerCase();
+    return entities.filter((e) => {
+      if (q && !e.name.toLowerCase().includes(q) &&
+          !e.geoLocation.country.toLowerCase().includes(q) &&
+          !(e.geoLocation.city ?? "").toLowerCase().includes(q)) return false;
+      if (mode === "buyer" && filters.minMatchScore > 0) {
+        if ((e.matchScore ?? 0) < filters.minMatchScore) return false;
+      }
+      if (mode === "producer" && filters.minMarketSharePct > 0) {
+        const pct = parseFloat((e.marketShare ?? "0").replace("%", ""));
+        if (pct < filters.minMarketSharePct) return false;
+      }
+      return true;
+    });
+  }, [entities, filters, mode]);
+
+  const filteredRegions = useMemo(() => {
+    const q = filters.search.toLowerCase();
+    return regions.filter((r) => {
+      if (q && !r.region.toLowerCase().includes(q) &&
+          !(r.geoLocation?.country ?? "").toLowerCase().includes(q)) return false;
+      if (filters.demandLevels.length > 0 && !filters.demandLevels.includes(r.demand)) return false;
+      return true;
+    });
+  }, [regions, filters]);
+
+  const firstEntityLng = filteredEntities[0]?.geoLocation.longitude ?? entities[0]?.geoLocation.longitude ?? 20;
+  const firstEntityLat = filteredEntities[0]?.geoLocation.latitude ?? entities[0]?.geoLocation.latitude ?? 20;
+  const firstRegionLng = filteredRegions[0]?.geoLocation?.longitude ?? regions[0]?.geoLocation?.longitude ?? 20;
+  const firstRegionLat = filteredRegions[0]?.geoLocation?.latitude ?? regions[0]?.geoLocation?.latitude ?? 20;
 
   const centerLng = mode === "seller" ? firstRegionLng : firstEntityLng;
   const centerLat = mode === "seller" ? firstRegionLat : firstEntityLat;
+
+  const totalCount = mode === "seller" ? regions.length : entities.length;
+  const resultCount = mode === "seller" ? filteredRegions.length : filteredEntities.length;
 
   if (entities.length === 0 && regions.length === 0) {
     return (
@@ -433,6 +628,14 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
 
   return (
     <Card className={`overflow-hidden p-0 ${className ?? ""}`}>
+      {/* Search / filter bar */}
+      <MapFilterBar
+        mode={mode}
+        filters={filters}
+        onChange={setFilters}
+        resultCount={resultCount}
+        totalCount={totalCount}
+      />
 
       <div style={{ height }} className="w-full">
         <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
@@ -445,11 +648,11 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
           />
 
           {/* BUYER MODE — clustered supplier layer */}
-          {mode === "buyer" && <BuyerClusterLayer entities={entities} />}
+          {mode === "buyer" && <BuyerClusterLayer entities={filteredEntities} />}
 
           {/* PRODUCER MODE — competitor factory markers */}
           {mode === "producer" &&
-            entities.map((entity) => (
+            filteredEntities.map((entity) => (
               <MapMarker
                 key={entity.id}
                 longitude={entity.geoLocation.longitude}
@@ -472,7 +675,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
 
           {/* SELLER MODE — region demand markers */}
           {mode === "seller" &&
-            regions
+            filteredRegions
               .filter((r) => r.geoLocation)
               .map((region, idx) => (
                 <MapMarker
