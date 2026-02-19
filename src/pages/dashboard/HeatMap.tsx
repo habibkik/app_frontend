@@ -17,7 +17,7 @@ import { MapcnHeatMap } from "@/components/shared/MapcnHeatMap";
 import { useAnalysisStore, useMapEntities } from "@/stores/analysisStore";
 import { useModeStore } from "@/stores/modeStore";
 import { DEMO_HEAT_MAP_REGIONS } from "@/data/demoMarketData";
-import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES, DEMO_SELLER_MAP_ENTITIES } from "@/data/demoMapData";
+import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES, DEMO_SELLER_MAP_ENTITIES, DEMO_DEMAND_SIGNAL_ENTITIES } from "@/data/demoMapData";
 import type { MarketHeatMapRegion, MapEntity } from "@/stores/analysisStore";
 
 const modeContent = {
@@ -56,12 +56,17 @@ function HeatMapContent() {
   const hasRealRegions = (sellerResults?.marketHeatMap?.length ?? 0) > 0;
 
   // Pick data: prefer real, fall back to demo
-  const mapEntities =
+  const baseEntities =
     mode === "buyer"
       ? hasRealEntities ? realMapEntities : DEMO_BUYER_MAP_ENTITIES
       : mode === "producer"
       ? hasRealEntities ? realMapEntities : DEMO_PRODUCER_MAP_ENTITIES
       : hasRealEntities ? realMapEntities : DEMO_SELLER_MAP_ENTITIES;
+
+  // In seller mode, always merge demand signal hotspot entities
+  const mapEntities = mode === "seller"
+    ? [...baseEntities, ...DEMO_DEMAND_SIGNAL_ENTITIES]
+    : baseEntities;
 
   const regions =
     mode === "seller"

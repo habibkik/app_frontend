@@ -534,3 +534,90 @@ export const DEMO_SELLER_MAP_ENTITIES: MapEntity[] = [
     demandScore: 73,
   },
 ];
+
+// ============================================================
+// DEMAND SIGNAL HOTSPOT ENTITIES — derived from demand signal scan
+// These appear on the Heat Map as radar-style markers in seller mode
+// ============================================================
+export const DEMO_DEMAND_SIGNAL_ENTITIES: MapEntity[] = [
+  {
+    id: "ds-hotspot-1",
+    name: "EV Charging Accessories",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: 59.9139, longitude: 10.7522, formattedAddress: "Oslo, Norway", city: "Oslo", country: "Norway" },
+    demandScore: 86,
+  },
+  {
+    id: "ds-hotspot-2",
+    name: "K-Beauty Skincare Tools",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: 1.3521, longitude: 103.8198, formattedAddress: "Singapore", city: "Singapore", country: "Singapore" },
+    demandScore: 93,
+  },
+  {
+    id: "ds-hotspot-3",
+    name: "Artisan Coffee Equipment",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: 25.2048, longitude: 55.2708, formattedAddress: "Dubai, UAE", city: "Dubai", country: "UAE" },
+    demandScore: 80,
+  },
+  {
+    id: "ds-hotspot-4",
+    name: "Solar Power Banks",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: -1.2921, longitude: 36.8219, formattedAddress: "Nairobi, Kenya", city: "Nairobi", country: "Kenya" },
+    demandScore: 77,
+  },
+  {
+    id: "ds-hotspot-5",
+    name: "Outdoor Adventure Gear",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: -33.8688, longitude: 151.2093, formattedAddress: "Sydney, Australia", city: "Sydney", country: "Australia" },
+    demandScore: 84,
+  },
+  {
+    id: "ds-hotspot-6",
+    name: "Smart Home Security",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: -23.5505, longitude: -46.6333, formattedAddress: "São Paulo, Brazil", city: "São Paulo", country: "Brazil" },
+    demandScore: 88,
+  },
+  {
+    id: "ds-hotspot-7",
+    name: "Handmade Ceramic Tableware",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: 50.0755, longitude: 14.4378, formattedAddress: "Prague, Czech Republic", city: "Prague", country: "Czech Republic" },
+    demandScore: 75,
+  },
+  {
+    id: "ds-hotspot-8",
+    name: "Portable Blender Bottles",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: 34.0522, longitude: -118.2437, formattedAddress: "Los Angeles, CA, USA", city: "Los Angeles", country: "USA" },
+    demandScore: 94,
+  },
+  {
+    id: "ds-hotspot-9",
+    name: "Mini Projector 4K",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: 35.6762, longitude: 139.6503, formattedAddress: "Tokyo, Japan", city: "Tokyo", country: "Japan" },
+    demandScore: 91,
+  },
+  {
+    id: "ds-hotspot-10",
+    name: "Japandi Interior Design",
+    type: "competitor",
+    clientType: "demand_signal",
+    geoLocation: { latitude: 52.52, longitude: 13.405, formattedAddress: "Berlin, Germany", city: "Berlin", country: "Germany" },
+    demandScore: 90,
+  },
+];

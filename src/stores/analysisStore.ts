@@ -565,7 +565,7 @@ export interface MapEntity {
   demandConcentration?: number;
   priceRange?: { min: number; max: number };
   /** Seller mode only — distinguishes potential clients from demand hotspots */
-  clientType?: "potential_client" | "demand_point";
+  clientType?: "potential_client" | "demand_point" | "demand_signal";
   /** 0-100 demand score for demand points */
   demandScore?: number;
 }
