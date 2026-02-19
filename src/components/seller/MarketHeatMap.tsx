@@ -4,7 +4,7 @@
  */
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Map, TrendingUp, TrendingDown, Users, DollarSign, Flame, MapPin, ExternalLink } from "lucide-react";
+import { Map, TrendingUp, TrendingDown, Users, DollarSign, Flame, MapPin, ExternalLink, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -78,7 +78,7 @@ export function MarketHeatMap({ regions, onSelectRegion }: MarketHeatMapProps) {
               transition={{ delay: index * 0.05 }}
               onClick={() => onSelectRegion?.(region)}
               className={cn(
-                "p-4 rounded-xl border-2 cursor-pointer transition-all duration-200",
+                "group p-4 rounded-xl border-2 cursor-pointer transition-all duration-200",
                 "hover:shadow-md hover:scale-[1.02]",
                 demandColors[region.demand]
               )}
@@ -124,6 +124,15 @@ export function MarketHeatMap({ regions, onSelectRegion }: MarketHeatMapProps) {
                   <span className={cn("font-medium", region.growth.startsWith("+") ? "text-emerald-600" : "text-destructive")}>{region.growth}</span>
                 </div>
               </div>
+
+              {/* Fly-to map hint — only shown when onSelectRegion is provided */}
+              {onSelectRegion && (
+                <div className="mt-3 pt-2 border-t border-current/10 flex items-center justify-end gap-1 text-xs opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Map className="h-3 w-3" />
+                  <span>View on map</span>
+                  <ArrowRight className="h-3 w-3" />
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
