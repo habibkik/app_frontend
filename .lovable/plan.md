@@ -1,128 +1,122 @@
 
-# Integrate mapcn Map Library into Heat Map Page
+## Fix: Map Markers Not Showing for Buyer, Producer, and Seller Modes
 
-## What is mapcn?
-mapcn is a shadcn-style copy-paste map component library built on **MapLibre GL** (free, no API key). It uses free CARTO basemap tiles and auto-switches between light/dark themes. It is installed via one `shadcn` CLI command which copies a `map.tsx` file into `src/components/ui/`.
+### Problem Summary
 
-Key components available:
-- `Map` — root container (no API key needed)
-- `MapControls` — zoom, compass, fullscreen buttons
-- `MapMarker` + `MarkerContent` + `MarkerPopup` + `MarkerTooltip` — interactive markers
-- `MapClusterLayer` — GeoJSON-based auto-clustering for large datasets
-- `useMap` hook — access raw MapLibre instance
+Three interconnected bugs in `src/components/ui/map.tsx` prevent markers from appearing:
 
-## Current State
-The Heat Map page (`src/pages/dashboard/HeatMap.tsx`) currently uses:
-- `MapboxMap` component (requires `VITE_MAPBOX_ACCESS_TOKEN` — falls back to a blank error card if missing)
-- `react-map-gl` + `mapbox-gl` packages
+**Bug 1 — `setStyle` fires on every load (primary cause)**
+The `useEffect` that calls `map.setStyle(getStyle(theme))` lists `isLoaded` as a dependency. When `isLoaded` first becomes `true`, this effect fires and immediately re-applies the map style — wiping all freshly added sources and layers before they can render. This is why nothing shows on initial load.
 
-The page has 3 modes: **Seller**, **Buyer**, **Producer** — but the map only shows data when real AI analysis has been run. No demo data is shown by default.
+**Bug 2 — Style reload destroys cluster layers (Buyer mode)**
+`MapClusterLayer` adds its GeoJSON source and circle/symbol layers inside a `useEffect([map, isLoaded])` that only runs once. When `map.setStyle()` is called (either from Bug 1 or a real theme switch), MapLibre silently removes all custom sources and layers. Because the effect never re-runs, the Buyer cluster is permanently gone.
 
-Demo data exists in `src/data/demoMarketData.ts` (seller-focused) but there is no demo data for Buyer or Producer modes.
+**Bug 3 — Style reload removes custom markers (Producer + Seller modes)**
+Same mechanism as Bug 2 — `MapMarker` creates its marker element once in a `useEffect([map, isLoaded])`. When style reloads, MapLibre removes all layer state but the markers (being DOM-attached) also get detached silently.
 
-## Plan
+**Bug 4 — Stale `map` value in context**
+`MapContext.Provider` receives `{ map: mapRef.current, isLoaded }` at render time. On first render, `mapRef.current` is `null` because the map hasn't been constructed yet. The context value is stale. Children correctly only render when `isLoaded && children`, but the `map` reference in context is captured from the closure, not the live ref.
 
-### Step 1 — Install mapcn
-Run the shadcn CLI command to copy the map component:
-```
-npx shadcn@latest add @mapcn/map
-```
-This installs `maplibre-gl` and adds `src/components/ui/map.tsx`. No API key needed.
+---
 
-### Step 2 — Add Demo Data for All 3 Modes
-Extend `src/data/demoMarketData.ts` to add:
+### Fix Plan
 
-**Buyer demo** — 6 suppliers with geo coordinates across different countries:
-- Shenzhen Electronics Co. (China)
-- Mumbai Textiles Ltd (India)
-- Frankfurt Parts GmbH (Germany)
-- Toronto Supply Corp (Canada)
-- Osaka Industrial (Japan)
-- São Paulo Manufacturing (Brazil)
+**File: `src/components/ui/map.tsx`**
 
-**Producer demo** — 5 competitor factories:
-- Shanghai Auto Parts (China)
-- Detroit Precision Mfg (USA)
-- Stuttgart Engineering (Germany)
-- Monterrey Components (Mexico)
-- Pune Auto Systems (India)
+#### Fix 1 — Remove `isLoaded` from the `setStyle` dependency array
+The theme-sync effect should only re-run when `theme` or `getStyle` changes, not when `isLoaded` flips to true. Adding a "previous theme" ref so the style is only applied when the theme actually changes (not on initial mount) prevents the immediate re-style that wipes layers.
 
-**Seller demo** — already exists (`DEMO_HEAT_MAP_REGIONS` with 5 global regions)
-
-Each entry will have `latitude`, `longitude`, `city`, `country`, and relevant business data (matchScore for buyer, marketShare for producer, demand for seller).
-
-### Step 3 — Create a New `MapcnHeatMap` Component
-Create `src/components/shared/MapcnHeatMap.tsx` that:
-- Accepts `entities` (MapEntity[]), `regions` (MarketHeatMapRegion[]), and `mode`
-- Uses mapcn's `Map`, `MapControls`, `MapMarker`, `MarkerContent`, `MarkerPopup`, `MarkerTooltip`
-- Renders **color-coded markers** based on mode:
-  - Buyer → blue markers (Package icon) showing supplier name, match score, price range
-  - Producer → purple markers (Factory icon) showing factory name, market share, capacity
-  - Seller → red/amber/green markers based on demand level (Flame icon) showing region, growth %, opportunity
-- Marker popups show rich info card with all available data
-- MarkerTooltip shows quick name on hover
-- `MapControls` adds zoom + fullscreen buttons
-- Falls back to an informative empty state card if no data
-
-### Step 4 — Update `HeatMap.tsx` Page
-Replace the `MapboxMap` usage with `MapcnHeatMap` in the map view:
-- Always show demo data when no real AI analysis has been run (use `hasRealData || hasDemoData`)
-- For seller mode: use `sellerResults?.marketHeatMap || DEMO_HEAT_MAP_REGIONS`
-- For buyer mode: use buyer `MapEntity[]` from store OR `DEMO_BUYER_MAP_ENTITIES`
-- For producer mode: use producer `MapEntity[]` from store OR `DEMO_PRODUCER_MAP_ENTITIES`
-- Add a small "Demo data" badge when demo data is shown so users know it's sample data
-- Update stat cards to always show demo data stats when no real data exists
-- Keep the grid view (`MarketHeatMap` component) working as before
-
-### Step 5 — Clean Up
-- Keep the old `MapboxMap` component intact (used by other pages potentially), but stop using it on the Heat Map page
-- No API key configuration needed at all for the new map
-
-## Technical Details
-
-### mapcn Map Component API (key props)
 ```tsx
-<Map center={[lng, lat]} zoom={2} className="h-[500px]">
-  <MapControls showZoom showFullscreen />
-  <MapMarker longitude={lng} latitude={lat}>
-    <MarkerContent>
-      <div className="...custom icon..."/>
-    </MarkerContent>
-    <MarkerTooltip>Supplier Name</MarkerTooltip>
-    <MarkerPopup>
-      <div className="p-3">...rich card...</div>
-    </MarkerPopup>
-  </MapMarker>
-</Map>
+// BEFORE — fires on first load because isLoaded is a dep:
+useEffect(() => {
+  const map = mapRef.current;
+  if (!map || !isLoaded) return;
+  map.setStyle(getStyle(theme));
+}, [theme, getStyle, isLoaded]);
+
+// AFTER — use a ref to skip the first call, only apply on real theme changes:
+const prevThemeRef = useRef<string | null>(null);
+useEffect(() => {
+  const map = mapRef.current;
+  if (!map) return;
+  if (prevThemeRef.current === null) {
+    prevThemeRef.current = theme; // record initial theme, don't call setStyle
+    return;
+  }
+  if (prevThemeRef.current === theme) return;
+  prevThemeRef.current = theme;
+  map.setStyle(getStyle(theme));
+}, [theme, getStyle]);
 ```
 
-### Color coding per mode
-```text
-Seller demand:
-  high   → bg-red-500 marker
-  medium → bg-amber-500 marker
-  low    → bg-blue-500 marker
+#### Fix 2 — Re-add cluster layers after `styledata` event (Buyer cluster)
+In `MapClusterLayer`, listen for the `styledata` event which fires after every `setStyle()` call. On `styledata`, re-add the source and layers if they're missing. This keeps clusters visible after theme switches.
 
-Buyer (suppliers):
-  matchScore >= 80 → bg-emerald-500
-  matchScore >= 60 → bg-blue-500
-  below            → bg-slate-400
+```tsx
+useEffect(() => {
+  if (!map || !isLoaded) return;
 
-Producer (factories):
-  all → bg-violet-600 marker
+  const sid = sourceId.current;
+
+  const addLayersAndSource = () => {
+    if (map.getSource(sid)) return; // already present
+    // ... add source + 3 layers as before
+  };
+
+  addLayersAndSource();
+
+  // Re-add after style reload
+  map.on("styledata", addLayersAndSource);
+
+  return () => {
+    map.off("styledata", addLayersAndSource);
+    try {
+      if ((map as any)._removed) return;
+      if (map.getLayer(`${sid}-clusters`)) map.removeLayer(`${sid}-clusters`);
+      // ... remove other layers
+      if (map.getSource(sid)) map.removeSource(sid);
+    } catch { /* safe to ignore */ }
+  };
+}, [map, isLoaded]);
 ```
 
-### Files to Create/Modify
-```text
-CREATE  src/components/ui/map.tsx           (auto-added by CLI)
-CREATE  src/components/shared/MapcnHeatMap.tsx
-MODIFY  src/data/demoMarketData.ts          (add buyer + producer demo data)
-MODIFY  src/pages/dashboard/HeatMap.tsx     (use new map, show demo fallback)
+#### Fix 3 — Fix stale `map` context value
+Change the Provider to use the ref's live value so children always see the real map instance:
+
+```tsx
+// BEFORE
+<MapContext.Provider value={{ map: mapRef.current, isLoaded }}>
+
+// AFTER — introduce a separate mapState piece of state that's set when map is created
+const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
+// ... in init effect:
+mapRef.current = map;
+setMapInstance(map);
+// ... in cleanup:
+setMapInstance(null);
+
+// Provider:
+<MapContext.Provider value={{ map: mapInstance, isLoaded }}>
 ```
 
-### Why mapcn over MapboxMap?
-- No API key required — works immediately in all environments
-- Free CARTO tiles — no cost
-- shadcn-style — integrates with existing dark mode + Tailwind
-- MapLibre GL is open-source — no vendor lock-in
-- Popups use React JSX — easy to style with shadcn/ui cards
+#### Fix 4 — Data updates for `MapClusterLayer`
+Currently the cluster source data never updates when `filteredEntities` changes (filters applied). Add a `useEffect` that calls `source.setData(data)` when data changes:
+
+```tsx
+useEffect(() => {
+  const map = mapRef.current;  // use local ref inside the component
+  if (!map || !isLoaded) return;
+  const source = map.getSource(sourceId.current) as maplibregl.GeoJSONSource | undefined;
+  source?.setData(data as GeoJSON.FeatureCollection);
+}, [data, isLoaded]);
+```
+
+---
+
+### Files to Edit
+
+| File | Change |
+|---|---|
+| `src/components/ui/map.tsx` | Fix `setStyle` timing (Bug 1), fix stale map context (Bug 3), add `styledata` listener in `MapClusterLayer` (Bug 2), add data-update effect in `MapClusterLayer` (Bug 4) |
+
+No new files, no database changes, no new dependencies required.
