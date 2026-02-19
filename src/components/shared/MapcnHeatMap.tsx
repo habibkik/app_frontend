@@ -24,6 +24,8 @@ interface MapcnHeatMapProps {
   className?: string;
   /** When set, the map flies to this region and opens its popup */
   activeRegion?: MarketHeatMapRegion | null;
+  /** When set, the map flies to this map entity (supplier/producer) */
+  activeEntity?: MapEntity | null;
   /** Map projection — "mercator" (flat) or "globe" (3D) */
   projection?: "mercator" | "globe";
 }
@@ -553,10 +555,24 @@ function FlyToRegion({
   return null;
 }
 
+// Flies to an arbitrary MapEntity (supplier / producer)
+function FlyToEntity({ entity }: { entity: MapEntity | null | undefined }) {
+  const { map, isLoaded } = useMap();
+
+  useEffect(() => {
+    if (!map || !isLoaded || !entity) return;
+    map.flyTo({
+      center: [entity.geoLocation.longitude, entity.geoLocation.latitude],
+      zoom: 6,
+      duration: 1200,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entity]);
+
+  return null;
+}
 // ============================================================
-// MAIN COMPONENT
-// ============================================================
-export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion, projection = "mercator" }: MapcnHeatMapProps) {
+export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion, activeEntity, projection = "mercator" }: MapcnHeatMapProps) {
   // Filter state
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
@@ -641,11 +657,12 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
         <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
           <MapControls showZoom showFullscreen position="top-right" />
 
-          {/* FlyTo handler — fires when a grid card is clicked */}
+          {/* FlyTo handlers — fire when a grid card is clicked */}
           <FlyToRegion
             region={activeRegion}
             onArrived={() => activeRegion && setOpenPopupRegion(activeRegion.region)}
           />
+          <FlyToEntity entity={activeEntity} />
 
           {/* BUYER MODE — clustered supplier layer */}
           {mode === "buyer" && <BuyerClusterLayer entities={filteredEntities} />}
