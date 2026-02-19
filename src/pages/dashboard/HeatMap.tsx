@@ -2,7 +2,7 @@
  * Heat Map Page
  * Regional market opportunity visualization with interactive mapcn map (MapLibre GL, no API key)
  */
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical } from "lucide-react";
 
@@ -16,6 +16,7 @@ import { useAnalysisStore, useMapEntities } from "@/stores/analysisStore";
 import { useModeStore } from "@/stores/modeStore";
 import { DEMO_HEAT_MAP_REGIONS } from "@/data/demoMarketData";
 import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES } from "@/data/demoMapData";
+import type { MarketHeatMapRegion } from "@/stores/analysisStore";
 
 const modeContent = {
   buyer: {
@@ -41,6 +42,8 @@ function HeatMapContent() {
   const { sellerResults, buyerResults, producerResults } = useAnalysisStore();
   const realMapEntities = useMapEntities(mode);
   const [viewMode, setViewMode] = useState<"map" | "grid">("map");
+  /** Region selected from the grid — triggers flyTo + popup on the map */
+  const [activeRegion, setActiveRegion] = useState<MarketHeatMapRegion | null>(null);
 
   // Determine if we have real analysis data
   const hasRealEntities = realMapEntities.length > 0;
@@ -243,12 +246,19 @@ function HeatMapContent() {
           mode={mode}
           height={520}
           className="shadow-lg"
+          activeRegion={activeRegion}
         />
       )}
 
       {/* Grid View */}
       {viewMode === "grid" && mode === "seller" && (
-        <MarketHeatMap regions={regions} />
+        <MarketHeatMap
+          regions={regions}
+          onSelectRegion={(region) => {
+            setActiveRegion(region);
+            setViewMode("map");
+          }}
+        />
       )}
 
       {viewMode === "grid" && mode !== "seller" && (

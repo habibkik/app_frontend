@@ -3,9 +3,9 @@
  * No API key required. Uses free CARTO tiles with auto light/dark theme.
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Package, Factory, Flame, TrendingUp, MapPin, Star, X } from "lucide-react";
-import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MarkerTooltip, MapClusterLayer, MapPopup } from "@/components/ui/map";
+import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MarkerTooltip, MapClusterLayer, MapPopup, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,8 @@ interface MapcnHeatMapProps {
   mode: DashboardMode;
   height?: number;
   className?: string;
+  /** When set, the map flies to this region and opens its popup */
+  activeRegion?: MarketHeatMapRegion | null;
 }
 
 interface SupplierFeatureProps {
@@ -364,9 +366,45 @@ function MapLegend({ mode }: { mode: DashboardMode }) {
 }
 
 // ============================================================
+// FLY-TO HELPER — runs inside <Map> so it can access useMap()
+// ============================================================
+function FlyToRegion({
+  region,
+  onArrived,
+}: {
+  region: MarketHeatMapRegion | null | undefined;
+  onArrived: () => void;
+}) {
+  const { map, isLoaded } = useMap();
+
+  useEffect(() => {
+    if (!map || !isLoaded || !region?.geoLocation) return;
+    map.flyTo({
+      center: [region.geoLocation.longitude, region.geoLocation.latitude],
+      zoom: 5,
+      duration: 1200,
+    });
+    // Fire onArrived after the animation completes so the popup opens
+    const handle = setTimeout(onArrived, 1300);
+    return () => clearTimeout(handle);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [region]);
+
+  return null;
+}
+
+// ============================================================
 // MAIN COMPONENT
 // ============================================================
-export function MapcnHeatMap({ entities, regions, mode, height = 500, className }: MapcnHeatMapProps) {
+export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion }: MapcnHeatMapProps) {
+  // Track which seller region should have its popup auto-opened after flyTo completes
+  const [openPopupRegion, setOpenPopupRegion] = useState<string | null>(null);
+
+  // When activeRegion changes, clear any existing open popup (flyTo will set it after arriving)
+  useEffect(() => {
+    setOpenPopupRegion(null);
+  }, [activeRegion]);
+
   const firstEntityLng = entities[0]?.geoLocation.longitude ?? 20;
   const firstEntityLat = entities[0]?.geoLocation.latitude ?? 20;
   const firstRegionLng = regions[0]?.geoLocation?.longitude ?? 20;
@@ -397,6 +435,12 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className 
       <div style={{ height }} className="w-full">
         <Map center={[centerLng, centerLat]} zoom={1.8} className="w-full h-full">
           <MapControls showZoom showFullscreen position="top-right" />
+
+          {/* FlyTo handler — fires when a grid card is clicked */}
+          <FlyToRegion
+            region={activeRegion}
+            onArrived={() => activeRegion && setOpenPopupRegion(activeRegion.region)}
+          />
 
           {/* BUYER MODE — clustered supplier layer */}
           {mode === "buyer" && <BuyerClusterLayer entities={entities} />}
@@ -449,6 +493,24 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className 
                   </MarkerPopup>
                 </MapMarker>
               ))}
+
+          {/* Standalone popup that auto-opens after flyTo for the active region */}
+          {mode === "seller" && openPopupRegion && (() => {
+            const target = regions.find(
+              (r) => r.region === openPopupRegion && r.geoLocation
+            );
+            if (!target) return null;
+            return (
+              <MapPopup
+                longitude={target.geoLocation!.longitude}
+                latitude={target.geoLocation!.latitude}
+                onClose={() => setOpenPopupRegion(null)}
+                closeButton
+              >
+                <SellerPopup region={target} />
+              </MapPopup>
+            );
+          })()}
         </Map>
       </div>
 
