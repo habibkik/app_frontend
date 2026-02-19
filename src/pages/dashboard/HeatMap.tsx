@@ -4,7 +4,7 @@
  */
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical } from "lucide-react";
+import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical, Layers } from "lucide-react";
 
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -44,6 +44,8 @@ function HeatMapContent() {
   const [viewMode, setViewMode] = useState<"map" | "grid">("map");
   /** Region selected from the grid — triggers flyTo + popup on the map */
   const [activeRegion, setActiveRegion] = useState<MarketHeatMapRegion | null>(null);
+  /** Map projection toggle */
+  const [projection, setProjection] = useState<"mercator" | "globe">("mercator");
 
   // Determine if we have real analysis data
   const hasRealEntities = realMapEntities.length > 0;
@@ -124,26 +126,52 @@ function HeatMapContent() {
           </div>
         </div>
 
-        {/* View Toggle */}
-        <div className="flex items-center gap-2 bg-muted rounded-lg p-1 self-start sm:self-auto">
-          <Button
-            variant={viewMode === "map" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setViewMode("map")}
-            className="gap-2"
-          >
-            <MapIcon className="h-4 w-4" />
-            {t("pages.heatMap.mapView")}
-          </Button>
-          <Button
-            variant={viewMode === "grid" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setViewMode("grid")}
-            className="gap-2"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            {t("pages.heatMap.gridView")}
-          </Button>
+        {/* Controls row: View Toggle + Globe Toggle */}
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {/* Map / Grid toggle */}
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            <Button
+              variant={viewMode === "map" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("map")}
+              className="gap-2"
+            >
+              <MapIcon className="h-4 w-4" />
+              {t("pages.heatMap.mapView")}
+            </Button>
+            <Button
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="gap-2"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              {t("pages.heatMap.gridView")}
+            </Button>
+          </div>
+
+          {/* Globe / Flat projection toggle — only visible in map view */}
+          {viewMode === "map" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setProjection((p) => (p === "mercator" ? "globe" : "mercator"))}
+              className="gap-2"
+              title={projection === "mercator" ? "Switch to 3D Globe" : "Switch to Flat Map"}
+            >
+              {projection === "globe" ? (
+                <>
+                  <Layers className="h-4 w-4" />
+                  Flat
+                </>
+              ) : (
+                <>
+                  <Globe className="h-4 w-4" />
+                  Globe
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -247,6 +275,7 @@ function HeatMapContent() {
           height={520}
           className="shadow-lg"
           activeRegion={activeRegion}
+          projection={projection}
         />
       )}
 

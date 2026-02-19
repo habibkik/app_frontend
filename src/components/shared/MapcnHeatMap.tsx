@@ -23,6 +23,8 @@ interface MapcnHeatMapProps {
   className?: string;
   /** When set, the map flies to this region and opens its popup */
   activeRegion?: MarketHeatMapRegion | null;
+  /** Map projection — "mercator" (flat) or "globe" (3D) */
+  projection?: "mercator" | "globe";
 }
 
 interface SupplierFeatureProps {
@@ -396,7 +398,7 @@ function FlyToRegion({
 // ============================================================
 // MAIN COMPONENT
 // ============================================================
-export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion }: MapcnHeatMapProps) {
+export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion, projection = "mercator" }: MapcnHeatMapProps) {
   // Track which seller region should have its popup auto-opened after flyTo completes
   const [openPopupRegion, setOpenPopupRegion] = useState<string | null>(null);
 
@@ -433,7 +435,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
     <Card className={`overflow-hidden p-0 ${className ?? ""}`}>
 
       <div style={{ height }} className="w-full">
-        <Map center={[centerLng, centerLat]} zoom={1.8} className="w-full h-full">
+        <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
           <MapControls showZoom showFullscreen position="top-right" />
 
           {/* FlyTo handler — fires when a grid card is clicked */}
