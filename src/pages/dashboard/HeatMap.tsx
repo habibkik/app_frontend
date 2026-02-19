@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MarketHeatMap } from "@/components/seller/MarketHeatMap";
 import { BuyerSupplierGrid } from "@/components/buyer/BuyerSupplierGrid";
+import { ProducerFactoryGrid } from "@/components/producer/ProducerFactoryGrid";
 import { MapcnHeatMap } from "@/components/shared/MapcnHeatMap";
 import { useAnalysisStore, useMapEntities } from "@/stores/analysisStore";
 import { useModeStore } from "@/stores/modeStore";
@@ -307,13 +308,16 @@ function HeatMapContent() {
         />
       )}
 
-      {/* Grid View — Producer: fallback */}
+      {/* Grid View — Producer: factory cards */}
       {viewMode === "grid" && mode === "producer" && (
-        <Card>
-          <CardContent className="py-10 text-center text-muted-foreground text-sm">
-            Grid view is not yet available for Producer mode. Switch to Map view.
-          </CardContent>
-        </Card>
+        <ProducerFactoryGrid
+          entities={mapEntities}
+          onSelectEntity={(entity) => {
+            setActiveEntity(entity);
+            setActiveRegion(null);
+            setViewMode("map");
+          }}
+        />
       )}
     </div>
   );
