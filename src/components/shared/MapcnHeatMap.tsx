@@ -3,7 +3,7 @@
  * No API key required. Uses free CARTO tiles with auto light/dark theme.
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MapPopup, MapClusterLayer, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -663,36 +663,15 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
     setOpenPopupRegion(null);
   }, [activeRegion]);
 
-  // ── Hover state (Producer + Seller) ───────────────────────
-  const [hoveredEntity, setHoveredEntity] = useState<MapEntity | null>(null);
-  const [hoveredRegion, setHoveredRegion] = useState<MarketHeatMapRegion | null>(null);
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   // ── Pinned (clicked) state ────────────────────────────────
   const [pinnedEntity, setPinnedEntity] = useState<MapEntity | null>(null);
   const [pinnedRegion, setPinnedRegion] = useState<MarketHeatMapRegion | null>(null);
 
-  const handleMouseEnterEntity = (entity: MapEntity) => {
-    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    setHoveredEntity(entity);
-  };
-  const handleMouseLeaveEntity = () => {
-    hoverTimerRef.current = setTimeout(() => setHoveredEntity(null), 200);
-  };
   const handleClickEntity = (entity: MapEntity) => {
     setPinnedEntity((prev) => prev?.id === entity.id ? null : entity);
-    setHoveredEntity(null);
-  };
-  const handleMouseEnterRegion = (region: MarketHeatMapRegion) => {
-    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    setHoveredRegion(region);
-  };
-  const handleMouseLeaveRegion = () => {
-    hoverTimerRef.current = setTimeout(() => setHoveredRegion(null), 200);
   };
   const handleClickRegion = (region: MarketHeatMapRegion) => {
     setPinnedRegion((prev) => prev?.region === region.region ? null : region);
-    setHoveredRegion(null);
   };
 
   // ── Apply filters ──────────────────────────────────────────
@@ -795,8 +774,6 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                 key={entity.id}
                 longitude={entity.geoLocation.longitude}
                 latitude={entity.geoLocation.latitude}
-                onMouseEnter={() => handleMouseEnterEntity(entity)}
-                onMouseLeave={handleMouseLeaveEntity}
                 onClick={() => handleClickEntity(entity)}
               >
                 <MarkerContent>
@@ -804,18 +781,6 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                 </MarkerContent>
               </MapMarker>
             ))}
-
-          {/* PRODUCER hover popup — only when no pinned popup for same entity */}
-          {mode === "producer" && hoveredEntity && pinnedEntity?.id !== hoveredEntity.id && (
-            <MapPopup
-              longitude={hoveredEntity.geoLocation.longitude}
-              latitude={hoveredEntity.geoLocation.latitude}
-              anchor="bottom"
-              offset={20}
-            >
-              <ProducerPopup entity={hoveredEntity} userCoords={userCoords} />
-            </MapPopup>
-          )}
 
           {/* PRODUCER pinned popup — stays open until closed */}
           {mode === "producer" && pinnedEntity && (
@@ -840,8 +805,6 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                   key={`region-${idx}`}
                   longitude={region.geoLocation!.longitude}
                   latitude={region.geoLocation!.latitude}
-                  onMouseEnter={() => handleMouseEnterRegion(region)}
-                  onMouseLeave={handleMouseLeaveRegion}
                   onClick={() => handleClickRegion(region)}
                 >
                   <MarkerContent>
@@ -853,18 +816,6 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                   </MarkerContent>
                 </MapMarker>
               ))}
-
-          {/* SELLER hover popup — only when no pinned popup for same region and no flyTo popup */}
-          {mode === "seller" && hoveredRegion && !openPopupRegion && pinnedRegion?.region !== hoveredRegion.region && (
-            <MapPopup
-              longitude={hoveredRegion.geoLocation!.longitude}
-              latitude={hoveredRegion.geoLocation!.latitude}
-              anchor="bottom"
-              offset={20}
-            >
-              <SellerPopup region={hoveredRegion} userCoords={userCoords} />
-            </MapPopup>
-          )}
 
           {/* SELLER pinned popup — stays open until closed */}
           {mode === "seller" && pinnedRegion && !openPopupRegion && (
