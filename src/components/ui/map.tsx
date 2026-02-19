@@ -599,7 +599,10 @@ export function MapPopup({
     const popup = new maplibregl.Popup({
       closeButton,
       closeOnClick: false,
+      closeOnMove: false,
       maxWidth: "none",
+      anchor: "bottom",
+      offset: 12,
       ...popupOptions,
     })
       .setLngLat([longitude, latitude])
