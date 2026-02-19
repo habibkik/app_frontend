@@ -1,21 +1,23 @@
 
-## Fix: Map Markers Not Showing for Buyer, Producer, and Seller Modes
+## Fix Map Hover Popups + Add Distance & Transport Cost
 
-### Problem Summary
+### Problem Diagnosis
 
-Three interconnected bugs in `src/components/ui/map.tsx` prevent markers from appearing:
+There are two bugs preventing hover information from showing, plus a feature request for distance and transport cost.
 
-**Bug 1 — `setStyle` fires on every load (primary cause)**
-The `useEffect` that calls `map.setStyle(getStyle(theme))` lists `isLoaded` as a dependency. When `isLoaded` first becomes `true`, this effect fires and immediately re-applies the map style — wiping all freshly added sources and layers before they can render. This is why nothing shows on initial load.
+**Bug 1 — `MarkerTooltip` always renders `null` (primary cause)**
 
-**Bug 2 — Style reload destroys cluster layers (Buyer mode)**
-`MapClusterLayer` adds its GeoJSON source and circle/symbol layers inside a `useEffect([map, isLoaded])` that only runs once. When `map.setStyle()` is called (either from Bug 1 or a real theme switch), MapLibre silently removes all custom sources and layers. Because the effect never re-runs, the Buyer cluster is permanently gone.
+In `src/components/ui/map.tsx`, `MarkerTooltip` has this guard at line 564:
+```tsx
+if (!tooltipRef.current) return null;
+```
+Because `tooltipRef` is assigned inside a `useEffect`, it is always `null` on the first render. React evaluates the return value at render time, so the `createPortal(...)` below is unreachable — the tooltip content never mounts into the DOM, meaning nothing appears on hover, ever.
 
-**Bug 3 — Style reload removes custom markers (Producer + Seller modes)**
-Same mechanism as Bug 2 — `MapMarker` creates its marker element once in a `useEffect([map, isLoaded])`. When style reloads, MapLibre removes all layer state but the markers (being DOM-attached) also get detached silently.
+**Bug 2 — Stale `marker` in `MarkerContext` (affects both tooltip and popup)**
 
-**Bug 4 — Stale `map` value in context**
-`MapContext.Provider` receives `{ map: mapRef.current, isLoaded }` at render time. On first render, `mapRef.current` is `null` because the map hasn't been constructed yet. The context value is stale. Children correctly only render when `isLoaded && children`, but the `map` reference in context is captured from the closure, not the live ref.
+`MapMarker` provides context with `marker: markerRef.current`. Since the actual MapLibre marker is created inside a `useEffect`, `markerRef.current` is `null` during the first render. When `MarkerTooltip` reads `marker` from context and checks `if (!marker) return`, it exits early. The tooltip and popup `useEffect` hooks never run because `marker` is `null`.
+
+Fix: Add a `markerState` piece of React state inside `MapMarker`, set it when the marker is created, and pass that to context instead of `markerRef.current`.
 
 ---
 
@@ -23,93 +25,101 @@ Same mechanism as Bug 2 — `MapMarker` creates its marker element once in a `us
 
 **File: `src/components/ui/map.tsx`**
 
-#### Fix 1 — Remove `isLoaded` from the `setStyle` dependency array
-The theme-sync effect should only re-run when `theme` or `getStyle` changes, not when `isLoaded` flips to true. Adding a "previous theme" ref so the style is only applied when the theme actually changes (not on initial mount) prevents the immediate re-style that wipes layers.
-
+#### Fix 1 — Live `marker` state in `MapMarker`
+Replace `marker: markerRef.current` in the context with a `useState` value that gets set inside the `useEffect`:
 ```tsx
-// BEFORE — fires on first load because isLoaded is a dep:
-useEffect(() => {
-  const map = mapRef.current;
-  if (!map || !isLoaded) return;
-  map.setStyle(getStyle(theme));
-}, [theme, getStyle, isLoaded]);
+const [markerState, setMarkerState] = useState<maplibregl.Marker | null>(null);
 
-// AFTER — use a ref to skip the first call, only apply on real theme changes:
-const prevThemeRef = useRef<string | null>(null);
-useEffect(() => {
-  const map = mapRef.current;
-  if (!map) return;
-  if (prevThemeRef.current === null) {
-    prevThemeRef.current = theme; // record initial theme, don't call setStyle
-    return;
-  }
-  if (prevThemeRef.current === theme) return;
-  prevThemeRef.current = theme;
-  map.setStyle(getStyle(theme));
-}, [theme, getStyle]);
+// inside useEffect, after marker is created:
+markerRef.current = marker;
+setMarkerState(marker);
+
+// cleanup:
+setMarkerState(null);
+
+// context:
+<MarkerContext.Provider value={{ marker: markerState, ... }}>
 ```
 
-#### Fix 2 — Re-add cluster layers after `styledata` event (Buyer cluster)
-In `MapClusterLayer`, listen for the `styledata` event which fires after every `setStyle()` call. On `styledata`, re-add the source and layers if they're missing. This keeps clusters visible after theme switches.
-
+#### Fix 2 — Remove `if (!tooltipRef.current) return null` guard
+The `MarkerTooltip` component should unconditionally call `createPortal` using a stable `containerRef`. The tooltip DOM element is created in the effect and content is portalled into it. Replace the broken pattern with a stable `containerRef` approach (same as `MarkerPopup` already uses):
 ```tsx
-useEffect(() => {
-  if (!map || !isLoaded) return;
+// Instead of:
+if (!tooltipRef.current) return null;
+return createPortal(<div>...</div>, tooltipRef.current.getElement() ?? div);
 
-  const sid = sourceId.current;
-
-  const addLayersAndSource = () => {
-    if (map.getSource(sid)) return; // already present
-    // ... add source + 3 layers as before
-  };
-
-  addLayersAndSource();
-
-  // Re-add after style reload
-  map.on("styledata", addLayersAndSource);
-
-  return () => {
-    map.off("styledata", addLayersAndSource);
-    try {
-      if ((map as any)._removed) return;
-      if (map.getLayer(`${sid}-clusters`)) map.removeLayer(`${sid}-clusters`);
-      // ... remove other layers
-      if (map.getSource(sid)) map.removeSource(sid);
-    } catch { /* safe to ignore */ }
-  };
-}, [map, isLoaded]);
+// Use a stable container div, just like MarkerPopup does:
+const containerRef = useRef<HTMLDivElement>(document.createElement("div"));
+// In useEffect: tooltip.setDOMContent(containerRef.current)
+// Return: createPortal(<div>...</div>, containerRef.current)  ← always works
 ```
 
-#### Fix 3 — Fix stale `map` context value
-Change the Provider to use the ref's live value so children always see the real map instance:
+---
 
+### Feature: Distance + Smart Transport Cost in Hover Popups
+
+#### Distance Calculation
+Use the browser's `navigator.geolocation` API to get the user's coordinates, then compute the great-circle distance (Haversine formula) between the user and each entity in a custom hook `useUserLocation`.
+
+#### Smart Transport Mode Detection
+Determine the likely mode of transport based on distance:
+- **Road** (truck icon): ≤ 1,500 km — same continent, driveable
+- **Sea** (ship icon): 1,500 – 8,000 km — intercontinental, sea freight typical
+- **Air** (plane icon): > 8,000 km OR islands with no land route — fast air freight
+
+Cost estimates (per-unit approximation, shown as a range):
+- Road: ~$0.08–0.15 / km / CBM
+- Sea: flat rate estimate based on distance tier (short haul $200–500, long haul $800–2,000)
+- Air: ~$4–8 / kg, shown as "high cost" warning
+
+These are displayed as estimates, clearly labeled "Est. transport cost" to avoid confusion with exact quotes.
+
+#### New Enriched Popup Component: `EnrichedEntityPopup`
+A single reusable popup that all three modes use on hover/click, combining:
+- Entity name + type badge
+- Country, city
+- Match score (buyer) / Market share + tier badge (producer) / Growth + demand (seller)
+- Price range
+- Distance from user (e.g. "2,340 km away")
+- Transport mode icon + label + cost estimate
+
+---
+
+### Implementation Details
+
+**New hook — `useUserLocation` in `src/hooks/useUserLocation.ts`**
 ```tsx
-// BEFORE
-<MapContext.Provider value={{ map: mapRef.current, isLoaded }}>
-
-// AFTER — introduce a separate mapState piece of state that's set when map is created
-const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
-// ... in init effect:
-mapRef.current = map;
-setMapInstance(map);
-// ... in cleanup:
-setMapInstance(null);
-
-// Provider:
-<MapContext.Provider value={{ map: mapInstance, isLoaded }}>
+export function useUserLocation() {
+  const [coords, setCoords] = useState<{lat: number; lng: number} | null>(null);
+  useEffect(() => {
+    navigator.geolocation?.getCurrentPosition(
+      (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => {} // silently fail — fallback to "unknown"
+    );
+  }, []);
+  return coords;
+}
 ```
 
-#### Fix 4 — Data updates for `MapClusterLayer`
-Currently the cluster source data never updates when `filteredEntities` changes (filters applied). Add a `useEffect` that calls `source.setData(data)` when data changes:
-
+**New utility — `getTransportInfo(distanceKm)` in `src/utils/transportEstimate.ts`**
 ```tsx
-useEffect(() => {
-  const map = mapRef.current;  // use local ref inside the component
-  if (!map || !isLoaded) return;
-  const source = map.getSource(sourceId.current) as maplibregl.GeoJSONSource | undefined;
-  source?.setData(data as GeoJSON.FeatureCollection);
-}, [data, isLoaded]);
+export function haversineKm(lat1, lng1, lat2, lng2): number { ... }
+export function getTransportInfo(distanceKm: number) {
+  if (distanceKm <= 1500) return { mode: "road", icon: "Truck", label: "Road freight", costRange: "..." };
+  if (distanceKm <= 8000) return { mode: "sea",  icon: "Ship",  label: "Sea freight",  costRange: "..." };
+  return { mode: "air", icon: "Plane", label: "Air freight", costRange: "..." };
+}
 ```
+
+**Updated popup components in `MapcnHeatMap.tsx`**
+- `BuyerPopupCard` — add distance row + transport chip
+- `ProducerPopup` — add distance row + transport chip
+- `SellerPopup` — add distance row (distance to that market region)
+- Pass `userLocation` down from `MapcnHeatMap` → each popup
+
+**Pass `userLocation` from `MapcnHeatMap`**
+- Call `useUserLocation()` at the top of `MapcnHeatMap`
+- Pass `userCoords` as a prop to `BuyerClusterLayer` (for the click popup) and to each `MapMarker` popup via the popup content component
 
 ---
 
@@ -117,6 +127,14 @@ useEffect(() => {
 
 | File | Change |
 |---|---|
-| `src/components/ui/map.tsx` | Fix `setStyle` timing (Bug 1), fix stale map context (Bug 3), add `styledata` listener in `MapClusterLayer` (Bug 2), add data-update effect in `MapClusterLayer` (Bug 4) |
+| `src/components/ui/map.tsx` | Fix Bug 1 (live `markerState`), Fix Bug 2 (stable `containerRef` in `MarkerTooltip`) |
+| `src/components/shared/MapcnHeatMap.tsx` | Call `useUserLocation`, pass coords to all popup components, enrich `BuyerPopupCard`, `ProducerPopup`, `SellerPopup` with distance + transport mode |
 
-No new files, no database changes, no new dependencies required.
+### New Files
+
+| File | Purpose |
+|---|---|
+| `src/hooks/useUserLocation.ts` | Browser geolocation hook with graceful fallback |
+| `src/utils/transportEstimate.ts` | Haversine distance + smart transport mode/cost estimator |
+
+No database changes, no new dependencies required.
