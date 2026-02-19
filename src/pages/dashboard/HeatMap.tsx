@@ -18,6 +18,7 @@ import { useAnalysisStore, useMapEntities } from "@/stores/analysisStore";
 import { useModeStore } from "@/stores/modeStore";
 import { DEMO_HEAT_MAP_REGIONS } from "@/data/demoMarketData";
 import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES, DEMO_SELLER_MAP_ENTITIES, DEMO_DEMAND_SIGNAL_ENTITIES } from "@/data/demoMapData";
+import { useDemandSignalStore } from "@/stores/demandSignalStore";
 import type { MarketHeatMapRegion, MapEntity } from "@/stores/analysisStore";
 
 const modeContent = {
@@ -63,9 +64,11 @@ function HeatMapContent() {
       ? hasRealEntities ? realMapEntities : DEMO_PRODUCER_MAP_ENTITIES
       : hasRealEntities ? realMapEntities : DEMO_SELLER_MAP_ENTITIES;
 
-  // In seller mode, always merge demand signal hotspot entities
+  // In seller mode, merge demand signal entities — prefer live scan results over demo
+  const { scannedEntities, hasScanned } = useDemandSignalStore();
+  const demandSignalEntities = hasScanned ? scannedEntities : DEMO_DEMAND_SIGNAL_ENTITIES;
   const mapEntities = mode === "seller"
-    ? [...baseEntities, ...DEMO_DEMAND_SIGNAL_ENTITIES]
+    ? [...baseEntities, ...demandSignalEntities]
     : baseEntities;
 
   const regions =
