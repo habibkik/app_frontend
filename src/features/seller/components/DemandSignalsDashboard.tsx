@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/useToast";
 import { supabase } from "@/integrations/supabase/client";
+import { useDemandSignalStore } from "@/stores/demandSignalStore";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import {
   DEMO_DEMAND_SIGNALS,
@@ -28,6 +29,7 @@ const growthBadge: Record<string, { variant: "default" | "secondary" | "outline"
 };
 
 export function DemandSignalsDashboard() {
+  const setFromScanResults = useDemandSignalStore((s) => s.setFromScanResults);
   const [selectedPlatforms, setSelectedPlatforms] = useState<DemandPlatform[]>([...ALL_PLATFORMS]);
   const [keywords, setKeywords] = useState("");
   const [signals, setSignals] = useState<DemandSignal[]>(DEMO_DEMAND_SIGNALS);
@@ -78,6 +80,7 @@ export function DemandSignalsDashboard() {
       if (data?.signals?.length) {
         setSignals(data.signals);
         setIsDemo(false);
+        setFromScanResults(data.signals);
       }
       if (data?.timeline?.length) setTimeline(data.timeline);
       toast({ title: "Scan complete", description: data?.summary || `Found ${data?.signals?.length || 0} signals` });
