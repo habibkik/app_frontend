@@ -4,7 +4,7 @@
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
 import { useState, useMemo, useEffect } from "react";
-import { Factory, Flame, TrendingUp, MapPin, Star, X, Search } from "lucide-react";
+import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MarkerTooltip, MapClusterLayer, MapPopup, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { MapEntity, MarketHeatMapRegion } from "@/stores/analysisStore";
 import type { DashboardMode } from "@/features/dashboard";
+import { useUserLocation, type UserCoords } from "@/hooks/useUserLocation";
+import { haversineKm, getTransportInfo, formatDistance } from "@/utils/transportEstimate";
 
 // ============================================================
 // TYPES
@@ -77,10 +79,46 @@ function MarkerDot({ color, icon: Icon }: { color: string; icon: React.ElementTy
 }
 
 // ============================================================
+// TRANSPORT CHIP — shown in all enriched popups
+// ============================================================
+function TransportChip({
+  lat, lng, userCoords,
+}: {
+  lat: number;
+  lng: number;
+  userCoords: UserCoords | null;
+}) {
+  if (!userCoords) return null;
+
+  const distKm = haversineKm(userCoords.lat, userCoords.lng, lat, lng);
+  const info = getTransportInfo(distKm);
+
+  const ModeIcon = info.mode === "road" ? Truck : info.mode === "sea" ? Ship : Plane;
+
+  return (
+    <div className="mt-2 pt-2 border-t border-border space-y-1.5">
+      <div className="flex items-center gap-1.5 text-xs">
+        <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
+        <span className="text-muted-foreground">Distance:</span>
+        <span className="font-semibold text-foreground">{formatDistance(distKm)}</span>
+      </div>
+      <div
+        className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium"
+        style={{ backgroundColor: `${info.color}1a`, color: info.color }}
+      >
+        <ModeIcon className="h-3.5 w-3.5 shrink-0" />
+        <span>{info.label}</span>
+        <span className="ml-auto opacity-80 font-normal">{info.costRange}</span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // BUYER POPUP CARD (used both inline and as standalone MapPopup)
 // ============================================================
 function BuyerPopupCard({
-  name, matchScore, city, country, priceMin, priceMax, onClose
+  name, matchScore, city, country, priceMin, priceMax, lat, lng, userCoords, onClose
 }: {
   name: string;
   matchScore?: number;
@@ -88,6 +126,9 @@ function BuyerPopupCard({
   country: string;
   priceMin?: number;
   priceMax?: number;
+  lat: number;
+  lng: number;
+  userCoords: UserCoords | null;
   onClose?: () => void;
 }) {
   const scoreColor =
@@ -98,7 +139,7 @@ function BuyerPopupCard({
       : "text-muted-foreground";
 
   return (
-    <div className="p-3 min-w-[200px] max-w-[260px]">
+    <div className="p-3 min-w-[220px] max-w-[280px]">
       <div className="flex items-start justify-between gap-2 mb-2">
         <h4 className="font-semibold text-sm leading-tight">{name}</h4>
         <div className="flex items-center gap-1 shrink-0">
@@ -130,6 +171,7 @@ function BuyerPopupCard({
           )}
         </div>
       </div>
+      <TransportChip lat={lat} lng={lng} userCoords={userCoords} />
     </div>
   );
 }
@@ -137,9 +179,9 @@ function BuyerPopupCard({
 // ============================================================
 // PRODUCER MARKER POPUP
 // ============================================================
-function ProducerPopup({ entity }: { entity: MapEntity }) {
+function ProducerPopup({ entity, userCoords }: { entity: MapEntity; userCoords: UserCoords | null }) {
   return (
-    <div className="p-3 min-w-[200px] max-w-[260px]">
+    <div className="p-3 min-w-[220px] max-w-[280px]">
       <div className="flex items-start justify-between gap-2 mb-2">
         <h4 className="font-semibold text-sm leading-tight">{entity.name}</h4>
         {entity.marketShare && (
@@ -169,6 +211,11 @@ function ProducerPopup({ entity }: { entity: MapEntity }) {
           <Badge variant="secondary" className="text-xs px-1.5 py-0">Competitor Factory</Badge>
         </div>
       </div>
+      <TransportChip
+        lat={entity.geoLocation.latitude}
+        lng={entity.geoLocation.longitude}
+        userCoords={userCoords}
+      />
     </div>
   );
 }
@@ -176,9 +223,9 @@ function ProducerPopup({ entity }: { entity: MapEntity }) {
 // ============================================================
 // SELLER REGION MARKER POPUP
 // ============================================================
-function SellerPopup({ region }: { region: MarketHeatMapRegion }) {
+function SellerPopup({ region, userCoords }: { region: MarketHeatMapRegion; userCoords: UserCoords | null }) {
   return (
-    <div className="p-3 min-w-[200px] max-w-[260px]">
+    <div className="p-3 min-w-[220px] max-w-[280px]">
       <div className="flex items-start justify-between gap-2 mb-2">
         <h4 className="font-semibold text-sm leading-tight">{region.region}</h4>
         <Badge variant={getOpportunityVariant(region.opportunity)} className="text-xs capitalize whitespace-nowrap">
@@ -213,6 +260,13 @@ function SellerPopup({ region }: { region: MarketHeatMapRegion }) {
           </Badge>
         </div>
       </div>
+      {region.geoLocation && (
+        <TransportChip
+          lat={region.geoLocation.latitude}
+          lng={region.geoLocation.longitude}
+          userCoords={userCoords}
+        />
+      )}
     </div>
   );
 }
@@ -226,7 +280,7 @@ interface SelectedPoint {
   props: SupplierFeatureProps;
 }
 
-function BuyerClusterLayer({ entities }: { entities: MapEntity[] }) {
+function BuyerClusterLayer({ entities, userCoords }: { entities: MapEntity[]; userCoords: UserCoords | null }) {
   const [selected, setSelected] = useState<SelectedPoint | null>(null);
 
   // Convert entities → GeoJSON FeatureCollection
@@ -284,6 +338,9 @@ function BuyerClusterLayer({ entities }: { entities: MapEntity[] }) {
             country={selected.props.country}
             priceMin={selected.props.priceMin}
             priceMax={selected.props.priceMax}
+            lat={selected.latitude}
+            lng={selected.longitude}
+            userCoords={userCoords}
             onClose={() => setSelected(null)}
           />
         </MapPopup>
@@ -573,6 +630,9 @@ function FlyToEntity({ entity }: { entity: MapEntity | null | undefined }) {
 }
 // ============================================================
 export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion, activeEntity, projection = "mercator" }: MapcnHeatMapProps) {
+  // User geolocation for distance + transport estimation
+  const userCoords = useUserLocation();
+
   // Filter state
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
@@ -665,7 +725,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
           <FlyToEntity entity={activeEntity} />
 
           {/* BUYER MODE — clustered supplier layer */}
-          {mode === "buyer" && <BuyerClusterLayer entities={filteredEntities} />}
+          {mode === "buyer" && <BuyerClusterLayer entities={filteredEntities} userCoords={userCoords} />}
 
           {/* PRODUCER MODE — competitor factory markers */}
           {mode === "producer" &&
@@ -685,7 +745,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                   )}
                 </MarkerTooltip>
                 <MarkerPopup>
-                  <ProducerPopup entity={entity} />
+                  <ProducerPopup entity={entity} userCoords={userCoords} />
                 </MarkerPopup>
               </MapMarker>
             ))}
@@ -711,7 +771,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                     <span className="ml-1 opacity-75">· {region.growth}</span>
                   </MarkerTooltip>
                   <MarkerPopup>
-                    <SellerPopup region={region} />
+                    <SellerPopup region={region} userCoords={userCoords} />
                   </MarkerPopup>
                 </MapMarker>
               ))}
@@ -729,7 +789,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                 onClose={() => setOpenPopupRegion(null)}
                 closeButton
               >
-                <SellerPopup region={target} />
+                <SellerPopup region={target} userCoords={userCoords} />
               </MapPopup>
             );
           })()}
@@ -741,3 +801,4 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
     </Card>
   );
 }
+
