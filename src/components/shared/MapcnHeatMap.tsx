@@ -765,6 +765,19 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
         <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
           <MapControls showZoom showFullscreen position="top-right" />
 
+          {/* User location blue dot */}
+          {userCoords && (
+            <MapMarker longitude={userCoords.lng} latitude={userCoords.lat}>
+              <MarkerContent>
+                <div className="relative flex items-center justify-center">
+                  <span className="absolute w-8 h-8 rounded-full bg-blue-500/30 animate-ping" />
+                  <span className="absolute w-6 h-6 rounded-full bg-blue-500/20 animate-pulse" />
+                  <div className="relative w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white shadow-md" />
+                </div>
+              </MarkerContent>
+            </MapMarker>
+          )}
+
           {/* FlyTo handlers — fire when a grid card is clicked */}
           <FlyToRegion
             region={activeRegion}
