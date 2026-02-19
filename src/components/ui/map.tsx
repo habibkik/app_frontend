@@ -215,7 +215,17 @@ export function Map({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Sync style when theme changes
+  // Reactively update projection when the prop changes after initial load
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !isLoaded || !projection) return;
+    try {
+      (map as any).setProjection?.(projection);
+    } catch {
+      // setProjection not supported — safe to ignore
+    }
+  }, [projection, isLoaded]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isLoaded) return;
