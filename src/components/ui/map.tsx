@@ -153,6 +153,7 @@ export function Map({
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [mapInstance, setMapInstance] = useState<maplibregl.Map | null>(null);
   const theme = useTheme(themeProp);
 
   const getStyle = useCallback(
@@ -209,10 +210,12 @@ export function Map({
     }
 
     mapRef.current = map;
+    setMapInstance(map);
 
     return () => {
       map.remove();
       mapRef.current = null;
+      setMapInstance(null);
       setIsLoaded(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -229,11 +232,18 @@ export function Map({
     }
   }, [projection, isLoaded]);
 
+  const prevThemeRef = useRef<string | null>(null);
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !isLoaded) return;
+    if (!map) return;
+    if (prevThemeRef.current === null) {
+      prevThemeRef.current = theme;
+      return;
+    }
+    if (prevThemeRef.current === theme) return;
+    prevThemeRef.current = theme;
     map.setStyle(getStyle(theme));
-  }, [theme, getStyle, isLoaded]);
+  }, [theme, getStyle]);
 
   // Sync controlled viewport
   useEffect(() => {
@@ -248,7 +258,7 @@ export function Map({
   }, [viewport]);
 
   return (
-    <MapContext.Provider value={{ map: mapRef.current, isLoaded }}>
+    <MapContext.Provider value={{ map: mapInstance, isLoaded }}>
       <div ref={containerRef} className={cn("w-full h-full relative", className)}>
         {isLoaded && children}
       </div>
@@ -640,109 +650,118 @@ export function MapClusterLayer<T = Record<string, unknown>>({
 }: MapClusterLayerProps<T>) {
   const { map, isLoaded } = useMap();
   const sourceId = useRef(`cluster-source-${Math.random().toString(36).slice(2)}`);
+  const onPointClickRef = useRef(onPointClick);
+  const onClusterClickRef = useRef(onClusterClick);
+  useEffect(() => { onPointClickRef.current = onPointClick; }, [onPointClick]);
+  useEffect(() => { onClusterClickRef.current = onClusterClick; }, [onClusterClick]);
 
   useEffect(() => {
     if (!map || !isLoaded) return;
 
     const sid = sourceId.current;
 
-    map.addSource(sid, {
-      type: "geojson",
-      data: data as GeoJSON.FeatureCollection,
-      cluster: true,
-      clusterMaxZoom,
-      clusterRadius,
-    });
+    const addLayersAndSource = () => {
+      if (map.getSource(sid)) return;
 
-    map.addLayer({
-      id: `${sid}-clusters`,
-      type: "circle",
-      source: sid,
-      filter: ["has", "point_count"],
-      paint: {
-        "circle-color": [
-          "step",
-          ["get", "point_count"],
-          clusterColors[0],
-          clusterThresholds[0],
-          clusterColors[1],
-          clusterThresholds[1],
-          clusterColors[2],
-        ],
-        "circle-radius": ["step", ["get", "point_count"], 20, clusterThresholds[0], 30, clusterThresholds[1], 40],
-      },
-    });
+      try {
+        map.addSource(sid, {
+          type: "geojson",
+          data: data as GeoJSON.FeatureCollection,
+          cluster: true,
+          clusterMaxZoom,
+          clusterRadius,
+        });
 
-    map.addLayer({
-      id: `${sid}-cluster-count`,
-      type: "symbol",
-      source: sid,
-      filter: ["has", "point_count"],
-      layout: {
-        "text-field": "{point_count_abbreviated}",
-        "text-font": ["Open Sans Semibold"],
-        "text-size": 12,
-      },
-      paint: { "text-color": "#ffffff" },
-    });
+        map.addLayer({
+          id: `${sid}-clusters`,
+          type: "circle",
+          source: sid,
+          filter: ["has", "point_count"],
+          paint: {
+            "circle-color": [
+              "step",
+              ["get", "point_count"],
+              clusterColors[0],
+              clusterThresholds[0],
+              clusterColors[1],
+              clusterThresholds[1],
+              clusterColors[2],
+            ],
+            "circle-radius": ["step", ["get", "point_count"], 20, clusterThresholds[0], 30, clusterThresholds[1], 40],
+          },
+        });
 
-    map.addLayer({
-      id: `${sid}-unclustered-point`,
-      type: "circle",
-      source: sid,
-      filter: ["!", ["has", "point_count"]],
-      paint: {
-        "circle-color": pointColor,
-        "circle-radius": 6,
-        "circle-stroke-width": 2,
-        "circle-stroke-color": "#ffffff",
-      },
-    });
+        map.addLayer({
+          id: `${sid}-cluster-count`,
+          type: "symbol",
+          source: sid,
+          filter: ["has", "point_count"],
+          layout: {
+            "text-field": "{point_count_abbreviated}",
+            "text-font": ["Open Sans Semibold"],
+            "text-size": 12,
+          },
+          paint: { "text-color": "#ffffff" },
+        });
 
-    if (onPointClick) {
-      map.on("click", `${sid}-unclustered-point`, (e) => {
-        const feature = e.features?.[0];
-        if (feature) {
-          const coords = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
-          onPointClick(feature as GeoJSON.Feature, coords);
-        }
-      });
-    }
+        map.addLayer({
+          id: `${sid}-unclustered-point`,
+          type: "circle",
+          source: sid,
+          filter: ["!", ["has", "point_count"]],
+          paint: {
+            "circle-color": pointColor,
+            "circle-radius": 6,
+            "circle-stroke-width": 2,
+            "circle-stroke-color": "#ffffff",
+          },
+        });
 
-    if (!onClusterClick) {
-      map.on("click", `${sid}-clusters`, async (e) => {
-        const features = map.queryRenderedFeatures(e.point, { layers: [`${sid}-clusters`] });
-        const clusterId = features[0]?.properties?.cluster_id;
-        if (clusterId) {
-          const source = map.getSource(sid) as maplibregl.GeoJSONSource;
-          const zoom = await source.getClusterExpansionZoom(clusterId);
-          map.easeTo({ center: (features[0].geometry as GeoJSON.Point).coordinates as [number, number], zoom });
-        }
-      });
-    } else {
-      map.on("click", `${sid}-clusters`, (e) => {
-        const features = map.queryRenderedFeatures(e.point, { layers: [`${sid}-clusters`] });
-        const f = features[0];
-        if (f) {
-          onClusterClick(
-            f.properties?.cluster_id,
-            (f.geometry as GeoJSON.Point).coordinates as [number, number],
-            f.properties?.point_count
-          );
-        }
-      });
-    }
+        map.on("click", `${sid}-unclustered-point`, (e) => {
+          const feature = e.features?.[0];
+          if (feature && onPointClickRef.current) {
+            const coords = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
+            onPointClickRef.current(feature as GeoJSON.Feature, coords);
+          }
+        });
 
-    map.on("mouseenter", `${sid}-clusters`, () => { map.getCanvas().style.cursor = "pointer"; });
-    map.on("mouseleave", `${sid}-clusters`, () => { map.getCanvas().style.cursor = ""; });
-    map.on("mouseenter", `${sid}-unclustered-point`, () => { map.getCanvas().style.cursor = "pointer"; });
-    map.on("mouseleave", `${sid}-unclustered-point`, () => { map.getCanvas().style.cursor = ""; });
+        map.on("click", `${sid}-clusters`, async (e) => {
+          const features = map.queryRenderedFeatures(e.point, { layers: [`${sid}-clusters`] });
+          const f = features[0];
+          if (!f) return;
+
+          if (onClusterClickRef.current) {
+            onClusterClickRef.current(
+              f.properties?.cluster_id,
+              (f.geometry as GeoJSON.Point).coordinates as [number, number],
+              f.properties?.point_count
+            );
+          } else {
+            const clusterId = f.properties?.cluster_id;
+            if (clusterId) {
+              const source = map.getSource(sid) as maplibregl.GeoJSONSource;
+              const zoom = await source.getClusterExpansionZoom(clusterId);
+              map.easeTo({ center: (f.geometry as GeoJSON.Point).coordinates as [number, number], zoom });
+            }
+          }
+        });
+
+        map.on("mouseenter", `${sid}-clusters`, () => { map.getCanvas().style.cursor = "pointer"; });
+        map.on("mouseleave", `${sid}-clusters`, () => { map.getCanvas().style.cursor = ""; });
+        map.on("mouseenter", `${sid}-unclustered-point`, () => { map.getCanvas().style.cursor = "pointer"; });
+        map.on("mouseleave", `${sid}-unclustered-point`, () => { map.getCanvas().style.cursor = ""; });
+      } catch {
+        // Safe to ignore if layers already exist or map is in bad state
+      }
+    };
+
+    addLayersAndSource();
+
+    map.on("styledata", addLayersAndSource);
 
     return () => {
+      map.off("styledata", addLayersAndSource);
       // Guard: MapLibre sets _removed=true after map.remove() is called.
-      // React may run this cleanup after the map is already destroyed, so we
-      // must check before touching any layers/sources to avoid the
-      // "Cannot read properties of undefined (reading 'getLayer')" crash.
       try {
         if ((map as any)._removed) return;
         if (map.getLayer(`${sid}-clusters`)) map.removeLayer(`${sid}-clusters`);
@@ -755,6 +774,14 @@ export function MapClusterLayer<T = Record<string, unknown>>({
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, isLoaded]);
+
+  useEffect(() => {
+    if (!map || !isLoaded) return;
+    const source = map.getSource(sourceId.current) as maplibregl.GeoJSONSource | undefined;
+    if (source && typeof data !== "string") {
+      source.setData(data as GeoJSON.FeatureCollection);
+    }
+  }, [data, map, isLoaded]);
 
   return null;
 }
