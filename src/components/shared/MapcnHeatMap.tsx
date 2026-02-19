@@ -1,11 +1,14 @@
 /**
  * MapcnHeatMap — Mode-aware interactive map using mapcn (MapLibre GL).
  * No API key required. Uses free CARTO tiles with auto light/dark theme.
+ * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
-import { Package, Factory, Flame, TrendingUp, MapPin, Star } from "lucide-react";
-import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MarkerTooltip } from "@/components/ui/map";
+import { useState, useMemo } from "react";
+import { Package, Factory, Flame, TrendingUp, MapPin, Star, X } from "lucide-react";
+import { Map, MapControls, MapMarker, MarkerContent, MarkerPopup, MarkerTooltip, MapClusterLayer, MapPopup } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { MapEntity, MarketHeatMapRegion } from "@/stores/analysisStore";
 import type { DashboardMode } from "@/features/dashboard";
 
@@ -20,20 +23,30 @@ interface MapcnHeatMapProps {
   className?: string;
 }
 
+interface SupplierFeatureProps {
+  id: string;
+  name: string;
+  matchScore?: number;
+  priceMin?: number;
+  priceMax?: number;
+  city: string;
+  country: string;
+}
+
 // ============================================================
 // COLOR HELPERS
 // ============================================================
 function getBuyerMarkerColor(score?: number): string {
-  if (!score) return "#94a3b8"; // slate-400
+  if (!score) return "#94a3b8";
   if (score >= 80) return "#10b981"; // emerald-500
   if (score >= 60) return "#3b82f6"; // blue-500
   return "#94a3b8"; // slate-400
 }
 
 function getDemandMarkerColor(demand?: string): string {
-  if (demand === "high") return "#ef4444";   // red-500
-  if (demand === "medium") return "#f59e0b"; // amber-500
-  return "#3b82f6"; // blue-500
+  if (demand === "high") return "#ef4444";
+  if (demand === "medium") return "#f59e0b";
+  return "#3b82f6";
 }
 
 function getOpportunityVariant(opportunity?: string): "default" | "secondary" | "destructive" | "outline" {
@@ -57,40 +70,56 @@ function MarkerDot({ color, icon: Icon }: { color: string; icon: React.ElementTy
 }
 
 // ============================================================
-// BUYER MARKER POPUP
+// BUYER POPUP CARD (used both inline and as standalone MapPopup)
 // ============================================================
-function BuyerPopup({ entity }: { entity: MapEntity }) {
-  const scoreColor = entity.matchScore && entity.matchScore >= 80
-    ? "text-emerald-600"
-    : entity.matchScore && entity.matchScore >= 60
-    ? "text-blue-600"
-    : "text-muted-foreground";
+function BuyerPopupCard({
+  name, matchScore, city, country, priceMin, priceMax, onClose
+}: {
+  name: string;
+  matchScore?: number;
+  city: string;
+  country: string;
+  priceMin?: number;
+  priceMax?: number;
+  onClose?: () => void;
+}) {
+  const scoreColor =
+    matchScore && matchScore >= 80
+      ? "text-emerald-600"
+      : matchScore && matchScore >= 60
+      ? "text-blue-600"
+      : "text-muted-foreground";
 
   return (
     <div className="p-3 min-w-[200px] max-w-[260px]">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h4 className="font-semibold text-sm leading-tight">{entity.name}</h4>
-        {entity.matchScore && (
-          <span className={`text-sm font-bold whitespace-nowrap ${scoreColor}`}>
-            {entity.matchScore}%
-          </span>
-        )}
+        <h4 className="font-semibold text-sm leading-tight">{name}</h4>
+        <div className="flex items-center gap-1 shrink-0">
+          {matchScore && (
+            <span className={`text-sm font-bold ${scoreColor}`}>{matchScore}%</span>
+          )}
+          {onClose && (
+            <button onClick={onClose} className="ml-1 text-muted-foreground hover:text-foreground">
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <MapPin className="h-3 w-3 shrink-0" />
-          <span>{entity.geoLocation.city}, {entity.geoLocation.country}</span>
+          <span>{city}, {country}</span>
         </div>
-        {entity.priceRange && (
+        {priceMin !== undefined && priceMax !== undefined && (
           <div className="flex items-center gap-1.5">
             <Star className="h-3 w-3 shrink-0" />
-            <span>Price: ${entity.priceRange.min} – ${entity.priceRange.max}</span>
+            <span>Price: ${priceMin} – ${priceMax}</span>
           </div>
         )}
         <div className="flex items-center gap-1.5 mt-1">
           <Badge variant="secondary" className="text-xs px-1.5 py-0">Supplier</Badge>
-          {entity.matchScore && entity.matchScore >= 80 && (
-            <Badge className="text-xs px-1.5 py-0 bg-emerald-500">Top Match</Badge>
+          {matchScore && matchScore >= 80 && (
+            <Badge className="text-xs px-1.5 py-0 bg-emerald-500 text-white border-0">Top Match</Badge>
           )}
         </div>
       </div>
@@ -182,21 +211,91 @@ function SellerPopup({ region }: { region: MarketHeatMapRegion }) {
 }
 
 // ============================================================
+// BUYER CLUSTER MAP (inner component, rendered inside <Map>)
+// ============================================================
+interface SelectedPoint {
+  longitude: number;
+  latitude: number;
+  props: SupplierFeatureProps;
+}
+
+function BuyerClusterLayer({ entities }: { entities: MapEntity[] }) {
+  const [selected, setSelected] = useState<SelectedPoint | null>(null);
+
+  // Convert entities → GeoJSON FeatureCollection
+  const geojson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point, SupplierFeatureProps>>(() => ({
+    type: "FeatureCollection",
+    features: entities.map((e) => ({
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [e.geoLocation.longitude, e.geoLocation.latitude],
+      },
+      properties: {
+        id: e.id,
+        name: e.name,
+        matchScore: e.matchScore,
+        priceMin: e.priceRange?.min,
+        priceMax: e.priceRange?.max,
+        city: e.geoLocation.city,
+        country: e.geoLocation.country,
+      },
+    })),
+  }), [entities]);
+
+  return (
+    <>
+      <MapClusterLayer<SupplierFeatureProps>
+        data={geojson}
+        clusterMaxZoom={12}
+        clusterRadius={60}
+        clusterColors={["#10b981", "#3b82f6", "#6366f1"]}
+        clusterThresholds={[5, 20]}
+        pointColor="#10b981"
+        onPointClick={(feature, coordinates) => {
+          const props = feature.properties as SupplierFeatureProps;
+          setSelected({
+            longitude: coordinates[0],
+            latitude: coordinates[1],
+            props,
+          });
+        }}
+      />
+
+      {/* Popup for clicked individual supplier point */}
+      {selected && (
+        <MapPopup
+          longitude={selected.longitude}
+          latitude={selected.latitude}
+          onClose={() => setSelected(null)}
+          closeButton
+        >
+          <BuyerPopupCard
+            name={selected.props.name}
+            matchScore={selected.props.matchScore}
+            city={selected.props.city}
+            country={selected.props.country}
+            priceMin={selected.props.priceMin}
+            priceMax={selected.props.priceMax}
+            onClose={() => setSelected(null)}
+          />
+        </MapPopup>
+      )}
+    </>
+  );
+}
+
+// ============================================================
 // MAIN COMPONENT
 // ============================================================
 export function MapcnHeatMap({ entities, regions, mode, height = 500, className }: MapcnHeatMapProps) {
-  // Compute a sensible initial center based on first data point
   const firstEntityLng = entities[0]?.geoLocation.longitude ?? 20;
   const firstEntityLat = entities[0]?.geoLocation.latitude ?? 20;
   const firstRegionLng = regions[0]?.geoLocation?.longitude ?? 20;
   const firstRegionLat = regions[0]?.geoLocation?.latitude ?? 20;
 
-  const centerLng = mode === "seller"
-    ? firstRegionLng
-    : firstEntityLng;
-  const centerLat = mode === "seller"
-    ? firstRegionLat
-    : firstEntityLat;
+  const centerLng = mode === "seller" ? firstRegionLng : firstEntityLng;
+  const centerLat = mode === "seller" ? firstRegionLat : firstEntityLat;
 
   if (entities.length === 0 && regions.length === 0) {
     return (
@@ -216,35 +315,29 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className 
 
   return (
     <Card className={`overflow-hidden p-0 ${className ?? ""}`}>
+      {/* Legend for buyer cluster colors */}
+      {mode === "buyer" && (
+        <div className="px-4 py-2 border-b flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
+          <span className="font-medium text-foreground">Cluster size:</span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full inline-block bg-emerald-500" /> Small (&lt;5)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full inline-block bg-blue-500" /> Medium (5–20)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full inline-block bg-indigo-500" /> Large (20+)
+          </span>
+          <span className="ml-auto opacity-70">Click a point to see supplier details · Scroll to zoom &amp; expand clusters</span>
+        </div>
+      )}
+
       <div style={{ height }} className="w-full">
         <Map center={[centerLng, centerLat]} zoom={1.8} className="w-full h-full">
           <MapControls showZoom showFullscreen position="top-right" />
 
-          {/* BUYER MODE — supplier markers */}
-          {mode === "buyer" &&
-            entities.map((entity) => (
-              <MapMarker
-                key={entity.id}
-                longitude={entity.geoLocation.longitude}
-                latitude={entity.geoLocation.latitude}
-              >
-                <MarkerContent>
-                  <MarkerDot
-                    color={getBuyerMarkerColor(entity.matchScore)}
-                    icon={Package}
-                  />
-                </MarkerContent>
-                <MarkerTooltip>
-                  <span className="font-medium">{entity.name}</span>
-                  {entity.matchScore && (
-                    <span className="ml-1 opacity-75">({entity.matchScore}%)</span>
-                  )}
-                </MarkerTooltip>
-                <MarkerPopup>
-                  <BuyerPopup entity={entity} />
-                </MarkerPopup>
-              </MapMarker>
-            ))}
+          {/* BUYER MODE — clustered supplier layer */}
+          {mode === "buyer" && <BuyerClusterLayer entities={entities} />}
 
           {/* PRODUCER MODE — competitor factory markers */}
           {mode === "producer" &&
