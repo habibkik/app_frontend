@@ -33,6 +33,7 @@ export const SocialImagePostsTab: React.FC<Props> = ({ posts, images }) => {
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
   const navigate = useNavigate();
   const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
+  const setPendingBatchPosts = useContentStudioStore((s) => s.setPendingBatchPosts);
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -57,13 +58,12 @@ export const SocialImagePostsTab: React.FC<Props> = ({ posts, images }) => {
 
   const handleSendAllToPublisher = () => {
     if (posts.length === 0) return;
-    // Send the first post and let the user pick others from the publisher
-    const first = posts[0];
-    setPendingPublisherPost({
-      content: buildFullText(first),
-      platform: first.platform,
-    });
-    toast.success("Sending posts to Publisher — select platforms there");
+    const batchPosts = posts.map((post) => ({
+      content: buildFullText(post),
+      platform: post.platform,
+    }));
+    setPendingBatchPosts(batchPosts);
+    toast.success("Sending all posts as a batch campaign to Publisher");
     navigate("/dashboard/publisher");
   };
 

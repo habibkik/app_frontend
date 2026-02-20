@@ -51,6 +51,10 @@ interface ContentStudioStore {
   // Publisher integration
   pendingPublisherPost: { content: string; platform: string } | null;
   setPendingPublisherPost: (post: { content: string; platform: string } | null) => void;
+
+  // Batch campaign
+  pendingBatchPosts: { content: string; platform: string }[];
+  setPendingBatchPosts: (posts: { content: string; platform: string }[]) => void;
 }
 
 const initialImages: GeneratedImage[] = [
@@ -103,4 +107,7 @@ export const useContentStudioStore = create<ContentStudioStore>((set) => ({
 
   pendingPublisherPost: null,
   setPendingPublisherPost: (pendingPublisherPost) => set({ pendingPublisherPost }),
+
+  pendingBatchPosts: [],
+  setPendingBatchPosts: (pendingBatchPosts) => set({ pendingBatchPosts }),
 }));

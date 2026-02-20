@@ -115,6 +115,8 @@ export function SocialPublisher() {
   const studioItems = useContentStudioStore((s) => s.savedItems);
   const pendingPublisherPost = useContentStudioStore((s) => s.pendingPublisherPost);
   const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
+  const pendingBatchPosts = useContentStudioStore((s) => s.pendingBatchPosts);
+  const setPendingBatchPosts = useContentStudioStore((s) => s.setPendingBatchPosts);
 
   // Content
   const [contentSource, setContentSource] = useState<"studio" | "custom" | "upload">("custom");
@@ -146,8 +148,18 @@ export function SocialPublisher() {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showBatchModal, setShowBatchModal] = useState(false);
   const [editTarget, setEditTarget] = useState<"a" | "b">("a");
   const [lastCampaignId, setLastCampaignId] = useState("");
+
+  // Batch campaign
+  interface BatchItem {
+    content: string;
+    platform: string;
+    scheduledDate?: Date;
+    scheduledTime: string;
+  }
+  const [batchItems, setBatchItems] = useState<BatchItem[]>([]);
 
   // Posts
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
@@ -207,6 +219,72 @@ export function SocialPublisher() {
       setPendingPublisherPost(null);
     }
   }, [pendingPublisherPost, setPendingPublisherPost, toast]);
+
+  // Consume batch posts from Content Studio
+  useEffect(() => {
+    if (pendingBatchPosts.length > 0) {
+      const items = pendingBatchPosts.map((p) => ({
+        content: p.content,
+        platform: p.platform,
+        scheduledTime: "12:00",
+      }));
+      setBatchItems(items);
+      setShowBatchModal(true);
+      setPendingBatchPosts([]);
+    }
+  }, [pendingBatchPosts, setPendingBatchPosts]);
+
+  const handleScheduleBatch = async () => {
+    setIsSubmitting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const newPosts: ScheduledPost[] = [];
+      for (const item of batchItems) {
+        let scheduledAt: string | null = null;
+        if (item.scheduledDate) {
+          const [hours, minutes] = item.scheduledTime.split(":").map(Number);
+          const dt = new Date(item.scheduledDate);
+          dt.setHours(hours, minutes, 0, 0);
+          scheduledAt = dt.toISOString();
+        }
+
+        const { error } = await supabase.from("scheduled_posts").insert({
+          content: item.content,
+          platforms: [item.platform.toLowerCase()],
+          scheduled_at: scheduledAt,
+          status: scheduledAt ? "scheduled" : "draft",
+          user_id: user.id,
+        });
+        if (error) throw error;
+
+        newPosts.push({
+          id: generateCampaignId(),
+          content: item.content,
+          platforms: [item.platform.toLowerCase()],
+          scheduledAt,
+          status: scheduledAt ? "scheduled" : "draft",
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      setScheduledPosts((prev) => [...newPosts, ...prev]);
+      setShowBatchModal(false);
+      setBatchItems([]);
+      const scheduled = newPosts.filter((p) => p.status === "scheduled").length;
+      const drafts = newPosts.length - scheduled;
+      toast({
+        title: "Batch campaign created!",
+        description: `${scheduled} scheduled, ${drafts} saved as drafts`,
+      });
+    } catch (err: any) {
+      console.error("Batch schedule error:", err);
+      toast({ title: "Error", description: err.message || "Failed to schedule batch", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const utmPreviewUrl = useMemo(
     () => buildUtmUrl("https://yoursite.com/product", utmParams),
@@ -972,6 +1050,129 @@ export function SocialPublisher() {
               </Button>
               <Button onClick={() => setShowSuccessModal(false)}>
                 View scheduled posts
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Batch Campaign Modal */}
+      <Dialog open={showBatchModal} onOpenChange={setShowBatchModal}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5 text-primary" />
+              Batch Campaign — {batchItems.length} Posts
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Set individual schedule times for each platform post, or leave blank to save as draft.
+          </p>
+          <div className="space-y-4 mt-2">
+            {batchItems.map((item, idx) => {
+              const platformConfig = PLATFORMS.find((p) => p.id === item.platform.toLowerCase());
+              return (
+                <div key={idx} className="rounded-lg border p-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{platformConfig?.icon ?? "📝"}</span>
+                    <span className="text-sm font-medium capitalize">{platformConfig?.name ?? item.platform}</span>
+                    {item.scheduledDate && (
+                      <Badge variant="outline" className="ml-auto text-xs">
+                        {format(item.scheduledDate, "MMM d")} at {item.scheduledTime}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{item.content}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className={cn("text-xs", !item.scheduledDate && "text-muted-foreground")}>
+                          <CalendarIcon className="h-3 w-3 mr-1" />
+                          {item.scheduledDate ? format(item.scheduledDate, "PPP") : "Pick date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={item.scheduledDate}
+                          onSelect={(d) => {
+                            setBatchItems((prev) =>
+                              prev.map((bi, i) => i === idx ? { ...bi, scheduledDate: d } : bi)
+                            );
+                          }}
+                          disabled={(d) => d < new Date()}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <div className="relative">
+                      <Clock className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                      <Input
+                        type="time"
+                        value={item.scheduledTime}
+                        onChange={(e) => {
+                          setBatchItems((prev) =>
+                            prev.map((bi, i) => i === idx ? { ...bi, scheduledTime: e.target.value } : bi)
+                          );
+                        }}
+                        className="h-8 w-28 pl-7 text-xs"
+                      />
+                    </div>
+                    {item.scheduledDate && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs h-8"
+                        onClick={() => {
+                          setBatchItems((prev) =>
+                            prev.map((bi, i) => i === idx ? { ...bi, scheduledDate: undefined } : bi)
+                          );
+                        }}
+                      >
+                        <X className="h-3 w-3 mr-1" /> Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const times = ["09:00", "11:00", "14:00", "17:00", "19:00"];
+                setBatchItems((prev) =>
+                  prev.map((bi, i) => ({
+                    ...bi,
+                    scheduledDate: tomorrow,
+                    scheduledTime: times[i % times.length],
+                  }))
+                );
+                toast({ title: "AI Suggestion", description: "Staggered times set for optimal engagement" });
+              }}
+            >
+              <Sparkles className="h-3.5 w-3.5 mr-1 text-primary" />
+              Auto-stagger times
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowBatchModal(false)}>Cancel</Button>
+              <Button onClick={handleScheduleBatch} disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Scheduling...
+                  </span>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-1.5" />
+                    Schedule {batchItems.filter((b) => b.scheduledDate).length} / Save {batchItems.filter((b) => !b.scheduledDate).length} drafts
+                  </>
+                )}
               </Button>
             </div>
           </div>
