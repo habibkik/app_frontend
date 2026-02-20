@@ -113,6 +113,8 @@ export function SocialPublisher() {
   const { toast } = useToast();
   const { posting, publishPost } = useSocialPosting();
   const studioItems = useContentStudioStore((s) => s.savedItems);
+  const pendingPublisherPost = useContentStudioStore((s) => s.pendingPublisherPost);
+  const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
 
   // Content
   const [contentSource, setContentSource] = useState<"studio" | "custom" | "upload">("custom");
@@ -189,7 +191,23 @@ export function SocialPublisher() {
     loadPosts();
   }, []);
 
-  // Derived
+  // Consume pending post from Content Studio
+  useEffect(() => {
+    if (pendingPublisherPost) {
+      setContent(pendingPublisherPost.content);
+      setContentSource("studio");
+      const platformId = pendingPublisherPost.platform.toLowerCase();
+      const validPlatform = PLATFORMS.find((p) => p.id === platformId);
+      if (validPlatform) {
+        setSelectedPlatforms((prev) =>
+          prev.includes(platformId) ? prev : [...prev, platformId]
+        );
+      }
+      toast({ title: "Content loaded from Content Studio", description: `${validPlatform?.name || pendingPublisherPost.platform} post ready to publish` });
+      setPendingPublisherPost(null);
+    }
+  }, [pendingPublisherPost, setPendingPublisherPost, toast]);
+
   const utmPreviewUrl = useMemo(
     () => buildUtmUrl("https://yoursite.com/product", utmParams),
     [utmParams],

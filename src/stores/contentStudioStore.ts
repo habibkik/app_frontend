@@ -47,6 +47,10 @@ interface ContentStudioStore {
   setIsGeneratingKit: (v: boolean) => void;
   setCurrentStepIndex: (i: number) => void;
   resetKit: () => void;
+
+  // Publisher integration
+  pendingPublisherPost: { content: string; platform: string } | null;
+  setPendingPublisherPost: (post: { content: string; platform: string } | null) => void;
 }
 
 const initialImages: GeneratedImage[] = [
@@ -96,4 +100,7 @@ export const useContentStudioStore = create<ContentStudioStore>((set) => ({
       isGeneratingKit: false,
       currentStepIndex: 0,
     }),
+
+  pendingPublisherPost: null,
+  setPendingPublisherPost: (pendingPublisherPost) => set({ pendingPublisherPost }),
 }));

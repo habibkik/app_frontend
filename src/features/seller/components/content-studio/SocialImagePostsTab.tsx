@@ -1,9 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Check, ImageIcon } from "lucide-react";
+import { Copy, Check, ImageIcon, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useContentStudioStore } from "@/stores/contentStudioStore";
 import type { SocialImagePost, GeneratedImage } from "./types";
 import { Instagram, Facebook, Linkedin, Twitter } from "lucide-react";
 
@@ -29,6 +31,8 @@ interface Props {
 
 export const SocialImagePostsTab: React.FC<Props> = ({ posts, images }) => {
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
+  const navigate = useNavigate();
+  const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
 
   const handleCopy = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
@@ -39,16 +43,49 @@ export const SocialImagePostsTab: React.FC<Props> = ({ posts, images }) => {
 
   const getImage = (imageId: string) => images.find((i) => i.id === imageId);
 
+  const buildFullText = (post: SocialImagePost) =>
+    `${post.hook}\n\n${post.caption}\n\n${post.cta}\n\n${post.hashtags.map((h) => `#${h}`).join(" ")}`;
+
+  const handleSendToPublisher = (post: SocialImagePost) => {
+    setPendingPublisherPost({
+      content: buildFullText(post),
+      platform: post.platform,
+    });
+    toast.success(`Sending ${post.platform} post to Publisher`);
+    navigate("/dashboard/publisher");
+  };
+
+  const handleSendAllToPublisher = () => {
+    if (posts.length === 0) return;
+    // Send the first post and let the user pick others from the publisher
+    const first = posts[0];
+    setPendingPublisherPost({
+      content: buildFullText(first),
+      platform: first.platform,
+    });
+    toast.success("Sending posts to Publisher — select platforms there");
+    navigate("/dashboard/publisher");
+  };
+
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Social Media Posts with Image</h3>
-      <p className="text-sm text-muted-foreground">
-        5 platform-optimized posts with attached generated images.
-      </p>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h3 className="text-lg font-semibold">Social Media Posts with Image</h3>
+          <p className="text-sm text-muted-foreground">
+            5 platform-optimized posts with attached generated images.
+          </p>
+        </div>
+        {posts.length > 0 && (
+          <Button size="sm" onClick={handleSendAllToPublisher}>
+            <Send className="h-3 w-3 mr-1" /> Send All to Publisher
+          </Button>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {posts.map((post) => {
           const img = getImage(post.imageId);
-          const fullText = `${post.hook}\n\n${post.caption}\n\n${post.cta}\n\n${post.hashtags.map((h) => `#${h}`).join(" ")}`;
+          const fullText = buildFullText(post);
           return (
             <Card key={post.id}>
               <CardHeader className="pb-2">
@@ -85,18 +122,27 @@ export const SocialImagePostsTab: React.FC<Props> = ({ posts, images }) => {
                     </Badge>
                   ))}
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => handleCopy(fullText, post.id)}
-                >
-                  {copiedId === post.id ? (
-                    <><Check className="h-3 w-3 mr-1" /> Copied</>
-                  ) : (
-                    <><Copy className="h-3 w-3 mr-1" /> Copy Post</>
-                  )}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleCopy(fullText, post.id)}
+                  >
+                    {copiedId === post.id ? (
+                      <><Check className="h-3 w-3 mr-1" /> Copied</>
+                    ) : (
+                      <><Copy className="h-3 w-3 mr-1" /> Copy</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleSendToPublisher(post)}
+                  >
+                    <Send className="h-3 w-3 mr-1" /> Publish
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
