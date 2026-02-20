@@ -5,8 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ImageIcon, Check } from "lucide-react";
 import { useWebsiteBuilderStore } from "@/stores/websiteBuilderStore";
+import { useContentStudioStore } from "@/stores/contentStudioStore";
 import { BLOCK_META } from "./blocks";
 import type {
   HeroBlockConfig,
@@ -63,12 +64,41 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function HeroForm({ config, update }: { config: HeroBlockConfig; update: (c: any) => void }) {
+  const studioImages = useContentStudioStore((s) => s.images);
+  const available = studioImages.filter((img) => img.imageUrl);
+
   return (
     <>
       <Field label="Title"><Input value={config.title} onChange={(e) => update({ title: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Background Image URL"><Input value={config.backgroundImageUrl} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      {available.length > 0 && (
+        <div className="space-y-1.5">
+          <Label className="text-xs flex items-center gap-1"><ImageIcon className="h-3 w-3" /> Pick from Content Studio</Label>
+          <div className="grid grid-cols-2 gap-1.5">
+            {available.map((img) => {
+              const selected = config.backgroundImageUrl === img.imageUrl;
+              return (
+                <button
+                  key={img.id}
+                  type="button"
+                  onClick={() => update({ backgroundImageUrl: img.imageUrl })}
+                  className={`relative rounded-md overflow-hidden border-2 transition-all aspect-video ${selected ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/40"}`}
+                >
+                  <img src={img.imageUrl!} alt={img.label} className="w-full h-full object-cover" />
+                  {selected && (
+                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                      <Check className="h-4 w-4 text-primary-foreground drop-shadow" />
+                    </div>
+                  )}
+                  <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate">{img.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </>
   );
 }
