@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import {
@@ -6,6 +6,7 @@ import {
   Sparkles, Link2, FlaskConical, CheckCircle2, AlertCircle, Globe, Upload,
   FileText, ChevronDown, ChevronRight, X, RotateCcw,
   BarChart3, Heart, MessageSquare, Share2, MousePointerClick,
+  ImageIcon, X as XIcon,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -127,6 +128,9 @@ export function SocialPublisher() {
   const [selectedStudioItem, setSelectedStudioItem] = useState<string>("");
   const [content, setContent] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Platforms
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
@@ -410,9 +414,45 @@ export function SocialPublisher() {
     }
   };
 
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid file", description: "Please upload an image file", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Maximum file size is 5MB", variant: "destructive" });
+      return;
+    }
+    setIsUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("publisher-media").upload(path, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from("publisher-media").getPublicUrl(path);
+      setUploadedImageUrl(publicUrl);
+      setMediaUrl(publicUrl);
+      toast({ title: "Image uploaded", description: "Your image is ready to attach to the post" });
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      toast({ title: "Upload failed", description: err.message || "Failed to upload image", variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setUploadedImageUrl(null);
+    setMediaUrl("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleReset = () => {
     setContent("");
     setMediaUrl("");
+    setUploadedImageUrl(null);
     setSelectedPlatforms([]);
     setScheduleType("scheduled");
     setScheduledDate(undefined);
@@ -621,11 +661,34 @@ export function SocialPublisher() {
           )}
 
           {contentSource === "upload" && (
-            <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground hover:border-primary/50 transition-colors cursor-pointer">
-              <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Click or drag to upload media</p>
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); const f = e.dataTransfer.files[0]; if (f) handleImageUpload(f); }}
+              className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground hover:border-primary/50 transition-colors cursor-pointer"
+            >
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-2">
+                  <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <p className="text-sm">Uploading...</p>
+                </div>
+              ) : (
+                <>
+                  <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Click or drag to upload an image</p>
+                  <p className="text-xs mt-1">PNG, JPG, WebP · Max 5MB</p>
+                </>
+              )}
             </div>
           )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }}
+          />
 
           <Textarea
             placeholder="Write your post content here..."
@@ -633,6 +696,32 @@ export function SocialPublisher() {
             onChange={(e) => setContent(e.target.value)}
             rows={4}
           />
+
+          {/* Image attachment */}
+          {uploadedImageUrl ? (
+            <div className="relative rounded-lg overflow-hidden border">
+              <img src={uploadedImageUrl} alt="Attached media" className="w-full max-h-48 object-cover" />
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 h-7 w-7"
+                onClick={handleRemoveImage}
+              >
+                <XIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : contentSource !== "upload" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              <ImageIcon className="h-4 w-4" />
+              {isUploading ? "Uploading..." : "Attach image"}
+            </Button>
+          )}
 
           {content && (
             <div className="flex items-center justify-between text-xs text-muted-foreground">
