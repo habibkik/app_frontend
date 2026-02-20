@@ -365,6 +365,67 @@ export const ContentStudio = () => {
     }));
   }, [productName, productCategory, store.images]);
 
+  // ── Load Demo Data ──
+  const handleLoadDemoData = () => {
+    const demoImages: GeneratedImage[] = [
+      { id: "social", label: "Social Media", prompt: "Demo", imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80", isGenerating: false },
+      { id: "ad", label: "Advertising", prompt: "Demo", imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80", isGenerating: false },
+      { id: "landing", label: "Landing Page", prompt: "Demo", imageUrl: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80", isGenerating: false },
+      { id: "ecommerce", label: "E-commerce", prompt: "Demo", imageUrl: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80", isGenerating: false },
+      { id: "email", label: "Email Marketing", prompt: "Demo", imageUrl: "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=600&q=80", isGenerating: false },
+    ];
+
+    const demoPosts: SocialImagePost[] = [
+      { id: "sp-instagram", platform: "instagram", hook: "✨ Meet the future of premium audio", caption: "Premium Wireless Headphones designed for professionals who demand excellence. Unlike competitors, we deliver unmatched quality. Link in bio!", cta: "Shop now — link in bio! 🛒", hashtags: ["WirelessHeadphones", "Audio", "Quality", "Premium", "NewProduct"], imageId: "social" },
+      { id: "sp-facebook", platform: "facebook", hook: "🔥 NEW: ProSound X1 is here!", caption: "Discover why thousands are switching to ProSound X1. Premium quality, competitive pricing, and fast shipping. Experience audio like never before.", cta: "Order yours today → Comment 'INFO' for details", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "ad" },
+      { id: "sp-tiktok", platform: "tiktok", hook: "POV: You just discovered ProSound X1 🚀", caption: "This ProSound X1 is about to change the game. Here's why everyone's talking about it. Crystal clear audio meets incredible comfort.", cta: "Link in bio — limited stock! 🔥", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "FYP"], imageId: "landing" },
+      { id: "sp-linkedin", platform: "linkedin", hook: "Excited to introduce ProSound X1 to the market.", caption: "After extensive market research, we're proud to introduce ProSound X1 — a solution that addresses the key pain points in premium audio. Professional-grade sound at an accessible price point.", cta: "Let's connect to discuss how this can benefit your business.", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "ecommerce" },
+      { id: "sp-twitter", platform: "twitter", hook: "🚀 ProSound X1 just dropped.", caption: "ProSound X1 — premium quality at competitive prices. 40hr battery, ANC, studio-grade drivers. Unlike BeatsPro, we deliver unmatched quality.", cta: "Get yours now →", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "email" },
+    ];
+
+    const demoEmails: EmailCampaign[] = [
+      { id: "ec-0", name: "Launch Announcement", subjectLine: "Launch Announcement: ProSound X1 — Don't Miss Out", previewText: "Discover why ProSound X1 is the #1 choice for audio professionals.", body: "Hi {{first_name}},\n\nWe're thrilled to introduce ProSound X1 — a game-changer in premium audio.\n\nKey benefits:\n• 40-hour battery life\n• Active noise cancellation\n• Studio-grade 50mm drivers\n• Premium build quality\n\nBest regards,\nThe ProSound Team", cta: "Shop Now", imageId: "social" },
+      { id: "ec-1", name: "Early Bird Offer", subjectLine: "Early Bird Offer: ProSound X1 — 20% Off", previewText: "Exclusive early access to ProSound X1 with a special discount.", body: "Hi {{first_name}},\n\nAs a valued subscriber, you get exclusive early access to ProSound X1 with 20% off.\n\nUse code EARLYBIRD20 at checkout.\n\nKey benefits:\n• Premium quality construction\n• Competitive market pricing\n• Fast worldwide shipping\n• Comprehensive warranty\n\nBest regards,\nThe ProSound Team", cta: "Claim 20% Off", imageId: "ad" },
+      { id: "ec-2", name: "Social Proof", subjectLine: "Social Proof: ProSound X1 — See What Others Say", previewText: "Join thousands of happy customers who've made the switch.", body: "Hi {{first_name}},\n\nJoin thousands of happy customers who've already made the switch to ProSound X1.\n\n⭐⭐⭐⭐⭐ \"Best headphones I've ever owned\" — Sarah K.\n⭐⭐⭐⭐⭐ \"Incredible sound quality\" — Mike T.\n\nBest regards,\nThe ProSound Team", cta: "See Reviews", imageId: "landing" },
+    ];
+
+    const demoScore: ContentScore = {
+      overall: 78,
+      headlineClarity: 18,
+      ctaStrength: 16,
+      emotionalAppeal: 14,
+      platformOptimization: 18,
+      competitiveDifferentiation: 12,
+      suggestions: ["Highlight what makes your product unique vs. competitors", "Use specific numbers and data points", "Add customer-centric language focusing on outcomes"],
+      abTestSuggestions: ["Test emotional hook vs. data-driven hook", "A/B test urgency-based CTA vs. benefit-based CTA"],
+      pricingAngleSuggestions: ["Position at $149 based on market analysis", "Emphasize value over price in premium positioning"],
+      ctaOptimizations: ["Use first-person CTAs: 'Get My Headphones'", "Add urgency: 'Order Today — Free Shipping'"],
+    };
+
+    const demoLandingPage = buildLandingPageHtml(
+      "ProSound X1",
+      {
+        productIdentification: { name: "ProSound X1", category: "Premium Audio", confidence: 0.95, attributes: { "Battery": "40 hours", "Drivers": "50mm Studio-Grade", "ANC": "Hybrid Active", "Weight": "280g" } },
+        competitors: [{ name: "BeatsPro", price: 349, currency: "USD", platform: "Amazon", strengths: ["Brand recognition"], weaknesses: ["Overpriced"] }],
+        marketPriceRange: { min: 99, max: 349, average: 199, currency: "USD" },
+        pricingRecommendation: { suggested: 149, strategy: "penetration", confidence: 0.85 },
+        demandIndicators: { trend: "rising", volume: "high", seasonality: "stable" },
+      } as any,
+      demoImages,
+      demoPosts,
+      DEFAULT_LANDING_THEME,
+      DEFAULT_SECTION_ORDER
+    );
+
+    store.setImages(demoImages);
+    store.setSocialPosts(demoPosts);
+    store.setEmailCampaigns(demoEmails);
+    store.setContentScore(demoScore);
+    store.setLandingPage(demoLandingPage);
+
+    toast.success("Demo data loaded! Explore all tabs to see the generated content.");
+  };
+
   // ── Full Kit Generation ──
   const handleGenerateKit = async () => {
     if (!hasIntelligence) {
@@ -477,6 +538,9 @@ export const ContentStudio = () => {
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={handleExportAll} disabled={store.socialPosts.length === 0}>
             <FileArchive className="h-4 w-4 mr-1" /> Export All
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleLoadDemoData} disabled={store.isGeneratingKit}>
+            <Sparkles className="h-4 w-4 mr-1" /> Load Demo
           </Button>
           <Button onClick={handleGenerateKit} disabled={store.isGeneratingKit || !hasIntelligence}>
             {store.isGeneratingKit ? (
