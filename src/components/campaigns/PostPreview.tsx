@@ -7,9 +7,10 @@ interface PostPreviewProps {
   platformId: string;
   platformName: string;
   platformIcon: string;
+  imageUrl?: string | null;
 }
 
-export function PostPreview({ content, platformId, platformName, platformIcon }: PostPreviewProps) {
+export function PostPreview({ content, platformId, platformName, platformIcon, imageUrl }: PostPreviewProps) {
   const truncateForPlatform = (text: string, platform: string) => {
     const limits: Record<string, number> = {
       twitter: 280,
@@ -127,10 +128,16 @@ export function PostPreview({ content, platformId, platformName, platformIcon }:
         )}
       </div>
 
-      {/* Media placeholder */}
-      <div className="mt-3 aspect-video rounded-lg bg-muted/50 flex items-center justify-center border border-dashed">
-        <span className="text-xs text-muted-foreground">Media preview</span>
-      </div>
+      {/* Media */}
+      {imageUrl ? (
+        <div className="mt-3 aspect-video rounded-lg overflow-hidden">
+          <img src={imageUrl} alt="Post media" className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="mt-3 aspect-video rounded-lg bg-muted/50 flex items-center justify-center border border-dashed">
+          <span className="text-xs text-muted-foreground">Media preview</span>
+        </div>
+      )}
 
       {/* Platform-specific actions */}
       {getActionIcons()}
