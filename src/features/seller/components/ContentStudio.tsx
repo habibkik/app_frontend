@@ -14,6 +14,7 @@ import {
   Download,
   FileArchive,
 } from "lucide-react";
+import { MarketingFlowBanner } from "./MarketingFlowBanner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -461,6 +462,7 @@ export const ContentStudio = () => {
 
   return (
     <div className="space-y-6 p-4 lg:p-6">
+      <MarketingFlowBanner />
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>

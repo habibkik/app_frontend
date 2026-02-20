@@ -24,6 +24,8 @@ export const WebsiteBuilder: React.FC = () => {
   const store = useWebsiteBuilderStore();
   const sellerResults = useAnalysisStore((s) => s.sellerResults);
   const contentImages = useContentStudioStore((s) => s.images);
+  const pendingWebsiteData = useContentStudioStore((s) => s.pendingWebsiteData);
+  const setPendingWebsiteData = useContentStudioStore((s) => s.setPendingWebsiteData);
 
   const [products, setProducts] = useState<ProductData[]>([]);
   const [socialStats, setSocialStats] = useState({ postCount: 0, totalEngagement: 0 });
@@ -70,6 +72,16 @@ export const WebsiteBuilder: React.FC = () => {
     init();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Import landing page from Content Studio
+  useEffect(() => {
+    if (pendingWebsiteData) {
+      store.importLandingPage(pendingWebsiteData);
+      setPendingWebsiteData(null);
+      toast.success("Landing page imported into Website Builder");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingWebsiteData]);
 
   // Market data from analysis store
   const marketData = useMemo(() => {

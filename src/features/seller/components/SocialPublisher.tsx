@@ -115,13 +115,14 @@ export function SocialPublisher() {
   const { toast } = useToast();
   const { posting, publishPost } = useSocialPosting();
   const studioItems = useContentStudioStore((s) => s.savedItems);
+  const socialPosts = useContentStudioStore((s) => s.socialPosts);
   const pendingPublisherPost = useContentStudioStore((s) => s.pendingPublisherPost);
   const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
   const pendingBatchPosts = useContentStudioStore((s) => s.pendingBatchPosts);
   const setPendingBatchPosts = useContentStudioStore((s) => s.setPendingBatchPosts);
 
   // Content
-  const [contentSource, setContentSource] = useState<"studio" | "custom" | "upload">("custom");
+  const [contentSource, setContentSource] = useState<"studio" | "custom" | "upload" | "generated">("custom");
   const [selectedStudioItem, setSelectedStudioItem] = useState<string>("");
   const [content, setContent] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
@@ -453,11 +454,74 @@ export function SocialPublisher() {
               <SelectValue placeholder="Select content source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="studio">From Content Studio</SelectItem>
+              <SelectItem value="generated">From Content Studio (Generated)</SelectItem>
+              <SelectItem value="studio">From Content Studio (Saved)</SelectItem>
               <SelectItem value="custom">Custom content</SelectItem>
               <SelectItem value="upload">Upload image / video</SelectItem>
             </SelectContent>
           </Select>
+
+          {contentSource === "generated" && (
+            <div className="space-y-3">
+              {socialPosts.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-6 text-center">
+                  <Sparkles className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+                  <p className="text-sm text-muted-foreground">No generated posts available.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Generate a marketing kit in Content Studio first.</p>
+                </div>
+              ) : (
+                <>
+                  <Label className="text-xs text-muted-foreground">Select a generated post or send all as batch</Label>
+                  <div className="grid gap-2 max-h-[280px] overflow-y-auto">
+                    {socialPosts.map((post) => {
+                      const platformMatch = PLATFORMS.find((p) => p.id === post.platform);
+                      return (
+                        <button
+                          key={post.id}
+                          onClick={() => {
+                            const text = `${post.hook}\n\n${post.caption}\n\n${post.cta}\n\n${post.hashtags.map((h) => `#${h.replace(/^#/, "")}`).join(" ")}`;
+                            setContent(text);
+                            if (platformMatch) {
+                              setSelectedPlatforms((prev) =>
+                                prev.includes(platformMatch.id) ? prev : [...prev, platformMatch.id]
+                              );
+                            }
+                            toast({ title: `Loaded ${platformMatch?.name || post.platform} post` });
+                          }}
+                          className={cn(
+                            "flex items-start gap-3 rounded-lg border p-3 text-left transition-all",
+                            "border-border hover:border-primary/30",
+                          )}
+                        >
+                          <span className="text-lg shrink-0">{platformMatch?.icon ?? "📝"}</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium">{platformMatch?.name || post.platform}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">{post.hook}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      const items = socialPosts.map((p) => ({
+                        content: `${p.hook}\n\n${p.caption}\n\n${p.cta}\n\n${p.hashtags.map((h) => `#${h.replace(/^#/, "")}`).join(" ")}`,
+                        platform: p.platform,
+                      }));
+                      setPendingBatchPosts(items);
+                      toast({ title: "All posts loaded as batch campaign" });
+                    }}
+                  >
+                    <Send className="h-3.5 w-3.5 mr-1.5" />
+                    Send All as Batch Campaign
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
 
           {contentSource === "studio" && (
             <div className="space-y-3">

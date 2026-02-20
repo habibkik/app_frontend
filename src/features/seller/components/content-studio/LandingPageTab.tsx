@@ -29,11 +29,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import JSZip from "jszip";
 import type { LandingPageData, GeneratedImage, LandingPageTheme, LandingPageSection } from "./types";
 import { SECTION_LABELS } from "./types";
 import { OrderForm } from "./OrderForm";
 import { LandingPageCustomizer } from "./LandingPageCustomizer";
+import { useContentStudioStore } from "@/stores/contentStudioStore";
 
 interface Props {
   landingPage: LandingPageData | null;
@@ -54,6 +56,8 @@ export const LandingPageTab: React.FC<Props> = ({
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showCustomizer, setShowCustomizer] = useState(false);
+  const setPendingWebsiteData = useContentStudioStore((s) => s.setPendingWebsiteData);
+  const navigate = useNavigate();
 
   // Publish state
   const [showPublishDialog, setShowPublishDialog] = useState(false);
@@ -235,6 +239,14 @@ export const LandingPageTab: React.FC<Props> = ({
           </Button>
           <Button size="sm" onClick={() => setShowPublishDialog(true)}>
             <Globe className="h-3 w-3 mr-1" /> Publish
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => {
+            if (!landingPage) return;
+            setPendingWebsiteData({ html: landingPage.html, theme, sections: landingPage.sections });
+            navigate("/dashboard/website");
+            toast.success("Landing page sent to Website Builder");
+          }}>
+            <Globe className="h-3 w-3 mr-1" /> Send to Website Builder
           </Button>
         </div>
       </div>

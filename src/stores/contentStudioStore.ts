@@ -55,6 +55,10 @@ interface ContentStudioStore {
   // Batch campaign
   pendingBatchPosts: { content: string; platform: string }[];
   setPendingBatchPosts: (posts: { content: string; platform: string }[]) => void;
+
+  // Website Builder integration
+  pendingWebsiteData: { html: string; theme: any; sections: any } | null;
+  setPendingWebsiteData: (data: { html: string; theme: any; sections: any } | null) => void;
 }
 
 const initialImages: GeneratedImage[] = [
@@ -110,4 +114,7 @@ export const useContentStudioStore = create<ContentStudioStore>((set) => ({
 
   pendingBatchPosts: [],
   setPendingBatchPosts: (pendingBatchPosts) => set({ pendingBatchPosts }),
+
+  pendingWebsiteData: null,
+  setPendingWebsiteData: (pendingWebsiteData) => set({ pendingWebsiteData }),
 }));
