@@ -30,6 +30,8 @@ interface MapcnHeatMapProps {
   activeEntity?: MapEntity | null;
   /** Map projection — "mercator" (flat) or "globe" (3D) */
   projection?: "mercator" | "globe";
+  /** Optional initial filter overrides */
+  initialFilters?: Partial<FilterState>;
 }
 
 interface SupplierFeatureProps {
@@ -743,15 +745,15 @@ function FlyToEntity({ entity }: { entity: MapEntity | null | undefined }) {
   return null;
 }
 // ============================================================
-export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion, activeEntity, projection = "mercator" }: MapcnHeatMapProps) {
+export function MapcnHeatMap({ entities, regions, mode, height = 500, className, activeRegion, activeEntity, projection = "mercator", initialFilters }: MapcnHeatMapProps) {
   // User geolocation for distance + transport estimation
   const userCoords = useUserLocation();
 
   // Filter state
-  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterState>({ ...DEFAULT_FILTERS, ...initialFilters });
 
   // Reset filters when mode changes
-  useEffect(() => { setFilters(DEFAULT_FILTERS); }, [mode]);
+  useEffect(() => { setFilters({ ...DEFAULT_FILTERS, ...initialFilters }); }, [mode]);
 
   // Track which seller region should have its popup auto-opened after flyTo completes
   const [openPopupRegion, setOpenPopupRegion] = useState<string | null>(null);

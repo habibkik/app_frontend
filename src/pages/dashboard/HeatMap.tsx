@@ -2,7 +2,8 @@
  * Heat Map Page
  * Regional market opportunity visualization with interactive mapcn map (MapLibre GL, no API key)
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical, Layers } from "lucide-react";
 
@@ -41,10 +42,17 @@ const modeContent = {
 
 function HeatMapContent() {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
   const mode = useModeStore((state) => state.mode);
   const { sellerResults, buyerResults, producerResults } = useAnalysisStore();
   const realMapEntities = useMapEntities(mode);
   const [viewMode, setViewMode] = useState<"map" | "grid">("map");
+
+  // Pre-filter to demand signals if coming from Demand Signals page
+  const filterParam = searchParams.get("filter");
+  const initialFilters = filterParam === "demand_signals"
+    ? { sellerEntityTypes: ["demand_signal"] }
+    : undefined;
   /** Region selected from the grid — triggers flyTo + popup on the map */
   const [activeRegion, setActiveRegion] = useState<MarketHeatMapRegion | null>(null);
   /** Entity (supplier/producer) selected from grid — triggers flyTo on the map */
@@ -289,6 +297,7 @@ function HeatMapContent() {
           activeRegion={activeRegion}
           activeEntity={activeEntity}
           projection={projection}
+          initialFilters={initialFilters}
         />
       )}
 
