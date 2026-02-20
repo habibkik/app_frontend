@@ -702,6 +702,45 @@ export type Database = {
         }
         Relationships: []
       }
+      websites: {
+        Row: {
+          config_json: Json
+          created_at: string
+          id: string
+          is_published: boolean
+          name: string
+          published_html: string | null
+          slug: string
+          theme_json: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config_json?: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          name?: string
+          published_html?: string | null
+          slug: string
+          theme_json?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config_json?: Json
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          name?: string
+          published_html?: string | null
+          slug?: string
+          theme_json?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -105,6 +105,7 @@ export { default as MarketIntelligencePage } from "@/pages/dashboard/MarketIntel
 export { default as PricingPage } from "@/pages/dashboard/Pricing";
 export { default as CampaignsPage } from "@/pages/dashboard/Campaigns";
 export { default as WebsiteBuilderPage } from "@/pages/dashboard/WebsiteBuilder";
+export { WebsiteBuilder } from "./components/website-builder/WebsiteBuilder";
 
 // API/Services
 export { 
