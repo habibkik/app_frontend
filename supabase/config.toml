@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.demand-signal-scan]
 verify_jwt = false
+
+[functions.generate-product-images]
+verify_jwt = false
