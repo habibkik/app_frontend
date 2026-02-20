@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import type { LandingPageTheme } from "@/features/seller/components/content-studio/types";
 import { DEFAULT_LANDING_THEME } from "@/features/seller/components/content-studio/types";
 import type { SiteBlock, SiteConfig, WebsiteEditorState } from "@/features/seller/components/website-builder/types";
-import { DEFAULT_BLOCKS } from "@/features/seller/components/website-builder/blocks";
+import { DEFAULT_BLOCKS, createDefaultBlock } from "@/features/seller/components/website-builder/blocks";
 
 interface WebsiteBuilderActions {
   setSiteConfig: (config: Partial<SiteConfig>) => void;
@@ -20,6 +20,7 @@ interface WebsiteBuilderActions {
   setSlug: (slug: string) => void;
   loadFromDb: (data: { config_json: any; theme_json: any; id: string; name: string; slug: string; is_published: boolean }) => void;
   reset: () => void;
+  importLandingPage: (data: { html: string; theme: any; sections: any }) => void;
 }
 
 const initialState: WebsiteEditorState = {
@@ -74,6 +75,20 @@ export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilder
         });
       },
       reset: () => set(initialState),
+      importLandingPage: (data: { html: string; theme: any; sections: any }) => {
+        const heroBlock = createDefaultBlock("hero");
+        if (data.sections?.hero) {
+          heroBlock.config = { ...heroBlock.config, title: data.sections.hero };
+        }
+        const faqBlock = createDefaultBlock("faq");
+        if (data.sections?.faq?.length) {
+          faqBlock.config = { ...faqBlock.config, items: data.sections.faq };
+        }
+        set({
+          blocks: [heroBlock, createDefaultBlock("product-catalog"), createDefaultBlock("about"), faqBlock, createDefaultBlock("contact")],
+          theme: data.theme || initialState.theme,
+        });
+      },
     }),
     { name: "website-builder-store" }
   )

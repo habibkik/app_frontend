@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Check, Download, Mail } from "lucide-react";
+import { Copy, Check, Download, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useContentStudioStore } from "@/stores/contentStudioStore";
+import { useNavigate } from "react-router-dom";
 import type { EmailCampaign, GeneratedImage } from "./types";
 
 interface Props {
@@ -14,6 +16,8 @@ interface Props {
 export const EmailCampaignTab: React.FC<Props> = ({ campaigns, images }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
+  const navigate = useNavigate();
 
   const handleCopy = async (html: string, id: string) => {
     await navigator.clipboard.writeText(html);
@@ -78,16 +82,24 @@ You're receiving this because you expressed interest. <a href="#">Unsubscribe</a
           return (
             <Card key={campaign.id}>
               <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">{campaign.name}</CardTitle>
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => handleCopy(html, campaign.id)}>
-                      {copiedId === campaign.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleDownload(html, campaign.name)}>
-                      <Download className="h-3 w-3" />
-                    </Button>
-                  </div>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm">{campaign.name}</CardTitle>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => handleCopy(html, campaign.id)}>
+                        {copiedId === campaign.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => handleDownload(html, campaign.name)}>
+                        <Download className="h-3 w-3" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => {
+                        const content = `📧 ${campaign.subjectLine}\n\n${campaign.body}\n\n${campaign.cta}`;
+                        setPendingPublisherPost({ content, platform: "email" });
+                        navigate("/dashboard/publisher");
+                        toast.success("Email campaign sent to Publisher");
+                      }}>
+                        <Send className="h-3 w-3" />
+                      </Button>
+                    </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
