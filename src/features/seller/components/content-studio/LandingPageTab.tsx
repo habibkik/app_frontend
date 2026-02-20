@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -24,24 +25,30 @@ import {
   Link as LinkIcon,
   FileArchive,
   ExternalLink,
+  Paintbrush,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import JSZip from "jszip";
-import type { LandingPageData, GeneratedImage } from "./types";
+import type { LandingPageData, GeneratedImage, LandingPageTheme } from "./types";
 import { OrderForm } from "./OrderForm";
+import { LandingPageCustomizer } from "./LandingPageCustomizer";
 
 interface Props {
   landingPage: LandingPageData | null;
   images: GeneratedImage[];
   productName: string;
   userId: string;
+  theme: LandingPageTheme;
+  onThemeChange: (theme: LandingPageTheme) => void;
 }
 
-export const LandingPageTab: React.FC<Props> = ({ landingPage, images, productName, userId }) => {
+export const LandingPageTab: React.FC<Props> = ({ landingPage, images, productName, userId, theme, onThemeChange }) => {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
 
   // Publish state
   const [showPublishDialog, setShowPublishDialog] = useState(false);
@@ -233,12 +240,24 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
           </Button>
           <Button
             size="sm"
+            variant={showCustomizer ? "default" : "outline"}
+            onClick={() => setShowCustomizer(!showCustomizer)}
+          >
+            <Paintbrush className="h-3 w-3 mr-1" /> Customize
+          </Button>
+          <Button
+            size="sm"
             onClick={() => setShowPublishDialog(true)}
           >
             <Globe className="h-3 w-3 mr-1" /> Publish
           </Button>
         </div>
       </div>
+
+      {/* Theme Customizer */}
+      {showCustomizer && (
+        <LandingPageCustomizer theme={theme} onChange={onThemeChange} />
+      )}
 
       {/* Published URL banner */}
       {publishedUrl && (

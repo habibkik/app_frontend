@@ -31,7 +31,9 @@ import type {
   ContentScore,
   LandingPageData,
   GenerationStep,
+  LandingPageTheme,
 } from "./content-studio/types";
+import { DEFAULT_LANDING_THEME } from "./content-studio/types";
 import { ImageGenerationTab } from "./content-studio/ImageGenerationTab";
 import { SocialImagePostsTab } from "./content-studio/SocialImagePostsTab";
 import { VideoTab } from "./content-studio/VideoTab";
@@ -127,7 +129,8 @@ function buildLandingPageHtml(
   productName: string,
   sellerResults: MarketAnalysisResult | null,
   images: GeneratedImage[],
-  socialPosts: SocialImagePost[]
+  socialPosts: SocialImagePost[],
+  theme: LandingPageTheme = DEFAULT_LANDING_THEME
 ): LandingPageData {
   const heroImg = images.find((i) => i.id === "landing")?.imageUrl || images.find((i) => i.imageUrl)?.imageUrl || "";
   const productImg = images.find((i) => i.id === "ecommerce")?.imageUrl || "";
@@ -160,41 +163,71 @@ function buildLandingPageHtml(
 
   const ctaText = pricing ? `Order Now — Starting at $${pricing.suggested}` : "Order Now";
 
+  const radius = theme.borderRadius === "none" ? "0" : theme.borderRadius === "small" ? "4px" : theme.borderRadius === "large" ? "16px" : "8px";
+  const heroAlign = theme.heroStyle === "left-aligned" ? "left" : "center";
+  const isModern = theme.layout === "modern";
+  const isMinimal = theme.layout === "minimal";
+  const isBold = theme.layout === "bold";
+
+  // Google Fonts import for non-system fonts
+  const fontFamilies = new Set([theme.headingFont, theme.bodyFont]);
+  const googleFonts = [...fontFamilies]
+    .filter((f) => !f.includes("system-ui") && !f.includes("Georgia") && !f.includes("Times"))
+    .map((f) => {
+      const name = f.split(",")[0].replace(/'/g, "").trim();
+      return name.replace(/\s/g, "+");
+    });
+  const fontImport = googleFonts.length > 0
+    ? `<link href="https://fonts.googleapis.com/css2?${googleFonts.map((f) => `family=${f}:wght@400;600;700;800`).join("&")}&display=swap" rel="stylesheet">`
+    : "";
+
+  const heroSplitGrid = theme.heroStyle === "split"
+    ? `display:grid;grid-template-columns:1fr 1fr;gap:40px;text-align:left;align-items:center`
+    : "";
+
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${productName}</title>
 <meta name="description" content="${productName} — premium quality, competitive pricing, fast delivery.">
+${fontImport}
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1a1a2e;line-height:1.6}
-.hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:#fff;padding:80px 24px;text-align:center}
-.hero h1{font-size:clamp(2rem,5vw,3.5rem);margin-bottom:16px;font-weight:800}
-.hero p{font-size:1.1rem;opacity:0.9;max-width:600px;margin:0 auto 32px}
-.hero img{max-width:100%;max-height:400px;border-radius:12px;margin-bottom:32px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.cta-btn{display:inline-block;background:#2563eb;color:#fff;padding:16px 40px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1.1rem;transition:transform 0.2s}
-.cta-btn:hover{transform:translateY(-2px)}
-section{padding:60px 24px;max-width:1000px;margin:0 auto}
-h2{font-size:2rem;margin-bottom:24px;text-align:center}
+body{font-family:${theme.bodyFont};color:${theme.textColor};line-height:1.6;background:${theme.bgColor}}
+h1,h2,h3{font-family:${theme.headingFont}}
+.hero{background:linear-gradient(135deg,${theme.secondaryColor} 0%,${theme.accentColor} 100%);color:#fff;padding:${isBold ? "100px" : "80px"} 24px;text-align:${heroAlign};${heroSplitGrid}}
+.hero h1{font-size:clamp(${isBold ? "2.5rem" : "2rem"},5vw,${isBold ? "4rem" : "3.5rem"});margin-bottom:16px;font-weight:800;${isModern ? "letter-spacing:-0.02em" : ""}}
+.hero p{font-size:${isMinimal ? "1rem" : "1.1rem"};opacity:0.9;max-width:600px;${heroAlign === "center" ? "margin:0 auto 32px" : "margin:0 0 32px"}}
+.hero img{max-width:100%;max-height:400px;border-radius:${radius};margin-bottom:${theme.heroStyle === "split" ? "0" : "32px"};box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.cta-btn{display:inline-block;background:${theme.primaryColor};color:#fff;padding:${isBold ? "18px 44px" : "16px 40px"};border-radius:${radius};text-decoration:none;font-weight:700;font-size:${isBold ? "1.2rem" : "1.1rem"};transition:transform 0.2s,box-shadow 0.2s;font-family:${theme.headingFont}}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px ${theme.primaryColor}44}
+section{padding:${isMinimal ? "48px" : "60px"} 24px;max-width:1000px;margin:0 auto}
+h2{font-size:${isBold ? "2.2rem" : "2rem"};margin-bottom:24px;text-align:center;${isModern ? "letter-spacing:-0.01em" : ""}}
 .benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;list-style:none}
-.benefits li{padding:20px;background:#f8fafc;border-radius:8px;border-left:4px solid #2563eb}
+.benefits li{padding:20px;background:${theme.bgColor === "#ffffff" ? "#f8fafc" : theme.bgColor};border-radius:${radius};border-left:4px solid ${theme.primaryColor};${isModern ? `box-shadow:0 2px 12px ${theme.primaryColor}11` : ""}}
 .features{columns:2;gap:16px;list-style:none}
 .features li{padding:8px 0;break-inside:avoid}
-.features li:before{content:"✓ ";color:#2563eb;font-weight:bold}
-.social-proof{background:#f0f4ff;padding:40px 24px;text-align:center}
-.social-proof blockquote{font-style:italic;max-width:600px;margin:16px auto;padding:16px;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-.faq details{margin-bottom:12px;padding:16px;background:#f8fafc;border-radius:8px}
+.features li:before{content:"✓ ";color:${theme.primaryColor};font-weight:bold}
+.social-proof{background:${theme.primaryColor}08;padding:40px 24px;text-align:center}
+.social-proof blockquote{font-style:italic;max-width:600px;margin:16px auto;padding:16px;background:${theme.bgColor};border-radius:${radius};box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.faq details{margin-bottom:12px;padding:16px;background:${theme.bgColor === "#ffffff" ? "#f8fafc" : theme.bgColor};border-radius:${radius}}
 .faq summary{font-weight:600;cursor:pointer;padding:4px 0}
-.faq p{margin-top:8px;color:#555}
-.order-section{background:#1a1a2e;color:#fff;padding:60px 24px;text-align:center}
+.faq p{margin-top:8px;color:${theme.textColor}99}
+.order-section{background:${theme.secondaryColor};color:#fff;padding:60px 24px;text-align:center}
 .order-section .cta-btn{font-size:1.2rem;padding:20px 48px}
-footer{text-align:center;padding:24px;color:#888;font-size:0.85rem}
-@media(max-width:600px){.features{columns:1}.hero{padding:48px 16px}}
+footer{text-align:center;padding:24px;color:${theme.textColor}66;font-size:0.85rem}
+@media(max-width:600px){.features{columns:1}.hero{padding:48px 16px;${theme.heroStyle === "split" ? "grid-template-columns:1fr" : ""}}}
 </style></head><body>
 <div class="hero">
-${heroImg ? `<img src="${heroImg}" alt="${productName}"/>` : ""}
+${theme.heroStyle === "split" ? `<div>
 <h1>${productName}</h1>
 <p>${sellerResults?.productIdentification?.category || "Premium quality product"} — engineered for excellence</p>
 <a href="#order" class="cta-btn">${ctaText}</a>
+</div>
+<div>${heroImg ? `<img src="${heroImg}" alt="${productName}"/>` : ""}</div>` : `
+${heroImg ? `<img src="${heroImg}" alt="${productName}"/>` : ""}
+<h1>${productName}</h1>
+<p>${sellerResults?.productIdentification?.category || "Premium quality product"} — engineered for excellence</p>
+<a href="#order" class="cta-btn">${ctaText}</a>`}
 </div>
 <section><h2>Benefits</h2><ul class="benefits">${benefits.map((b) => `<li>${b}</li>`).join("")}</ul></section>
 <section><h2>Features</h2><ul class="features">${features.map((f) => `<li>${f}</li>`).join("")}</ul></section>
@@ -214,6 +247,7 @@ export const ContentStudio = () => {
   const store = useContentStudioStore();
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("images");
   const [userId, setUserId] = useState<string>("");
+  const [landingTheme, setLandingTheme] = useState<LandingPageTheme>(DEFAULT_LANDING_THEME);
 
   const hasIntelligence = !!sellerResults;
   const productName = sellerResults?.productIdentification?.name || "Product";
@@ -365,7 +399,7 @@ export const ContentStudio = () => {
 
       // Step 3: Landing Page
       updateStep(2, "running");
-      const lp = buildLandingPageHtml(productName, sellerResults, store.images, posts);
+      const lp = buildLandingPageHtml(productName, sellerResults, store.images, posts, landingTheme);
       store.setLandingPage(lp);
       updateStep(2, "done");
 
@@ -543,6 +577,13 @@ export const ContentStudio = () => {
             images={store.images}
             productName={productName}
             userId={userId}
+            theme={landingTheme}
+            onThemeChange={(newTheme) => {
+              setLandingTheme(newTheme);
+              // Rebuild HTML with new theme
+              const lp = buildLandingPageHtml(productName, sellerResults, store.images, store.socialPosts, newTheme);
+              store.setLandingPage(lp);
+            }}
           />
         </TabsContent>
         <TabsContent value="email">
