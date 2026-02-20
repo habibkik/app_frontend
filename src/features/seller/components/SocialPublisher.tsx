@@ -116,6 +116,7 @@ export function SocialPublisher() {
   const { posting, publishPost } = useSocialPosting();
   const studioItems = useContentStudioStore((s) => s.savedItems);
   const socialPosts = useContentStudioStore((s) => s.socialPosts);
+  const studioImages = useContentStudioStore((s) => s.images);
   const pendingPublisherPost = useContentStudioStore((s) => s.pendingPublisherPost);
   const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
   const pendingBatchPosts = useContentStudioStore((s) => s.pendingBatchPosts);
@@ -1061,6 +1062,12 @@ export function SocialPublisher() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {selectedPlatforms.map((pid) => {
               const p = PLATFORMS.find((x) => x.id === pid)!;
+              // Find matching Content Studio social post & its image
+              const matchingPost = socialPosts.find((sp) => sp.platform === pid);
+              const matchingImage = matchingPost
+                ? studioImages.find((img) => img.id === matchingPost.imageId)
+                : null;
+              const previewImageUrl = matchingImage?.imageUrl || mediaUrl || null;
               return (
                 <PostPreview
                   key={pid}
@@ -1068,6 +1075,7 @@ export function SocialPublisher() {
                   platformId={p.id}
                   platformName={p.name}
                   platformIcon={p.icon}
+                  imageUrl={previewImageUrl}
                 />
               );
             })}
