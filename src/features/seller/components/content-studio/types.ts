@@ -42,6 +42,7 @@ export interface ContentScore {
 
 export interface LandingPageData {
   html: string;
+  sectionOrder: LandingPageSection[];
   sections: {
     hero: string;
     benefits: string[];
@@ -51,6 +52,20 @@ export interface LandingPageData {
     ctaText: string;
   };
 }
+
+export type LandingPageSection = "benefits" | "features" | "social-proof" | "faq" | "cta";
+
+export const DEFAULT_SECTION_ORDER: LandingPageSection[] = [
+  "benefits", "features", "social-proof", "faq", "cta",
+];
+
+export const SECTION_LABELS: Record<LandingPageSection, string> = {
+  benefits: "Benefits",
+  features: "Features",
+  "social-proof": "Social Proof",
+  faq: "FAQ",
+  cta: "Call to Action",
+};
 
 export interface GenerationStep {
   label: string;
