@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Radar, TrendingUp, Flame, MapPin, Clock, Search, Loader2, Zap, Globe, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Radar, TrendingUp, Flame, MapPin, Clock, Search, Loader2, Zap, Globe, BarChart3, Map } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const growthBadge: Record<string, { variant: "default" | "secondary" | "outline"
 };
 
 export function DemandSignalsDashboard() {
+  const navigate = useNavigate();
   const setFromScanResults = useDemandSignalStore((s) => s.setFromScanResults);
   const [selectedPlatforms, setSelectedPlatforms] = useState<DemandPlatform[]>([...ALL_PLATFORMS]);
   const [keywords, setKeywords] = useState("");
@@ -105,9 +107,20 @@ export function DemandSignalsDashboard() {
             Scan social & search platforms for trending products and rising niches
           </p>
         </div>
-        {isDemo && (
-          <Badge variant="outline" className="ml-auto text-xs">Demo Data</Badge>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {isDemo && (
+            <Badge variant="outline" className="text-xs">Demo Data</Badge>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => navigate("/dashboard/heatmap?filter=demand_signals")}
+          >
+            <Map className="h-4 w-4" />
+            View on Heat Map
+          </Button>
+        </div>
       </div>
 
       {/* Platform selector + keyword + scan */}
