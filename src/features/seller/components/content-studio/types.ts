@@ -65,3 +65,52 @@ export type ContentStudioTab =
   | "landing-page"
   | "email"
   | "score";
+
+export interface LandingPageTheme {
+  // Colors
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  textColor: string;
+  bgColor: string;
+  // Typography
+  headingFont: string;
+  bodyFont: string;
+  // Layout
+  layout: "classic" | "modern" | "minimal" | "bold";
+  borderRadius: "none" | "small" | "medium" | "large";
+  heroStyle: "centered" | "left-aligned" | "split";
+}
+
+export const DEFAULT_LANDING_THEME: LandingPageTheme = {
+  primaryColor: "#2563eb",
+  secondaryColor: "#1a1a2e",
+  accentColor: "#16213e",
+  textColor: "#1a1a2e",
+  bgColor: "#ffffff",
+  headingFont: "Inter, system-ui, sans-serif",
+  bodyFont: "Inter, system-ui, sans-serif",
+  layout: "classic",
+  borderRadius: "medium",
+  heroStyle: "centered",
+};
+
+export const THEME_PRESETS: { name: string; theme: Partial<LandingPageTheme> }[] = [
+  { name: "Default Blue", theme: { primaryColor: "#2563eb", secondaryColor: "#1a1a2e", accentColor: "#16213e" } },
+  { name: "Emerald Pro", theme: { primaryColor: "#059669", secondaryColor: "#064e3b", accentColor: "#0d9488" } },
+  { name: "Sunset Orange", theme: { primaryColor: "#ea580c", secondaryColor: "#431407", accentColor: "#f97316" } },
+  { name: "Royal Purple", theme: { primaryColor: "#7c3aed", secondaryColor: "#1e1b4b", accentColor: "#8b5cf6" } },
+  { name: "Slate Minimal", theme: { primaryColor: "#475569", secondaryColor: "#0f172a", accentColor: "#64748b", layout: "minimal" as const } },
+  { name: "Bold Red", theme: { primaryColor: "#dc2626", secondaryColor: "#18181b", accentColor: "#ef4444", layout: "bold" as const } },
+];
+
+export const FONT_OPTIONS = [
+  { label: "Inter (System)", value: "Inter, system-ui, sans-serif" },
+  { label: "Georgia (Serif)", value: "Georgia, 'Times New Roman', serif" },
+  { label: "Playfair Display", value: "'Playfair Display', Georgia, serif" },
+  { label: "Space Grotesk", value: "'Space Grotesk', system-ui, sans-serif" },
+  { label: "DM Sans", value: "'DM Sans', system-ui, sans-serif" },
+  { label: "Roboto Slab", value: "'Roboto Slab', Georgia, serif" },
+  { label: "Montserrat", value: "'Montserrat', system-ui, sans-serif" },
+  { label: "Lora", value: "'Lora', Georgia, serif" },
+];
