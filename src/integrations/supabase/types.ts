@@ -617,6 +617,7 @@ export type Database = {
       }
       scheduled_posts: {
         Row: {
+          batch_id: string | null
           content: string
           created_at: string
           engagement_rate: number
@@ -633,6 +634,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          batch_id?: string | null
           content: string
           created_at?: string
           engagement_rate?: number
@@ -649,6 +651,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          batch_id?: string | null
           content?: string
           created_at?: string
           engagement_rate?: number

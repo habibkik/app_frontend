@@ -29,6 +29,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useContentStudioStore, type StudioContentItem } from "@/stores/contentStudioStore";
+import { BatchCampaignAnalytics } from "./BatchCampaignAnalytics";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ interface ScheduledPost {
   totalShares?: number;
   totalComments?: number;
   engagementRate?: number;
+  batchId?: string;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -193,6 +195,7 @@ export function SocialPublisher() {
               totalShares: d.total_shares ?? 0,
               totalComments: d.total_comments ?? 0,
               engagementRate: d.engagement_rate ?? 0,
+              batchId: d.batch_id ?? undefined,
             }))
           );
         }
@@ -240,6 +243,7 @@ export function SocialPublisher() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      const batchId = generateCampaignId();
       const newPosts: ScheduledPost[] = [];
       for (const item of batchItems) {
         let scheduledAt: string | null = null;
@@ -256,7 +260,8 @@ export function SocialPublisher() {
           scheduled_at: scheduledAt,
           status: scheduledAt ? "scheduled" : "draft",
           user_id: user.id,
-        });
+          batch_id: batchId,
+        } as any);
         if (error) throw error;
 
         newPosts.push({
@@ -266,6 +271,7 @@ export function SocialPublisher() {
           scheduledAt,
           status: scheduledAt ? "scheduled" : "draft",
           createdAt: new Date().toISOString(),
+          batchId,
         });
       }
 
@@ -276,7 +282,7 @@ export function SocialPublisher() {
       const drafts = newPosts.length - scheduled;
       toast({
         title: "Batch campaign created!",
-        description: `${scheduled} scheduled, ${drafts} saved as drafts`,
+        description: `Campaign ${batchId}: ${scheduled} scheduled, ${drafts} saved as drafts`,
       });
     } catch (err: any) {
       console.error("Batch schedule error:", err);
@@ -976,6 +982,9 @@ export function SocialPublisher() {
           </CardContent>
         </Card>
       )}
+
+      {/* ── 8. Batch Campaign Analytics ────────────────────────────────── */}
+      <BatchCampaignAnalytics />
 
       {/* ── Modals ────────────────────────────────────────────────────── */}
 
