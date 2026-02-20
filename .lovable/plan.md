@@ -1,169 +1,172 @@
 
 
-## Enhanced Content Studio -- Full Marketing Kit Generator
+## Website Builder -- Connected to All Existing Features
 
-A complete overhaul of the Content Studio page that auto-activates when product intelligence is available, generating a full marketing content kit including AI images, social posts with images, video (placeholder), landing page with order form, and email campaigns with scoring and optimization suggestions.
+Transform the placeholder Website Builder page into a functional block-based storefront editor that pulls data from every major system: Products, Content Studio, Market Intelligence, Landing Page themes, and Order Forms.
 
-### What gets built
+### Architecture Overview
 
-**1. Auto-Activation from Market Intelligence**
-- Content Studio detects when seller analysis results exist in the `analysisStore` (product identification, competitors, pricing, demand indicators)
-- Automatically pre-fills product name, category, competitor data, and pricing strategy into the generation context
-- Shows a banner: "Intelligence data detected -- Generate your complete marketing kit"
+The Website Builder will be a **block-based page editor** where users compose a storefront from pre-built sections. Rather than building a drag-and-drop visual editor from scratch (which would be extremely complex), we build a **template-driven configurator** with live preview -- similar to the existing Landing Page tab in Content Studio but elevated to a full multi-page storefront.
 
-**2. AI Image Generation (5 images)**
-- New edge function `generate-product-images` using Nano Banana (google/gemini-2.5-flash-image)
-- Generates 5 product images optimized for: social media, ads, landing page, ecommerce, email
-- Each image includes: preview, regenerate button, download button, usage label
-- Images stored as base64 in component state (optionally uploadable to storage)
+### Data Connections
 
-**3. Social Media Posts with Image (5 posts)**
-- Each post includes: caption, hook, CTA, hashtags, and an attached generated image
-- Platform-optimized for Instagram, Facebook, TikTok, LinkedIn, Twitter/X
-- Copy and download actions per post
-- Competitor differentiation woven into captions using analysis data
+| Source | What it provides |
+|--------|-----------------|
+| `products` table | Product catalog grid with name, price, image, description |
+| `analysisStore` (sellerResults) | Market intelligence: pricing recommendations, competitor insights, demand trends |
+| `contentStudioStore` | Generated images, social posts, email campaigns, content scores |
+| `landing_page_themes` table | Saved theme templates for consistent branding |
+| `content_orders` table | Order form submissions (reuses existing OrderForm component) |
+| `scheduled_posts` table | Social proof: recent post activity count |
+| Content Studio's `buildLandingPageHtml` | Reuses the HTML builder pattern for storefront generation |
 
-**4. Video Generation (Placeholder)**
-- UI tab with "Coming Soon" badge
-- Shows what will be generated: script, storyboard, voiceover text, subtitles
-- Placeholder cards with the video generation workflow description
-- Ready to connect when a video API becomes available
+### What Gets Built
 
-**5. Social Media Posts with Video (Placeholder)**
-- Same placeholder approach as video tab
-- Shows 5 planned video-based post slots
+**1. Website Builder Store** (`src/stores/websiteBuilderStore.ts`)
+- Zustand store holding: site config (name, tagline, logo URL), selected theme, enabled blocks with order, per-block settings
+- Block types: `hero`, `product-catalog`, `about`, `testimonials`, `faq`, `contact`, `order-form`, `social-proof`, `market-stats`
+- Persistence via Zustand persist middleware (localStorage)
 
-**6. Landing Page Builder**
-- Auto-generates a conversion-optimized landing page using:
-  - Generated images
-  - Product intelligence insights (from analysisStore)
-  - Competitor differentiation points
-  - Pricing strategy data
-- Sections: Hero, Benefits, Features, Social Proof (from competitor analysis), FAQ (AI-generated), CTA, Order Form
-- Live preview in an iframe-like card
-- Mobile responsive preview toggle
-- Export as HTML
+**2. Database Table: `websites`**
+- Stores published website configurations per user
+- Columns: `id`, `user_id`, `name`, `slug`, `config_json` (JSONB -- full block config), `theme_json` (JSONB), `published_html`, `is_published`, `created_at`, `updated_at`
+- RLS: All operations scoped to `auth.uid() = user_id`
+- Trigger: `update_updated_at_column` on update
 
-**7. Order Form with Database Integration**
-- Built-in order form component: name, phone, email, address, quantity, submit
-- New database table `content_orders` to store submissions
-- RLS policies scoped to the content creator's user_id
-- Success toast notification on submission
+**3. Main Page Component** (`src/pages/dashboard/WebsiteBuilder.tsx`)
+- Replace the placeholder with full `DashboardLayout` + `WebsiteBuilder` component
+- Header with site name, save/publish buttons
 
-**8. Email Campaign Generator (5 campaigns)**
-- 5 distinct email campaigns using generated images
-- Each includes: subject line, preview text, body with image, CTA, personalization placeholders
-- Responsive email layout preview
-- Copy HTML / Download options
+**4. Website Builder Component** (`src/features/seller/components/website-builder/WebsiteBuilder.tsx`)
+- Three-panel layout:
+  - Left sidebar: Block palette (available blocks to add)
+  - Center: Live HTML preview in iframe (desktop/mobile toggle)
+  - Right sidebar: Block settings for the selected block
+- Top bar: Site name input, theme selector (reuses `landing_page_themes`), Save Draft, Publish buttons
 
-**9. Content Scoring and Optimization**
-- Content score (0-100) for each generated piece based on: clarity, CTA strength, emotional appeal, keyword density
-- Competitor differentiation suggestions panel
-- Pricing angle suggestions based on market data
-- CTA optimization tips
-- A/B testing suggestions for headlines/CTAs
+**5. Block System**
+- Each block type has a config interface and an HTML renderer
+- Blocks file: `src/features/seller/components/website-builder/blocks.ts`
+  - `hero`: Title, subtitle, CTA text, background image (pulls from Content Studio generated images)
+  - `product-catalog`: Auto-pulls from `products` table, displays grid with name, image, price
+  - `about`: Editable rich text (textarea), optional image
+  - `testimonials`: Uses competitor differentiation data from `analysisStore` as social proof
+  - `faq`: Reuses FAQ data structure from Content Studio landing page
+  - `contact`: Name, email, phone, message form
+  - `order-form`: Embeds the existing `OrderForm` component's HTML output
+  - `social-proof`: Shows post count, engagement stats from `scheduled_posts`
+  - `market-stats`: Displays market price range, demand trend, competitor count from `analysisStore`
 
-**10. Publishing and Export**
-- Export options: HTML, JSON, CMS-ready format
-- SEO meta tags auto-generated (title, description, keywords)
-- Download all assets as a package
+**6. Block Configurator Panel** (`src/features/seller/components/website-builder/BlockConfigurator.tsx`)
+- Dynamic form that changes based on selected block type
+- Hero: edit title, subtitle, CTA, pick image from Content Studio
+- Product Catalog: toggle columns (2/3/4), show/hide price, filter by category
+- About: textarea for content
+- Each config change triggers live preview rebuild
 
-### New Tab Navigation
+**7. Block Palette** (`src/features/seller/components/website-builder/BlockPalette.tsx`)
+- List of available block types with icons and descriptions
+- Click to add, drag to reorder (reuses the drag pattern from LandingPageTab)
+- Toggle blocks on/off, delete blocks
 
-```text
-Images | Social (Image) | Video | Social (Video) | Landing Page | Email Campaign | Score & Optimize
-```
+**8. HTML Generator** (`src/features/seller/components/website-builder/generateStorefrontHtml.ts`)
+- Takes site config + blocks + theme + products data
+- Produces self-contained HTML with inline CSS (same pattern as `buildLandingPageHtml`)
+- Includes SEO meta tags (title, description, Open Graph)
+- Mobile-responsive CSS
+- Embeds product catalog with images and prices
+- Includes order form HTML with action pointing to a future endpoint
 
-### Files to create
+**9. Theme Integration**
+- Reuses `LandingPageTheme` type and `LandingPageCustomizer` component
+- Loads saved themes from `landing_page_themes` table
+- Theme applies to all blocks consistently
+
+**10. Publish Flow**
+- Save draft: Upserts to `websites` table (config_json + theme_json)
+- Publish: Generates final HTML, uploads to `landing-pages` storage bucket, updates `published_html` and `is_published` in DB
+- Shows published URL with copy button (reuses pattern from LandingPageTab)
+
+### Files to Create
 
 | File | Purpose |
 |------|---------|
-| `supabase/functions/generate-product-images/index.ts` | Edge function for AI image generation using Nano Banana |
-| `src/features/seller/components/content-studio/ImageGenerationTab.tsx` | 5 AI-generated product images with preview/download |
-| `src/features/seller/components/content-studio/SocialImagePostsTab.tsx` | 5 social posts with attached images |
-| `src/features/seller/components/content-studio/VideoTab.tsx` | Placeholder for video generation |
-| `src/features/seller/components/content-studio/SocialVideoPostsTab.tsx` | Placeholder for video social posts |
-| `src/features/seller/components/content-studio/LandingPageTab.tsx` | Landing page builder with live preview |
-| `src/features/seller/components/content-studio/OrderForm.tsx` | Order form component with database integration |
-| `src/features/seller/components/content-studio/EmailCampaignTab.tsx` | 5 email campaigns with images |
-| `src/features/seller/components/content-studio/ContentScoreTab.tsx` | Scoring, differentiation, CTA optimization, A/B suggestions |
-| `src/features/seller/components/content-studio/types.ts` | Shared types for the enhanced content studio |
+| `src/stores/websiteBuilderStore.ts` | Zustand store for site config, blocks, and editor state |
+| `src/features/seller/components/website-builder/WebsiteBuilder.tsx` | Main builder component with 3-panel layout |
+| `src/features/seller/components/website-builder/BlockPalette.tsx` | Available blocks sidebar |
+| `src/features/seller/components/website-builder/BlockConfigurator.tsx` | Right-panel block settings editor |
+| `src/features/seller/components/website-builder/blocks.ts` | Block type definitions, default configs, and HTML renderers |
+| `src/features/seller/components/website-builder/generateStorefrontHtml.ts` | Full HTML generator combining blocks + theme + data |
+| `src/features/seller/components/website-builder/types.ts` | Types for blocks, site config, editor state |
 
-### Files to modify
+### Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/features/seller/components/ContentStudio.tsx` | Major overhaul: new tab structure, auto-activation from analysisStore, orchestrated generation flow with progress indicator |
-| `src/stores/contentStudioStore.ts` | Expand to hold generated images, landing page HTML, email campaigns, scores |
-| `supabase/config.toml` | Add `[functions.generate-product-images]` |
+| `src/pages/dashboard/WebsiteBuilder.tsx` | Replace placeholder with DashboardLayout + WebsiteBuilder |
+| `src/features/seller/index.ts` | Export WebsiteBuilder components |
 
-### Database changes
+### Database Changes
 
-**New table: `content_orders`**
+New table `websites`:
 
 | Column | Type | Notes |
 |--------|------|-------|
-| id | uuid | PK, default gen_random_uuid() |
-| user_id | uuid | Owner of the landing page |
-| name | text | Customer name |
-| phone | text | Customer phone |
-| email | text | Customer email |
-| address | text | Customer address |
-| quantity | integer | Order quantity |
-| product_name | text | Product ordered |
+| id | uuid | PK, default `gen_random_uuid()` |
+| user_id | uuid | NOT NULL |
+| name | text | NOT NULL, default 'My Store' |
+| slug | text | NOT NULL |
+| config_json | jsonb | NOT NULL, default '{}' -- blocks, order, per-block settings |
+| theme_json | jsonb | NOT NULL, default '{}' -- LandingPageTheme |
+| published_html | text | Nullable -- last published HTML |
+| is_published | boolean | NOT NULL, default false |
 | created_at | timestamptz | default now() |
+| updated_at | timestamptz | default now() |
 
-RLS: Insert allowed for anon (public order form), SELECT/DELETE scoped to user_id.
+RLS policies: SELECT, INSERT, UPDATE, DELETE all scoped to `auth.uid() = user_id`.
+Trigger: `update_updated_at_column` on UPDATE.
 
-### Technical details
+### Technical Details
 
-**Image Generation Edge Function:**
-- Uses `google/gemini-2.5-flash-image` (Nano Banana) via Lovable AI Gateway
-- Generates 5 images sequentially with different prompts per use case (social, ad, landing, ecommerce, email)
-- Returns array of base64 image URLs
-- Handles 429/402 errors gracefully
+**Block Data Flow:**
 
-**Auto-Activation Logic:**
 ```text
-const sellerResults = useAnalysisStore(s => s.sellerResults);
-
-// If sellerResults exist, pre-populate:
-// - productName from sellerResults.productIdentification.name
-// - competitors from sellerResults.competitors
-// - pricing from sellerResults.pricingRecommendation
-// - demand from sellerResults.demandIndicators
+Products DB ──┐
+              ├──> generateStorefrontHtml() ──> iframe srcDoc
+analysisStore ┤                                    │
+              ├──> (theme from landing_page_themes) │
+contentStore ─┘                                    │
+                                                   ▼
+                                            Publish to Storage
+                                                   │
+                                                   ▼
+                                            Save to websites table
 ```
 
-**Content Scoring Algorithm:**
-- Headline clarity: keyword density + length optimization (0-20 points)
-- CTA strength: action verb presence + urgency (0-20 points)
-- Emotional appeal: sentiment analysis keywords (0-20 points)
-- Platform optimization: character count compliance (0-20 points)
-- Competitive differentiation: unique selling points vs competitors (0-20 points)
+**Product Catalog Block:**
+- Fetches products from Supabase `products` table on mount
+- Renders a responsive grid with product cards (image, name, price)
+- Configurable: columns count, show/hide price, category filter
 
-**Landing Page HTML Generation:**
-- Uses the existing `generate-marketing-content` edge function enhanced with landing page sections
-- Renders a full HTML page with inline CSS for portability
-- Includes: hero with image, benefits grid, features list, testimonial placeholders, FAQ accordion, CTA with order form
-- Export produces a self-contained HTML file
+**Live Preview Rebuild:**
+- Every config/block/theme change calls `generateStorefrontHtml()` 
+- Debounced at 300ms to avoid excessive rebuilds
+- Result set as `srcDoc` on the preview iframe
 
-**Generation Flow:**
-```text
-1. User clicks "Generate Full Kit" (or auto-triggered)
-2. Progress bar shows: "Generating images... (1/7)"
-3. Sequential generation:
-   a. Images (5x Nano Banana calls)
-   b. Social posts with images (text generation + image attachment)
-   c. Landing page content
-   d. Email campaigns
-   e. Content scoring
-4. All tabs populated, user can navigate freely
-```
+**Save/Load Workflow:**
+- On mount, check `websites` table for existing site by user_id
+- If found, load config_json and theme_json into store
+- Save button upserts to the table
+- Publish button generates HTML, uploads to storage, updates DB
 
-### Video generation note
+### Implementation Order
 
-Seedance 2.0 and other video generation APIs are not available through Lovable AI. The Video and Social (Video) tabs will show a polished "Coming Soon" interface with:
-- Description of what will be generated
-- Script/storyboard template that can be used manually
-- A note that video API integration is planned
+1. Create database table `websites` with RLS
+2. Create types and block definitions
+3. Create the Zustand store
+4. Create the HTML generator
+5. Build BlockPalette and BlockConfigurator components
+6. Build the main WebsiteBuilder component
+7. Update the page file and exports
+8. Test end-to-end
 
