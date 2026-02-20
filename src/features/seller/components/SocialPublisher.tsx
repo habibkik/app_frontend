@@ -1091,7 +1091,17 @@ export function SocialPublisher() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{item.content}</p>
+                  <Textarea
+                    value={item.content}
+                    onChange={(e) => {
+                      setBatchItems((prev) =>
+                        prev.map((bi, i) => i === idx ? { ...bi, content: e.target.value } : bi)
+                      );
+                    }}
+                    rows={3}
+                    className="text-xs resize-none"
+                    placeholder="Edit post content..."
+                  />
                   <div className="flex items-center gap-2 flex-wrap">
                     <Popover>
                       <PopoverTrigger asChild>
