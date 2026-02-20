@@ -1,172 +1,140 @@
 
 
-## Website Builder -- Connected to All Existing Features
+## Connect Publisher with Content Studio and Unify All Marketing Sections
 
-Transform the placeholder Website Builder page into a functional block-based storefront editor that pulls data from every major system: Products, Content Studio, Market Intelligence, Landing Page themes, and Order Forms.
+Make the entire Marketing section (Campaigns, Content Studio, Social Publisher, Website Builder) work as a connected ecosystem where content flows seamlessly between modules.
 
-### Architecture Overview
+### Current State
 
-The Website Builder will be a **block-based page editor** where users compose a storefront from pre-built sections. Rather than building a drag-and-drop visual editor from scratch (which would be extremely complex), we build a **template-driven configurator** with live preview -- similar to the existing Landing Page tab in Content Studio but elevated to a full multi-page storefront.
+The marketing modules are partially connected:
+- Content Studio can send individual posts and batch posts to Social Publisher via `contentStudioStore` (`pendingPublisherPost` / `pendingBatchPosts`)
+- Website Builder pulls from `products`, `analysisStore`, and `contentStudioStore`
+- The Campaigns page is a standalone, older implementation that does NOT use the database and is disconnected from everything else
 
-### Data Connections
-
-| Source | What it provides |
-|--------|-----------------|
-| `products` table | Product catalog grid with name, price, image, description |
-| `analysisStore` (sellerResults) | Market intelligence: pricing recommendations, competitor insights, demand trends |
-| `contentStudioStore` | Generated images, social posts, email campaigns, content scores |
-| `landing_page_themes` table | Saved theme templates for consistent branding |
-| `content_orders` table | Order form submissions (reuses existing OrderForm component) |
-| `scheduled_posts` table | Social proof: recent post activity count |
-| Content Studio's `buildLandingPageHtml` | Reuses the HTML builder pattern for storefront generation |
+The gaps:
+1. **Campaigns page** is completely isolated -- local state only, no database, no connection to Content Studio
+2. **Email campaigns** from Content Studio have no send/schedule action
+3. **Landing Page** from Content Studio is not linked to Website Builder
+4. **Website Builder** cannot pull Content Studio social posts or email campaigns
+5. **Social Publisher** only reads legacy `savedItems` from the store, not the newer generated social posts
+6. **No cross-navigation hub** -- users have to manually jump between pages
 
 ### What Gets Built
 
-**1. Website Builder Store** (`src/stores/websiteBuilderStore.ts`)
-- Zustand store holding: site config (name, tagline, logo URL), selected theme, enabled blocks with order, per-block settings
-- Block types: `hero`, `product-catalog`, `about`, `testimonials`, `faq`, `contact`, `order-form`, `social-proof`, `market-stats`
-- Persistence via Zustand persist middleware (localStorage)
+#### 1. Content Studio "Send to Publisher" for ALL generated content (not just social posts)
 
-**2. Database Table: `websites`**
-- Stores published website configurations per user
-- Columns: `id`, `user_id`, `name`, `slug`, `config_json` (JSONB -- full block config), `theme_json` (JSONB), `published_html`, `is_published`, `created_at`, `updated_at`
-- RLS: All operations scoped to `auth.uid() = user_id`
-- Trigger: `update_updated_at_column` on update
+Currently only the Social Image Posts tab has "Send to Publisher" buttons. We will add:
 
-**3. Main Page Component** (`src/pages/dashboard/WebsiteBuilder.tsx`)
-- Replace the placeholder with full `DashboardLayout` + `WebsiteBuilder` component
-- Header with site name, save/publish buttons
+- **Email Campaign tab**: "Send to Publisher" button per campaign that copies the email subject + body to the Publisher as a draft post for email-related platforms
+- **Landing Page tab**: "Send to Website Builder" button that pushes the generated landing page HTML and theme directly into the `websiteBuilderStore`, then navigates to Website Builder
 
-**4. Website Builder Component** (`src/features/seller/components/website-builder/WebsiteBuilder.tsx`)
-- Three-panel layout:
-  - Left sidebar: Block palette (available blocks to add)
-  - Center: Live HTML preview in iframe (desktop/mobile toggle)
-  - Right sidebar: Block settings for the selected block
-- Top bar: Site name input, theme selector (reuses `landing_page_themes`), Save Draft, Publish buttons
+#### 2. Upgrade Social Publisher to consume Content Studio's generated social posts directly
 
-**5. Block System**
-- Each block type has a config interface and an HTML renderer
-- Blocks file: `src/features/seller/components/website-builder/blocks.ts`
-  - `hero`: Title, subtitle, CTA text, background image (pulls from Content Studio generated images)
-  - `product-catalog`: Auto-pulls from `products` table, displays grid with name, image, price
-  - `about`: Editable rich text (textarea), optional image
-  - `testimonials`: Uses competitor differentiation data from `analysisStore` as social proof
-  - `faq`: Reuses FAQ data structure from Content Studio landing page
-  - `contact`: Name, email, phone, message form
-  - `order-form`: Embeds the existing `OrderForm` component's HTML output
-  - `social-proof`: Shows post count, engagement stats from `scheduled_posts`
-  - `market-stats`: Displays market price range, demand trend, competitor count from `analysisStore`
+The Publisher currently only reads `studioItems` (legacy saved items). We will add a new content source option: **"From Content Studio (Generated)"** that reads `socialPosts` from `contentStudioStore` directly, showing each platform-specific post with its hook, caption, CTA, and hashtags. Users can select one or send all as a batch.
 
-**6. Block Configurator Panel** (`src/features/seller/components/website-builder/BlockConfigurator.tsx`)
-- Dynamic form that changes based on selected block type
-- Hero: edit title, subtitle, CTA, pick image from Content Studio
-- Product Catalog: toggle columns (2/3/4), show/hide price, filter by category
-- About: textarea for content
-- Each config change triggers live preview rebuild
+#### 3. Connect Campaigns page to the database and Content Studio
 
-**7. Block Palette** (`src/features/seller/components/website-builder/BlockPalette.tsx`)
-- List of available block types with icons and descriptions
-- Click to add, drag to reorder (reuses the drag pattern from LandingPageTab)
-- Toggle blocks on/off, delete blocks
+Replace the Campaigns page's local state with the `scheduled_posts` database table (same as Publisher uses). Add a Content Studio content source dropdown. This makes Campaigns and Publisher show the same scheduled posts.
 
-**8. HTML Generator** (`src/features/seller/components/website-builder/generateStorefrontHtml.ts`)
-- Takes site config + blocks + theme + products data
-- Produces self-contained HTML with inline CSS (same pattern as `buildLandingPageHtml`)
-- Includes SEO meta tags (title, description, Open Graph)
-- Mobile-responsive CSS
-- Embeds product catalog with images and prices
-- Includes order form HTML with action pointing to a future endpoint
+#### 4. Add a Marketing Hub card at the top of each marketing page
 
-**9. Theme Integration**
-- Reuses `LandingPageTheme` type and `LandingPageCustomizer` component
-- Loads saved themes from `landing_page_themes` table
-- Theme applies to all blocks consistently
+A compact "Marketing Flow" banner at the top of Content Studio, Publisher, and Website Builder showing the pipeline stages with navigation links:
 
-**10. Publish Flow**
-- Save draft: Upserts to `websites` table (config_json + theme_json)
-- Publish: Generates final HTML, uploads to `landing-pages` storage bucket, updates `published_html` and `is_published` in DB
-- Shows published URL with copy button (reuses pattern from LandingPageTab)
+```text
+[Products] --> [Market Intel] --> [Content Studio] --> [Publisher] --> [Website Builder]
+```
 
-### Files to Create
+Each step shows a status indicator (active/completed/pending) and is clickable to navigate.
 
-| File | Purpose |
-|------|---------|
-| `src/stores/websiteBuilderStore.ts` | Zustand store for site config, blocks, and editor state |
-| `src/features/seller/components/website-builder/WebsiteBuilder.tsx` | Main builder component with 3-panel layout |
-| `src/features/seller/components/website-builder/BlockPalette.tsx` | Available blocks sidebar |
-| `src/features/seller/components/website-builder/BlockConfigurator.tsx` | Right-panel block settings editor |
-| `src/features/seller/components/website-builder/blocks.ts` | Block type definitions, default configs, and HTML renderers |
-| `src/features/seller/components/website-builder/generateStorefrontHtml.ts` | Full HTML generator combining blocks + theme + data |
-| `src/features/seller/components/website-builder/types.ts` | Types for blocks, site config, editor state |
+#### 5. Website Builder pulls Content Studio email campaigns
+
+The Website Builder's block system will gain a new block type: **"Email Signup"** that references the email campaign content from the Content Studio store.
 
 ### Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/pages/dashboard/WebsiteBuilder.tsx` | Replace placeholder with DashboardLayout + WebsiteBuilder |
-| `src/features/seller/index.ts` | Export WebsiteBuilder components |
+| `src/features/seller/components/ContentStudio.tsx` | No changes needed (orchestrates tabs) |
+| `src/features/seller/components/content-studio/EmailCampaignTab.tsx` | Add "Send to Publisher" button per campaign |
+| `src/features/seller/components/content-studio/LandingPageTab.tsx` | Add "Send to Website Builder" button |
+| `src/features/seller/components/SocialPublisher.tsx` | Add "Generated Posts" content source that reads `contentStudioStore.socialPosts` |
+| `src/pages/dashboard/Campaigns.tsx` | Connect to `scheduled_posts` DB table, add Content Studio source |
+| `src/stores/contentStudioStore.ts` | Add `pendingWebsiteData` for landing page transfer to Website Builder |
+| `src/stores/websiteBuilderStore.ts` | Add `importLandingPage` action |
 
-### Database Changes
+### Files to Create
 
-New table `websites`:
-
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid | PK, default `gen_random_uuid()` |
-| user_id | uuid | NOT NULL |
-| name | text | NOT NULL, default 'My Store' |
-| slug | text | NOT NULL |
-| config_json | jsonb | NOT NULL, default '{}' -- blocks, order, per-block settings |
-| theme_json | jsonb | NOT NULL, default '{}' -- LandingPageTheme |
-| published_html | text | Nullable -- last published HTML |
-| is_published | boolean | NOT NULL, default false |
-| created_at | timestamptz | default now() |
-| updated_at | timestamptz | default now() |
-
-RLS policies: SELECT, INSERT, UPDATE, DELETE all scoped to `auth.uid() = user_id`.
-Trigger: `update_updated_at_column` on UPDATE.
+| File | Purpose |
+|------|---------|
+| `src/features/seller/components/MarketingFlowBanner.tsx` | Reusable pipeline navigation banner |
 
 ### Technical Details
 
-**Block Data Flow:**
+**Content Flow Architecture:**
 
 ```text
-Products DB ──┐
-              ├──> generateStorefrontHtml() ──> iframe srcDoc
-analysisStore ┤                                    │
-              ├──> (theme from landing_page_themes) │
-contentStore ─┘                                    │
-                                                   ▼
-                                            Publish to Storage
-                                                   │
-                                                   ▼
-                                            Save to websites table
+Market Intelligence (analysisStore)
+        |
+        v
+Content Studio (contentStudioStore)
+   |         |          |
+   v         v          v
+Social    Email      Landing
+Posts   Campaigns     Page
+   |         |          |
+   v         v          v
+Publisher  Publisher  Website
+(batch)   (drafts)   Builder
+   |
+   v
+scheduled_posts (DB)
+   |
+   v
+Batch Analytics
 ```
 
-**Product Catalog Block:**
-- Fetches products from Supabase `products` table on mount
-- Renders a responsive grid with product cards (image, name, price)
-- Configurable: columns count, show/hide price, category filter
+**Generated Posts in Publisher:**
 
-**Live Preview Rebuild:**
-- Every config/block/theme change calls `generateStorefrontHtml()` 
-- Debounced at 300ms to avoid excessive rebuilds
-- Result set as `srcDoc` on the preview iframe
+When "From Content Studio (Generated)" is selected:
+- Read `contentStudioStore.socialPosts` array (5 platform-optimized posts)
+- Display each as a selectable card with platform icon, hook preview, and caption
+- User can pick individual posts to load into the composer, or "Send All as Batch" to open the batch dialog
+- This replaces the current empty "No content generated yet" state when the kit has been generated
 
-**Save/Load Workflow:**
-- On mount, check `websites` table for existing site by user_id
-- If found, load config_json and theme_json into store
-- Save button upserts to the table
-- Publish button generates HTML, uploads to storage, updates DB
+**Email Campaign to Publisher:**
+
+- Each email campaign card gets a "Schedule Email" button
+- Clicking it sets `pendingPublisherPost` with the email subject + body as content and platform="email"
+- Publisher consumes it via the existing `pendingPublisherPost` effect
+
+**Landing Page to Website Builder:**
+
+- Landing Page tab gets a "Import to Website Builder" button
+- Clicking stores the HTML, theme, and section data in `contentStudioStore.pendingWebsiteData`
+- Website Builder checks for `pendingWebsiteData` on mount and imports it into its block configuration
+- Shows toast confirmation and clears the pending data
+
+**Campaigns Page Database Connection:**
+
+- Replace local `scheduledPosts` state with a `useEffect` that loads from `scheduled_posts` table (same query as Publisher)
+- Reuse the same `handleSchedule` / `handleSaveDraft` pattern from Publisher
+- Add Content Studio content source dropdown (same as Publisher)
+- This ensures both pages show consistent data
+
+**Marketing Flow Banner:**
+
+- Horizontal stepper showing: Products -> Intelligence -> Content Studio -> Publisher -> Website Builder
+- Each step is a link to its dashboard route
+- Current page is highlighted
+- Steps that have data show a green check (e.g., if `analysisStore.sellerResults` exists, Intelligence shows complete)
+- Compact: single row with icons and labels
 
 ### Implementation Order
 
-1. Create database table `websites` with RLS
-2. Create types and block definitions
-3. Create the Zustand store
-4. Create the HTML generator
-5. Build BlockPalette and BlockConfigurator components
-6. Build the main WebsiteBuilder component
-7. Update the page file and exports
-8. Test end-to-end
-
+1. Create `MarketingFlowBanner` component
+2. Add `pendingWebsiteData` to `contentStudioStore` and `importLandingPage` to `websiteBuilderStore`
+3. Update `EmailCampaignTab` with "Send to Publisher" button
+4. Update `LandingPageTab` with "Send to Website Builder" button
+5. Update `SocialPublisher` with generated posts content source
+6. Update `Campaigns` page to use database and Content Studio
+7. Add `MarketingFlowBanner` to Content Studio, Publisher, Website Builder, and Campaigns pages
