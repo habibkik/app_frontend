@@ -1,0 +1,80 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { LandingPageTheme } from "@/features/seller/components/content-studio/types";
+import { DEFAULT_LANDING_THEME } from "@/features/seller/components/content-studio/types";
+import type { SiteBlock, SiteConfig, WebsiteEditorState } from "@/features/seller/components/website-builder/types";
+import { DEFAULT_BLOCKS } from "@/features/seller/components/website-builder/blocks";
+
+interface WebsiteBuilderActions {
+  setSiteConfig: (config: Partial<SiteConfig>) => void;
+  setTheme: (theme: LandingPageTheme) => void;
+  setBlocks: (blocks: SiteBlock[]) => void;
+  addBlock: (block: SiteBlock) => void;
+  removeBlock: (id: string) => void;
+  updateBlockConfig: (id: string, config: any) => void;
+  toggleBlock: (id: string) => void;
+  moveBlock: (fromIndex: number, toIndex: number) => void;
+  setSelectedBlockId: (id: string | null) => void;
+  setWebsiteId: (id: string | null) => void;
+  setIsPublished: (v: boolean) => void;
+  setSlug: (slug: string) => void;
+  loadFromDb: (data: { config_json: any; theme_json: any; id: string; name: string; slug: string; is_published: boolean }) => void;
+  reset: () => void;
+}
+
+const initialState: WebsiteEditorState = {
+  siteConfig: { name: "My Store", tagline: "Quality products, competitive prices", logoUrl: "" },
+  blocks: DEFAULT_BLOCKS,
+  theme: DEFAULT_LANDING_THEME,
+  selectedBlockId: null,
+  websiteId: null,
+  isPublished: false,
+  slug: "my-store",
+};
+
+export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilderActions>()(
+  persist(
+    (set) => ({
+      ...initialState,
+
+      setSiteConfig: (config) => set((s) => ({ siteConfig: { ...s.siteConfig, ...config } })),
+      setTheme: (theme) => set({ theme }),
+      setBlocks: (blocks) => set({ blocks }),
+      addBlock: (block) => set((s) => ({ blocks: [...s.blocks, block] })),
+      removeBlock: (id) => set((s) => ({ blocks: s.blocks.filter((b) => b.id !== id), selectedBlockId: s.selectedBlockId === id ? null : s.selectedBlockId })),
+      updateBlockConfig: (id, config) =>
+        set((s) => ({
+          blocks: s.blocks.map((b) => (b.id === id ? { ...b, config: { ...b.config, ...config } } : b)),
+        })),
+      toggleBlock: (id) =>
+        set((s) => ({
+          blocks: s.blocks.map((b) => (b.id === id ? { ...b, enabled: !b.enabled } : b)),
+        })),
+      moveBlock: (fromIndex, toIndex) =>
+        set((s) => {
+          const newBlocks = [...s.blocks];
+          const [moved] = newBlocks.splice(fromIndex, 1);
+          newBlocks.splice(toIndex, 0, moved);
+          return { blocks: newBlocks };
+        }),
+      setSelectedBlockId: (id) => set({ selectedBlockId: id }),
+      setWebsiteId: (id) => set({ websiteId: id }),
+      setIsPublished: (v) => set({ isPublished: v }),
+      setSlug: (slug) => set({ slug }),
+      loadFromDb: (data) => {
+        const cfg = data.config_json as any;
+        set({
+          websiteId: data.id,
+          siteConfig: cfg.siteConfig || initialState.siteConfig,
+          blocks: cfg.blocks || initialState.blocks,
+          theme: (data.theme_json as any) || initialState.theme,
+          slug: data.slug,
+          isPublished: data.is_published,
+          selectedBlockId: null,
+        });
+      },
+      reset: () => set(initialState),
+    }),
+    { name: "website-builder-store" }
+  )
+);
