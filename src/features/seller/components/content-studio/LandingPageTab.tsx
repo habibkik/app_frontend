@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -26,12 +25,13 @@ import {
   FileArchive,
   ExternalLink,
   Paintbrush,
-  ChevronDown,
+  GripVertical,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import JSZip from "jszip";
-import type { LandingPageData, GeneratedImage, LandingPageTheme } from "./types";
+import type { LandingPageData, GeneratedImage, LandingPageTheme, LandingPageSection } from "./types";
+import { SECTION_LABELS } from "./types";
 import { OrderForm } from "./OrderForm";
 import { LandingPageCustomizer } from "./LandingPageCustomizer";
 
@@ -41,10 +41,15 @@ interface Props {
   productName: string;
   userId: string;
   theme: LandingPageTheme;
+  sectionOrder: LandingPageSection[];
   onThemeChange: (theme: LandingPageTheme) => void;
+  onSectionOrderChange: (order: LandingPageSection[]) => void;
 }
 
-export const LandingPageTab: React.FC<Props> = ({ landingPage, images, productName, userId, theme, onThemeChange }) => {
+export const LandingPageTab: React.FC<Props> = ({
+  landingPage, images, productName, userId, theme, sectionOrder,
+  onThemeChange, onSectionOrderChange,
+}) => {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -56,10 +61,43 @@ export const LandingPageTab: React.FC<Props> = ({ landingPage, images, productNa
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
-
-  // Download package state
   const [isPackaging, setIsPackaging] = useState(false);
 
+  // Drag state
+  const dragIndex = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // ── Drag handlers ──
+  const handleDragStart = (idx: number) => {
+    dragIndex.current = idx;
+  };
+
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    setDragOverIndex(idx);
+  };
+
+  const handleDrop = (idx: number) => {
+    const from = dragIndex.current;
+    if (from === null || from === idx) {
+      dragIndex.current = null;
+      setDragOverIndex(null);
+      return;
+    }
+    const newOrder = [...sectionOrder];
+    const [moved] = newOrder.splice(from, 1);
+    newOrder.splice(idx, 0, moved);
+    onSectionOrderChange(newOrder);
+    dragIndex.current = null;
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    dragIndex.current = null;
+    setDragOverIndex(null);
+  };
+
+  // ── Existing handlers (keep as-is) ──
   const handleCopyHtml = async () => {
     if (!landingPage?.html) return;
     await navigator.clipboard.writeText(landingPage.html);
@@ -82,28 +120,18 @@ export const LandingPageTab: React.FC<Props> = ({ landingPage, images, productNa
     toast.success("HTML downloaded");
   };
 
-  // ── Publish to cloud storage ──
   const handlePublish = async () => {
     if (!landingPage?.html || !userId) return;
     const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, "").replace(/(^-|-$)/g, "") || "landing-page";
-
     setIsPublishing(true);
     try {
       const filePath = `${userId}/${cleanSlug}.html`;
       const blob = new Blob([landingPage.html], { type: "text/html" });
-
-      // Upload (upsert) to storage
       const { error } = await supabase.storage
         .from("landing-pages")
         .upload(filePath, blob, { contentType: "text/html", upsert: true });
-
       if (error) throw error;
-
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("landing-pages")
-        .getPublicUrl(filePath);
-
+      const { data: urlData } = supabase.storage.from("landing-pages").getPublicUrl(filePath);
       setPublishedUrl(urlData.publicUrl);
       toast.success("Landing page published successfully!");
     } catch (err: any) {
@@ -122,46 +150,25 @@ export const LandingPageTab: React.FC<Props> = ({ landingPage, images, productNa
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
-  // ── Download as static site package ──
   const handleDownloadPackage = async () => {
     if (!landingPage?.html) return;
     setIsPackaging(true);
-
     try {
       const zip = new JSZip();
-
-      // Add index.html
       zip.file("index.html", landingPage.html);
-
-      // Add images as base64 files
       const assetsFolder = zip.folder("assets");
       let imageIndex = 0;
       for (const img of images) {
         if (img.imageUrl) {
-          // Extract base64 data
           const match = img.imageUrl.match(/^data:image\/(\w+);base64,(.+)$/);
           if (match) {
             const ext = match[1] === "jpeg" ? "jpg" : match[1];
-            const base64Data = match[2];
-            assetsFolder?.file(`${img.id}-${img.label.replace(/\s/g, "-").toLowerCase()}.${ext}`, base64Data, { base64: true });
+            assetsFolder?.file(`${img.id}-${img.label.replace(/\s/g, "-").toLowerCase()}.${ext}`, match[2], { base64: true });
             imageIndex++;
           }
         }
       }
-
-      // Add a README
-      zip.file("README.md", `# ${productName} Landing Page
-
-Generated by Content Studio on ${new Date().toLocaleDateString()}.
-
-## Files
-- \`index.html\` — The complete landing page (self-contained with inline CSS)
-${imageIndex > 0 ? `- \`assets/\` — ${imageIndex} product image(s)\n` : ""}
-## Usage
-Simply open \`index.html\` in any browser, or deploy to any static hosting service (Netlify, Vercel, GitHub Pages, etc.).
-`);
-
-      // Add metadata JSON
+      zip.file("README.md", `# ${productName} Landing Page\n\nGenerated by Content Studio on ${new Date().toLocaleDateString()}.\n\n## Files\n- \`index.html\` — The complete landing page\n${imageIndex > 0 ? `- \`assets/\` — ${imageIndex} product image(s)\n` : ""}\n## Usage\nOpen \`index.html\` in any browser or deploy to any static hosting.\n`);
       zip.file("metadata.json", JSON.stringify({
         productName,
         generatedAt: new Date().toISOString(),
@@ -174,8 +181,6 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
         },
         imagesIncluded: imageIndex,
       }, null, 2));
-
-      // Generate and download
       const content = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(content);
       const a = document.createElement("a");
@@ -208,18 +213,10 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h3 className="text-lg font-semibold">Landing Page</h3>
         <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            size="sm"
-            variant={previewMode === "desktop" ? "default" : "outline"}
-            onClick={() => setPreviewMode("desktop")}
-          >
+          <Button size="sm" variant={previewMode === "desktop" ? "default" : "outline"} onClick={() => setPreviewMode("desktop")}>
             <Monitor className="h-3 w-3 mr-1" /> Desktop
           </Button>
-          <Button
-            size="sm"
-            variant={previewMode === "mobile" ? "default" : "outline"}
-            onClick={() => setPreviewMode("mobile")}
-          >
+          <Button size="sm" variant={previewMode === "mobile" ? "default" : "outline"} onClick={() => setPreviewMode("mobile")}>
             <Smartphone className="h-3 w-3 mr-1" /> Mobile
           </Button>
           <Button size="sm" variant="outline" onClick={handleCopyHtml}>
@@ -229,26 +226,14 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
           <Button size="sm" variant="outline" onClick={handleDownloadHtml}>
             <Download className="h-3 w-3 mr-1" /> Export HTML
           </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleDownloadPackage}
-            disabled={isPackaging}
-          >
+          <Button size="sm" variant="outline" onClick={handleDownloadPackage} disabled={isPackaging}>
             {isPackaging ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <FileArchive className="h-3 w-3 mr-1" />}
             Download Package
           </Button>
-          <Button
-            size="sm"
-            variant={showCustomizer ? "default" : "outline"}
-            onClick={() => setShowCustomizer(!showCustomizer)}
-          >
+          <Button size="sm" variant={showCustomizer ? "default" : "outline"} onClick={() => setShowCustomizer(!showCustomizer)}>
             <Paintbrush className="h-3 w-3 mr-1" /> Customize
           </Button>
-          <Button
-            size="sm"
-            onClick={() => setShowPublishDialog(true)}
-          >
+          <Button size="sm" onClick={() => setShowPublishDialog(true)}>
             <Globe className="h-3 w-3 mr-1" /> Publish
           </Button>
         </div>
@@ -259,6 +244,39 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
         <LandingPageCustomizer theme={theme} onChange={onThemeChange} />
       )}
 
+      {/* Section Reorder */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <GripVertical className="h-4 w-4" /> Section Order
+            <span className="text-xs font-normal text-muted-foreground ml-1">Drag to reorder</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {sectionOrder.map((section, idx) => (
+              <div
+                key={section}
+                draggable
+                onDragStart={() => handleDragStart(idx)}
+                onDragOver={(e) => handleDragOver(e, idx)}
+                onDrop={() => handleDrop(idx)}
+                onDragEnd={handleDragEnd}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md border cursor-grab active:cursor-grabbing transition-all select-none ${
+                  dragOverIndex === idx
+                    ? "border-primary bg-primary/10 scale-105"
+                    : "border-border bg-card hover:border-primary/40"
+                }`}
+              >
+                <GripVertical className="h-3 w-3 text-muted-foreground shrink-0" />
+                <span className="text-sm font-medium">{SECTION_LABELS[section]}</span>
+                <Badge variant="secondary" className="text-[10px] px-1 py-0">{idx + 1}</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Published URL banner */}
       {publishedUrl && (
         <Card className="border-primary/30 bg-primary/5">
@@ -266,12 +284,7 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
             <LinkIcon className="h-5 w-5 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium">Published!</p>
-              <a
-                href={publishedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-primary hover:underline truncate block"
-              >
+              <a href={publishedUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate block">
                 {publishedUrl}
               </a>
             </div>
@@ -290,9 +303,7 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
       {/* Live Preview */}
       <Card>
         <CardContent className="p-0">
-          <div
-            className={`mx-auto transition-all ${previewMode === "mobile" ? "max-w-[390px]" : "w-full"}`}
-          >
+          <div className={`mx-auto transition-all ${previewMode === "mobile" ? "max-w-[390px]" : "w-full"}`}>
             <iframe
               srcDoc={landingPage.html}
               className="w-full border-0 rounded-lg"
@@ -307,9 +318,7 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
       {/* Sections breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Benefits</CardTitle>
-          </CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm">Benefits</CardTitle></CardHeader>
           <CardContent>
             <ul className="space-y-1">
               {landingPage.sections.benefits.map((b, i) => (
@@ -321,9 +330,7 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">FAQ</CardTitle>
-          </CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm">FAQ</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             {landingPage.sections.faq.map((f, i) => (
               <div key={i}>
@@ -337,11 +344,7 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
 
       {/* Order Form */}
       <div className="space-y-2">
-        <Button
-          variant="outline"
-          onClick={() => setShowOrderForm(!showOrderForm)}
-          className="w-full"
-        >
+        <Button variant="outline" onClick={() => setShowOrderForm(!showOrderForm)} className="w-full">
           {showOrderForm ? "Hide Order Form" : "Show Order Form Preview"}
         </Button>
         {showOrderForm && <OrderForm productName={productName} userId={userId} />}
@@ -352,9 +355,7 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Publish Landing Page</DialogTitle>
-            <DialogDescription>
-              Publish your landing page to a shareable URL. Choose a custom slug for your page.
-            </DialogDescription>
+            <DialogDescription>Publish your landing page to a shareable URL.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
@@ -370,28 +371,19 @@ Simply open \`index.html\` in any browser, or deploy to any static hosting servi
                 />
                 <span className="text-xs text-muted-foreground">.html</span>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Only lowercase letters, numbers, and hyphens allowed.
-              </p>
+              <p className="text-xs text-muted-foreground">Only lowercase letters, numbers, and hyphens.</p>
             </div>
             {publishedUrl && (
               <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
                 <Check className="h-4 w-4 text-primary shrink-0" />
-                <a
-                  href={publishedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline truncate"
-                >
+                <a href={publishedUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline truncate">
                   {publishedUrl}
                 </a>
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPublishDialog(false)}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setShowPublishDialog(false)}>Cancel</Button>
             <Button onClick={handlePublish} disabled={isPublishing || !slug.trim()}>
               {isPublishing ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Publishing...</>

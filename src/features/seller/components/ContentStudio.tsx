@@ -32,8 +32,9 @@ import type {
   LandingPageData,
   GenerationStep,
   LandingPageTheme,
+  LandingPageSection,
 } from "./content-studio/types";
-import { DEFAULT_LANDING_THEME } from "./content-studio/types";
+import { DEFAULT_LANDING_THEME, DEFAULT_SECTION_ORDER } from "./content-studio/types";
 import { ImageGenerationTab } from "./content-studio/ImageGenerationTab";
 import { SocialImagePostsTab } from "./content-studio/SocialImagePostsTab";
 import { VideoTab } from "./content-studio/VideoTab";
@@ -130,7 +131,8 @@ function buildLandingPageHtml(
   sellerResults: MarketAnalysisResult | null,
   images: GeneratedImage[],
   socialPosts: SocialImagePost[],
-  theme: LandingPageTheme = DEFAULT_LANDING_THEME
+  theme: LandingPageTheme = DEFAULT_LANDING_THEME,
+  sectionOrder: LandingPageSection[] = DEFAULT_SECTION_ORDER
 ): LandingPageData {
   const heroImg = images.find((i) => i.id === "landing")?.imageUrl || images.find((i) => i.imageUrl)?.imageUrl || "";
   const productImg = images.find((i) => i.id === "ecommerce")?.imageUrl || "";
@@ -229,15 +231,20 @@ ${heroImg ? `<img src="${heroImg}" alt="${productName}"/>` : ""}
 <p>${sellerResults?.productIdentification?.category || "Premium quality product"} — engineered for excellence</p>
 <a href="#order" class="cta-btn">${ctaText}</a>`}
 </div>
-<section><h2>Benefits</h2><ul class="benefits">${benefits.map((b) => `<li>${b}</li>`).join("")}</ul></section>
-<section><h2>Features</h2><ul class="features">${features.map((f) => `<li>${f}</li>`).join("")}</ul></section>
-${socialProof.length > 0 ? `<div class="social-proof"><h2>Why Customers Choose Us</h2>${socialProof.map((s) => `<blockquote>${s}</blockquote>`).join("")}</div>` : ""}
-<section class="faq"><h2>FAQ</h2>${faq.map((f) => `<details><summary>${f.question}</summary><p>${f.answer}</p></details>`).join("")}</section>
-<div class="order-section" id="order"><h2>Ready to Get Started?</h2><p style="margin:16px 0;opacity:0.8">Join thousands of satisfied customers.</p><a href="#" class="cta-btn">${ctaText}</a></div>
+${sectionOrder.map((section) => {
+  switch (section) {
+    case "benefits": return `<section><h2>Benefits</h2><ul class="benefits">${benefits.map((b) => `<li>${b}</li>`).join("")}</ul></section>`;
+    case "features": return `<section><h2>Features</h2><ul class="features">${features.map((f) => `<li>${f}</li>`).join("")}</ul></section>`;
+    case "social-proof": return socialProof.length > 0 ? `<div class="social-proof"><h2>Why Customers Choose Us</h2>${socialProof.map((s) => `<blockquote>${s}</blockquote>`).join("")}</div>` : "";
+    case "faq": return `<section class="faq"><h2>FAQ</h2>${faq.map((f) => `<details><summary>${f.question}</summary><p>${f.answer}</p></details>`).join("")}</section>`;
+    case "cta": return `<div class="order-section" id="order"><h2>Ready to Get Started?</h2><p style="margin:16px 0;opacity:0.8">Join thousands of satisfied customers.</p><a href="#" class="cta-btn">${ctaText}</a></div>`;
+    default: return "";
+  }
+}).join("\n")}
 <footer>&copy; ${new Date().getFullYear()} ${productName}. All rights reserved.</footer>
 </body></html>`;
 
-  return { html, sections: { hero: productName, benefits, features, socialProof, faq, ctaText } };
+  return { html, sectionOrder, sections: { hero: productName, benefits, features, socialProof, faq, ctaText } };
 }
 
 // ─── Main Component ────────────────────────────────────────
@@ -248,6 +255,7 @@ export const ContentStudio = () => {
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("images");
   const [userId, setUserId] = useState<string>("");
   const [landingTheme, setLandingTheme] = useState<LandingPageTheme>(DEFAULT_LANDING_THEME);
+  const [sectionOrder, setSectionOrder] = useState<LandingPageSection[]>(DEFAULT_SECTION_ORDER);
 
   const hasIntelligence = !!sellerResults;
   const productName = sellerResults?.productIdentification?.name || "Product";
@@ -399,7 +407,7 @@ export const ContentStudio = () => {
 
       // Step 3: Landing Page
       updateStep(2, "running");
-      const lp = buildLandingPageHtml(productName, sellerResults, store.images, posts, landingTheme);
+      const lp = buildLandingPageHtml(productName, sellerResults, store.images, posts, landingTheme, sectionOrder);
       store.setLandingPage(lp);
       updateStep(2, "done");
 
@@ -578,10 +586,15 @@ export const ContentStudio = () => {
             productName={productName}
             userId={userId}
             theme={landingTheme}
+            sectionOrder={sectionOrder}
             onThemeChange={(newTheme) => {
               setLandingTheme(newTheme);
-              // Rebuild HTML with new theme
-              const lp = buildLandingPageHtml(productName, sellerResults, store.images, store.socialPosts, newTheme);
+              const lp = buildLandingPageHtml(productName, sellerResults, store.images, store.socialPosts, newTheme, sectionOrder);
+              store.setLandingPage(lp);
+            }}
+            onSectionOrderChange={(newOrder) => {
+              setSectionOrder(newOrder);
+              const lp = buildLandingPageHtml(productName, sellerResults, store.images, store.socialPosts, landingTheme, newOrder);
               store.setLandingPage(lp);
             }}
           />
