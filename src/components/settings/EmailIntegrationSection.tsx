@@ -186,26 +186,26 @@ export function EmailIntegrationSection() {
       <Dialog open={!!configuringProvider} onOpenChange={() => setConfiguringProvider(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("emailIntegration.configureProvider", { name: configuringProvider?.name })}</DialogTitle>
-            <DialogDescription>{t("emailIntegration.configureProviderDesc", { name: configuringProvider?.name })}</DialogDescription>
+            <DialogTitle>{t("configureProvider", { name: configuringProvider?.name })}</DialogTitle>
+            <DialogDescription>{t("configureProviderDesc", { name: configuringProvider?.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="email-api-key">{t("emailIntegration.apiKeyLabel")}</Label>
+              <Label htmlFor="email-api-key">{t("apiKeyLabel", "API Key")}</Label>
               <Input id="email-api-key" type="password" placeholder={t("emailIntegration.apiKeyPlaceholder")} value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
             </div>
             {configuringProvider?.id !== "smtp" && (
               <div className="space-y-2">
-                <Label htmlFor="email-domain">{t("emailIntegration.domain")}</Label>
+                <Label htmlFor="email-domain">{t("domain", "Domain")}</Label>
                 <Input id="email-domain" placeholder={t("emailIntegration.domainPlaceholder")} value={domain} onChange={(e) => setDomain(e.target.value)} />
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="from-email">{t("emailIntegration.fromEmail")}</Label>
+              <Label htmlFor="from-email">{t("fromEmail", "From Email")}</Label>
               <Input id="from-email" type="email" placeholder={t("emailIntegration.fromEmailPlaceholder")} value={fromEmail} onChange={(e) => setFromEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="from-name">{t("emailIntegration.fromName")}</Label>
+              <Label htmlFor="from-name">{t("fromName", "From Name")}</Label>
               <Input id="from-name" placeholder={t("emailIntegration.fromNamePlaceholder")} value={fromName} onChange={(e) => setFromName(e.target.value)} />
             </div>
           </div>
