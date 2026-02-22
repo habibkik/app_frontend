@@ -309,7 +309,7 @@ export function UniversalImageUpload({
                 className={cn(
                   "rounded-2xl flex items-center justify-center mb-6",
                   compact ? "h-16 w-16" : "h-20 w-20",
-                  "bg-gradient-to-br from-primary/20 to-primary/5"
+                  "bg-gradient-to-br from-primary/20 to-primary/5 mb-4"
                 )}
                 animate={{ 
                   scale: dragActive ? 1.1 : 1,
@@ -321,20 +321,6 @@ export function UniversalImageUpload({
                   compact ? "h-8 w-8" : "h-10 w-10"
                 )} />
               </motion.div>
-              
-              {/* Title & Subtitle */}
-              <h2 className={cn(
-                "font-bold text-foreground mb-2",
-                compact ? "text-lg" : "text-xl md:text-2xl"
-              )}>
-                {config.title}
-              </h2>
-              <p className={cn(
-                "text-muted-foreground mb-6 max-w-md",
-                compact ? "text-sm" : "text-base"
-              )}>
-                {config.subtitle}
-              </p>
               
               {/* Upload Actions */}
               <div className="flex items-center gap-3 pointer-events-auto">
