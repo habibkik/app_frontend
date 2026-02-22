@@ -7,11 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, Brain, Database, PenLine } from "lucide-react";
+import { Loader2, Sparkles, Brain, Database, PenLine, ImageIcon, Video } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWebsiteBuilderStore } from "@/stores/websiteBuilderStore";
 import { useAnalysisStore, type MarketAnalysisResult } from "@/stores/analysisStore";
+import { useContentStudioStore } from "@/stores/contentStudioStore";
 import type { SiteBlock } from "./types";
 import type { LandingPageTheme } from "../content-studio/types";
 
@@ -116,6 +117,8 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
   const store = useWebsiteBuilderStore();
   const sellerResults = useAnalysisStore((s) => s.sellerResults);
   const history = useAnalysisStore((s) => s.history);
+  const studioImages = useContentStudioStore((s) => s.images);
+  const availableImages = studioImages.filter((img) => img.imageUrl);
   const [form, setForm] = useState<ProductFormData>(INITIAL_FORM);
   const [isGenerating, setIsGenerating] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>("manual");
@@ -185,8 +188,10 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
         pricingRecommendation: sellerResults.pricingRecommendation,
       } : null;
 
+      const contentImages = availableImages.map((img) => ({ url: img.imageUrl, label: img.label }));
+
       const { data, error } = await supabase.functions.invoke("generate-landing-page", {
-        body: { productData: form, marketIntelligence },
+        body: { productData: form, marketIntelligence, contentImages },
       });
 
       if (error) {
@@ -223,6 +228,20 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
       if (data.finalCta?.heading) {
         blocks.push({ id: mkId("contact"), type: "contact", enabled: true, config: { heading: data.finalCta.heading, showPhone: true, showAddress: false } });
       }
+
+      // Auto-assign Content Studio images to blocks
+      const getImgUrl = (id: string, fallbackIdx: number) => {
+        const specific = availableImages.find((img) => img.id === id);
+        if (specific?.imageUrl) return specific.imageUrl;
+        if (availableImages[fallbackIdx]?.imageUrl) return availableImages[fallbackIdx].imageUrl;
+        if (availableImages[0]?.imageUrl) return availableImages[0].imageUrl;
+        return "";
+      };
+      blocks.forEach((block) => {
+        if (block.type === "hero") (block.config as any).backgroundImageUrl = getImgUrl("landing", 0);
+        if (block.type === "solution") (block.config as any).imageUrl = getImgUrl("ecommerce", 1);
+        if (block.type === "about") (block.config as any).imageUrl = getImgUrl("ad", 2);
+      });
 
       const toneTheme = BRAND_TONE_THEMES[form.brandTone] || BRAND_TONE_THEMES.bold;
       const newTheme: LandingPageTheme = {
@@ -309,6 +328,33 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
               Fields populated from Market Intelligence: <strong>{sellerResults?.productIdentification.name}</strong>
             </div>
           )}
+
+          {/* Content Studio Assets */}
+          <div className="space-y-2">
+            <Label className="text-xs font-medium flex items-center gap-1.5">
+              <ImageIcon className="h-3.5 w-3.5" /> Content Studio Assets
+            </Label>
+            {availableImages.length > 0 ? (
+              <>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  {availableImages.map((img) => (
+                    <div key={img.id} className="flex-shrink-0 w-20">
+                      <img src={img.imageUrl!} alt={img.label} className="w-20 h-14 object-cover rounded-md border border-border" />
+                      <p className="text-[10px] text-muted-foreground text-center mt-0.5 truncate">{img.label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-muted-foreground">These images will be automatically assigned to your landing page blocks.</p>
+              </>
+            ) : (
+              <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
+                Generate product images in Content Studio first for richer landing pages.
+              </p>
+            )}
+            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60">
+              <Video className="h-3 w-3" /> Video: Coming Soon
+            </span>
+          </div>
 
           {/* Database product picker (only when database source selected) */}
           {dataSource === "database" && products.length > 0 && (
