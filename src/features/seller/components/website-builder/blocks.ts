@@ -10,6 +10,9 @@ import type {
   OrderFormBlockConfig,
   SocialProofBlockConfig,
   MarketStatsBlockConfig,
+  ProblemAgitationBlockConfig,
+  SolutionBlockConfig,
+  OfferPricingBlockConfig,
 } from "./types";
 import {
   LayoutTemplate,
@@ -21,6 +24,9 @@ import {
   ClipboardList,
   Users,
   BarChart3,
+  AlertTriangle,
+  Lightbulb,
+  DollarSign,
 } from "lucide-react";
 
 export const BLOCK_META: Record<BlockType, { label: string; description: string; icon: typeof LayoutTemplate }> = {
@@ -33,6 +39,9 @@ export const BLOCK_META: Record<BlockType, { label: string; description: string;
   "order-form": { label: "Order Form", description: "Accept orders directly", icon: ClipboardList },
   "social-proof": { label: "Social Proof", description: "Engagement stats", icon: Users },
   "market-stats": { label: "Market Stats", description: "Market intelligence data", icon: BarChart3 },
+  "problem-agitation": { label: "Problem Agitation", description: "Expose pain points", icon: AlertTriangle },
+  solution: { label: "Solution", description: "Present your product as hero", icon: Lightbulb },
+  "offer-pricing": { label: "Offer & Pricing", description: "Value stack & CTA", icon: DollarSign },
 };
 
 export function createDefaultBlock(type: BlockType): SiteBlock {
@@ -47,6 +56,9 @@ export function createDefaultBlock(type: BlockType): SiteBlock {
     "order-form": { heading: "Place Your Order", productName: "" } as OrderFormBlockConfig,
     "social-proof": { heading: "Our Reach" } as SocialProofBlockConfig,
     "market-stats": { heading: "Market Intelligence" } as MarketStatsBlockConfig,
+    "problem-agitation": { heading: "The Problem", intro: "You're not alone in facing these challenges.", painPoints: [{ icon: "😤", title: "Pain Point 1", description: "Description of the frustration." }, { icon: "😩", title: "Pain Point 2", description: "Another common problem." }, { icon: "😠", title: "Pain Point 3", description: "The final straw." }], reinforcement: "It doesn't have to be this way." } as ProblemAgitationBlockConfig,
+    solution: { heading: "The Solution", intro: "Introducing a better way.", differentiationPoints: ["Unique advantage #1", "Unique advantage #2", "Unique advantage #3"], credibilityText: "Backed by industry-leading technology.", imageUrl: "" } as SolutionBlockConfig,
+    "offer-pricing": { heading: "Special Offer", valueItems: ["Core product", "Bonus feature #1", "Bonus feature #2"], anchorPrice: "$299", actualPrice: "$199", scarcityText: "", ctaText: "Get Started Now" } as OfferPricingBlockConfig,
   };
   return { id, type, enabled: true, config: configs[type] };
 }

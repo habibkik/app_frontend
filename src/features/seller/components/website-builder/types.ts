@@ -9,7 +9,10 @@ export type BlockType =
   | "contact"
   | "order-form"
   | "social-proof"
-  | "market-stats";
+  | "market-stats"
+  | "problem-agitation"
+  | "solution"
+  | "offer-pricing";
 
 export interface HeroBlockConfig {
   title: string;
@@ -57,6 +60,30 @@ export interface MarketStatsBlockConfig {
   heading: string;
 }
 
+export interface ProblemAgitationBlockConfig {
+  heading: string;
+  intro: string;
+  painPoints: { icon: string; title: string; description: string }[];
+  reinforcement: string;
+}
+
+export interface SolutionBlockConfig {
+  heading: string;
+  intro: string;
+  differentiationPoints: string[];
+  credibilityText: string;
+  imageUrl: string;
+}
+
+export interface OfferPricingBlockConfig {
+  heading: string;
+  valueItems: string[];
+  anchorPrice: string;
+  actualPrice: string;
+  scarcityText: string;
+  ctaText: string;
+}
+
 export type BlockConfig =
   | HeroBlockConfig
   | ProductCatalogBlockConfig
@@ -66,7 +93,10 @@ export type BlockConfig =
   | ContactBlockConfig
   | OrderFormBlockConfig
   | SocialProofBlockConfig
-  | MarketStatsBlockConfig;
+  | MarketStatsBlockConfig
+  | ProblemAgitationBlockConfig
+  | SolutionBlockConfig
+  | OfferPricingBlockConfig;
 
 export interface SiteBlock {
   id: string;

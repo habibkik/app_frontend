@@ -12,6 +12,9 @@ import type {
   OrderFormBlockConfig,
   SocialProofBlockConfig,
   MarketStatsBlockConfig,
+  ProblemAgitationBlockConfig,
+  SolutionBlockConfig,
+  OfferPricingBlockConfig,
 } from "./types";
 
 interface GenerateOptions {
@@ -173,6 +176,52 @@ function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme,
 </section>`;
 }
 
+function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: LandingPageTheme) {
+  const bullets = cfg.painPoints.map((p) => `
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:${borderRadiusValue(theme.borderRadius)};padding:24px;text-align:center;">
+      <div style="font-size:2rem;margin-bottom:8px;">${p.icon}</div>
+      <h4 style="font-family:${theme.headingFont};margin:0 0 8px;color:${theme.textColor};">${p.title}</h4>
+      <p style="margin:0;color:#6b7280;font-size:.9rem;">${p.description}</p>
+    </div>`).join("");
+  return `<section style="padding:60px 20px;background:#fef2f2;">
+  <div style="max-width:800px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${theme.textColor};">${cfg.heading}</h2>
+    <p style="color:#6b7280;margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">${bullets}</div>
+    <p style="margin-top:32px;font-size:1.15rem;font-weight:600;color:${theme.primaryColor};">${cfg.reinforcement}</p>
+  </div>
+</section>`;
+}
+
+function renderSolution(cfg: SolutionBlockConfig, theme: LandingPageTheme) {
+  const points = cfg.differentiationPoints.map((p) => `<li style="padding:6px 0;color:#374151;">✓ ${p}</li>`).join("");
+  return `<section style="padding:60px 20px;background:${theme.bgColor};">
+  <div style="max-width:900px;margin:0 auto;${cfg.imageUrl ? "display:flex;gap:40px;align-items:center;" : "text-align:center;"}">
+    ${cfg.imageUrl ? `<img src="${cfg.imageUrl}" alt="Solution" style="width:360px;border-radius:${borderRadiusValue(theme.borderRadius)};object-fit:cover;">` : ""}
+    <div>
+      <h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${theme.textColor};">${cfg.heading}</h2>
+      <p style="color:#6b7280;margin:0 0 20px;font-size:1.05rem;">${cfg.intro}</p>
+      <ul style="list-style:none;padding:0;margin:0 0 20px;text-align:left;">${points}</ul>
+      <p style="font-style:italic;color:${theme.primaryColor};font-size:.95rem;">${cfg.credibilityText}</p>
+    </div>
+  </div>
+</section>`;
+}
+
+function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageTheme) {
+  const values = cfg.valueItems.map((v) => `<li style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#374151;">✓ ${v}</li>`).join("");
+  return `<section style="padding:60px 20px;background:linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22);">
+  <div style="max-width:500px;margin:0 auto;text-align:center;background:#fff;border-radius:${borderRadiusValue(theme.borderRadius)};padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${theme.textColor};">${cfg.heading}</h2>
+    <ul style="list-style:none;padding:0;margin:0 0 24px;text-align:left;">${values}</ul>
+    ${cfg.anchorPrice ? `<p style="color:#9ca3af;text-decoration:line-through;font-size:1.2rem;margin:0;">${cfg.anchorPrice}</p>` : ""}
+    <p style="font-size:2.5rem;font-weight:800;color:${theme.primaryColor};margin:4px 0 16px;">${cfg.actualPrice}</p>
+    ${cfg.scarcityText ? `<p style="color:#dc2626;font-weight:600;font-size:.9rem;margin:0 0 16px;">⚡ ${cfg.scarcityText}</p>` : ""}
+    <a href="#order" style="display:inline-block;padding:16px 40px;background:${theme.primaryColor};color:#fff;border-radius:${borderRadiusValue(theme.borderRadius)};text-decoration:none;font-weight:700;font-size:1.1rem;">${cfg.ctaText}</a>
+  </div>
+</section>`;
+}
+
 export function generateStorefrontHtml(options: GenerateOptions): string {
   const { siteConfig, blocks, theme, products, marketData, socialStats } = options;
   const enabledBlocks = blocks.filter((b) => b.enabled);
@@ -188,6 +237,9 @@ export function generateStorefrontHtml(options: GenerateOptions): string {
       case "order-form": return renderOrderForm(block.config as OrderFormBlockConfig, theme);
       case "social-proof": return renderSocialProof(block.config as SocialProofBlockConfig, theme, socialStats);
       case "market-stats": return renderMarketStats(block.config as MarketStatsBlockConfig, theme, marketData);
+      case "problem-agitation": return renderProblemAgitation(block.config as ProblemAgitationBlockConfig, theme);
+      case "solution": return renderSolution(block.config as SolutionBlockConfig, theme);
+      case "offer-pricing": return renderOfferPricing(block.config as OfferPricingBlockConfig, theme);
       default: return "";
     }
   }).join("\n");
