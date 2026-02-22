@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Brain, Database, PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWebsiteBuilderStore } from "@/stores/websiteBuilderStore";
-import { useAnalysisStore } from "@/stores/analysisStore";
+import { useAnalysisStore, type MarketAnalysisResult } from "@/stores/analysisStore";
 import type { SiteBlock } from "./types";
 import type { LandingPageTheme } from "../content-studio/types";
 
@@ -45,6 +45,68 @@ const BRAND_TONE_THEMES: Record<string, Partial<LandingPageTheme>> = {
   innovative: { primaryColor: "#7c3aed", secondaryColor: "#1e1b4b", bgColor: "#faf5ff", textColor: "#1e1b4b", headingFont: "'Inter', system-ui", borderRadius: "medium" as any },
 };
 
+type DataSource = "market-intel" | "database" | "manual" | string; // string for history item IDs
+
+function fillFromSellerResults(results: MarketAnalysisResult): ProductFormData {
+  const attrs = results.productIdentification.attributes || {};
+  const keyFeatures = Object.entries(attrs).map(([k, v]) => `${v}`).join(", ");
+  const specs = Object.entries(attrs).map(([k, v]) => `${k}: ${v}`).join("\n");
+
+  // Derive competitive advantages from competitors' weaknesses
+  const competitorStrengths = results.competitors?.flatMap(c => c.strengths) || [];
+  const competitiveAdvantages = competitorStrengths.length > 0
+    ? `Outperforms competitors in areas where they rely on: ${[...new Set(competitorStrengths)].slice(0, 5).join(", ")}`
+    : "";
+
+  // Derive market positioning
+  const avg = results.marketPriceRange?.average || 0;
+  const suggested = results.pricingRecommendation?.suggested || 0;
+  let marketPositioning = "premium";
+  if (suggested < avg * 0.85) marketPositioning = "affordable";
+  else if (suggested > avg * 1.15) marketPositioning = "premium";
+  else marketPositioning = "disruptive";
+
+  // Pricing strategy
+  const margins = results.pricingRecommendation?.marginScenarios || [];
+  const pricingStrategy = suggested
+    ? `Suggested: $${suggested}` + (margins.length ? ` | ${margins.map(m => `${m.margin}: $${m.price} (${m.competitiveness})`).join(" | ")}` : "")
+    : "";
+
+  // Pain points from demand
+  const trend = results.demandIndicators?.trend || "stable";
+  const painPoints = trend === "rising"
+    ? "Growing demand means customers struggle to find quality options, face long wait times, and deal with inconsistent quality"
+    : trend === "declining"
+    ? "Market saturation leads to confusion, overpriced options, and lack of innovation"
+    : "Customers face difficulty comparing options, inconsistent pricing, and uncertain quality";
+
+  // Desires from demand
+  const seasonality = results.demandIndicators?.seasonality || "";
+  const desires = `Reliable quality, competitive pricing, fast delivery${seasonality ? `, especially during ${seasonality}` : ""}`;
+
+  // Brand tone from positioning
+  let brandTone = "bold";
+  if (marketPositioning === "premium") brandTone = "luxury";
+  else if (marketPositioning === "affordable") brandTone = "minimal";
+  else brandTone = "innovative";
+
+  return {
+    productName: results.productIdentification.name || "",
+    category: results.productIdentification.category || "",
+    targetAudience: "",
+    keyFeatures,
+    specs,
+    competitiveAdvantages,
+    marketPositioning,
+    pricingStrategy,
+    painPoints,
+    desires,
+    testimonials: "",
+    faq: "",
+    brandTone,
+  };
+}
+
 interface AILandingGeneratorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,20 +115,55 @@ interface AILandingGeneratorProps {
 export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, onOpenChange }) => {
   const store = useWebsiteBuilderStore();
   const sellerResults = useAnalysisStore((s) => s.sellerResults);
+  const history = useAnalysisStore((s) => s.history);
   const [form, setForm] = useState<ProductFormData>(INITIAL_FORM);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [dataSource, setDataSource] = useState<DataSource>("manual");
+  const [autoFilled, setAutoFilled] = useState(false);
   const [products, setProducts] = useState<{ id: string; name: string; category: string | null; description: string | null; current_price: number }[]>([]);
 
+  const sellerHistoryItems = history.filter((h) => h.mode === "seller");
+
+  // Reset and auto-fill when dialog opens
   useEffect(() => {
     if (open) {
+      // Fetch DB products
       supabase.auth.getUser().then(({ data: { user } }) => {
         if (!user) return;
         supabase.from("products").select("id, name, category, description, current_price").eq("user_id", user.id).then(({ data }) => {
           if (data) setProducts(data);
         });
       });
+
+      // Auto-fill from latest seller results if available
+      if (sellerResults) {
+        const filled = fillFromSellerResults(sellerResults);
+        setForm(filled);
+        setDataSource("market-intel");
+        setAutoFilled(true);
+      } else {
+        setForm(INITIAL_FORM);
+        setDataSource("manual");
+        setAutoFilled(false);
+      }
     }
-  }, [open]);
+  }, [open, sellerResults]);
+
+  const handleSourceChange = useCallback((source: DataSource) => {
+    setDataSource(source);
+    setAutoFilled(false);
+
+    if (source === "market-intel" && sellerResults) {
+      setForm(fillFromSellerResults(sellerResults));
+      setAutoFilled(true);
+    } else if (source === "manual") {
+      setForm(INITIAL_FORM);
+    } else if (source === "database") {
+      setForm(INITIAL_FORM);
+    }
+    // History items handled separately — no stored results to re-fill from
+    // (history only stores metadata, not full results)
+  }, [sellerResults]);
 
   const handleAutoFill = (productId: string) => {
     const p = products.find((x) => x.id === productId);
@@ -95,7 +192,6 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
       if (error) throw new Error(error.message || "Generation failed");
       if (data?.error) throw new Error(data.error);
 
-      // Convert AI response to blocks
       const blocks: SiteBlock[] = [];
       const mkId = (type: string) => `${type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -124,7 +220,6 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
         blocks.push({ id: mkId("contact"), type: "contact", enabled: true, config: { heading: data.finalCta.heading, showPhone: true, showAddress: false } });
       }
 
-      // Apply theme from brand tone
       const toneTheme = BRAND_TONE_THEMES[form.brandTone] || BRAND_TONE_THEMES.bold;
       const newTheme: LandingPageTheme = {
         ...store.theme,
@@ -161,10 +256,60 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Auto-fill from existing product */}
-          {products.length > 0 && (
+          {/* Data Source Selector */}
+          <div className="space-y-1">
+            <Label className="text-xs font-medium">Data Source</Label>
+            <Select value={dataSource} onValueChange={(v) => handleSourceChange(v as DataSource)}>
+              <SelectTrigger className="h-9 text-xs">
+                <SelectValue placeholder="Select data source..." />
+              </SelectTrigger>
+              <SelectContent>
+                {sellerResults && (
+                  <SelectItem value="market-intel">
+                    <span className="flex items-center gap-1.5">
+                      <Brain className="h-3.5 w-3.5 text-primary" />
+                      Market Intelligence: {sellerResults.productIdentification.name}
+                    </span>
+                  </SelectItem>
+                )}
+                {sellerHistoryItems.map((item) => (
+                  <SelectItem key={item.id} value={`history-${item.id}`}>
+                    <span className="flex items-center gap-1.5">
+                      <Brain className="h-3.5 w-3.5 text-muted-foreground" />
+                      {item.productName} ({new Date(item.timestamp).toLocaleDateString()})
+                    </span>
+                  </SelectItem>
+                ))}
+                {products.length > 0 && (
+                  <SelectItem value="database">
+                    <span className="flex items-center gap-1.5">
+                      <Database className="h-3.5 w-3.5" />
+                      Database Product
+                    </span>
+                  </SelectItem>
+                )}
+                <SelectItem value="manual">
+                  <span className="flex items-center gap-1.5">
+                    <PenLine className="h-3.5 w-3.5" />
+                    Manual Entry
+                  </span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Auto-filled banner */}
+          {autoFilled && (
+            <div className="text-xs bg-accent/50 border border-accent rounded-md px-3 py-2 text-accent-foreground flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              Fields populated from Market Intelligence: <strong>{sellerResults?.productIdentification.name}</strong>
+            </div>
+          )}
+
+          {/* Database product picker (only when database source selected) */}
+          {dataSource === "database" && products.length > 0 && (
             <div className="space-y-1">
-              <Label className="text-xs">Auto-fill from existing product</Label>
+              <Label className="text-xs">Select a product</Label>
               <Select onValueChange={handleAutoFill}>
                 <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select a product..." /></SelectTrigger>
                 <SelectContent>
@@ -174,9 +319,9 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
             </div>
           )}
 
-          {sellerResults && (
+          {sellerResults && dataSource !== "market-intel" && !autoFilled && (
             <div className="text-xs bg-primary/10 rounded-md px-3 py-2 text-primary">
-              ✨ Market Intelligence data detected — it will be used to optimize competitive positioning & CTAs.
+              ✨ Market Intelligence data detected — switch source to "Market Intelligence" to auto-fill all fields.
             </div>
           )}
 
