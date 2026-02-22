@@ -18,6 +18,9 @@ import { BlockPalette } from "./BlockPalette";
 import { BlockConfigurator } from "./BlockConfigurator";
 import { generateStorefrontHtml } from "./generateStorefrontHtml";
 import { LandingPageCustomizer } from "../content-studio/LandingPageCustomizer";
+import { TemplatePicker } from "./TemplatePicker";
+import type { WebsiteTemplate } from "./templates";
+import { DEFAULT_BLOCKS } from "./blocks";
 import type { ProductData } from "./types";
 
 export const WebsiteBuilder: React.FC = () => {
@@ -93,6 +96,22 @@ export const WebsiteBuilder: React.FC = () => {
     };
   }, [sellerResults]);
 
+  // Template selection handler
+  const handleTemplateSelect = useCallback((template: WebsiteTemplate) => {
+    store.setSiteConfig(template.siteConfig);
+    store.setTheme(template.theme);
+    store.setSlug(template.siteConfig.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "my-store");
+    if (template.customHtml) {
+      store.setCustomHtml(template.customHtml);
+      store.setBlocks([]);
+    } else {
+      store.setCustomHtml(null);
+      store.setBlocks(DEFAULT_BLOCKS);
+    }
+    store.setTemplateChosen(true);
+    toast.success(`Template "${template.name}" applied!`);
+  }, [store]);
+
   // Debounced HTML generation
   const debouncedBlocks = useDebounce(store.blocks, 300);
   const debouncedTheme = useDebounce(store.theme, 300);
@@ -100,6 +119,7 @@ export const WebsiteBuilder: React.FC = () => {
 
   const previewHtml = useMemo(
     () =>
+      store.customHtml ||
       generateStorefrontHtml({
         siteConfig: debouncedConfig,
         blocks: debouncedBlocks,
@@ -108,7 +128,7 @@ export const WebsiteBuilder: React.FC = () => {
         marketData,
         socialStats,
       }),
-    [debouncedBlocks, debouncedTheme, debouncedConfig, products, marketData, socialStats]
+    [store.customHtml, debouncedBlocks, debouncedTheme, debouncedConfig, products, marketData, socialStats]
   );
 
   // Save draft
@@ -116,7 +136,7 @@ export const WebsiteBuilder: React.FC = () => {
     if (!userId) { toast.error("Please sign in to save."); return; }
     setIsSaving(true);
     try {
-      const configJson = { siteConfig: store.siteConfig, blocks: store.blocks };
+      const configJson = { siteConfig: store.siteConfig, blocks: store.blocks, customHtml: store.customHtml };
       const slug = store.slug || store.siteConfig.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "my-store";
 
       if (store.websiteId) {
@@ -156,7 +176,7 @@ export const WebsiteBuilder: React.FC = () => {
       await handleSave();
       const slug = store.slug || "my-store";
       const filePath = `${userId}/store-${slug}.html`;
-      const html = generateStorefrontHtml({
+      const html = store.customHtml || generateStorefrontHtml({
         siteConfig: store.siteConfig,
         blocks: store.blocks,
         theme: store.theme,
@@ -191,6 +211,17 @@ export const WebsiteBuilder: React.FC = () => {
     toast.success("URL copied!");
     setTimeout(() => setCopiedUrl(false), 2000);
   };
+
+  // Show template picker if no template chosen and no existing site loaded
+  if (!store.templateChosen) {
+    return (
+      <div className="flex flex-col h-[calc(100vh-64px)]">
+        <TemplatePicker onSelect={handleTemplateSelect} />
+      </div>
+    );
+  }
+
+  const isCustomTemplate = !!store.customHtml;
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
@@ -248,10 +279,12 @@ export const WebsiteBuilder: React.FC = () => {
 
       {/* 3-panel layout */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: Block Palette */}
-        <div className="w-56 border-r bg-card shrink-0 overflow-hidden">
-          <BlockPalette />
-        </div>
+        {/* Left: Block Palette (hidden for custom HTML templates) */}
+        {!isCustomTemplate && (
+          <div className="w-56 border-r bg-card shrink-0 overflow-hidden">
+            <BlockPalette />
+          </div>
+        )}
 
         {/* Center: Preview */}
         <div className="flex-1 bg-muted/20 overflow-auto p-4">
@@ -266,10 +299,12 @@ export const WebsiteBuilder: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Block Configurator */}
-        <div className="w-64 border-l bg-card shrink-0 overflow-hidden">
-          <BlockConfigurator />
-        </div>
+        {/* Right: Block Configurator (hidden for custom HTML templates) */}
+        {!isCustomTemplate && (
+          <div className="w-64 border-l bg-card shrink-0 overflow-hidden">
+            <BlockConfigurator />
+          </div>
+        )}
       </div>
 
       {/* Publish Dialog */}
