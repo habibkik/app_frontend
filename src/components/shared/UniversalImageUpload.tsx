@@ -330,7 +330,7 @@ export function UniversalImageUpload({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload className="h-4 w-4" />
-                  {t("imageUpload.uploadImage")}
+                  {t("common.upload")}
                 </Button>
                 <Button
                   variant="outline"
@@ -339,7 +339,7 @@ export function UniversalImageUpload({
                   onClick={handleCameraCapture}
                 >
                   <Camera className="h-4 w-4" />
-                  {t("imageUpload.camera")}
+                  {t("imageUpload.camera", "Camera")}
                 </Button>
               </div>
               
