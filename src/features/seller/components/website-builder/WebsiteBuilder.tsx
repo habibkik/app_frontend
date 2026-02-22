@@ -6,7 +6,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush, Link as LinkIcon,
+  Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush, Link as LinkIcon, LayoutTemplate,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +34,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [socialStats, setSocialStats] = useState({ postCount: 0, totalEngagement: 0 });
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [showCustomizer, setShowCustomizer] = useState(false);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
@@ -48,11 +49,9 @@ export const WebsiteBuilder: React.FC = () => {
       if (!user) return;
       setUserId(user.id);
 
-      // Load products
       const { data: prods } = await supabase.from("products").select("id, name, current_price, image_url, description, category").eq("user_id", user.id);
       if (prods) setProducts(prods);
 
-      // Load social stats
       const { data: posts } = await supabase.from("scheduled_posts").select("id, total_likes, total_shares, total_comments").eq("user_id", user.id);
       if (posts) {
         setSocialStats({
@@ -61,7 +60,6 @@ export const WebsiteBuilder: React.FC = () => {
         });
       }
 
-      // Load existing website
       const { data: sites } = await supabase.from("websites").select("*").eq("user_id", user.id).limit(1) as any;
       if (sites && sites.length > 0) {
         store.loadFromDb(sites[0]);
@@ -96,19 +94,19 @@ export const WebsiteBuilder: React.FC = () => {
     };
   }, [sellerResults]);
 
-  // Template selection handler
+  // Template selection handler (used both for initial pick and toolbar dialog)
   const handleTemplateSelect = useCallback((template: WebsiteTemplate) => {
     store.setSiteConfig(template.siteConfig);
     store.setTheme(template.theme);
     store.setSlug(template.siteConfig.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "my-store");
-    if (template.customHtml) {
-      store.setCustomHtml(template.customHtml);
-      store.setBlocks([]);
+    store.setCustomHtml(null);
+    if (template.blocks.length > 0) {
+      store.setBlocks(template.blocks);
     } else {
-      store.setCustomHtml(null);
       store.setBlocks(DEFAULT_BLOCKS);
     }
     store.setTemplateChosen(true);
+    setShowTemplateDialog(false);
     toast.success(`Template "${template.name}" applied!`);
   }, [store]);
 
@@ -172,7 +170,6 @@ export const WebsiteBuilder: React.FC = () => {
     if (!userId) return;
     setIsPublishing(true);
     try {
-      // Save first
       await handleSave();
       const slug = store.slug || "my-store";
       const filePath = `${userId}/store-${slug}.html`;
@@ -221,8 +218,6 @@ export const WebsiteBuilder: React.FC = () => {
     );
   }
 
-  const isCustomTemplate = !!store.customHtml;
-
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
       {/* Top bar */}
@@ -247,6 +242,9 @@ export const WebsiteBuilder: React.FC = () => {
         </Button>
         <Button size="sm" variant={showCustomizer ? "default" : "outline"} onClick={() => setShowCustomizer(!showCustomizer)} className="h-7 text-xs">
           <Paintbrush className="h-3 w-3 mr-1" /> Theme
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => setShowTemplateDialog(true)} className="h-7 text-xs">
+          <LayoutTemplate className="h-3 w-3 mr-1" /> Templates
         </Button>
         <Button size="sm" variant="outline" onClick={handleSave} disabled={isSaving} className="h-7 text-xs">
           {isSaving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />} Save
@@ -277,14 +275,12 @@ export const WebsiteBuilder: React.FC = () => {
         </div>
       )}
 
-      {/* 3-panel layout */}
+      {/* 3-panel layout — always show palette & configurator */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left: Block Palette (hidden for custom HTML templates) */}
-        {!isCustomTemplate && (
-          <div className="w-56 border-r bg-card shrink-0 overflow-hidden">
-            <BlockPalette />
-          </div>
-        )}
+        {/* Left: Block Palette */}
+        <div className="w-56 border-r bg-card shrink-0 overflow-hidden">
+          <BlockPalette />
+        </div>
 
         {/* Center: Preview */}
         <div className="flex-1 bg-muted/20 overflow-auto p-4">
@@ -299,13 +295,22 @@ export const WebsiteBuilder: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Block Configurator (hidden for custom HTML templates) */}
-        {!isCustomTemplate && (
-          <div className="w-64 border-l bg-card shrink-0 overflow-hidden">
-            <BlockConfigurator />
-          </div>
-        )}
+        {/* Right: Block Configurator */}
+        <div className="w-64 border-l bg-card shrink-0 overflow-hidden">
+          <BlockConfigurator />
+        </div>
       </div>
+
+      {/* Template Selection Dialog */}
+      <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Switch Template</DialogTitle>
+            <DialogDescription>Choose a template. This will replace your current blocks and theme.</DialogDescription>
+          </DialogHeader>
+          <TemplatePicker onSelect={handleTemplateSelect} />
+        </DialogContent>
+      </Dialog>
 
       {/* Publish Dialog */}
       <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
