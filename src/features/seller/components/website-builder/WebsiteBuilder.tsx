@@ -6,7 +6,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush, Link as LinkIcon, LayoutTemplate,
+  Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush, Link as LinkIcon, LayoutTemplate, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ import { BlockConfigurator } from "./BlockConfigurator";
 import { generateStorefrontHtml } from "./generateStorefrontHtml";
 import { LandingPageCustomizer } from "../content-studio/LandingPageCustomizer";
 import { TemplatePicker } from "./TemplatePicker";
+import { AILandingGenerator } from "./AILandingGenerator";
 import type { WebsiteTemplate } from "./templates";
 import { DEFAULT_BLOCKS } from "./blocks";
 import type { ProductData } from "./types";
@@ -35,6 +36,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
@@ -246,6 +248,9 @@ export const WebsiteBuilder: React.FC = () => {
         <Button size="sm" variant="outline" onClick={() => setShowTemplateDialog(true)} className="h-7 text-xs">
           <LayoutTemplate className="h-3 w-3 mr-1" /> Templates
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setShowAIGenerator(true)} className="h-7 text-xs bg-primary/5 border-primary/30 hover:bg-primary/10">
+          <Sparkles className="h-3 w-3 mr-1" /> AI Generate
+        </Button>
         <Button size="sm" variant="outline" onClick={handleSave} disabled={isSaving} className="h-7 text-xs">
           {isSaving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />} Save
         </Button>
@@ -311,6 +316,9 @@ export const WebsiteBuilder: React.FC = () => {
           <TemplatePicker onSelect={handleTemplateSelect} />
         </DialogContent>
       </Dialog>
+
+      {/* AI Landing Generator */}
+      <AILandingGenerator open={showAIGenerator} onOpenChange={setShowAIGenerator} />
 
       {/* Publish Dialog */}
       <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
