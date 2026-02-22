@@ -54,43 +54,43 @@ export function UniversalImageUpload({
   const modeConfigs: Record<string, ModeConfig> = {
     buyer: {
       icon: Search,
-      title: t("imageUpload.buyer.title"),
-      subtitle: t("imageUpload.buyer.subtitle"),
-      buttonText: t("imageUpload.buyer.buttonText"),
+      title: t("imageUpload.buyerTitle"),
+      subtitle: t("imageUpload.buyerSubtitle"),
+      buttonText: t("imageUpload.buyerButton"),
       processingSteps: [
-        t("imageUpload.steps.identifying"),
-        t("imageUpload.steps.specs"),
-        t("imageUpload.steps.matching"),
-        t("imageUpload.steps.comparing"),
-        t("imageUpload.steps.alternatives"),
+        t("imageUpload.identifyingProduct"),
+        t("imageUpload.analyzingSpecs"),
+        t("imageUpload.matchingSuppliers"),
+        t("imageUpload.comparingPrices"),
+        t("imageUpload.findingAlternatives"),
       ],
       accentColor: "text-blue-500",
     },
     producer: {
       icon: Package,
-      title: t("imageUpload.producer.title"),
-      subtitle: t("imageUpload.producer.subtitle"),
-      buttonText: t("imageUpload.producer.buttonText"),
+      title: t("imageUpload.producerTitle"),
+      subtitle: t("imageUpload.producerSubtitle"),
+      buttonText: t("imageUpload.producerButton"),
       processingSteps: [
-        t("imageUpload.steps.scanning"),
-        t("imageUpload.steps.components"),
-        t("imageUpload.steps.materials"),
-        t("imageUpload.steps.estimating"),
-        t("imageUpload.steps.generating"),
+        t("imageUpload.scanningStructure"),
+        t("imageUpload.identifyingComponents"),
+        t("imageUpload.analyzingMaterials"),
+        t("imageUpload.estimatingCosts"),
+        t("imageUpload.generatingBOM"),
       ],
       accentColor: "text-amber-500",
     },
     seller: {
       icon: TrendingUp,
-      title: t("imageUpload.seller.title"),
-      subtitle: t("imageUpload.seller.subtitle"),
-      buttonText: t("imageUpload.seller.buttonText"),
+      title: t("imageUpload.sellerTitle"),
+      subtitle: t("imageUpload.sellerSubtitle"),
+      buttonText: t("imageUpload.sellerButton"),
       processingSteps: [
-        t("imageUpload.steps.identifying"),
-        t("imageUpload.steps.market"),
-        t("imageUpload.steps.competitors"),
-        t("imageUpload.steps.pricing"),
-        t("imageUpload.steps.insights"),
+        t("imageUpload.identifyingProduct"),
+        t("imageUpload.scanningMarket"),
+        t("imageUpload.findingCompetitors"),
+        t("imageUpload.analyzingPricing"),
+        t("imageUpload.generatingInsights"),
       ],
       accentColor: "text-emerald-500",
     },
@@ -258,7 +258,7 @@ export function UniversalImageUpload({
       clearInterval(progressInterval);
       
       if (analysisSuccessful) {
-        setAnalysisProgress(100, t("imageUpload.steps.complete"));
+        setAnalysisProgress(100, t("imageUpload.complete"));
         await new Promise((resolve) => setTimeout(resolve, 500));
         onAnalysisComplete?.();
       }
@@ -358,7 +358,7 @@ export function UniversalImageUpload({
               </div>
               
               <p className="text-xs text-muted-foreground mt-4">
-                {t("imageUpload.supports")}
+                {t("imageUpload.supportsFormats")}
               </p>
             </div>
           </motion.div>
