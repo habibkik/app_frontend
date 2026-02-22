@@ -181,39 +181,39 @@ export function MessagingSection() {
       <Dialog open={!!configuringPlatform} onOpenChange={() => setConfiguringPlatform(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{t("messaging.configureProvider", { name: configuringPlatform?.name })}</DialogTitle>
-            <DialogDescription>{t("messaging.configureProviderDesc", { name: configuringPlatform?.name })}</DialogDescription>
+            <DialogTitle>{t("configureProvider", { name: configuringPlatform?.name })}</DialogTitle>
+            <DialogDescription>{t("configureProviderDesc", { name: configuringPlatform?.name })}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {configuringPlatform && getConfigFields(configuringPlatform.id).includes("accountSid") && (
               <div className="space-y-2">
-                <Label htmlFor="account-sid">{t("messaging.accountSid")}</Label>
+                <Label htmlFor="account-sid">{t("accountSid", "Account SID")}</Label>
                 <Input id="account-sid" placeholder={t("messaging.accountSidPlaceholder")} value={accountSid} onChange={(e) => setAccountSid(e.target.value)} />
               </div>
             )}
             {configuringPlatform && getConfigFields(configuringPlatform.id).includes("apiKey") && (
               <div className="space-y-2">
                 <Label htmlFor="msg-api-key">
-                  {configuringPlatform.id === "telegram" ? t("messaging.botToken") : t("messaging.apiKeyAuthToken")}
+                  {configuringPlatform.id === "telegram" ? t("botToken", "Bot Token") : t("apiKeyAuthToken", "API Key / Auth Token")}
                 </Label>
                 <Input id="msg-api-key" type="password" placeholder={t("messaging.apiKeyPlaceholder")} value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
               </div>
             )}
             {configuringPlatform && getConfigFields(configuringPlatform.id).includes("phoneNumber") && (
               <div className="space-y-2">
-                <Label htmlFor="phone-number">{t("messaging.phoneNumber")}</Label>
+                <Label htmlFor="phone-number">{t("phoneNumber", "Phone Number")}</Label>
                 <Input id="phone-number" placeholder="+1234567890" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
               </div>
             )}
             {configuringPlatform && getConfigFields(configuringPlatform.id).includes("webhookUrl") && (
               <div className="space-y-2">
-                <Label htmlFor="webhook-url">{t("messaging.webhookUrl")}</Label>
+                <Label htmlFor="webhook-url">{t("webhookUrl", "Webhook URL")}</Label>
                 <Input id="webhook-url" placeholder="https://..." value={webhookUrl} onChange={(e) => setWebhookUrl(e.target.value)} />
               </div>
             )}
             <div className="text-sm text-muted-foreground">
               <a href="#" className="text-primary hover:underline inline-flex items-center gap-1">
-                {t("messaging.howToGetCredentials")} <ExternalLink className="h-3 w-3" />
+                {t("howToGetCredentials", "How to get credentials")} <ExternalLink className="h-3 w-3" />
               </a>
             </div>
           </div>

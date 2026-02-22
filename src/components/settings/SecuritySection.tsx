@@ -246,12 +246,12 @@ export function SecuritySection() {
       <Dialog open={isChangingPassword} onOpenChange={setIsChangingPassword}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("security.changePasswordTitle")}</DialogTitle>
-            <DialogDescription>{t("security.changePasswordDesc")}</DialogDescription>
+            <DialogTitle>{t("changePassword", "Change Password")}</DialogTitle>
+            <DialogDescription>{t("changePasswordDesc", "Enter your current and new password")}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="current-password">{t("security.currentPassword")}</Label>
+              <Label htmlFor="current-password">{t("currentPassword", "Current Password")}</Label>
               <Input
                 id="current-password"
                 type="password"
@@ -260,7 +260,7 @@ export function SecuritySection() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new-password">{t("security.newPassword")}</Label>
+              <Label htmlFor="new-password">{t("newPassword", "New Password")}</Label>
               <Input
                 id="new-password"
                 type="password"
@@ -269,7 +269,7 @@ export function SecuritySection() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">{t("security.confirmNewPassword")}</Label>
+              <Label htmlFor="confirm-password">{t("confirmNewPassword", "Confirm New Password")}</Label>
               <Input
                 id="confirm-password"
                 type="password"
