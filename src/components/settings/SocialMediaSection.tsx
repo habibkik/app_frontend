@@ -152,7 +152,7 @@ export function SocialMediaSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />{t("socialMedia.title")}</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />{t("socialMedia.title", "Social Media")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
@@ -169,8 +169,8 @@ export function SocialMediaSection() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />{t("socialMedia.title")}</CardTitle>
-          <CardDescription>{t("socialMedia.description")}</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" />{t("socialMedia.title", "Social Media")}</CardTitle>
+          <CardDescription>{t("socialMedia.description", "Description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2">
@@ -184,7 +184,7 @@ export function SocialMediaSection() {
                     {platform.connected ? (
                       <p className="text-sm text-primary flex items-center gap-1"><Check className="h-3 w-3" />{platform.username}</p>
                     ) : (
-                      <p className="text-sm text-muted-foreground">{t("socialMedia.notConnected")}</p>
+                      <p className="text-sm text-muted-foreground">{t("socialMedia.notConnected", "Not Connected")}</p>
                     )}
                   </div>
                 </div>
@@ -194,7 +194,7 @@ export function SocialMediaSection() {
                       <X className="h-4 w-4 mr-1" />{t("socialMedia.disconnect")}
                     </Button>
                   ) : (
-                    <Button size="sm" onClick={() => handleConnect(platform)}>{t("socialMedia.connect")}</Button>
+                    <Button size="sm" onClick={() => handleConnect(platform)}>{t("socialMedia.connect", "Connect")}</Button>
                   )}
                 </div>
               </motion.div>

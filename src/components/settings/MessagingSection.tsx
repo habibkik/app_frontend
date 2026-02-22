@@ -98,8 +98,8 @@ export function MessagingSection() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" />{t("messaging.title")}</CardTitle>
-          <CardDescription>{t("messaging.description")}</CardDescription>
+          <CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" />{t("messaging.title", "Messaging")}</CardTitle>
+          <CardDescription>{t("messaging.description", "Description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -127,7 +127,7 @@ export function MessagingSection() {
                       <Button variant="ghost" size="sm" onClick={() => handleDisconnect(platform.id)}><X className="h-4 w-4" /></Button>
                     </>
                   ) : (
-                    <Button size="sm" className="w-full" onClick={() => handleConnect(platform.id)}>{t("messaging.connect")}</Button>
+                    <Button size="sm" className="w-full" onClick={() => handleConnect(platform.id)}>{t("messaging.connect", "Connect")}</Button>
                   )}
                 </div>
               </motion.div>
@@ -138,14 +138,14 @@ export function MessagingSection() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Bot className="h-5 w-5" />{t("messaging.autoResponseSettings")}</CardTitle>
-          <CardDescription>{t("messaging.autoResponseSettingsDesc")}</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Bot className="h-5 w-5" />{t("messaging.autoResponseSettings", "Auto Response Settings")}</CardTitle>
+          <CardDescription>{t("messaging.autoResponseSettingsDesc", "Auto Response Settings Description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("messaging.enableAutoResponse")}</Label>
-              <p className="text-sm text-muted-foreground">{t("messaging.enableAutoResponseDesc")}</p>
+              <Label>{t("messaging.enableAutoResponse", "Enable Auto Response")}</Label>
+              <p className="text-sm text-muted-foreground">{t("messaging.enableAutoResponseDesc", "Enable Auto Response Description")}</p>
             </div>
             <Switch checked={autoResponse.enabled} onCheckedChange={(checked) => setAutoResponse(prev => ({ ...prev, enabled: checked }))} />
           </div>

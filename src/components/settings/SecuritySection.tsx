@@ -119,30 +119,30 @@ export function SecuritySection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
-            {t("security.password")}
+            {t("security.password", "Password")}
           </CardTitle>
-          <CardDescription>{t("security.passwordDesc")}</CardDescription>
+          <CardDescription>{t("security.passwordDesc", "Password Description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label>{t("security.password")}</Label>
-              <p className="text-sm text-muted-foreground">{t("security.lastChanged")}</p>
+              <Label>{t("security.password", "Password")}</Label>
+              <p className="text-sm text-muted-foreground">{t("security.lastChanged", "Last Changed")}</p>
             </div>
-            <Button variant="outline" onClick={() => setIsChangingPassword(true)}>{t("security.changePassword")}</Button>
+            <Button variant="outline" onClick={() => setIsChangingPassword(true)}>{t("security.changePassword", "Change Password")}</Button>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t">
             <div className="space-y-0.5">
               <Label className="flex items-center gap-2">
-                {t("security.twoFactor")}
+                {t("security.twoFactor", "Two Factor")}
                 {settings.twoFactorEnabled ? (
                   <Badge className="bg-success/10 text-success">{t("security.enabled")}</Badge>
                 ) : (
-                  <Badge variant="outline">{t("security.disabled")}</Badge>
+                  <Badge variant="outline">{t("security.disabled", "Disabled")}</Badge>
                 )}
               </Label>
-              <p className="text-sm text-muted-foreground">{t("security.twoFactorDesc")}</p>
+              <p className="text-sm text-muted-foreground">{t("security.twoFactorDesc", "Two Factor Description")}</p>
             </div>
             <Switch
               checked={settings.twoFactorEnabled}
@@ -160,8 +160,8 @@ export function SecuritySection() {
 
           <div className="flex items-center justify-between pt-4 border-t">
             <div className="space-y-0.5">
-              <Label>{t("security.loginNotifications")}</Label>
-              <p className="text-sm text-muted-foreground">{t("security.loginNotificationsDesc")}</p>
+              <Label>{t("security.loginNotifications", "Login Notifications")}</Label>
+              <p className="text-sm text-muted-foreground">{t("security.loginNotificationsDesc", "Login Notifications Description")}</p>
             </div>
             <Switch
               checked={settings.loginNotifications}
@@ -179,11 +179,11 @@ export function SecuritySection() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
-              {t("security.activeSessions")}
+              {t("security.activeSessions", "Active Sessions")}
             </CardTitle>
-            <CardDescription>{t("security.activeSessionsDesc")}</CardDescription>
+            <CardDescription>{t("security.activeSessionsDesc", "Active Sessions Description")}</CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={handleRevokeAllSessions}>{t("security.revokeAllOthers")}</Button>
+          <Button variant="outline" size="sm" onClick={handleRevokeAllSessions}>{t("security.revokeAllOthers", "Revoke All Others")}</Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -199,7 +199,7 @@ export function SecuritySection() {
                   <div>
                     <p className="font-medium flex items-center gap-2">
                       {session.device}
-                      {session.current && <Badge className="bg-success/10 text-success">{t("security.current")}</Badge>}
+                      {session.current && <Badge className="bg-success/10 text-success">{t("security.current", "Current")}</Badge>}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {session.location} • {session.lastActive}
@@ -213,7 +213,7 @@ export function SecuritySection() {
                     onClick={() => handleRevokeSession(session.id)}
                   >
                     <X className="h-4 w-4 mr-1" />
-                    {t("security.revoke")}
+                    {t("security.revoke", "Revoke")}
                   </Button>
                 )}
               </div>
@@ -227,17 +227,17 @@ export function SecuritySection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-destructive">
             <AlertTriangle className="h-5 w-5" />
-            {t("security.dangerZone")}
+            {t("security.dangerZone", "Danger Zone")}
           </CardTitle>
-          <CardDescription>{t("security.dangerZoneDesc")}</CardDescription>
+          <CardDescription>{t("security.dangerZoneDesc", "Danger Zone Description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label>{t("security.deleteAccount")}</Label>
-              <p className="text-sm text-muted-foreground">{t("security.deleteAccountDesc")}</p>
+              <Label>{t("security.deleteAccount", "Delete Account")}</Label>
+              <p className="text-sm text-muted-foreground">{t("security.deleteAccountDesc", "Delete Account Description")}</p>
             </div>
-            <Button variant="destructive">{t("security.deleteAccount")}</Button>
+            <Button variant="destructive">{t("security.deleteAccount", "Delete Account")}</Button>
           </div>
         </CardContent>
       </Card>

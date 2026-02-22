@@ -1188,7 +1188,7 @@ export default function CompetitorsPage() {
                           <span className="font-semibold text-foreground">{competitor.marketShare}%</span>
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">{t("pages.competitors.totalProducts")}</p>
+                          <p className="text-xs text-muted-foreground">{t("pages.competitors.totalProducts", "Total Products")}</p>
                           <span className="font-semibold text-foreground">{competitor.productCount.toLocaleString()}</span>
                         </div>
                       </div>

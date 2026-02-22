@@ -73,43 +73,43 @@ export function NotificationSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            {t("notifications.emailNotifications")}
+            {t("notifications.emailNotifications", "Email Notifications")}
           </CardTitle>
-          <CardDescription>{t("notifications.emailNotificationsDesc")}</CardDescription>
+          <CardDescription>{t("notifications.emailNotificationsDesc", "Email Notifications Description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.newMessages")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.newMessagesEmailDesc")}</p>
+              <Label>{t("notifications.newMessages", "New Messages")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.newMessagesEmailDesc", "New Messages Email Description")}</p>
             </div>
             <Switch checked={settings.email.newMessage} onCheckedChange={(checked) => updateSetting("email", "newMessage", checked)} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.rfqUpdates")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.rfqUpdatesEmailDesc")}</p>
+              <Label>{t("notifications.rfqUpdates", "RFQ Updates")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.rfqUpdatesEmailDesc", "RFQ Updates Email Description")}</p>
             </div>
             <Switch checked={settings.email.rfqUpdates} onCheckedChange={(checked) => updateSetting("email", "rfqUpdates", checked)} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.supplierAlerts")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.supplierAlertsEmailDesc")}</p>
+              <Label>{t("notifications.supplierAlerts", "Supplier Alerts")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.supplierAlertsEmailDesc", "Supplier Alerts Email Description")}</p>
             </div>
             <Switch checked={settings.email.supplierAlerts} onCheckedChange={(checked) => updateSetting("email", "supplierAlerts", checked)} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.weeklyReport")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.weeklyReportDesc")}</p>
+              <Label>{t("notifications.weeklyReport", "Weekly Report")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.weeklyReportDesc", "Weekly Report Description")}</p>
             </div>
             <Switch checked={settings.email.weeklyReport} onCheckedChange={(checked) => updateSetting("email", "weeklyReport", checked)} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.marketingTips")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.marketingTipsDesc")}</p>
+              <Label>{t("notifications.marketingTips", "Marketing Tips")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.marketingTipsDesc", "Marketing Tips Description")}</p>
             </div>
             <Switch checked={settings.email.marketing} onCheckedChange={(checked) => updateSetting("email", "marketing", checked)} />
           </div>
@@ -120,29 +120,29 @@ export function NotificationSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Monitor className="h-5 w-5" />
-            {t("notifications.pushNotifications")}
+            {t("notifications.pushNotifications", "Push Notifications")}
           </CardTitle>
-          <CardDescription>{t("notifications.pushNotificationsDesc")}</CardDescription>
+          <CardDescription>{t("notifications.pushNotificationsDesc", "Push Notifications Description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.newMessages")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.newMessagesPushDesc")}</p>
+              <Label>{t("notifications.newMessages", "New Messages")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.newMessagesPushDesc", "New Messages Push Description")}</p>
             </div>
             <Switch checked={settings.push.newMessage} onCheckedChange={(checked) => updateSetting("push", "newMessage", checked)} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.rfqUpdates")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.rfqUpdatesPushDesc")}</p>
+              <Label>{t("notifications.rfqUpdates", "RFQ Updates")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.rfqUpdatesPushDesc", "RFQ Updates Push Description")}</p>
             </div>
             <Switch checked={settings.push.rfqUpdates} onCheckedChange={(checked) => updateSetting("push", "rfqUpdates", checked)} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.supplierAlerts")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.supplierAlertsPushDesc")}</p>
+              <Label>{t("notifications.supplierAlerts", "Supplier Alerts")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.supplierAlertsPushDesc", "Supplier Alerts Push Description")}</p>
             </div>
             <Switch checked={settings.push.supplierAlerts} onCheckedChange={(checked) => updateSetting("push", "supplierAlerts", checked)} />
           </div>
@@ -153,22 +153,22 @@ export function NotificationSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Smartphone className="h-5 w-5" />
-            {t("notifications.smsNotifications")}
+            {t("notifications.smsNotifications", "SMS Notifications")}
           </CardTitle>
-          <CardDescription>{t("notifications.smsNotificationsDesc")}</CardDescription>
+          <CardDescription>{t("notifications.smsNotificationsDesc", "SMS Notifications Description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.urgentAlerts")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.urgentAlertsDesc")}</p>
+              <Label>{t("notifications.urgentAlerts", "Urgent Alerts")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.urgentAlertsDesc", "Urgent Alerts Description")}</p>
             </div>
             <Switch checked={settings.sms.urgentAlerts} onCheckedChange={(checked) => updateSetting("sms", "urgentAlerts", checked)} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("notifications.rfqDeadlines")}</Label>
-              <p className="text-sm text-muted-foreground">{t("notifications.rfqDeadlinesDesc")}</p>
+              <Label>{t("notifications.rfqDeadlines", "RFQ Deadlines")}</Label>
+              <p className="text-sm text-muted-foreground">{t("notifications.rfqDeadlinesDesc", "RFQ Deadlines Description")}</p>
             </div>
             <Switch checked={settings.sms.rfqDeadlines} onCheckedChange={(checked) => updateSetting("sms", "rfqDeadlines", checked)} />
           </div>
