@@ -18,6 +18,8 @@ interface WebsiteBuilderActions {
   setWebsiteId: (id: string | null) => void;
   setIsPublished: (v: boolean) => void;
   setSlug: (slug: string) => void;
+  setCustomHtml: (html: string | null) => void;
+  setTemplateChosen: (v: boolean) => void;
   loadFromDb: (data: { config_json: any; theme_json: any; id: string; name: string; slug: string; is_published: boolean }) => void;
   reset: () => void;
   importLandingPage: (data: { html: string; theme: any; sections: any }) => void;
@@ -31,6 +33,8 @@ const initialState: WebsiteEditorState = {
   websiteId: null,
   isPublished: false,
   slug: "my-store",
+  customHtml: null,
+  templateChosen: false,
 };
 
 export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilderActions>()(
@@ -62,16 +66,20 @@ export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilder
       setWebsiteId: (id) => set({ websiteId: id }),
       setIsPublished: (v) => set({ isPublished: v }),
       setSlug: (slug) => set({ slug }),
+      setCustomHtml: (html) => set({ customHtml: html }),
+      setTemplateChosen: (v) => set({ templateChosen: v }),
       loadFromDb: (data) => {
         const cfg = data.config_json as any;
         set({
           websiteId: data.id,
           siteConfig: cfg.siteConfig || initialState.siteConfig,
           blocks: cfg.blocks || initialState.blocks,
+          customHtml: cfg.customHtml || null,
           theme: (data.theme_json as any) || initialState.theme,
           slug: data.slug,
           isPublished: data.is_published,
           selectedBlockId: null,
+          templateChosen: true,
         });
       },
       reset: () => set(initialState),

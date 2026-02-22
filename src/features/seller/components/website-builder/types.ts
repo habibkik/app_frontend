@@ -98,4 +98,6 @@ export interface WebsiteEditorState {
   websiteId: string | null;
   isPublished: boolean;
   slug: string;
+  customHtml: string | null;
+  templateChosen: boolean;
 }
