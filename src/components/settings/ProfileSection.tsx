@@ -63,9 +63,9 @@ export function ProfileSection() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            {t("profileSection.title")}
+            {t("profileSection.title", "Profile")}
           </CardTitle>
-          <CardDescription>{t("profileSection.description")}</CardDescription>
+          <CardDescription>{t("profileSection.description", "Profile Section")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center gap-6">
@@ -78,39 +78,39 @@ export function ProfileSection() {
             <div>
               <Button variant="outline" size="sm">
                 <Camera className="h-4 w-4 mr-2" />
-                {t("profileSection.changePhoto")}
+                {t("profileSection.changePhoto", "Change Photo")}
               </Button>
-              <p className="text-xs text-muted-foreground mt-2">{t("profileSection.photoHint")}</p>
+              <p className="text-xs text-muted-foreground mt-2">{t("profileSection.photoHint", "Photo Hint")}</p>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="firstName">{t("profileSection.firstName")}</Label>
+              <Label htmlFor="firstName">{t("profileSection.firstName", "First Name")}</Label>
               <Input id="firstName" value={profile.firstName} onChange={(e) => updateField("firstName", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">{t("profileSection.lastName")}</Label>
+              <Label htmlFor="lastName">{t("profileSection.lastName", "Last Name")}</Label>
               <Input id="lastName" value={profile.lastName} onChange={(e) => updateField("lastName", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">{t("profileSection.email")}</Label>
+              <Label htmlFor="email">{t("profileSection.email", "Email")}</Label>
               <Input id="email" type="email" value={profile.email} onChange={(e) => updateField("email", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">{t("profileSection.phone")}</Label>
+              <Label htmlFor="phone">{t("profileSection.phone", "Phone")}</Label>
               <Input id="phone" value={profile.phone} onChange={(e) => updateField("phone", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="company">{t("profileSection.company")}</Label>
+              <Label htmlFor="company">{t("profileSection.company", "Company")}</Label>
               <Input id="company" value={profile.company} onChange={(e) => updateField("company", e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">{t("profileSection.role")}</Label>
+              <Label htmlFor="role">{t("profileSection.role", "Role")}</Label>
               <Input id="role" value={profile.role} onChange={(e) => updateField("role", e.target.value)} />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="timezone">{t("profileSection.timezone")}</Label>
+              <Label htmlFor="timezone">{t("profileSection.timezone", "Timezone")}</Label>
               <Select value={profile.timezone} onValueChange={(value) => updateField("timezone", value)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -127,7 +127,7 @@ export function ProfileSection() {
               </Select>
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="bio">{t("profileSection.bio")}</Label>
+              <Label htmlFor="bio">{t("profileSection.bio", "Bio")}</Label>
               <Textarea id="bio" value={profile.bio} onChange={(e) => updateField("bio", e.target.value)} rows={3} />
             </div>
           </div>
@@ -135,7 +135,7 @@ export function ProfileSection() {
           <div className="flex justify-end">
             <Button onClick={handleSave} disabled={isSaving}>
               <Save className="h-4 w-4 mr-2" />
-              {isSaving ? t("profileSection.saving") : t("profileSection.saveChanges")}
+              {isSaving ? t("profileSection.saving", "Saving...") : t("profileSection.saveChanges", "Save")}
             </Button>
           </div>
         </CardContent>

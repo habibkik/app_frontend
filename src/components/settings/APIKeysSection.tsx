@@ -101,13 +101,13 @@ export function APIKeysSection() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              {t("apiKeys.title")}
+              {t("apiKeys.title", "API Keys")}
             </CardTitle>
-            <CardDescription>{t("apiKeys.description")}</CardDescription>
+            <CardDescription>{t("apiKeys.description", "Description")}</CardDescription>
           </div>
           <Dialog open={isAddingKey} onOpenChange={setIsAddingKey}>
             <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 mr-2" />{t("apiKeys.addApiKey")}</Button>
+              <Button><Plus className="h-4 w-4 mr-2" />{t("apiKeys.addApiKey", "Add API Key")}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -197,8 +197,8 @@ export function APIKeysSection() {
           <div className="flex gap-4">
             <AlertCircle className="h-5 w-5 text-primary flex-shrink-0" />
             <div>
-              <h4 className="font-medium text-primary">{t("apiKeys.securityNote")}</h4>
-              <p className="text-sm text-muted-foreground mt-1">{t("apiKeys.securityNoteDesc")}</p>
+              <h4 className="font-medium text-primary">{t("apiKeys.securityNote", "Security Note")}</h4>
+              <p className="text-sm text-muted-foreground mt-1">{t("apiKeys.securityNoteDesc", "Security Note Description")}</p>
             </div>
           </div>
         </CardContent>

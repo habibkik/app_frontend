@@ -97,8 +97,8 @@ export function EmailIntegrationSection() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5" />{t("emailIntegration.title")}</CardTitle>
-          <CardDescription>{t("emailIntegration.description")}</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5" />{t("emailIntegration.title", "Email Integration")}</CardTitle>
+          <CardDescription>{t("emailIntegration.description", "Email Integration")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -126,7 +126,7 @@ export function EmailIntegrationSection() {
                       <Button variant="ghost" size="sm" onClick={() => handleDisconnect(provider.id)}><X className="h-4 w-4" /></Button>
                     </>
                   ) : (
-                    <Button size="sm" className="w-full" onClick={() => handleConnect(provider.id)}>{t("emailIntegration.connect")}</Button>
+                    <Button size="sm" className="w-full" onClick={() => handleConnect(provider.id)}>{t("emailIntegration.connect", "Connect")}</Button>
                   )}
                 </div>
               </motion.div>
@@ -137,28 +137,28 @@ export function EmailIntegrationSection() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5" />{t("emailIntegration.emailSettings")}</CardTitle>
-          <CardDescription>{t("emailIntegration.emailSettingsDesc")}</CardDescription>
+          <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5" />{t("emailIntegration.emailSettings", "Email Settings")}</CardTitle>
+          <CardDescription>{t("emailIntegration.emailSettingsDesc", "Email Settings Description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("emailIntegration.autoResponder")}</Label>
-              <p className="text-sm text-muted-foreground">{t("emailIntegration.autoResponderDesc")}</p>
+              <Label>{t("emailIntegration.autoResponder", "Auto Responder")}</Label>
+              <p className="text-sm text-muted-foreground">{t("emailIntegration.autoResponderDesc", "Auto Responder Description")}</p>
             </div>
             <Switch checked={settings.autoResponder} onCheckedChange={(checked) => setSettings(s => ({ ...s, autoResponder: checked }))} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("emailIntegration.emailNotifications")}</Label>
-              <p className="text-sm text-muted-foreground">{t("emailIntegration.emailNotificationsDesc")}</p>
+              <Label>{t("emailIntegration.emailNotifications", "Email Notifications")}</Label>
+              <p className="text-sm text-muted-foreground">{t("emailIntegration.emailNotificationsDesc", "Email Notifications Description")}</p>
             </div>
             <Switch checked={settings.emailNotifications} onCheckedChange={(checked) => setSettings(s => ({ ...s, emailNotifications: checked }))} />
           </div>
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label>{t("emailIntegration.dailyDigest")}</Label>
-              <p className="text-sm text-muted-foreground">{t("emailIntegration.dailyDigestDesc")}</p>
+              <Label>{t("emailIntegration.dailyDigest", "Daily Digest")}</Label>
+              <p className="text-sm text-muted-foreground">{t("emailIntegration.dailyDigestDesc", "Daily Digest Description")}</p>
             </div>
             <div className="flex items-center gap-4">
               {settings.dailyDigest && (
