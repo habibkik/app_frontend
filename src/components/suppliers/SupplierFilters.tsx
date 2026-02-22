@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { industries, countries, certifications } from "@/data/suppliers";
 
 export interface SupplierFilters {
@@ -138,18 +139,32 @@ export function SupplierFiltersPanel({ filters, onFiltersChange, resultCount }: 
 
   return (
     <>
-      <div className="hidden lg:block w-72 flex-shrink-0">
-        <div className="sticky top-24 bg-card rounded-lg border p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">{t("common.filter")}</h3>
-            {activeFilterCount > 0 && (
-              <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs" onClick={clearFilters}>{t("bomComponents.clearAll")}</Button>
-            )}
-          </div>
-          <FilterContent filters={filters} onFiltersChange={onFiltersChange} />
-        </div>
+      {/* Desktop: Dropdown Popover */}
+      <div className="hidden lg:block">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Filter className="h-4 w-4" />
+              {t("common.filter")}
+              {activeFilterCount > 0 && <Badge variant="secondary" className="ml-1">{activeFilterCount}</Badge>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 max-h-[70vh] overflow-y-auto" align="start">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-sm">{t("common.filter")}</h3>
+              {activeFilterCount > 0 && (
+                <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs" onClick={clearFilters}>{t("bomComponents.clearAll")}</Button>
+              )}
+            </div>
+            <FilterContent filters={filters} onFiltersChange={onFiltersChange} />
+            <div className="text-xs text-muted-foreground mt-3 pt-3 border-t">
+              {t("buyerDiscovery.matchesFound", { count: resultCount })}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
+      {/* Mobile: Sheet */}
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>

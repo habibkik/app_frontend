@@ -428,15 +428,13 @@ export default function SuppliersPage() {
                    className="pl-10 h-11"
                  />
                </div>
-              <div className="flex gap-2">
-                {/* Mobile Filter Button */}
-                <div className="lg:hidden">
-                  <SupplierFiltersPanel
-                    filters={filters}
-                    onFiltersChange={setFilters}
-                    resultCount={filteredSuppliers.length}
-                  />
-                </div>
+               <div className="flex gap-2">
+                {/* Filter Dropdown */}
+                <SupplierFiltersPanel
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  resultCount={filteredSuppliers.length}
+                />
 
                 {/* Sort Dropdown */}
                 <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
@@ -545,12 +543,7 @@ export default function SuppliersPage() {
 
             {/* Main Content */}
             <div className="flex gap-6">
-              {/* Desktop Filters Sidebar */}
-              <SupplierFiltersPanel
-                filters={filters}
-                onFiltersChange={setFilters}
-                resultCount={filteredSuppliers.length}
-              />
+              {/* Results */}
 
               {/* Results */}
               <div className="flex-1">

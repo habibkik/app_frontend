@@ -56,7 +56,7 @@ export function UniversalImageUpload({
       icon: Search,
       title: t("imageUpload.buyerTitle"),
       subtitle: t("imageUpload.buyerSubtitle"),
-      buttonText: t("imageUpload.buyerButton"),
+      buttonText: t("buyer", "Buyer"),
       processingSteps: [
         t("imageUpload.identifyingProduct"),
         t("imageUpload.analyzingSpecs"),
@@ -412,7 +412,7 @@ export function UniversalImageUpload({
                     {fileName}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {t("imageUpload.ready")}
+                    {t("upload", "Upload")}
                   </p>
                 </div>
               </div>
