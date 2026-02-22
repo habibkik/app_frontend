@@ -189,7 +189,11 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
         body: { productData: form, marketIntelligence },
       });
 
-      if (error) throw new Error(error.message || "Generation failed");
+      if (error) {
+        // Check if the response body contains a specific error
+        if (data?.error) throw new Error(data.error);
+        throw new Error(error.message || "Generation failed");
+      }
       if (data?.error) throw new Error(data.error);
 
       const blocks: SiteBlock[] = [];
