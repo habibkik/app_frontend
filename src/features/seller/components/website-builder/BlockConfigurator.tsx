@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ImageIcon, Check, Loader2, Sparkles, RefreshCw, Crown, Flame, Scissors, Zap, BarChart3 } from "lucide-react";
+import { Plus, Trash2, Camera, Check, Loader2, Sparkles, RefreshCw, Crown, Flame, Scissors, Zap, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWebsiteBuilderStore } from "@/stores/websiteBuilderStore";
@@ -127,6 +127,48 @@ function AIBlockActions({ blockType, config, onUpdate }: { blockType: string; co
   );
 }
 
+// --- Reusable Pro Image Picker ---
+
+function ProImagePicker({ currentValue, onSelect }: { currentValue: string; onSelect: (url: string) => void }) {
+  const proImages = useContentStudioStore((s) => s.proImages);
+  const available = proImages.filter((img) => img.imageUrl);
+
+  if (available.length === 0) {
+    return (
+      <div className="text-[10px] text-muted-foreground italic p-2 border border-dashed rounded-md">
+        No pro images yet. Generate them in Content Studio &gt; Pro Photography.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs flex items-center gap-1"><Camera className="h-3 w-3" /> Pick from Pro Photography</Label>
+      <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
+        {available.map((img) => {
+          const selected = currentValue === img.imageUrl;
+          return (
+            <button
+              key={img.id}
+              type="button"
+              onClick={() => onSelect(img.imageUrl!)}
+              className={`relative rounded-md overflow-hidden border-2 transition-all aspect-video ${selected ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/40"}`}
+            >
+              <img src={img.imageUrl!} alt={img.label} className="w-full h-full object-cover" />
+              {selected && (
+                <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                  <Check className="h-4 w-4 text-primary-foreground drop-shadow" />
+                </div>
+              )}
+              <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate">{img.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // --- Sub-forms ---
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -134,41 +176,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function HeroForm({ config, update }: { config: HeroBlockConfig; update: (c: any) => void }) {
-  const studioImages = useContentStudioStore((s) => s.images);
-  const available = studioImages.filter((img) => img.imageUrl);
-
   return (
     <>
       <Field label="Title"><Input value={config.title} onChange={(e) => update({ title: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Background Image URL"><Input value={config.backgroundImageUrl} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
-      {available.length > 0 && (
-        <div className="space-y-1.5">
-          <Label className="text-xs flex items-center gap-1"><ImageIcon className="h-3 w-3" /> Pick from Content Studio</Label>
-          <div className="grid grid-cols-2 gap-1.5">
-            {available.map((img) => {
-              const selected = config.backgroundImageUrl === img.imageUrl;
-              return (
-                <button
-                  key={img.id}
-                  type="button"
-                  onClick={() => update({ backgroundImageUrl: img.imageUrl })}
-                  className={`relative rounded-md overflow-hidden border-2 transition-all aspect-video ${selected ? "border-primary ring-1 ring-primary" : "border-border hover:border-primary/40"}`}
-                >
-                  <img src={img.imageUrl!} alt={img.label} className="w-full h-full object-cover" />
-                  {selected && (
-                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                      <Check className="h-4 w-4 text-primary-foreground drop-shadow" />
-                    </div>
-                  )}
-                  <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[9px] px-1 py-0.5 truncate">{img.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      <ProImagePicker currentValue={config.backgroundImageUrl} onSelect={(url) => update({ backgroundImageUrl: url })} />
     </>
   );
 }
@@ -195,6 +209,8 @@ function ProductCatalogForm({ config, update }: { config: ProductCatalogBlockCon
         <Switch checked={config.showDescription} onCheckedChange={(v) => update({ showDescription: v })} className="scale-75" />
       </div>
       <Field label="Category Filter"><Input value={config.categoryFilter} onChange={(e) => update({ categoryFilter: e.target.value })} placeholder="Leave empty for all" className="text-xs h-8" /></Field>
+      <Field label="Featured Image URL"><Input value={config.featuredImage || ""} onChange={(e) => update({ featuredImage: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.featuredImage || ""} onSelect={(url) => update({ featuredImage: url })} />
     </>
   );
 }
@@ -204,6 +220,7 @@ function AboutForm({ config, update }: { config: AboutBlockConfig; update: (c: a
     <>
       <Field label="Content"><Textarea value={config.content} onChange={(e) => update({ content: e.target.value })} rows={5} className="text-xs" /></Field>
       <Field label="Image URL"><Input value={config.imageUrl} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.imageUrl} onSelect={(url) => update({ imageUrl: url })} />
     </>
   );
 }
@@ -346,6 +363,7 @@ function SolutionForm({ config, update }: { config: SolutionBlockConfig; update:
       <Button size="sm" variant="outline" onClick={addPoint} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Point</Button>
       <Field label="Credibility Text"><Textarea value={config.credibilityText} onChange={(e) => update({ credibilityText: e.target.value })} rows={2} className="text-xs" /></Field>
       <Field label="Image URL"><Input value={config.imageUrl} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.imageUrl} onSelect={(url) => update({ imageUrl: url })} />
     </>
   );
 }

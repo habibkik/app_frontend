@@ -26,6 +26,7 @@ export interface ProductCatalogBlockConfig {
   showPrice: boolean;
   showDescription: boolean;
   categoryFilter: string;
+  featuredImage?: string;
 }
 
 export interface AboutBlockConfig {
