@@ -1,81 +1,50 @@
 
 
-## Replace "AI Product Images" with "Pro Photography" and Unify Image Usage
+## Use Pro Photography Images Across Publisher and Website Builder
 
-### What Changes
+### Problem
+The Social Publisher and Website Builder still reference the old `store.images` (5 legacy marketing images) instead of the new `store.proImages` (20 pro photography images). This means generated pro images are not available when scheduling posts or building websites.
 
-**1. Remove the old "Images" tab, keep only "Pro Photography"**
+### Changes
 
-The `TABS` array in `ContentStudio.tsx` currently has both `"images"` (5 basic AI images) and `"pro-images"` (20 pro photography images). We will:
-- Remove the `"images"` tab entry from `TABS`
-- Remove the `<TabsContent value="images">` block
-- Remove the `ImageGenerationTab` import
-- Set default active tab to `"pro-images"`
-- Update the `ContentStudioTab` type in `types.ts` to remove `"images"`
+**1. Social Publisher (`src/features/seller/components/SocialPublisher.tsx`)**
 
-**2. Auto-set reference image from Market Intelligence upload**
+- **Line 120**: Change `useContentStudioStore((s) => s.images)` to `useContentStudioStore((s) => s.proImages)` so the preview modal can find matching images from the pro photography set
+- **Line 1157**: The preview modal already looks up images by matching `socialPost.imageId` against the images array -- since social posts now use pro image IDs (e.g., `ugc-outdoor`, `studio-hero`), this will automatically work once we point to `proImages`
+- **Add a new content source option**: "From Pro Photography" that shows a grid of available pro images (those with URLs) so users can pick one to attach to any post
+- **Batch campaign image support**: When sending social posts from Content Studio as a batch, include the matching pro image URL for each platform post
 
-In `ProImageGenerationTab.tsx`, the reference image already falls back to `analysisStore.currentImage`. We will make this the primary source:
-- On mount, if `analysisStore.currentImage` exists and no `referenceImageUrl` is set, auto-populate it
-- Show a clear indicator: "Using image from Market Intelligence analysis"
+**2. Website Builder (`src/features/seller/components/website-builder/WebsiteBuilder.tsx`)**
 
-**3. Create a unified image pool for all downstream tabs**
+- **Line 30**: Change `useContentStudioStore((s) => s.images)` to `useContentStudioStore((s) => s.proImages)` to pull from the pro photography set
+- **Auto-populate block images**: After loading pro images, automatically assign them to relevant blocks:
+  - Hero block background: use `studio-hero` image
+  - About block image: use `studio-lifestyle` image  
+  - Solution block image: use `packshot-front` image
+- **Add a "Use Pro Images" button** in the toolbar that fills all image-capable blocks with the best matching pro image
 
-Currently, `SocialImagePostsTab`, `EmailCampaignTab`, and `LandingPageTab` receive `images` (the 5 basic images) as props. We will:
-- Create a helper function `getAllAvailableImages()` in `ContentStudio.tsx` that merges `store.proImages` (filtered to those with URLs) as the primary image source
-- Pass this merged array to `SocialImagePostsTab`, `EmailCampaignTab`, and `LandingPageTab` instead of `store.images`
-- Update `buildLandingPageHtml` calls to use the merged images (hero = `studio-hero`, product = `packshot-front`, etc.)
+**3. Content Studio social post flow update (`src/features/seller/components/content-studio/SocialImagePostsTab.tsx`)**
 
-**4. Update social post generation to use pro images**
+- When sending a post to the Publisher, include the matched pro image URL in the pending post data so the Publisher can display it
+- Update `setPendingPublisherPost` to include an `imageUrl` field
+- Update `setPendingBatchPosts` to include `imageUrl` for each post
 
-In `generateSocialPosts()`, update `imageId` assignments:
-- Instagram -> `ugc-outdoor` (UGC style)
-- Facebook -> `studio-hero` (professional)
-- TikTok -> `ugc-action` (action shot)
-- LinkedIn -> `packshot-front` (clean product shot)
-- Twitter -> `usage-commute` (lifestyle)
+**4. Store update (`src/stores/contentStudioStore.ts`)**
 
-**5. Update email campaign generation to use pro images**
+- Extend `pendingPublisherPost` type to include optional `imageUrl: string`
+- Extend `pendingBatchPosts` items to include optional `imageUrl: string`
 
-In `generateEmailCampaigns()`, update `imageId` assignments:
-- Launch Announcement -> `studio-hero`
-- Early Bird Offer -> `packshot-front`
-- Social Proof -> `ugc-social`
-- Last Chance -> `studio-dramatic`
-- VIP Access -> `studio-lifestyle`
-
-**6. Update landing page builder to prefer pro images**
-
-In `buildLandingPageHtml()`, update image selection:
-- Hero image: look for `studio-hero` first, then `landing`
-- Product image: look for `packshot-front` first, then `ecommerce`
-
-**7. Update kit generation flow**
-
-In `handleGenerateKit()`:
-- Remove "Generating images" step (old 5 basic images)
-- Keep "Generating pro photography" as the first and primary image step
-- Auto-use `analysisStore.currentImage` as the reference image
-- After pro images are generated, run social/landing/email steps using pro images
-
-**8. Update demo data**
-
-In `handleLoadDemoData()`:
-- Remove `store.setImages(demoImages)` for old 5 images
-- Keep pro image demo data
-- Update social post and email demo `imageId` references to pro image IDs
-
-### Files Changed
+### Technical Details
 
 | File | Change |
 |---|---|
-| `src/features/seller/components/content-studio/types.ts` | Remove `"images"` from `ContentStudioTab` |
-| `src/features/seller/components/ContentStudio.tsx` | Remove Images tab, update image references, merge pro images into downstream tabs, update kit generation |
-| `src/features/seller/components/content-studio/ProImageGenerationTab.tsx` | Auto-populate reference from Market Intelligence on mount |
+| `src/stores/contentStudioStore.ts` | Add `imageUrl?: string` to pending post types |
+| `src/features/seller/components/content-studio/SocialImagePostsTab.tsx` | Include pro image URL when sending to Publisher |
+| `src/features/seller/components/SocialPublisher.tsx` | Switch from `s.images` to `s.proImages`, add pro image picker in content source, consume `imageUrl` from pending posts |
+| `src/features/seller/components/website-builder/WebsiteBuilder.tsx` | Switch from `s.images` to `s.proImages`, add auto-fill logic for block images |
 
-### No Breaking Changes
+### How It Works After Changes
 
-- `SocialImagePostsTab`, `EmailCampaignTab`, `LandingPageTab` all accept `GeneratedImage[]` -- the pro images use the same type with the extra `section` field, so no interface changes needed
-- The `images` prop name stays the same, just the data source changes
-- Export functionality updated to include pro images instead of basic images
-
+1. User generates pro images in Content Studio
+2. In **Publisher**: selecting "From Content Studio (Generated)" shows social posts with their matched pro images visible in previews. Users can also pick any pro image to attach to custom posts.
+3. In **Website Builder**: pro images are available to populate hero backgrounds, about sections, and solution blocks -- either automatically or via a toolbar button.
