@@ -1,82 +1,81 @@
 
 
-## Add 4 Professional Product Photography Sections to AI Product Images
+## Replace "AI Product Images" with "Pro Photography" and Unify Image Usage
 
-### Overview
-Expand the Images tab from 5 marketing-channel images to 5 + 20 professional photography images across 4 new sections. Each section generates 5 images using the uploaded product image as a reference, producing hyper-realistic commercial product photography.
+### What Changes
 
-### New Sections (each with 5 images)
+**1. Remove the old "Images" tab, keep only "Pro Photography"**
 
-1. **Packshot (Background Removal)** - Product isolated on white/transparent, 5 angles: front, side, back, 45-degree, top view
-2. **UGC Lifestyle** - Authentic user-generated content style with real people, candid moments, diverse environments
-3. **Real-Life Usage** - Contextual product-in-use scenes, cinematic lighting, storytelling composition
-4. **Studio Commercial** - Premium studio advertising shots, professional lighting, luxury aesthetic
+The `TABS` array in `ContentStudio.tsx` currently has both `"images"` (5 basic AI images) and `"pro-images"` (20 pro photography images). We will:
+- Remove the `"images"` tab entry from `TABS`
+- Remove the `<TabsContent value="images">` block
+- Remove the `ImageGenerationTab` import
+- Set default active tab to `"pro-images"`
+- Update the `ContentStudioTab` type in `types.ts` to remove `"images"`
 
-### Architecture
+**2. Auto-set reference image from Market Intelligence upload**
 
-**Edge Function: `supabase/functions/generate-product-images/index.ts`**
-- Add 20 new prompt entries to `IMAGE_PROMPTS` covering all 4 sections x 5 angles
-- Accept an optional `referenceImageUrl` field in the request body
-- When a reference image is provided, switch from text-only to image-editing mode by passing both the text prompt and the reference image in the `messages` content array (multimodal input)
-- Update the `ImageRequest` type to include the new image types and `referenceImageUrl`
+In `ProImageGenerationTab.tsx`, the reference image already falls back to `analysisStore.currentImage`. We will make this the primary source:
+- On mount, if `analysisStore.currentImage` exists and no `referenceImageUrl` is set, auto-populate it
+- Show a clear indicator: "Using image from Market Intelligence analysis"
 
-New prompt IDs:
-- `packshot-front`, `packshot-side`, `packshot-back`, `packshot-45deg`, `packshot-top`
-- `ugc-outdoor`, `ugc-home`, `ugc-social`, `ugc-unboxing`, `ugc-action`
-- `usage-morning`, `usage-work`, `usage-commute`, `usage-leisure`, `usage-evening`
-- `studio-hero`, `studio-detail`, `studio-lifestyle`, `studio-dramatic`, `studio-flat`
+**3. Create a unified image pool for all downstream tabs**
 
-**Store: `src/stores/contentStudioStore.ts`**
-- Add a new `proImages` array (20 `GeneratedImage` entries) alongside existing `images` (5 marketing images)
-- Add `setProImages`, `updateProImage` actions
-- Add `referenceImageUrl: string | null` and `setReferenceImageUrl` for storing the uploaded product image
+Currently, `SocialImagePostsTab`, `EmailCampaignTab`, and `LandingPageTab` receive `images` (the 5 basic images) as props. We will:
+- Create a helper function `getAllAvailableImages()` in `ContentStudio.tsx` that merges `store.proImages` (filtered to those with URLs) as the primary image source
+- Pass this merged array to `SocialImagePostsTab`, `EmailCampaignTab`, and `LandingPageTab` instead of `store.images`
+- Update `buildLandingPageHtml` calls to use the merged images (hero = `studio-hero`, product = `packshot-front`, etc.)
 
-**Types: `src/features/seller/components/content-studio/types.ts`**
-- Add `GeneratedImage.section?: string` optional field to group images by section
-- Add `ProImageSection` type: `"packshot" | "ugc" | "usage" | "studio"`
+**4. Update social post generation to use pro images**
 
-**New Component: `src/features/seller/components/content-studio/ProImageGenerationTab.tsx`**
-- Displays 4 collapsible sections, each with a 5-image grid
-- Each section has a header with title, description, and "Generate All" button
-- Individual images have Regenerate and Download buttons (same pattern as `ImageGenerationTab`)
-- At the top: a reference image uploader/selector that pulls from `analysisStore.currentImage` or lets the user upload a new one
-- Global "Generate All 20 Images" button at the top
-- Shows the reference image thumbnail with a label "Reference Product Image"
+In `generateSocialPosts()`, update `imageId` assignments:
+- Instagram -> `ugc-outdoor` (UGC style)
+- Facebook -> `studio-hero` (professional)
+- TikTok -> `ugc-action` (action shot)
+- LinkedIn -> `packshot-front` (clean product shot)
+- Twitter -> `usage-commute` (lifestyle)
 
-**Content Studio: `src/features/seller/components/ContentStudio.tsx`**
-- Add a new tab `"pro-images"` with label "Pro Photography" and a Camera icon
-- Import and render `ProImageGenerationTab` in the new tab
-- Update `handleGenerateKit` to also generate pro images (as an optional step, after marketing images)
-- Update `handleLoadDemoData` to include demo pro images (using Unsplash URLs)
-- Add a new generation step "Generating pro photography" to the kit workflow
+**5. Update email campaign generation to use pro images**
 
-**Image Generation Flow:**
-1. User sees reference image auto-populated from their last analysis (or uploads one)
-2. User clicks "Generate All" on a section or individual "Generate" buttons
-3. Edge function receives the reference image URL + prompt, uses Gemini image model with multimodal input
-4. Generated base64 image is returned and stored in the `proImages` array
+In `generateEmailCampaigns()`, update `imageId` assignments:
+- Launch Announcement -> `studio-hero`
+- Early Bird Offer -> `packshot-front`
+- Social Proof -> `ugc-social`
+- Last Chance -> `studio-dramatic`
+- VIP Access -> `studio-lifestyle`
 
-### Section-by-Section Prompt Strategy
+**6. Update landing page builder to prefer pro images**
 
-Each prompt includes:
-- The reference product image as visual input
-- Explicit instruction to maintain product accuracy (shape, color, branding, proportions)
-- Section-specific style direction (packshot = white BG, UGC = smartphone quality, usage = cinematic, studio = professional lighting)
-- "No distortion, no hallucinated features, accurate branding" as a global suffix
+In `buildLandingPageHtml()`, update image selection:
+- Hero image: look for `studio-hero` first, then `landing`
+- Product image: look for `packshot-front` first, then `ecommerce`
 
-### Rate Limiting Consideration
-Generating 20 images sequentially with 1.5s delays would take ~30s+. The implementation will:
-- Generate one section at a time (5 images per section)
-- Add 2s delay between images to avoid 429 errors
-- Allow per-section generation so users don't have to wait for all 20
+**7. Update kit generation flow**
+
+In `handleGenerateKit()`:
+- Remove "Generating images" step (old 5 basic images)
+- Keep "Generating pro photography" as the first and primary image step
+- Auto-use `analysisStore.currentImage` as the reference image
+- After pro images are generated, run social/landing/email steps using pro images
+
+**8. Update demo data**
+
+In `handleLoadDemoData()`:
+- Remove `store.setImages(demoImages)` for old 5 images
+- Keep pro image demo data
+- Update social post and email demo `imageId` references to pro image IDs
 
 ### Files Changed
 
 | File | Change |
 |---|---|
-| `supabase/functions/generate-product-images/index.ts` | Add 20 new prompts, accept `referenceImageUrl`, multimodal message format |
-| `src/features/seller/components/content-studio/types.ts` | Add `ProImageSection` type, optional `section` field on `GeneratedImage` |
-| `src/stores/contentStudioStore.ts` | Add `proImages` array (20 items), `referenceImageUrl`, actions |
-| `src/features/seller/components/content-studio/ProImageGenerationTab.tsx` | New component with 4 collapsible sections |
-| `src/features/seller/components/ContentStudio.tsx` | Add "Pro Photography" tab, wire up generation logic |
-| `src/features/seller/components/content-studio/ImageGenerationTab.tsx` | No changes needed |
+| `src/features/seller/components/content-studio/types.ts` | Remove `"images"` from `ContentStudioTab` |
+| `src/features/seller/components/ContentStudio.tsx` | Remove Images tab, update image references, merge pro images into downstream tabs, update kit generation |
+| `src/features/seller/components/content-studio/ProImageGenerationTab.tsx` | Auto-populate reference from Market Intelligence on mount |
+
+### No Breaking Changes
+
+- `SocialImagePostsTab`, `EmailCampaignTab`, `LandingPageTab` all accept `GeneratedImage[]` -- the pro images use the same type with the extra `section` field, so no interface changes needed
+- The `images` prop name stays the same, just the data source changes
+- Export functionality updated to include pro images instead of basic images
+
