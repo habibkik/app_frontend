@@ -37,7 +37,7 @@ import type {
   LandingPageSection,
 } from "./content-studio/types";
 import { DEFAULT_LANDING_THEME, DEFAULT_SECTION_ORDER } from "./content-studio/types";
-import { ImageGenerationTab } from "./content-studio/ImageGenerationTab";
+// ImageGenerationTab removed — replaced by ProImageGenerationTab
 import { SocialImagePostsTab } from "./content-studio/SocialImagePostsTab";
 import { VideoTab } from "./content-studio/VideoTab";
 import { SocialVideoPostsTab } from "./content-studio/SocialVideoPostsTab";
@@ -47,7 +47,6 @@ import { ContentScoreTab } from "./content-studio/ContentScoreTab";
 import { ProImageGenerationTab } from "./content-studio/ProImageGenerationTab";
 
 const TABS: { id: ContentStudioTab; label: string; icon: React.ElementType }[] = [
-  { id: "images", label: "Images", icon: ImageIcon },
   { id: "pro-images", label: "Pro Photography", icon: Camera },
   { id: "social-image", label: "Social (Image)", icon: Share2 },
   { id: "video", label: "Video", icon: Video },
@@ -138,8 +137,8 @@ function buildLandingPageHtml(
   theme: LandingPageTheme = DEFAULT_LANDING_THEME,
   sectionOrder: LandingPageSection[] = DEFAULT_SECTION_ORDER
 ): LandingPageData {
-  const heroImg = images.find((i) => i.id === "landing")?.imageUrl || images.find((i) => i.imageUrl)?.imageUrl || "";
-  const productImg = images.find((i) => i.id === "ecommerce")?.imageUrl || "";
+  const heroImg = images.find((i) => i.id === "studio-hero")?.imageUrl || images.find((i) => i.id === "landing")?.imageUrl || images.find((i) => i.imageUrl)?.imageUrl || "";
+  const productImg = images.find((i) => i.id === "packshot-front")?.imageUrl || images.find((i) => i.id === "ecommerce")?.imageUrl || "";
   const pricing = sellerResults?.pricingRecommendation;
   const competitors = sellerResults?.competitors || [];
   const demand = sellerResults?.demandIndicators;
@@ -256,7 +255,7 @@ export const ContentStudio = () => {
   const { t } = useTranslation();
   const sellerResults = useAnalysisStore((s) => s.sellerResults);
   const store = useContentStudioStore();
-  const [activeTab, setActiveTab] = useState<ContentStudioTab>("images");
+  const [activeTab, setActiveTab] = useState<ContentStudioTab>("pro-images");
   const [userId, setUserId] = useState<string>("");
   const [landingTheme, setLandingTheme] = useState<LandingPageTheme>(DEFAULT_LANDING_THEME);
   const [sectionOrder, setSectionOrder] = useState<LandingPageSection[]>(DEFAULT_SECTION_ORDER);
@@ -300,8 +299,14 @@ export const ContentStudio = () => {
   // ── Generate Social Posts ──
   const generateSocialPosts = useCallback((): SocialImagePost[] => {
     const platforms: SocialImagePost["platform"][] = ["instagram", "facebook", "tiktok", "linkedin", "twitter"];
-    const images = store.images;
-    return platforms.map((platform, i) => {
+    const proImageMap: Record<string, string> = {
+      instagram: "ugc-outdoor",
+      facebook: "studio-hero",
+      tiktok: "ugc-action",
+      linkedin: "packshot-front",
+      twitter: "usage-commute",
+    };
+    return platforms.map((platform) => {
       const competitorDiff = competitors[0]
         ? ` Unlike ${competitors[0].name}, we deliver unmatched quality.`
         : "";
@@ -334,19 +339,19 @@ export const ContentStudio = () => {
         hook: hooks[platform],
         cta: ctas[platform],
         hashtags,
-        imageId: images[i % images.length]?.id || "social",
+        imageId: proImageMap[platform],
       };
     });
-  }, [productName, productCategory, competitors, store.images]);
+  }, [productName, productCategory, competitors]);
 
   // ── Generate Email Campaigns ──
   const generateEmailCampaigns = useCallback((): EmailCampaign[] => {
     const types = [
-      { name: "Launch Announcement", cta: "Shop Now" },
-      { name: "Early Bird Offer", cta: "Claim 20% Off" },
-      { name: "Social Proof", cta: "See Reviews" },
-      { name: "Last Chance", cta: "Order Before Midnight" },
-      { name: "VIP Access", cta: "Get Exclusive Access" },
+      { name: "Launch Announcement", cta: "Shop Now", imageId: "studio-hero" },
+      { name: "Early Bird Offer", cta: "Claim 20% Off", imageId: "packshot-front" },
+      { name: "Social Proof", cta: "See Reviews", imageId: "ugc-social" },
+      { name: "Last Chance", cta: "Order Before Midnight", imageId: "studio-dramatic" },
+      { name: "VIP Access", cta: "Get Exclusive Access", imageId: "studio-lifestyle" },
     ];
     return types.map((type, i) => ({
       id: `ec-${i}`,
@@ -364,9 +369,9 @@ export const ContentStudio = () => {
         : `You've been selected for VIP access to ${productName} before the general public.`
       }\n\nKey benefits:\n• Premium quality construction\n• Competitive market pricing\n• Fast worldwide shipping\n• Comprehensive warranty\n\nBest regards,\nThe Team`,
       cta: type.cta,
-      imageId: store.images[i % store.images.length]?.id || "social",
+      imageId: type.imageId,
     }));
-  }, [productName, productCategory, store.images]);
+  }, [productName, productCategory]);
 
   // ── Load Demo Data ──
   const handleLoadDemoData = () => {
@@ -379,17 +384,17 @@ export const ContentStudio = () => {
     ];
 
     const demoPosts: SocialImagePost[] = [
-      { id: "sp-instagram", platform: "instagram", hook: "✨ Meet the future of premium audio", caption: "Premium Wireless Headphones designed for professionals who demand excellence. Unlike competitors, we deliver unmatched quality. Link in bio!", cta: "Shop now — link in bio! 🛒", hashtags: ["WirelessHeadphones", "Audio", "Quality", "Premium", "NewProduct"], imageId: "social" },
-      { id: "sp-facebook", platform: "facebook", hook: "🔥 NEW: ProSound X1 is here!", caption: "Discover why thousands are switching to ProSound X1. Premium quality, competitive pricing, and fast shipping. Experience audio like never before.", cta: "Order yours today → Comment 'INFO' for details", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "ad" },
-      { id: "sp-tiktok", platform: "tiktok", hook: "POV: You just discovered ProSound X1 🚀", caption: "This ProSound X1 is about to change the game. Here's why everyone's talking about it. Crystal clear audio meets incredible comfort.", cta: "Link in bio — limited stock! 🔥", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "FYP"], imageId: "landing" },
-      { id: "sp-linkedin", platform: "linkedin", hook: "Excited to introduce ProSound X1 to the market.", caption: "After extensive market research, we're proud to introduce ProSound X1 — a solution that addresses the key pain points in premium audio. Professional-grade sound at an accessible price point.", cta: "Let's connect to discuss how this can benefit your business.", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "ecommerce" },
-      { id: "sp-twitter", platform: "twitter", hook: "🚀 ProSound X1 just dropped.", caption: "ProSound X1 — premium quality at competitive prices. 40hr battery, ANC, studio-grade drivers. Unlike BeatsPro, we deliver unmatched quality.", cta: "Get yours now →", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "email" },
+      { id: "sp-instagram", platform: "instagram", hook: "✨ Meet the future of premium audio", caption: "Premium Wireless Headphones designed for professionals who demand excellence. Unlike competitors, we deliver unmatched quality. Link in bio!", cta: "Shop now — link in bio! 🛒", hashtags: ["WirelessHeadphones", "Audio", "Quality", "Premium", "NewProduct"], imageId: "ugc-outdoor" },
+      { id: "sp-facebook", platform: "facebook", hook: "🔥 NEW: ProSound X1 is here!", caption: "Discover why thousands are switching to ProSound X1. Premium quality, competitive pricing, and fast shipping. Experience audio like never before.", cta: "Order yours today → Comment 'INFO' for details", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "studio-hero" },
+      { id: "sp-tiktok", platform: "tiktok", hook: "POV: You just discovered ProSound X1 🚀", caption: "This ProSound X1 is about to change the game. Here's why everyone's talking about it. Crystal clear audio meets incredible comfort.", cta: "Link in bio — limited stock! 🔥", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "FYP"], imageId: "ugc-action" },
+      { id: "sp-linkedin", platform: "linkedin", hook: "Excited to introduce ProSound X1 to the market.", caption: "After extensive market research, we're proud to introduce ProSound X1 — a solution that addresses the key pain points in premium audio. Professional-grade sound at an accessible price point.", cta: "Let's connect to discuss how this can benefit your business.", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "packshot-front" },
+      { id: "sp-twitter", platform: "twitter", hook: "🚀 ProSound X1 just dropped.", caption: "ProSound X1 — premium quality at competitive prices. 40hr battery, ANC, studio-grade drivers. Unlike BeatsPro, we deliver unmatched quality.", cta: "Get yours now →", hashtags: ["ProSoundX1", "Audio", "Quality", "Premium", "NewProduct"], imageId: "usage-commute" },
     ];
 
     const demoEmails: EmailCampaign[] = [
-      { id: "ec-0", name: "Launch Announcement", subjectLine: "Launch Announcement: ProSound X1 — Don't Miss Out", previewText: "Discover why ProSound X1 is the #1 choice for audio professionals.", body: "Hi {{first_name}},\n\nWe're thrilled to introduce ProSound X1 — a game-changer in premium audio.\n\nKey benefits:\n• 40-hour battery life\n• Active noise cancellation\n• Studio-grade 50mm drivers\n• Premium build quality\n\nBest regards,\nThe ProSound Team", cta: "Shop Now", imageId: "social" },
-      { id: "ec-1", name: "Early Bird Offer", subjectLine: "Early Bird Offer: ProSound X1 — 20% Off", previewText: "Exclusive early access to ProSound X1 with a special discount.", body: "Hi {{first_name}},\n\nAs a valued subscriber, you get exclusive early access to ProSound X1 with 20% off.\n\nUse code EARLYBIRD20 at checkout.\n\nKey benefits:\n• Premium quality construction\n• Competitive market pricing\n• Fast worldwide shipping\n• Comprehensive warranty\n\nBest regards,\nThe ProSound Team", cta: "Claim 20% Off", imageId: "ad" },
-      { id: "ec-2", name: "Social Proof", subjectLine: "Social Proof: ProSound X1 — See What Others Say", previewText: "Join thousands of happy customers who've made the switch.", body: "Hi {{first_name}},\n\nJoin thousands of happy customers who've already made the switch to ProSound X1.\n\n⭐⭐⭐⭐⭐ \"Best headphones I've ever owned\" — Sarah K.\n⭐⭐⭐⭐⭐ \"Incredible sound quality\" — Mike T.\n\nBest regards,\nThe ProSound Team", cta: "See Reviews", imageId: "landing" },
+      { id: "ec-0", name: "Launch Announcement", subjectLine: "Launch Announcement: ProSound X1 — Don't Miss Out", previewText: "Discover why ProSound X1 is the #1 choice for audio professionals.", body: "Hi {{first_name}},\n\nWe're thrilled to introduce ProSound X1 — a game-changer in premium audio.\n\nKey benefits:\n• 40-hour battery life\n• Active noise cancellation\n• Studio-grade 50mm drivers\n• Premium build quality\n\nBest regards,\nThe ProSound Team", cta: "Shop Now", imageId: "studio-hero" },
+      { id: "ec-1", name: "Early Bird Offer", subjectLine: "Early Bird Offer: ProSound X1 — 20% Off", previewText: "Exclusive early access to ProSound X1 with a special discount.", body: "Hi {{first_name}},\n\nAs a valued subscriber, you get exclusive early access to ProSound X1 with 20% off.\n\nUse code EARLYBIRD20 at checkout.\n\nKey benefits:\n• Premium quality construction\n• Competitive market pricing\n• Fast worldwide shipping\n• Comprehensive warranty\n\nBest regards,\nThe ProSound Team", cta: "Claim 20% Off", imageId: "packshot-front" },
+      { id: "ec-2", name: "Social Proof", subjectLine: "Social Proof: ProSound X1 — See What Others Say", previewText: "Join thousands of happy customers who've made the switch.", body: "Hi {{first_name}},\n\nJoin thousands of happy customers who've already made the switch to ProSound X1.\n\n⭐⭐⭐⭐⭐ \"Best headphones I've ever owned\" — Sarah K.\n⭐⭐⭐⭐⭐ \"Incredible sound quality\" — Mike T.\n\nBest regards,\nThe ProSound Team", cta: "See Reviews", imageId: "ugc-social" },
     ];
 
     const demoScore: ContentScore = {
@@ -405,6 +410,7 @@ export const ContentStudio = () => {
       ctaOptimizations: ["Use first-person CTAs: 'Get My Headphones'", "Add urgency: 'Order Today — Free Shipping'"],
     };
 
+    const demoProImages = store.proImages; // already set below
     const demoLandingPage = buildLandingPageHtml(
       "ProSound X1",
       {
@@ -414,13 +420,13 @@ export const ContentStudio = () => {
         pricingRecommendation: { suggested: 149, strategy: "penetration", confidence: 0.85 },
         demandIndicators: { trend: "rising", volume: "high", seasonality: "stable" },
       } as any,
-      demoImages,
+      [], // will be rebuilt after pro images are set
       demoPosts,
       DEFAULT_LANDING_THEME,
       DEFAULT_SECTION_ORDER
     );
 
-    store.setImages(demoImages);
+    // No longer setting old images — pro images are the primary source
     store.setSocialPosts(demoPosts);
     store.setEmailCampaigns(demoEmails);
     store.setContentScore(demoScore);
@@ -466,7 +472,6 @@ export const ContentStudio = () => {
     }
 
     const steps: GenerationStep[] = [
-      { label: "Generating images", status: "pending" },
       { label: "Generating pro photography", status: "pending" },
       { label: "Creating social posts", status: "pending" },
       { label: "Building landing page", status: "pending" },
@@ -478,67 +483,62 @@ export const ContentStudio = () => {
     store.setCurrentStepIndex(0);
 
     try {
-      // Step 1: Images
       const updateStep = (idx: number, status: GenerationStep["status"]) => {
         steps[idx] = { ...steps[idx], status };
         store.setGenerationSteps([...steps]);
         store.setCurrentStepIndex(idx);
       };
 
+      // Step 1: Pro Photography
       updateStep(0, "running");
-      const imageTypes = ["social", "ad", "landing", "ecommerce", "email"];
-      for (const type of imageTypes) {
-        await generateImage(type);
-        // Small delay to avoid rate limiting
-        await new Promise((r) => setTimeout(r, 1500));
+      const refImg = store.referenceImageUrl || useAnalysisStore.getState().currentImage;
+      if (!refImg) {
+        toast.error("No reference image available. Upload a product image in Market Intelligence first.");
+        store.setIsGeneratingKit(false);
+        return;
+      }
+      store.setReferenceImageUrl(refImg);
+      const proTypes = store.proImages.map((i) => i.id);
+      for (const type of proTypes) {
+        store.updateProImage(type, { isGenerating: true, error: undefined });
+        try {
+          const { data, error } = await supabase.functions.invoke("generate-product-images", {
+            body: { productName, productDescription: productCategory, category: productCategory, imageType: type, competitors: competitors.map((c) => c.name), referenceImageUrl: refImg },
+          });
+          if (error) throw error;
+          if (data?.error) throw new Error(data.error);
+          store.updateProImage(type, { imageUrl: data.imageUrl, isGenerating: false });
+        } catch (err: any) {
+          store.updateProImage(type, { isGenerating: false, error: err.message || "Failed" });
+        }
+        await new Promise((r) => setTimeout(r, 2000));
       }
       updateStep(0, "done");
 
-      // Step 2: Pro Photography (if reference image available)
+      // Step 2: Social Posts
+      const availableImages = store.proImages.filter((i) => i.imageUrl);
       updateStep(1, "running");
-      const refImg = store.referenceImageUrl || useAnalysisStore.getState().currentImage;
-      if (refImg) {
-        const proTypes = store.proImages.map((i) => i.id);
-        for (const type of proTypes) {
-          store.updateProImage(type, { isGenerating: true, error: undefined });
-          try {
-            const { data, error } = await supabase.functions.invoke("generate-product-images", {
-              body: { productName, productDescription: productCategory, category: productCategory, imageType: type, competitors: competitors.map((c) => c.name), referenceImageUrl: refImg },
-            });
-            if (error) throw error;
-            if (data?.error) throw new Error(data.error);
-            store.updateProImage(type, { imageUrl: data.imageUrl, isGenerating: false });
-          } catch (err: any) {
-            store.updateProImage(type, { isGenerating: false, error: err.message || "Failed" });
-          }
-          await new Promise((r) => setTimeout(r, 2000));
-        }
-      }
-      updateStep(1, "done");
-
-      // Step 3: Social Posts
-      updateStep(2, "running");
       const posts = generateSocialPosts();
       store.setSocialPosts(posts);
+      updateStep(1, "done");
+
+      // Step 3: Landing Page
+      updateStep(2, "running");
+      const lp = buildLandingPageHtml(productName, sellerResults, availableImages, posts, landingTheme, sectionOrder);
+      store.setLandingPage(lp);
       updateStep(2, "done");
 
-      // Step 4: Landing Page
+      // Step 4: Email Campaigns
       updateStep(3, "running");
-      const lp = buildLandingPageHtml(productName, sellerResults, store.images, posts, landingTheme, sectionOrder);
-      store.setLandingPage(lp);
-      updateStep(3, "done");
-
-      // Step 5: Email Campaigns
-      updateStep(4, "running");
       const emails = generateEmailCampaigns();
       store.setEmailCampaigns(emails);
-      updateStep(4, "done");
+      updateStep(3, "done");
 
-      // Step 6: Content Scoring
-      updateStep(5, "running");
+      // Step 5: Content Scoring
+      updateStep(4, "running");
       const score = calculateContentScore(posts, emails, sellerResults);
       store.setContentScore(score);
-      updateStep(5, "done");
+      updateStep(4, "done");
 
       toast.success("Marketing kit generated successfully!");
     } catch (err) {
@@ -554,7 +554,7 @@ export const ContentStudio = () => {
     const exportData = {
       exportedAt: new Date().toISOString(),
       productName,
-      images: store.images.filter((i) => i.imageUrl).map((i) => ({ label: i.label, type: i.id })),
+      images: store.proImages.filter((i) => i.imageUrl).map((i) => ({ label: i.label, type: i.id, section: i.section })),
       socialPosts: store.socialPosts,
       emailCampaigns: store.emailCampaigns,
       landingPageHtml: store.landingPage?.html || null,
@@ -688,9 +688,7 @@ export const ContentStudio = () => {
           ))}
         </TabsList>
 
-        <TabsContent value="images">
-          <ImageGenerationTab images={store.images} onRegenerate={generateImage} />
-        </TabsContent>
+        {/* Old images tab removed */}
         <TabsContent value="pro-images">
           <ProImageGenerationTab
             productName={productName}
@@ -699,7 +697,7 @@ export const ContentStudio = () => {
           />
         </TabsContent>
         <TabsContent value="social-image">
-          <SocialImagePostsTab posts={store.socialPosts} images={store.images} />
+          <SocialImagePostsTab posts={store.socialPosts} images={store.proImages} />
         </TabsContent>
         <TabsContent value="video">
           <VideoTab />
@@ -710,25 +708,25 @@ export const ContentStudio = () => {
         <TabsContent value="landing-page">
           <LandingPageTab
             landingPage={store.landingPage}
-            images={store.images}
+            images={store.proImages}
             productName={productName}
             userId={userId}
             theme={landingTheme}
             sectionOrder={sectionOrder}
             onThemeChange={(newTheme) => {
               setLandingTheme(newTheme);
-              const lp = buildLandingPageHtml(productName, sellerResults, store.images, store.socialPosts, newTheme, sectionOrder);
+              const lp = buildLandingPageHtml(productName, sellerResults, store.proImages, store.socialPosts, newTheme, sectionOrder);
               store.setLandingPage(lp);
             }}
             onSectionOrderChange={(newOrder) => {
               setSectionOrder(newOrder);
-              const lp = buildLandingPageHtml(productName, sellerResults, store.images, store.socialPosts, landingTheme, newOrder);
+              const lp = buildLandingPageHtml(productName, sellerResults, store.proImages, store.socialPosts, landingTheme, newOrder);
               store.setLandingPage(lp);
             }}
           />
         </TabsContent>
         <TabsContent value="email">
-          <EmailCampaignTab campaigns={store.emailCampaigns} images={store.images} />
+          <EmailCampaignTab campaigns={store.emailCampaigns} images={store.proImages} />
         </TabsContent>
         <TabsContent value="score">
           <ContentScoreTab score={store.contentScore} />

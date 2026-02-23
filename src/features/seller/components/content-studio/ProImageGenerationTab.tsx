@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +54,13 @@ export const ProImageGenerationTab: React.FC<Props> = ({
     studio: true,
   });
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+
+  // Auto-populate reference from Market Intelligence on mount
+  useEffect(() => {
+    if (currentImage && !store.referenceImageUrl) {
+      store.setReferenceImageUrl(currentImage);
+    }
+  }, [currentImage, store.referenceImageUrl]);
 
   const referenceImageUrl = store.referenceImageUrl || currentImage || null;
 
