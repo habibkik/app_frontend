@@ -5,6 +5,7 @@ import {
   Loader2,
   Wand2,
   ImageIcon,
+  Camera,
   Share2,
   Video,
   Globe,
@@ -43,9 +44,11 @@ import { SocialVideoPostsTab } from "./content-studio/SocialVideoPostsTab";
 import { LandingPageTab } from "./content-studio/LandingPageTab";
 import { EmailCampaignTab } from "./content-studio/EmailCampaignTab";
 import { ContentScoreTab } from "./content-studio/ContentScoreTab";
+import { ProImageGenerationTab } from "./content-studio/ProImageGenerationTab";
 
 const TABS: { id: ContentStudioTab; label: string; icon: React.ElementType }[] = [
   { id: "images", label: "Images", icon: ImageIcon },
+  { id: "pro-images", label: "Pro Photography", icon: Camera },
   { id: "social-image", label: "Social (Image)", icon: Share2 },
   { id: "video", label: "Video", icon: Video },
   { id: "social-video", label: "Social (Video)", icon: Video },
@@ -423,6 +426,35 @@ export const ContentStudio = () => {
     store.setContentScore(demoScore);
     store.setLandingPage(demoLandingPage);
 
+    // Demo pro images
+    const demoProImg = (id: string, label: string, section: string, url: string): GeneratedImage => ({
+      id, label, prompt: "Demo", imageUrl: url, isGenerating: false, section,
+    });
+    const headphonesUrl = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80";
+    store.setProImages([
+      demoProImg("packshot-front", "Front View", "packshot", headphonesUrl),
+      demoProImg("packshot-side", "Side View", "packshot", headphonesUrl),
+      demoProImg("packshot-back", "Back View", "packshot", headphonesUrl),
+      demoProImg("packshot-45deg", "45° Perspective", "packshot", headphonesUrl),
+      demoProImg("packshot-top", "Top View", "packshot", headphonesUrl),
+      demoProImg("ugc-outdoor", "Outdoor", "ugc", "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80"),
+      demoProImg("ugc-home", "At Home", "ugc", "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80"),
+      demoProImg("ugc-social", "Social Selfie", "ugc", "https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=400&q=80"),
+      demoProImg("ugc-unboxing", "Unboxing", "ugc", "https://images.unsplash.com/photo-1612478752710-4cbe1e5ac6fe?w=400&q=80"),
+      demoProImg("ugc-action", "In Action", "ugc", "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&q=80"),
+      demoProImg("usage-morning", "Morning Routine", "usage", "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80"),
+      demoProImg("usage-work", "At Work", "usage", "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=400&q=80"),
+      demoProImg("usage-commute", "Commute", "usage", "https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?w=400&q=80"),
+      demoProImg("usage-leisure", "Leisure", "usage", "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80"),
+      demoProImg("usage-evening", "Evening", "usage", "https://images.unsplash.com/photo-1545127398-14699f92334b?w=400&q=80"),
+      demoProImg("studio-hero", "Hero Shot", "studio", "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&q=80"),
+      demoProImg("studio-detail", "Detail Macro", "studio", "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=400&q=80"),
+      demoProImg("studio-lifestyle", "Styled Lifestyle", "studio", "https://images.unsplash.com/photo-1548921441-89c8bd2c3637?w=400&q=80"),
+      demoProImg("studio-dramatic", "Dramatic Lighting", "studio", "https://images.unsplash.com/photo-1608156639585-b3a776571bef?w=400&q=80"),
+      demoProImg("studio-flat", "Flat Lay", "studio", "https://images.unsplash.com/photo-1558756520-22cfe5d382ca?w=400&q=80"),
+    ]);
+    store.setReferenceImageUrl(headphonesUrl);
+
     toast.success("Demo data loaded! Explore all tabs to see the generated content.");
   };
 
@@ -435,6 +467,7 @@ export const ContentStudio = () => {
 
     const steps: GenerationStep[] = [
       { label: "Generating images", status: "pending" },
+      { label: "Generating pro photography", status: "pending" },
       { label: "Creating social posts", status: "pending" },
       { label: "Building landing page", status: "pending" },
       { label: "Creating email campaigns", status: "pending" },
@@ -461,29 +494,51 @@ export const ContentStudio = () => {
       }
       updateStep(0, "done");
 
-      // Step 2: Social Posts
+      // Step 2: Pro Photography (if reference image available)
       updateStep(1, "running");
-      const posts = generateSocialPosts();
-      store.setSocialPosts(posts);
+      const refImg = store.referenceImageUrl || useAnalysisStore.getState().currentImage;
+      if (refImg) {
+        const proTypes = store.proImages.map((i) => i.id);
+        for (const type of proTypes) {
+          store.updateProImage(type, { isGenerating: true, error: undefined });
+          try {
+            const { data, error } = await supabase.functions.invoke("generate-product-images", {
+              body: { productName, productDescription: productCategory, category: productCategory, imageType: type, competitors: competitors.map((c) => c.name), referenceImageUrl: refImg },
+            });
+            if (error) throw error;
+            if (data?.error) throw new Error(data.error);
+            store.updateProImage(type, { imageUrl: data.imageUrl, isGenerating: false });
+          } catch (err: any) {
+            store.updateProImage(type, { isGenerating: false, error: err.message || "Failed" });
+          }
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+      }
       updateStep(1, "done");
 
-      // Step 3: Landing Page
+      // Step 3: Social Posts
       updateStep(2, "running");
-      const lp = buildLandingPageHtml(productName, sellerResults, store.images, posts, landingTheme, sectionOrder);
-      store.setLandingPage(lp);
+      const posts = generateSocialPosts();
+      store.setSocialPosts(posts);
       updateStep(2, "done");
 
-      // Step 4: Email Campaigns
+      // Step 4: Landing Page
       updateStep(3, "running");
-      const emails = generateEmailCampaigns();
-      store.setEmailCampaigns(emails);
+      const lp = buildLandingPageHtml(productName, sellerResults, store.images, posts, landingTheme, sectionOrder);
+      store.setLandingPage(lp);
       updateStep(3, "done");
 
-      // Step 5: Content Scoring
+      // Step 5: Email Campaigns
       updateStep(4, "running");
+      const emails = generateEmailCampaigns();
+      store.setEmailCampaigns(emails);
+      updateStep(4, "done");
+
+      // Step 6: Content Scoring
+      updateStep(5, "running");
       const score = calculateContentScore(posts, emails, sellerResults);
       store.setContentScore(score);
-      updateStep(4, "done");
+      updateStep(5, "done");
 
       toast.success("Marketing kit generated successfully!");
     } catch (err) {
@@ -635,6 +690,13 @@ export const ContentStudio = () => {
 
         <TabsContent value="images">
           <ImageGenerationTab images={store.images} onRegenerate={generateImage} />
+        </TabsContent>
+        <TabsContent value="pro-images">
+          <ProImageGenerationTab
+            productName={productName}
+            productCategory={productCategory}
+            competitors={competitors.map((c) => c.name)}
+          />
         </TabsContent>
         <TabsContent value="social-image">
           <SocialImagePostsTab posts={store.socialPosts} images={store.images} />

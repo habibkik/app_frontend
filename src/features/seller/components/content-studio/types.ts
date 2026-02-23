@@ -5,7 +5,65 @@ export interface GeneratedImage {
   imageUrl: string | null;
   isGenerating: boolean;
   error?: string;
+  section?: string;
 }
+
+export type ProImageSection = "packshot" | "ugc" | "usage" | "studio";
+
+export const PRO_IMAGE_SECTIONS: {
+  id: ProImageSection;
+  title: string;
+  description: string;
+  imageIds: string[];
+}[] = [
+  {
+    id: "packshot",
+    title: "Packshot (Background Removal)",
+    description: "Product isolated on white background — 5 professional angles",
+    imageIds: ["packshot-front", "packshot-side", "packshot-back", "packshot-45deg", "packshot-top"],
+  },
+  {
+    id: "ugc",
+    title: "UGC Lifestyle Content",
+    description: "Authentic user-generated content style with real people and candid moments",
+    imageIds: ["ugc-outdoor", "ugc-home", "ugc-social", "ugc-unboxing", "ugc-action"],
+  },
+  {
+    id: "usage",
+    title: "Real-Life Usage Scenes",
+    description: "Contextual product-in-use scenes with cinematic lighting",
+    imageIds: ["usage-morning", "usage-work", "usage-commute", "usage-leisure", "usage-evening"],
+  },
+  {
+    id: "studio",
+    title: "Studio Commercial Shots",
+    description: "Premium studio advertising photography with professional lighting",
+    imageIds: ["studio-hero", "studio-detail", "studio-lifestyle", "studio-dramatic", "studio-flat"],
+  },
+];
+
+export const PRO_IMAGE_LABELS: Record<string, string> = {
+  "packshot-front": "Front View",
+  "packshot-side": "Side View",
+  "packshot-back": "Back View",
+  "packshot-45deg": "45° Perspective",
+  "packshot-top": "Top View",
+  "ugc-outdoor": "Outdoor",
+  "ugc-home": "At Home",
+  "ugc-social": "Social Selfie",
+  "ugc-unboxing": "Unboxing",
+  "ugc-action": "In Action",
+  "usage-morning": "Morning Routine",
+  "usage-work": "At Work",
+  "usage-commute": "Commute",
+  "usage-leisure": "Leisure",
+  "usage-evening": "Evening",
+  "studio-hero": "Hero Shot",
+  "studio-detail": "Detail Macro",
+  "studio-lifestyle": "Styled Lifestyle",
+  "studio-dramatic": "Dramatic Lighting",
+  "studio-flat": "Flat Lay",
+};
 
 export interface SocialImagePost {
   id: string;
@@ -74,6 +132,7 @@ export interface GenerationStep {
 
 export type ContentStudioTab =
   | "images"
+  | "pro-images"
   | "social-image"
   | "video"
   | "social-video"
