@@ -125,6 +125,74 @@ const BOLD_THEME: LandingPageTheme = {
   heroStyle: "split",
 };
 
+// ─── Premium Conversion Template ─────────────────────────────────
+const PREMIUM_BLOCKS: SiteBlock[] = [
+  block("hero", {
+    title: "Engineered for Every Step",
+    subtitle: "Premium comfort meets bold design. Experience next-level performance that moves with you — from first mile to finish line.",
+    ctaText: "Add to Cart",
+    backgroundImageUrl: "",
+  }),
+  block("social-proof", { heading: "Trusted By Industry Leaders" }),
+  block("solution", {
+    heading: "Why It's Different",
+    intro: "Every detail is designed with purpose. Three core innovations set us apart.",
+    differentiationPoints: [
+      "Comfort — Adaptive cushioning that responds to your stride in real-time",
+      "Stability — Reinforced heel counter and wide base for all-day support",
+      "Hands-free — Magnetic quick-lock closure system, no laces needed",
+    ],
+    credibilityText: "Rated #1 by 12,000+ verified buyers. Featured in GQ, Wired, and Runner's World.",
+    imageUrl: "",
+  }),
+  block("product-catalog", { columns: 3, showPrice: true, showDescription: true, categoryFilter: "" }),
+  block("problem-agitation", {
+    heading: "The Premium Promise",
+    intro: "Every order includes everything you need for a flawless experience.",
+    painPoints: [
+      { icon: "🚚", title: "Free Shipping", description: "Complimentary express delivery on every order" },
+      { icon: "↩️", title: "30-Day Returns", description: "No questions asked — full refund guaranteed" },
+      { icon: "⭐", title: "Premium Quality", description: "Handcrafted with sustainable, certified materials" },
+      { icon: "💬", title: "24/7 Support", description: "Real humans, real help, anytime you need it" },
+    ],
+    reinforcement: "Join 50,000+ happy customers who made the switch.",
+  }),
+  block("testimonials", {
+    items: [
+      { quote: "I've tried dozens of brands. Nothing comes close to this level of comfort and style. Absolutely worth every penny.", author: "Jordan A." },
+      { quote: "The magnetic closure is a game-changer. I can't go back to laces. Plus they look incredible.", author: "Mika S." },
+      { quote: "Ordered for my partner too. We both wear them daily — to the gym, to work, everywhere.", author: "Taylor R." },
+    ],
+  }),
+  block("offer-pricing", {
+    heading: "Limited Launch Offer",
+    valueItems: [
+      "Premium product (retail $189)",
+      "Free express shipping ($15 value)",
+      "Extended 2-year warranty ($29 value)",
+      "Exclusive members-only colorway",
+    ],
+    anchorPrice: "$233",
+    actualPrice: "$149",
+    scarcityText: "Only 127 units left at this price — launch batch selling fast",
+    ctaText: "Claim Your Pair →",
+  }),
+  block("contact", { heading: "Stay in the Loop", showPhone: false, showAddress: false }),
+];
+
+const PREMIUM_THEME: LandingPageTheme = {
+  primaryColor: "#FF6B5C",
+  secondaryColor: "#111111",
+  accentColor: "#FF6B5C",
+  textColor: "#111111",
+  bgColor: "#FFFFFF",
+  headingFont: "'Space Grotesk', system-ui, sans-serif",
+  bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "bold",
+  borderRadius: "large",
+  heroStyle: "split",
+};
+
 // ─── All Templates ───────────────────────────────────────────────
 export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
   {
@@ -156,6 +224,16 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     siteConfig: { name: "Bold Store", tagline: "Make a Statement", logoUrl: "" },
     blocks: BOLD_BLOCKS,
     theme: BOLD_THEME,
+  },
+  {
+    id: "premium-conversion",
+    name: "Premium Conversion",
+    description: "Nike-inspired high-conversion product landing with coral accent, split hero, social proof, benefits strip, and value-stack pricing.",
+    thumbnail: "🔶",
+    category: "Conversion",
+    siteConfig: { name: "Premium Store", tagline: "Engineered for Every Step", logoUrl: "" },
+    blocks: PREMIUM_BLOCKS,
+    theme: PREMIUM_THEME,
   },
   {
     id: "blank",
