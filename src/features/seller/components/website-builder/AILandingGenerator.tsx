@@ -120,6 +120,11 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
   const studioImages = useContentStudioStore((s) => s.images);
   const availableImages = studioImages.filter((img) => img.imageUrl);
   const [form, setForm] = useState<ProductFormData>(INITIAL_FORM);
+  const [imageAssignments, setImageAssignments] = useState<Record<string, string>>({
+    hero: "landing",
+    solution: "ecommerce",
+    about: "ad",
+  });
   const [isGenerating, setIsGenerating] = useState(false);
   const [dataSource, setDataSource] = useState<DataSource>("manual");
   const [autoFilled, setAutoFilled] = useState(false);
@@ -229,18 +234,17 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
         blocks.push({ id: mkId("contact"), type: "contact", enabled: true, config: { heading: data.finalCta.heading, showPhone: true, showAddress: false } });
       }
 
-      // Auto-assign Content Studio images to blocks
-      const getImgUrl = (id: string, fallbackIdx: number) => {
-        const specific = availableImages.find((img) => img.id === id);
-        if (specific?.imageUrl) return specific.imageUrl;
-        if (availableImages[fallbackIdx]?.imageUrl) return availableImages[fallbackIdx].imageUrl;
-        if (availableImages[0]?.imageUrl) return availableImages[0].imageUrl;
-        return "";
+      // Assign Content Studio images to blocks based on user selections
+      const getAssignedUrl = (blockKey: string) => {
+        const assignedId = imageAssignments[blockKey];
+        if (assignedId === "__none__") return "";
+        const img = availableImages.find((i) => i.id === assignedId);
+        return img?.imageUrl || availableImages[0]?.imageUrl || "";
       };
       blocks.forEach((block) => {
-        if (block.type === "hero") (block.config as any).backgroundImageUrl = getImgUrl("landing", 0);
-        if (block.type === "solution") (block.config as any).imageUrl = getImgUrl("ecommerce", 1);
-        if (block.type === "about") (block.config as any).imageUrl = getImgUrl("ad", 2);
+        if (block.type === "hero") (block.config as any).backgroundImageUrl = getAssignedUrl("hero");
+        if (block.type === "solution") (block.config as any).imageUrl = getAssignedUrl("solution");
+        if (block.type === "about") (block.config as any).imageUrl = getAssignedUrl("about");
       });
 
       const toneTheme = BRAND_TONE_THEMES[form.brandTone] || BRAND_TONE_THEMES.bold;
@@ -344,7 +348,26 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
                     </div>
                   ))}
                 </div>
-                <p className="text-[10px] text-muted-foreground">These images will be automatically assigned to your landing page blocks.</p>
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {([
+                    { key: "hero", label: "Hero Background" },
+                    { key: "solution", label: "Solution Image" },
+                    { key: "about", label: "About Image" },
+                  ] as const).map(({ key, label }) => (
+                    <div key={key} className="space-y-0.5">
+                      <Label className="text-[10px] text-muted-foreground">{label}</Label>
+                      <Select value={imageAssignments[key] || "__none__"} onValueChange={(v) => setImageAssignments((prev) => ({ ...prev, [key]: v }))}>
+                        <SelectTrigger className="h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">None</SelectItem>
+                          {availableImages.map((img) => (
+                            <SelectItem key={img.id} value={img.id}>{img.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
               </>
             ) : (
               <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
