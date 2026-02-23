@@ -1,65 +1,82 @@
 
 
-## Premium High-Conversion Product Landing Template
+## Add 4 Professional Product Photography Sections to AI Product Images
 
 ### Overview
-Add a new "Nike-inspired" premium conversion template to the existing template picker. This template uses **only existing block types** and theme controls, arranged in a conversion-optimized order with a coral/orange accent, white background, and bold geometric typography.
+Expand the Images tab from 5 marketing-channel images to 5 + 20 professional photography images across 4 new sections. Each section generates 5 images using the uploaded product image as a reference, producing hyper-realistic commercial product photography.
 
-### Block-to-Request Mapping
+### New Sections (each with 5 images)
 
-The 8 requested sections map to existing blocks as follows:
+1. **Packshot (Background Removal)** - Product isolated on white/transparent, 5 angles: front, side, back, 45-degree, top view
+2. **UGC Lifestyle** - Authentic user-generated content style with real people, candid moments, diverse environments
+3. **Real-Life Usage** - Contextual product-in-use scenes, cinematic lighting, storytelling composition
+4. **Studio Commercial** - Premium studio advertising shots, professional lighting, luxury aesthetic
 
-| Requested Section | Existing Block Used | How It Maps |
-|---|---|---|
-| 1. Hero Banner (split layout + CTA) | `hero` | `heroStyle: "split"`, title/subtitle/CTA |
-| 2. Trust / Social Proof Strip | `social-proof` | Heading "Trusted By Industry Leaders" |
-| 3. Feature Product Section (2-col + features) | `solution` | `differentiationPoints` for feature grid, `imageUrl` for product image |
-| 4. Product Variants Grid | `product-catalog` | 3-column grid with price + description |
-| 5. Benefits Icon Row | `problem-agitation` | Repurposed: 4 benefit icons with positive framing |
-| 6. Testimonials (card grid) | `testimonials` | 3 testimonial cards |
-| 7. Newsletter CTA | `contact` | Centered contact form |
-| 8. Footer | Built-in | Automatically rendered by `generateStorefrontHtml` |
+### Architecture
 
-Additionally, an `offer-pricing` block is inserted between testimonials and contact for CTA repetition (conversion optimization).
+**Edge Function: `supabase/functions/generate-product-images/index.ts`**
+- Add 20 new prompt entries to `IMAGE_PROMPTS` covering all 4 sections x 5 angles
+- Accept an optional `referenceImageUrl` field in the request body
+- When a reference image is provided, switch from text-only to image-editing mode by passing both the text prompt and the reference image in the `messages` content array (multimodal input)
+- Update the `ImageRequest` type to include the new image types and `referenceImageUrl`
 
-### Theme Configuration
+New prompt IDs:
+- `packshot-front`, `packshot-side`, `packshot-back`, `packshot-45deg`, `packshot-top`
+- `ugc-outdoor`, `ugc-home`, `ugc-social`, `ugc-unboxing`, `ugc-action`
+- `usage-morning`, `usage-work`, `usage-commute`, `usage-leisure`, `usage-evening`
+- `studio-hero`, `studio-detail`, `studio-lifestyle`, `studio-dramatic`, `studio-flat`
 
-```text
-Primary:       #FF6B5C (coral/orange)
-Background:    #FFFFFF (white)
-Text:          #111111 (dark charcoal)
-Secondary:     #111111 (dark)
-Accent:        #FF6B5C (coral)
-Heading Font:  'Space Grotesk', system-ui, sans-serif
-Body Font:     'Inter', system-ui, sans-serif
-Layout:        bold
-Border Radius: large (16px)
-Hero Style:    split
-```
+**Store: `src/stores/contentStudioStore.ts`**
+- Add a new `proImages` array (20 `GeneratedImage` entries) alongside existing `images` (5 marketing images)
+- Add `setProImages`, `updateProImage` actions
+- Add `referenceImageUrl: string | null` and `setReferenceImageUrl` for storing the uploaded product image
 
-### What Changes
+**Types: `src/features/seller/components/content-studio/types.ts`**
+- Add `GeneratedImage.section?: string` optional field to group images by section
+- Add `ProImageSection` type: `"packshot" | "ugc" | "usage" | "studio"`
 
-**File: `src/features/seller/components/website-builder/templates.ts`**
+**New Component: `src/features/seller/components/content-studio/ProImageGenerationTab.tsx`**
+- Displays 4 collapsible sections, each with a 5-image grid
+- Each section has a header with title, description, and "Generate All" button
+- Individual images have Regenerate and Download buttons (same pattern as `ImageGenerationTab`)
+- At the top: a reference image uploader/selector that pulls from `analysisStore.currentImage` or lets the user upload a new one
+- Global "Generate All 20 Images" button at the top
+- Shows the reference image thumbnail with a label "Reference Product Image"
 
-Add a new template entry `"premium-conversion"` to the `WEBSITE_TEMPLATES` array with:
-- A `PREMIUM_BLOCKS` array containing 8 blocks in the strict order above
-- A `PREMIUM_THEME` object with the coral/orange Nike-inspired design system
-- A `siteConfig` with name "Premium Store" and tagline matching the hero subtitle
-- Block configs pre-populated with conversion-optimized placeholder copy:
-  - Hero: bold headline, benefit-driven subtitle, "Add to Cart" CTA
-  - Social Proof: heading "Trusted By Industry Leaders"
-  - Solution block: 3 feature differentiation points (Comfort / Stability / Hands-free), product image slot, credibility text
-  - Product Catalog: 3 columns, price + description visible
-  - Problem-Agitation: repurposed as 4 benefit icons with positive framing (Free Shipping, 30-Day Returns, Premium Quality, 24/7 Support)
-  - Testimonials: 3 minimal quote cards
-  - Offer Pricing: value stack with anchor/actual price, scarcity text, strong CTA
-  - Contact: "Stay in the Loop" newsletter-style heading
+**Content Studio: `src/features/seller/components/ContentStudio.tsx`**
+- Add a new tab `"pro-images"` with label "Pro Photography" and a Camera icon
+- Import and render `ProImageGenerationTab` in the new tab
+- Update `handleGenerateKit` to also generate pro images (as an optional step, after marketing images)
+- Update `handleLoadDemoData` to include demo pro images (using Unsplash URLs)
+- Add a new generation step "Generating pro photography" to the kit workflow
 
-**File: `src/features/seller/components/website-builder/AILandingGenerator.tsx`**
+**Image Generation Flow:**
+1. User sees reference image auto-populated from their last analysis (or uploads one)
+2. User clicks "Generate All" on a section or individual "Generate" buttons
+3. Edge function receives the reference image URL + prompt, uses Gemini image model with multimodal input
+4. Generated base64 image is returned and stored in the `proImages` array
 
-Add a new demo preset `DEMO_PREMIUM` to the data source dropdown so users can load the premium conversion template data directly into the AI generator. This adds a "Load Demo (Premium)" option alongside the existing E-Bike demo.
+### Section-by-Section Prompt Strategy
 
-### No Other Files Change
+Each prompt includes:
+- The reference product image as visual input
+- Explicit instruction to maintain product accuracy (shape, color, branding, proportions)
+- Section-specific style direction (packshot = white BG, UGC = smartphone quality, usage = cinematic, studio = professional lighting)
+- "No distortion, no hallucinated features, accurate branding" as a global suffix
 
-The template uses only existing block types, theme properties, and the existing `generateStorefrontHtml` renderer. The template picker, block configurator, and block palette all work automatically with the new template.
+### Rate Limiting Consideration
+Generating 20 images sequentially with 1.5s delays would take ~30s+. The implementation will:
+- Generate one section at a time (5 images per section)
+- Add 2s delay between images to avoid 429 errors
+- Allow per-section generation so users don't have to wait for all 20
 
+### Files Changed
+
+| File | Change |
+|---|---|
+| `supabase/functions/generate-product-images/index.ts` | Add 20 new prompts, accept `referenceImageUrl`, multimodal message format |
+| `src/features/seller/components/content-studio/types.ts` | Add `ProImageSection` type, optional `section` field on `GeneratedImage` |
+| `src/stores/contentStudioStore.ts` | Add `proImages` array (20 items), `referenceImageUrl`, actions |
+| `src/features/seller/components/content-studio/ProImageGenerationTab.tsx` | New component with 4 collapsible sections |
+| `src/features/seller/components/ContentStudio.tsx` | Add "Pro Photography" tab, wire up generation logic |
+| `src/features/seller/components/content-studio/ImageGenerationTab.tsx` | No changes needed |
