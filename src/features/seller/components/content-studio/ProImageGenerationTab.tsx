@@ -92,7 +92,30 @@ export const ProImageGenerationTab: React.FC<Props> = ({
             },
           }
         );
-        if (error) throw error;
+        if (error) {
+          // Parse the actual error message from the response body
+          let errorMsg = "Generation failed";
+          try {
+            const ctx = error.context;
+            if (ctx && typeof ctx.json === "function") {
+              const body = await ctx.json();
+              errorMsg = body?.error || errorMsg;
+            } else if (error.message) {
+              errorMsg = error.message;
+            }
+          } catch {
+            errorMsg = error.message || errorMsg;
+          }
+          
+          // Show specific toast for credit issues
+          if (errorMsg.includes("credits") || errorMsg.includes("402")) {
+            toast.error("AI credits exhausted. Please add credits to continue.");
+          } else if (errorMsg.includes("Rate limit") || errorMsg.includes("429")) {
+            toast.error("Rate limit reached. Please wait a moment and retry.");
+          }
+          
+          throw new Error(errorMsg);
+        }
         if (data?.error) throw new Error(data.error);
         store.updateProImage(imageType, {
           imageUrl: data.imageUrl,
@@ -127,15 +150,24 @@ export const ProImageGenerationTab: React.FC<Props> = ({
     setIsGeneratingAll(true);
     try {
       for (const section of PRO_IMAGE_SECTIONS) {
+        // Check if any previous image hit a credit/rate error — stop early
+        const hasCreditError = store.proImages.some(
+          (img) => img.error?.includes("credits") || img.error?.includes("Rate limit")
+        );
+        if (hasCreditError) {
+          toast.error("Generation stopped — credits exhausted or rate limited.");
+          break;
+        }
         await generateSection(section.imageIds);
       }
-      toast.success("All 20 pro images generated!");
+      const generated = store.proImages.filter((i) => i.imageUrl).length;
+      if (generated > 0) toast.success(`${generated} pro images generated!`);
     } catch {
       toast.error("Some images failed. Retry individual ones.");
     } finally {
       setIsGeneratingAll(false);
     }
-  }, [referenceImageUrl, generateSection]);
+  }, [referenceImageUrl, generateSection, store.proImages]);
 
   const sectionImages = (sectionId: string) =>
     store.proImages.filter((img) => img.section === sectionId);
