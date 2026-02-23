@@ -59,6 +59,13 @@ interface ContentStudioStore {
   // Website Builder integration
   pendingWebsiteData: { html: string; theme: any; sections: any } | null;
   setPendingWebsiteData: (data: { html: string; theme: any; sections: any } | null) => void;
+
+  // Pro Photography
+  proImages: GeneratedImage[];
+  referenceImageUrl: string | null;
+  setProImages: (images: GeneratedImage[]) => void;
+  updateProImage: (id: string, updates: Partial<GeneratedImage>) => void;
+  setReferenceImageUrl: (url: string | null) => void;
 }
 
 const initialImages: GeneratedImage[] = [
@@ -117,4 +124,39 @@ export const useContentStudioStore = create<ContentStudioStore>((set) => ({
 
   pendingWebsiteData: null,
   setPendingWebsiteData: (pendingWebsiteData) => set({ pendingWebsiteData }),
+
+  // Pro Photography
+  proImages: [
+    // Packshot
+    { id: "packshot-front", label: "Front View", prompt: "", imageUrl: null, isGenerating: false, section: "packshot" },
+    { id: "packshot-side", label: "Side View", prompt: "", imageUrl: null, isGenerating: false, section: "packshot" },
+    { id: "packshot-back", label: "Back View", prompt: "", imageUrl: null, isGenerating: false, section: "packshot" },
+    { id: "packshot-45deg", label: "45° Perspective", prompt: "", imageUrl: null, isGenerating: false, section: "packshot" },
+    { id: "packshot-top", label: "Top View", prompt: "", imageUrl: null, isGenerating: false, section: "packshot" },
+    // UGC
+    { id: "ugc-outdoor", label: "Outdoor", prompt: "", imageUrl: null, isGenerating: false, section: "ugc" },
+    { id: "ugc-home", label: "At Home", prompt: "", imageUrl: null, isGenerating: false, section: "ugc" },
+    { id: "ugc-social", label: "Social Selfie", prompt: "", imageUrl: null, isGenerating: false, section: "ugc" },
+    { id: "ugc-unboxing", label: "Unboxing", prompt: "", imageUrl: null, isGenerating: false, section: "ugc" },
+    { id: "ugc-action", label: "In Action", prompt: "", imageUrl: null, isGenerating: false, section: "ugc" },
+    // Usage
+    { id: "usage-morning", label: "Morning Routine", prompt: "", imageUrl: null, isGenerating: false, section: "usage" },
+    { id: "usage-work", label: "At Work", prompt: "", imageUrl: null, isGenerating: false, section: "usage" },
+    { id: "usage-commute", label: "Commute", prompt: "", imageUrl: null, isGenerating: false, section: "usage" },
+    { id: "usage-leisure", label: "Leisure", prompt: "", imageUrl: null, isGenerating: false, section: "usage" },
+    { id: "usage-evening", label: "Evening", prompt: "", imageUrl: null, isGenerating: false, section: "usage" },
+    // Studio
+    { id: "studio-hero", label: "Hero Shot", prompt: "", imageUrl: null, isGenerating: false, section: "studio" },
+    { id: "studio-detail", label: "Detail Macro", prompt: "", imageUrl: null, isGenerating: false, section: "studio" },
+    { id: "studio-lifestyle", label: "Styled Lifestyle", prompt: "", imageUrl: null, isGenerating: false, section: "studio" },
+    { id: "studio-dramatic", label: "Dramatic Lighting", prompt: "", imageUrl: null, isGenerating: false, section: "studio" },
+    { id: "studio-flat", label: "Flat Lay", prompt: "", imageUrl: null, isGenerating: false, section: "studio" },
+  ],
+  referenceImageUrl: null,
+  setProImages: (proImages) => set({ proImages }),
+  updateProImage: (id, updates) =>
+    set((s) => ({
+      proImages: s.proImages.map((img) => (img.id === id ? { ...img, ...updates } : img)),
+    })),
+  setReferenceImageUrl: (referenceImageUrl) => set({ referenceImageUrl }),
 }));
