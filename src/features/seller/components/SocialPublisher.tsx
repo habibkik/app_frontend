@@ -117,14 +117,14 @@ export function SocialPublisher() {
   const { posting, publishPost } = useSocialPosting();
   const studioItems = useContentStudioStore((s) => s.savedItems);
   const socialPosts = useContentStudioStore((s) => s.socialPosts);
-  const studioImages = useContentStudioStore((s) => s.images);
+  const studioImages = useContentStudioStore((s) => s.proImages);
   const pendingPublisherPost = useContentStudioStore((s) => s.pendingPublisherPost);
   const setPendingPublisherPost = useContentStudioStore((s) => s.setPendingPublisherPost);
   const pendingBatchPosts = useContentStudioStore((s) => s.pendingBatchPosts);
   const setPendingBatchPosts = useContentStudioStore((s) => s.setPendingBatchPosts);
 
   // Content
-  const [contentSource, setContentSource] = useState<"studio" | "custom" | "upload" | "generated">("custom");
+  const [contentSource, setContentSource] = useState<"studio" | "custom" | "upload" | "generated" | "pro-photography">("custom");
   const [selectedStudioItem, setSelectedStudioItem] = useState<string>("");
   const [content, setContent] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
@@ -212,7 +212,7 @@ export function SocialPublisher() {
     loadPosts();
   }, []);
 
-  // Consume pending post from Content Studio
+   // Consume pending post from Content Studio
   useEffect(() => {
     if (pendingPublisherPost) {
       setContent(pendingPublisherPost.content);
@@ -223,6 +223,11 @@ export function SocialPublisher() {
         setSelectedPlatforms((prev) =>
           prev.includes(platformId) ? prev : [...prev, platformId]
         );
+      }
+      // Use imageUrl from pending post if available
+      if (pendingPublisherPost.imageUrl) {
+        setUploadedImageUrl(pendingPublisherPost.imageUrl);
+        setMediaUrl(pendingPublisherPost.imageUrl);
       }
       toast({ title: "Content loaded from Content Studio", description: `${validPlatform?.name || pendingPublisherPost.platform} post ready to publish` });
       setPendingPublisherPost(null);
@@ -496,11 +501,57 @@ export function SocialPublisher() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="generated">From Content Studio (Generated)</SelectItem>
+              <SelectItem value="pro-photography">From Pro Photography</SelectItem>
               <SelectItem value="studio">From Content Studio (Saved)</SelectItem>
               <SelectItem value="custom">Custom content</SelectItem>
               <SelectItem value="upload">Upload image / video</SelectItem>
             </SelectContent>
           </Select>
+
+          {contentSource === "pro-photography" && (
+            <div className="space-y-3">
+              {(() => {
+                const available = studioImages.filter((img) => img.imageUrl);
+                if (available.length === 0) {
+                  return (
+                    <div className="rounded-lg border border-dashed p-6 text-center">
+                      <ImageIcon className="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+                      <p className="text-sm text-muted-foreground">No pro images generated yet.</p>
+                      <p className="text-xs text-muted-foreground mt-1">Generate pro photography in Content Studio first.</p>
+                    </div>
+                  );
+                }
+                return (
+                  <>
+                    <Label className="text-xs text-muted-foreground">Select a pro image to attach to your post</Label>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[280px] overflow-y-auto">
+                      {available.map((img) => (
+                        <button
+                          key={img.id}
+                          onClick={() => {
+                            setUploadedImageUrl(img.imageUrl);
+                            setMediaUrl(img.imageUrl || "");
+                            toast({ title: `Selected: ${img.label}`, description: `Pro image attached to post` });
+                          }}
+                          className={cn(
+                            "relative rounded-lg overflow-hidden border-2 transition-all aspect-square",
+                            uploadedImageUrl === img.imageUrl
+                              ? "border-primary ring-2 ring-primary/30"
+                              : "border-border hover:border-primary/40"
+                          )}
+                        >
+                          <img src={img.imageUrl!} alt={img.label} className="w-full h-full object-cover" />
+                          <div className="absolute bottom-0 inset-x-0 bg-black/60 px-1 py-0.5">
+                            <p className="text-[10px] text-white truncate">{img.label}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          )}
 
           {contentSource === "generated" && (
             <div className="space-y-3">
