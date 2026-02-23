@@ -336,6 +336,8 @@ function ProblemAgitationForm({ config, update }: { config: ProblemAgitationBloc
       ))}
       <Button size="sm" variant="outline" onClick={addPain} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Pain Point</Button>
       <Field label="Reinforcement"><Textarea value={config.reinforcement} onChange={(e) => update({ reinforcement: e.target.value })} rows={2} className="text-xs" /></Field>
+      <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
     </>
   );
 }
@@ -394,6 +396,8 @@ function OfferPricingForm({ config, update }: { config: OfferPricingBlockConfig;
       </div>
       <Field label="Scarcity Text (optional)"><Input value={config.scarcityText} onChange={(e) => update({ scarcityText: e.target.value })} className="text-xs h-8" placeholder="Only 50 left!" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
     </>
   );
 }
