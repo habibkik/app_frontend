@@ -1,50 +1,57 @@
 
 
-## Use Pro Photography Images Across Publisher and Website Builder
+## Add Pro Photography Image Picker to All Website Builder Block Sections
 
 ### Problem
-The Social Publisher and Website Builder still reference the old `store.images` (5 legacy marketing images) instead of the new `store.proImages` (20 pro photography images). This means generated pro images are not available when scheduling posts or building websites.
+Currently, only the Hero block has an image picker grid, and it still references the old legacy `store.images` instead of `store.proImages`. The About, Solution, and Product Catalog blocks have image URL text inputs but no way to browse and select from generated pro photography images.
 
 ### Changes
 
-**1. Social Publisher (`src/features/seller/components/SocialPublisher.tsx`)**
+**File: `src/features/seller/components/website-builder/BlockConfigurator.tsx`**
 
-- **Line 120**: Change `useContentStudioStore((s) => s.images)` to `useContentStudioStore((s) => s.proImages)` so the preview modal can find matching images from the pro photography set
-- **Line 1157**: The preview modal already looks up images by matching `socialPost.imageId` against the images array -- since social posts now use pro image IDs (e.g., `ugc-outdoor`, `studio-hero`), this will automatically work once we point to `proImages`
-- **Add a new content source option**: "From Pro Photography" that shows a grid of available pro images (those with URLs) so users can pick one to attach to any post
-- **Batch campaign image support**: When sending social posts from Content Studio as a batch, include the matching pro image URL for each platform post
+1. **Create a reusable `ProImagePicker` component** inside the file that:
+   - Reads `useContentStudioStore((s) => s.proImages)` to get all pro photography images
+   - Filters to only those with a `imageUrl` set (generated images)
+   - Displays a scrollable grid of thumbnail previews with labels
+   - Highlights the currently selected image with a checkmark overlay
+   - Calls a provided `onSelect(imageUrl)` callback when clicked
+   - Shows "No pro images yet. Generate them in Content Studio > Pro Photography." when empty
 
-**2. Website Builder (`src/features/seller/components/website-builder/WebsiteBuilder.tsx`)**
+2. **Update `HeroForm`** (line 136-173):
+   - Replace `useContentStudioStore((s) => s.images)` with the new `ProImagePicker` component
+   - Pass `currentValue={config.backgroundImageUrl}` and `onSelect={(url) => update({ backgroundImageUrl: url })}`
 
-- **Line 30**: Change `useContentStudioStore((s) => s.images)` to `useContentStudioStore((s) => s.proImages)` to pull from the pro photography set
-- **Auto-populate block images**: After loading pro images, automatically assign them to relevant blocks:
-  - Hero block background: use `studio-hero` image
-  - About block image: use `studio-lifestyle` image  
-  - Solution block image: use `packshot-front` image
-- **Add a "Use Pro Images" button** in the toolbar that fills all image-capable blocks with the best matching pro image
+3. **Update `AboutForm`** (line 202-209):
+   - Add `ProImagePicker` below the Image URL input
+   - Pass `currentValue={config.imageUrl}` and `onSelect={(url) => update({ imageUrl: url })}`
 
-**3. Content Studio social post flow update (`src/features/seller/components/content-studio/SocialImagePostsTab.tsx`)**
+4. **Update `SolutionForm`** (line 326-351):
+   - Add `ProImagePicker` below the Image URL input
+   - Pass `currentValue={config.imageUrl}` and `onSelect={(url) => update({ imageUrl: url })}`
 
-- When sending a post to the Publisher, include the matched pro image URL in the pending post data so the Publisher can display it
-- Update `setPendingPublisherPost` to include an `imageUrl` field
-- Update `setPendingBatchPosts` to include `imageUrl` for each post
+5. **Update `ProductCatalogForm`** (line 176-199):
+   - Add a new "Featured Image" field with a text input and `ProImagePicker`
+   - This maps to `config.featuredImage` (a new optional field)
+   - Update `ProductCatalogBlockConfig` in `types.ts` to include `featuredImage?: string`
 
-**4. Store update (`src/stores/contentStudioStore.ts`)**
+### ProImagePicker Component Design
 
-- Extend `pendingPublisherPost` type to include optional `imageUrl: string`
-- Extend `pendingBatchPosts` items to include optional `imageUrl: string`
+The component will render:
+- A label: "Pick from Pro Photography" with a camera icon
+- A 2-column grid of image thumbnails (aspect-video ratio)
+- Each thumbnail shows the image, a bottom label bar, and a check overlay when selected
+- A text note when no images are available
 
-### Technical Details
+### Type Update
+
+**File: `src/features/seller/components/website-builder/types.ts`**
+
+- Add `featuredImage?: string` to `ProductCatalogBlockConfig`
+
+### Files Changed
 
 | File | Change |
 |---|---|
-| `src/stores/contentStudioStore.ts` | Add `imageUrl?: string` to pending post types |
-| `src/features/seller/components/content-studio/SocialImagePostsTab.tsx` | Include pro image URL when sending to Publisher |
-| `src/features/seller/components/SocialPublisher.tsx` | Switch from `s.images` to `s.proImages`, add pro image picker in content source, consume `imageUrl` from pending posts |
-| `src/features/seller/components/website-builder/WebsiteBuilder.tsx` | Switch from `s.images` to `s.proImages`, add auto-fill logic for block images |
+| `src/features/seller/components/website-builder/types.ts` | Add `featuredImage?: string` to `ProductCatalogBlockConfig` |
+| `src/features/seller/components/website-builder/BlockConfigurator.tsx` | Create reusable `ProImagePicker`, add it to Hero, About, Solution, and Product Catalog forms |
 
-### How It Works After Changes
-
-1. User generates pro images in Content Studio
-2. In **Publisher**: selecting "From Content Studio (Generated)" shows social posts with their matched pro images visible in previews. Users can also pick any pro image to attach to custom posts.
-3. In **Website Builder**: pro images are available to populate hero backgrounds, about sections, and solution blocks -- either automatically or via a toolbar button.
