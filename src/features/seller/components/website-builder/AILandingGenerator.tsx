@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, Brain, Database, PenLine, ImageIcon, Video } from "lucide-react";
+import { Loader2, Sparkles, Brain, Database, PenLine, ImageIcon, Video, FlaskConical } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useWebsiteBuilderStore } from "@/stores/websiteBuilderStore";
@@ -36,6 +36,22 @@ const INITIAL_FORM: ProductFormData = {
   productName: "", category: "", targetAudience: "", keyFeatures: "", specs: "",
   competitiveAdvantages: "", marketPositioning: "premium", pricingStrategy: "",
   painPoints: "", desires: "", testimonials: "", faq: "", brandTone: "bold",
+};
+
+const DEMO_FORM: ProductFormData = {
+  productName: "Evolv X E-Bike",
+  category: "Electric Vehicles",
+  targetAudience: "Urban commuters aged 25-45 who want eco-friendly, stylish transportation",
+  keyFeatures: "100-mile range, Regenerative braking, Smart LCD dashboard, GPS tracking, App integration",
+  specs: "Motor: 500W brushless hub\nBattery: 48V 14Ah lithium-ion\nTop Speed: 28 mph\nWeight: 48 lbs\nCharge Time: 4 hours",
+  competitiveAdvantages: "Longest range in its class, proprietary AI-assisted pedal system, integrated anti-theft GPS, 5-year battery warranty",
+  marketPositioning: "premium",
+  pricingStrategy: "$2,499 MSRP with $500 early-bird discount for first 200 orders",
+  painPoints: "Rising fuel costs, traffic congestion, expensive parking, environmental guilt, unreliable public transit",
+  desires: "Effortless commute, save money on transport, reduce carbon footprint, arrive energized, look great doing it",
+  testimonials: '"Cut my commute time in half and I actually enjoy riding to work now." - Sarah M.\n"Best investment I made this year. Pays for itself in fuel savings." - David K.\n"The range is incredible — I charge once a week." - Priya R.',
+  faq: "Q: What is the warranty? | A: 2-year frame, 5-year battery, lifetime software updates\nQ: Can I ride in the rain? | A: Yes, IPX5 water resistant rated for all weather\nQ: How long does shipping take? | A: 5-7 business days, free shipping in continental US",
+  brandTone: "bold",
 };
 
 const BRAND_TONE_THEMES: Record<string, Partial<LandingPageTheme>> = {
@@ -163,6 +179,9 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
 
     if (source === "market-intel" && sellerResults) {
       setForm(fillFromSellerResults(sellerResults));
+      setAutoFilled(true);
+    } else if (source === "demo") {
+      setForm(DEMO_FORM);
       setAutoFilled(true);
     } else if (source === "manual") {
       setForm(INITIAL_FORM);
@@ -315,6 +334,12 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
                     </span>
                   </SelectItem>
                 )}
+                <SelectItem value="demo">
+                  <span className="flex items-center gap-1.5">
+                    <FlaskConical className="h-3.5 w-3.5 text-muted-foreground" />
+                    Load Demo (E-Bike)
+                  </span>
+                </SelectItem>
                 <SelectItem value="manual">
                   <span className="flex items-center gap-1.5">
                     <PenLine className="h-3.5 w-3.5" />
@@ -328,8 +353,11 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
           {/* Auto-filled banner */}
           {autoFilled && (
             <div className="text-xs bg-accent/50 border border-accent rounded-md px-3 py-2 text-accent-foreground flex items-center gap-2">
-              <Brain className="h-4 w-4" />
-              Fields populated from Market Intelligence: <strong>{sellerResults?.productIdentification.name}</strong>
+              {dataSource === "demo" ? <FlaskConical className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
+              {dataSource === "demo"
+                ? <>Fields populated with <strong>demo data (Evolv X E-Bike)</strong> — edit anything below.</>
+                : <>Fields populated from Market Intelligence: <strong>{sellerResults?.productIdentification.name}</strong></>
+              }
             </div>
           )}
 
