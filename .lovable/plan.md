@@ -1,59 +1,65 @@
 
 
-## Use Content Studio Images in AI Landing Page Generator
+## Premium High-Conversion Product Landing Template
 
 ### Overview
-When generating a landing page, automatically pull in AI-generated product images from the Content Studio and assign them to the appropriate blocks (hero background, solution image, about image). A new "Content Studio Assets" section in the generator dialog will show available images and let the user pick which ones to use.
+Add a new "Nike-inspired" premium conversion template to the existing template picker. This template uses **only existing block types** and theme controls, arranged in a conversion-optimized order with a coral/orange accent, white background, and bold geometric typography.
+
+### Block-to-Request Mapping
+
+The 8 requested sections map to existing blocks as follows:
+
+| Requested Section | Existing Block Used | How It Maps |
+|---|---|---|
+| 1. Hero Banner (split layout + CTA) | `hero` | `heroStyle: "split"`, title/subtitle/CTA |
+| 2. Trust / Social Proof Strip | `social-proof` | Heading "Trusted By Industry Leaders" |
+| 3. Feature Product Section (2-col + features) | `solution` | `differentiationPoints` for feature grid, `imageUrl` for product image |
+| 4. Product Variants Grid | `product-catalog` | 3-column grid with price + description |
+| 5. Benefits Icon Row | `problem-agitation` | Repurposed: 4 benefit icons with positive framing |
+| 6. Testimonials (card grid) | `testimonials` | 3 testimonial cards |
+| 7. Newsletter CTA | `contact` | Centered contact form |
+| 8. Footer | Built-in | Automatically rendered by `generateStorefrontHtml` |
+
+Additionally, an `offer-pricing` block is inserted between testimonials and contact for CTA repetition (conversion optimization).
+
+### Theme Configuration
+
+```text
+Primary:       #FF6B5C (coral/orange)
+Background:    #FFFFFF (white)
+Text:          #111111 (dark charcoal)
+Secondary:     #111111 (dark)
+Accent:        #FF6B5C (coral)
+Heading Font:  'Space Grotesk', system-ui, sans-serif
+Body Font:     'Inter', system-ui, sans-serif
+Layout:        bold
+Border Radius: large (16px)
+Hero Style:    split
+```
 
 ### What Changes
 
-**1. Pull Content Studio images into the generator**
-The `AILandingGenerator` component will import `useContentStudioStore` and read the `images` array. Any image with a non-null `imageUrl` will be shown as available assets in a new visual section within the dialog.
+**File: `src/features/seller/components/website-builder/templates.ts`**
 
-**2. New "Available Assets" section in the dialog**
-Between the "Data Source" selector and the form fields, a collapsible section will show:
-- Thumbnails of all generated Content Studio images (filtered to those with `imageUrl !== null`)
-- Each thumbnail shows its label (Social Media, Advertising, Landing Page, E-commerce, Email Marketing)
-- A note saying "These images will be automatically assigned to your landing page blocks"
-- If no images are available, a subtle hint: "Generate product images in Content Studio first for richer landing pages"
-
-**3. Auto-assign images to generated blocks**
-After the AI generates the block structure, the code will automatically:
-- Use the "Landing Page" image (`id: "landing"`) as the hero `backgroundImageUrl`
-- Use the "E-commerce" image (`id: "ecommerce"`) as the solution block `imageUrl`
-- Use the "Advertising" image (`id: "ad"`) as the about block `imageUrl`
-- If specific images aren't available, fall back to any available image, then to empty string
-
-**4. Video note (future-ready)**
-Since video generation is marked "Coming Soon" in the Content Studio (no actual video URLs exist), the assets section will include a small disabled badge saying "Video: Coming Soon" so the user knows it will be integrated once available. No video logic is added now -- it would be dead code.
-
-### Technical Details
+Add a new template entry `"premium-conversion"` to the `WEBSITE_TEMPLATES` array with:
+- A `PREMIUM_BLOCKS` array containing 8 blocks in the strict order above
+- A `PREMIUM_THEME` object with the coral/orange Nike-inspired design system
+- A `siteConfig` with name "Premium Store" and tagline matching the hero subtitle
+- Block configs pre-populated with conversion-optimized placeholder copy:
+  - Hero: bold headline, benefit-driven subtitle, "Add to Cart" CTA
+  - Social Proof: heading "Trusted By Industry Leaders"
+  - Solution block: 3 feature differentiation points (Comfort / Stability / Hands-free), product image slot, credibility text
+  - Product Catalog: 3 columns, price + description visible
+  - Problem-Agitation: repurposed as 4 benefit icons with positive framing (Free Shipping, 30-Day Returns, Premium Quality, 24/7 Support)
+  - Testimonials: 3 minimal quote cards
+  - Offer Pricing: value stack with anchor/actual price, scarcity text, strong CTA
+  - Contact: "Stay in the Loop" newsletter-style heading
 
 **File: `src/features/seller/components/website-builder/AILandingGenerator.tsx`**
 
-Changes:
-- Import `useContentStudioStore` from `@/stores/contentStudioStore`
-- Import `ImageIcon` from lucide-react
-- Read `images` from the content studio store: `const studioImages = useContentStudioStore((s) => s.images)`
-- Filter to available images: `const availableImages = studioImages.filter(img => img.imageUrl)`
-- Add a new UI section after the auto-filled banner showing image thumbnails in a horizontal scroll grid
-- In `handleGenerate`, after building the `blocks` array, assign image URLs:
-  - Find the hero block and set `config.backgroundImageUrl` to the "landing" image URL (or first available)
-  - Find the solution block and set `config.imageUrl` to the "ecommerce" image URL (or second available)
-  - Find the about block and set `config.imageUrl` to the "ad" image URL (or third available)
-- Also pass `contentImages` array (URLs + labels) in the edge function request body so the AI can reference image contexts in its copy generation
+Add a new demo preset `DEMO_PREMIUM` to the data source dropdown so users can load the premium conversion template data directly into the AI generator. This adds a "Load Demo (Premium)" option alongside the existing E-Bike demo.
 
-**No other files need changes** -- the content studio store already exposes all needed data, and the block types already have `imageUrl`/`backgroundImageUrl` fields.
+### No Other Files Change
 
-### Image Assignment Logic
+The template uses only existing block types, theme properties, and the existing `generateStorefrontHtml` renderer. The template picker, block configurator, and block palette all work automatically with the new template.
 
-```text
-Content Studio Image ID -> Block Assignment
-"landing"               -> Hero backgroundImageUrl
-"ecommerce"             -> Solution imageUrl  
-"ad"                    -> About imageUrl
-"social"                -> Social Proof (if block exists)
-"email"                 -> Offer/Pricing background (fallback)
-```
-
-If fewer images are available, the first available image is reused across blocks rather than leaving them empty.
