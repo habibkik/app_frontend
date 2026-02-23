@@ -160,10 +160,32 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    let imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+    // Retry once if no image was returned (model sometimes returns text-only)
+    if (!imageUrl) {
+      console.warn(`No image in first attempt for ${imageType}, retrying...`);
+      const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [{ role: "user", content: messageContent }],
+          modalities: ["image", "text"],
+        }),
+      });
+
+      if (retryResponse.ok) {
+        const retryData = await retryResponse.json();
+        imageUrl = retryData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      }
+    }
 
     if (!imageUrl) {
-      throw new Error("No image generated");
+      throw new Error("No image generated after retry");
     }
 
     console.log(`Successfully generated ${imageType} image for ${productName}`);
