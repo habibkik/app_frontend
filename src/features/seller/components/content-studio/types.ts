@@ -131,7 +131,6 @@ export interface GenerationStep {
 }
 
 export type ContentStudioTab =
-  | "images"
   | "pro-images"
   | "social-image"
   | "video"
