@@ -54,6 +54,22 @@ const DEMO_FORM: ProductFormData = {
   brandTone: "bold",
 };
 
+const DEMO_PREMIUM: ProductFormData = {
+  productName: "AeroStride Pro",
+  category: "Premium Footwear",
+  targetAudience: "Style-conscious professionals aged 22-40 who want premium comfort and bold design",
+  keyFeatures: "Adaptive cushioning, Magnetic quick-lock closure, Reinforced heel counter, Breathable knit upper, Sustainable materials",
+  specs: "Upper: Recycled knit mesh\nSole: Dual-density EVA + rubber outsole\nClosure: Magnetic snap-lock\nWeight: 9.2 oz\nSizes: 5–14",
+  competitiveAdvantages: "Only shoe with magnetic hands-free closure, adaptive stride cushioning, 100% recycled upper, rated #1 comfort by Runner's World",
+  marketPositioning: "premium",
+  pricingStrategy: "$149 launch price (retail $189), limited first-batch of 500 units",
+  painPoints: "Uncomfortable shoes that look good but hurt, laces that come untied, cheap materials that wear out fast, no arch support",
+  desires: "All-day comfort without sacrificing style, effortless on/off, sustainable choice, premium feel at a fair price",
+  testimonials: '"I\'ve tried dozens of brands. Nothing comes close to this comfort." - Jordan A.\n"The magnetic closure is a game-changer." - Mika S.\n"We both wear them daily — gym, work, everywhere." - Taylor R.',
+  faq: "Q: What sizes are available? | A: Men's and Women's 5–14, half sizes included\nQ: Are they machine washable? | A: Yes, cold cycle in a mesh bag\nQ: What is the return policy? | A: 30-day no-questions-asked full refund",
+  brandTone: "bold",
+};
+
 const BRAND_TONE_THEMES: Record<string, Partial<LandingPageTheme>> = {
   luxury: { primaryColor: "#B8860B", secondaryColor: "#1a1a1a", bgColor: "#0f0f0f", textColor: "#f5f5f5", headingFont: "'Playfair Display', serif", borderRadius: "large" as any },
   bold: { primaryColor: "#FF6B35", secondaryColor: "#0D1B2A", bgColor: "#FFFCF9", textColor: "#0D1B2A", headingFont: "'Space Grotesk', system-ui", borderRadius: "medium" as any },
@@ -182,6 +198,9 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
       setAutoFilled(true);
     } else if (source === "demo") {
       setForm(DEMO_FORM);
+      setAutoFilled(true);
+    } else if (source === "demo-premium") {
+      setForm(DEMO_PREMIUM);
       setAutoFilled(true);
     } else if (source === "manual") {
       setForm(INITIAL_FORM);
@@ -340,6 +359,12 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
                     Load Demo (E-Bike)
                   </span>
                 </SelectItem>
+                <SelectItem value="demo-premium">
+                  <span className="flex items-center gap-1.5">
+                    <FlaskConical className="h-3.5 w-3.5 text-primary" />
+                    Load Demo (Premium)
+                  </span>
+                </SelectItem>
                 <SelectItem value="manual">
                   <span className="flex items-center gap-1.5">
                     <PenLine className="h-3.5 w-3.5" />
@@ -353,9 +378,11 @@ export const AILandingGenerator: React.FC<AILandingGeneratorProps> = ({ open, on
           {/* Auto-filled banner */}
           {autoFilled && (
             <div className="text-xs bg-accent/50 border border-accent rounded-md px-3 py-2 text-accent-foreground flex items-center gap-2">
-              {dataSource === "demo" ? <FlaskConical className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
+              {dataSource === "demo" || dataSource === "demo-premium" ? <FlaskConical className="h-4 w-4" /> : <Brain className="h-4 w-4" />}
               {dataSource === "demo"
                 ? <>Fields populated with <strong>demo data (Evolv X E-Bike)</strong> — edit anything below.</>
+                : dataSource === "demo-premium"
+                ? <>Fields populated with <strong>demo data (AeroStride Pro – Premium)</strong> — edit anything below.</>
                 : <>Fields populated from Market Intelligence: <strong>{sellerResults?.productIdentification.name}</strong></>
               }
             </div>
