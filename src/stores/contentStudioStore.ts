@@ -49,12 +49,12 @@ interface ContentStudioStore {
   resetKit: () => void;
 
   // Publisher integration
-  pendingPublisherPost: { content: string; platform: string } | null;
-  setPendingPublisherPost: (post: { content: string; platform: string } | null) => void;
+  pendingPublisherPost: { content: string; platform: string; imageUrl?: string } | null;
+  setPendingPublisherPost: (post: { content: string; platform: string; imageUrl?: string } | null) => void;
 
   // Batch campaign
-  pendingBatchPosts: { content: string; platform: string }[];
-  setPendingBatchPosts: (posts: { content: string; platform: string }[]) => void;
+  pendingBatchPosts: { content: string; platform: string; imageUrl?: string }[];
+  setPendingBatchPosts: (posts: { content: string; platform: string; imageUrl?: string }[]) => void;
 
   // Website Builder integration
   pendingWebsiteData: { html: string; theme: any; sections: any } | null;

@@ -48,9 +48,11 @@ export const SocialImagePostsTab: React.FC<Props> = ({ posts, images }) => {
     `${post.hook}\n\n${post.caption}\n\n${post.cta}\n\n${post.hashtags.map((h) => `#${h}`).join(" ")}`;
 
   const handleSendToPublisher = (post: SocialImagePost) => {
+    const img = getImage(post.imageId);
     setPendingPublisherPost({
       content: buildFullText(post),
       platform: post.platform,
+      imageUrl: img?.imageUrl || undefined,
     });
     toast.success(`Sending ${post.platform} post to Publisher`);
     navigate("/dashboard/publisher");
@@ -58,10 +60,14 @@ export const SocialImagePostsTab: React.FC<Props> = ({ posts, images }) => {
 
   const handleSendAllToPublisher = () => {
     if (posts.length === 0) return;
-    const batchPosts = posts.map((post) => ({
-      content: buildFullText(post),
-      platform: post.platform,
-    }));
+    const batchPosts = posts.map((post) => {
+      const img = getImage(post.imageId);
+      return {
+        content: buildFullText(post),
+        platform: post.platform,
+        imageUrl: img?.imageUrl || undefined,
+      };
+    });
     setPendingBatchPosts(batchPosts);
     toast.success("Sending all posts as a batch campaign to Publisher");
     navigate("/dashboard/publisher");

@@ -6,7 +6,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush, Link as LinkIcon, LayoutTemplate, Sparkles,
+  Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush, Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +27,7 @@ import type { ProductData } from "./types";
 export const WebsiteBuilder: React.FC = () => {
   const store = useWebsiteBuilderStore();
   const sellerResults = useAnalysisStore((s) => s.sellerResults);
-  const contentImages = useContentStudioStore((s) => s.images);
+  const proImages = useContentStudioStore((s) => s.proImages);
   const pendingWebsiteData = useContentStudioStore((s) => s.pendingWebsiteData);
   const setPendingWebsiteData = useContentStudioStore((s) => s.setPendingWebsiteData);
 
@@ -250,6 +250,35 @@ export const WebsiteBuilder: React.FC = () => {
         </Button>
         <Button size="sm" variant="outline" onClick={() => setShowAIGenerator(true)} className="h-7 text-xs bg-primary/5 border-primary/30 hover:bg-primary/10">
           <Sparkles className="h-3 w-3 mr-1" /> AI Generate
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 text-xs"
+          onClick={() => {
+            const available = proImages.filter((img) => img.imageUrl);
+            if (available.length === 0) {
+              toast.error("No pro images available. Generate them in Content Studio first.");
+              return;
+            }
+            const heroImg = available.find((i) => i.id === "studio-hero");
+            const aboutImg = available.find((i) => i.id === "studio-lifestyle");
+            const productImg = available.find((i) => i.id === "packshot-front");
+            store.blocks.forEach((block) => {
+              if (block.type === "hero" && heroImg?.imageUrl) {
+                store.updateBlockConfig(block.id, { backgroundImage: heroImg.imageUrl });
+              }
+              if (block.type === "about" && aboutImg?.imageUrl) {
+                store.updateBlockConfig(block.id, { imageUrl: aboutImg.imageUrl });
+              }
+              if ((block.type === "product-catalog") && productImg?.imageUrl) {
+                store.updateBlockConfig(block.id, { featuredImage: productImg.imageUrl });
+              }
+            });
+            toast.success(`Applied ${available.length} pro images to website blocks`);
+          }}
+        >
+          <ImageIcon className="h-3 w-3 mr-1" /> Use Pro Images
         </Button>
         <Button size="sm" variant="outline" onClick={handleSave} disabled={isSaving} className="h-7 text-xs">
           {isSaving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Save className="h-3 w-3 mr-1" />} Save
