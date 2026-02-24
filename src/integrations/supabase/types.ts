@@ -379,6 +379,99 @@ export type Database = {
           },
         ]
       }
+      outreach_automation_rules: {
+        Row: {
+          channel: string
+          created_at: string
+          enabled: boolean
+          id: string
+          interval_hours: number
+          max_runs: number
+          product_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          interval_hours?: number
+          max_runs?: number
+          product_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          interval_hours?: number
+          max_runs?: number
+          product_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      outreach_campaigns: {
+        Row: {
+          auto_repeat: boolean
+          channel: string
+          created_at: string
+          id: string
+          last_sent_at: string | null
+          max_auto_runs: number
+          message: string | null
+          product_name: string | null
+          repeat_interval_hours: number
+          runs_completed: number
+          status: string
+          subject: string | null
+          supplier_id: string
+          supplier_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_repeat?: boolean
+          channel?: string
+          created_at?: string
+          id?: string
+          last_sent_at?: string | null
+          max_auto_runs?: number
+          message?: string | null
+          product_name?: string | null
+          repeat_interval_hours?: number
+          runs_completed?: number
+          status?: string
+          subject?: string | null
+          supplier_id: string
+          supplier_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_repeat?: boolean
+          channel?: string
+          created_at?: string
+          id?: string
+          last_sent_at?: string | null
+          max_auto_runs?: number
+          message?: string | null
+          product_name?: string | null
+          repeat_interval_hours?: number
+          runs_completed?: number
+          status?: string
+          subject?: string | null
+          supplier_id?: string
+          supplier_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       outreach_configs: {
         Row: {
           created_at: string

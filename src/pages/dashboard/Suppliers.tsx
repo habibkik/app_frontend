@@ -28,6 +28,7 @@ import { mockSuppliers, Supplier } from "@/data/suppliers";
 import { useSavedSuppliers } from "@/contexts/SavedSuppliersContext";
 import { useAnalysisStore, type SupplierMatch } from "@/stores/analysisStore";
 import { useDiscoveredSuppliersStore } from "@/stores/discoveredSuppliersStore";
+import { useOutreachCampaignStore } from "@/stores/outreachCampaignStore";
 import { useToast } from "@/hooks/use-toast";
 import { analyzeForSourcing } from "@/features/agents/miromind/api";
 
@@ -63,7 +64,9 @@ export default function SuppliersPage() {
   const [contactSupplier, setContactSupplier] = useState<Supplier | null>(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   
-  // Auto-save AI results to discovered suppliers store
+  const { prepareCampaigns } = useOutreachCampaignStore();
+
+  // Auto-save AI results to discovered suppliers store & prepare outreach
   useEffect(() => {
     if (buyerResults) {
       addFromAnalysis(
@@ -71,8 +74,36 @@ export default function SuppliersPage() {
         buyerResults.substituteSuppliers || [],
         crypto.randomUUID()
       );
+      // Auto-prepare outreach campaigns for detected suppliers
+      const allSuppliers = [
+        ...buyerResults.suggestedSuppliers,
+        ...(buyerResults.substituteSuppliers || []),
+      ];
+      if (allSuppliers.length > 0) {
+        prepareCampaigns(
+          allSuppliers.map((s) => ({
+            id: s.id || s.name.toLowerCase().replace(/\s+/g, "-"),
+            name: s.name,
+            location: "location" in s ? s.location : undefined,
+            specializations: "specializations" in s ? s.specializations : undefined,
+          })),
+          "productName" in buyerResults ? (buyerResults as any).productName : undefined
+        ).then((count) => {
+          if (count > 0) {
+            toast({
+              title: "Outreach Campaigns Prepared",
+              description: `${count} messages ready across all channels. Review now →`,
+              action: (
+                <Button variant="outline" size="sm" onClick={() => window.location.href = "/dashboard/outreach-hub"}>
+                  Review
+                </Button>
+              ),
+            });
+          }
+        });
+      }
     }
-  }, [buyerResults, addFromAnalysis]);
+  }, [buyerResults, addFromAnalysis, prepareCampaigns, toast]);
 
   // Handle image analysis completion
   const handleAnalysisComplete = async () => {
