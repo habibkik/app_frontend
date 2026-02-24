@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { Plus, Trash2, Camera, Check, Loader2, Sparkles, RefreshCw, Crown, Flame, Scissors, Zap, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -169,6 +170,36 @@ function ProImagePicker({ currentValue, onSelect }: { currentValue: string; onSe
   );
 }
 
+// --- Reusable Background Image + Overlay Fields ---
+
+function BackgroundImageFields({ backgroundImageUrl, overlayOpacity, update }: { backgroundImageUrl?: string; overlayOpacity?: number; update: (c: any) => void }) {
+  return (
+    <>
+      <Field label="Background Image URL">
+        <Input value={backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" />
+      </Field>
+      <ProImagePicker currentValue={backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
+      {backgroundImageUrl && (
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Overlay Darkness</Label>
+            <span className="text-[10px] text-muted-foreground">{Math.round((typeof overlayOpacity === "number" ? overlayOpacity : 0.5) * 100)}%</span>
+          </div>
+          <Slider
+            value={[typeof overlayOpacity === "number" ? overlayOpacity * 100 : 50]}
+            onValueChange={([v]) => update({ overlayOpacity: v / 100 })}
+            min={0}
+            max={90}
+            step={5}
+            className="w-full"
+          />
+          <p className="text-[9px] text-muted-foreground">Controls the dark overlay that keeps text readable over photos</p>
+        </div>
+      )}
+    </>
+  );
+}
+
 // --- Sub-forms ---
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -181,8 +212,7 @@ function HeroForm({ config, update }: { config: HeroBlockConfig; update: (c: any
       <Field label="Title"><Input value={config.title} onChange={(e) => update({ title: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
-      <Field label="Background Image URL"><Input value={config.backgroundImageUrl} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
-      <ProImagePicker currentValue={config.backgroundImageUrl} onSelect={(url) => update({ backgroundImageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
@@ -247,8 +277,7 @@ function TestimonialsForm({ config, update }: { config: TestimonialsBlockConfig;
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Testimonial</Button>
-      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
-      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
@@ -275,8 +304,7 @@ function FaqForm({ config, update }: { config: FaqBlockConfig; update: (c: any) 
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add FAQ</Button>
-      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
-      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
@@ -293,8 +321,7 @@ function ContactForm({ config, update }: { config: ContactBlockConfig; update: (
         <Label className="text-xs">Show Address Field</Label>
         <Switch checked={config.showAddress} onCheckedChange={(v) => update({ showAddress: v })} className="scale-75" />
       </div>
-      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
-      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
@@ -304,18 +331,16 @@ function OrderFormConfig({ config, update }: { config: OrderFormBlockConfig; upd
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Product Name"><Input value={config.productName} onChange={(e) => update({ productName: e.target.value })} className="text-xs h-8" /></Field>
-      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
-      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
 
-function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string }; update: (c: any) => void }) {
+function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string; overlayOpacity?: number }; update: (c: any) => void }) {
   return (
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
-      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
-      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
@@ -352,6 +377,7 @@ function ProblemAgitationForm({ config, update }: { config: ProblemAgitationBloc
       <Field label="Reinforcement"><Textarea value={config.reinforcement} onChange={(e) => update({ reinforcement: e.target.value })} rows={2} className="text-xs" /></Field>
       <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
       <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
@@ -412,6 +438,7 @@ function OfferPricingForm({ config, update }: { config: OfferPricingBlockConfig;
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
       <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );
 }
