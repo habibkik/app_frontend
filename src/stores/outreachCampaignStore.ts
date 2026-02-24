@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useConversationsStore } from "@/stores/conversationsStore";
 
 export interface OutreachCampaign {
@@ -117,6 +118,9 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
         useConversationsStore.getState().addOutreachMessage(
           campaign.supplier_id, campaign.supplier_name, campaign.message, campaign.channel, campaign.product_name
         );
+        toast.success("Campaign approved", {
+          description: `Conversation created for ${campaign.supplier_name} via ${campaign.channel}.`,
+        });
       }
     }
   },
@@ -136,11 +140,16 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
         ),
       }));
       const convStore = useConversationsStore.getState();
+      const uniqueSuppliers = new Set<string>();
       for (const campaign of drafts) {
         convStore.addOutreachMessage(
           campaign.supplier_id, campaign.supplier_name, campaign.message, campaign.channel, campaign.product_name
         );
+        uniqueSuppliers.add(campaign.supplier_name);
       }
+      toast.success(`${drafts.length} campaigns approved`, {
+        description: `${uniqueSuppliers.size} conversation${uniqueSuppliers.size !== 1 ? "s" : ""} created or updated.`,
+      });
     }
   },
 
