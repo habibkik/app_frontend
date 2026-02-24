@@ -33,6 +33,11 @@ interface GenerateOptions {
   };
 }
 
+function bgStyle(fallback: string, imageUrl?: string): string {
+  if (imageUrl) return `background-image:url('${imageUrl}');background-size:cover;background-position:center;`;
+  return `background:${fallback};`;
+}
+
 function borderRadiusValue(br: string) {
   switch (br) {
     case "none": return "0";
@@ -96,7 +101,7 @@ function renderTestimonials(cfg: TestimonialsBlockConfig, theme: LandingPageThem
       <p style="font-style:italic;color:#374151;margin:0 0 12px;">"${t.quote}"</p>
       <p style="margin:0;font-weight:600;color:${theme.primaryColor};font-size:.9rem;">— ${t.author}</p>
     </div>`).join("");
-  return `<section style="padding:60px 20px;background:#f9fafb;">
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
   <div style="max-width:900px;margin:0 auto;">
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">What Our Customers Say</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">${cards}</div>
@@ -110,7 +115,7 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
       <h4 style="margin:0 0 8px;font-family:${theme.headingFont};color:${theme.textColor};">${f.question}</h4>
       <p style="margin:0;color:#6b7280;font-size:.9rem;">${f.answer}</p>
     </div>`).join("");
-  return `<section style="padding:60px 20px;background:${theme.bgColor};">
+  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
   <div style="max-width:700px;margin:0 auto;">
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">Frequently Asked Questions</h2>
     ${items}
@@ -119,7 +124,7 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
 }
 
 function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
-  return `<section style="padding:60px 20px;background:#f9fafb;">
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
   <div style="max-width:500px;margin:0 auto;">
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
     <form style="display:flex;flex-direction:column;gap:12px;">
@@ -134,7 +139,7 @@ function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
 }
 
 function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
-  return `<section id="order" style="padding:60px 20px;background:${theme.bgColor};">
+  return `<section id="order" style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
   <div style="max-width:500px;margin:0 auto;">
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
     <form style="display:flex;flex-direction:column;gap:12px;">
@@ -152,7 +157,7 @@ function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
 function renderSocialProof(cfg: SocialProofBlockConfig, theme: LandingPageTheme, stats?: { postCount: number; totalEngagement: number }) {
   const postCount = stats?.postCount ?? 0;
   const engagement = stats?.totalEngagement ?? 0;
-  return `<section style="padding:60px 20px;background:#f9fafb;">
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
   <div style="max-width:700px;margin:0 auto;text-align:center;">
     <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
     <div style="display:flex;justify-content:center;gap:48px;">
@@ -164,7 +169,7 @@ function renderSocialProof(cfg: SocialProofBlockConfig, theme: LandingPageTheme,
 }
 
 function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme, marketData?: { priceRange?: { min: number; max: number }; demandTrend?: string; competitorCount?: number }) {
-  return `<section style="padding:60px 20px;background:${theme.bgColor};">
+  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
   <div style="max-width:700px;margin:0 auto;text-align:center;">
     <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
     <div style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;">
@@ -183,7 +188,7 @@ function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: Landing
       <h4 style="font-family:${theme.headingFont};margin:0 0 8px;color:${theme.textColor};">${p.title}</h4>
       <p style="margin:0;color:#6b7280;font-size:.9rem;">${p.description}</p>
     </div>`).join("");
-  return `<section style="padding:60px 20px;background:#fef2f2;">
+  return `<section style="padding:60px 20px;${bgStyle("#fef2f2", cfg.backgroundImageUrl)}">
   <div style="max-width:800px;margin:0 auto;text-align:center;">
     <h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${theme.textColor};">${cfg.heading}</h2>
     <p style="color:#6b7280;margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>
@@ -210,7 +215,7 @@ function renderSolution(cfg: SolutionBlockConfig, theme: LandingPageTheme) {
 
 function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageTheme) {
   const values = cfg.valueItems.map((v) => `<li style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#374151;">✓ ${v}</li>`).join("");
-  return `<section style="padding:60px 20px;background:linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22);">
+  return `<section style="padding:60px 20px;${bgStyle(`linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`, cfg.backgroundImageUrl)}">
   <div style="max-width:500px;margin:0 auto;text-align:center;background:#fff;border-radius:${borderRadiusValue(theme.borderRadius)};padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);">
     <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${theme.textColor};">${cfg.heading}</h2>
     <ul style="list-style:none;padding:0;margin:0 0 24px;text-align:left;">${values}</ul>
