@@ -48,6 +48,7 @@ interface ConversationsActions {
   getTotalUnreadCount: () => number;
   simulateSupplierResponse: (conversationId: string) => void;
   initializeAudio: () => void;
+  addOutreachMessage: (supplierId: string, supplierName: string, message: string | null, channel: string, productName: string | null) => void;
 }
 
 type ConversationsStore = ConversationsState & ConversationsActions;
@@ -278,6 +279,56 @@ export const useConversationsStore = create<ConversationsStore>((set, get) => ({
     }, typingDelay);
 
     timeouts.set(conversationId + "-start", startTypingTimeout);
+  },
+
+  addOutreachMessage: (supplierId, supplierName, message, channel, productName) => {
+    const content = message || `Outreach message for ${productName || "your products"} via ${channel}`;
+    const logo = supplierName.slice(0, 2).toUpperCase();
+
+    const newMessage: Message = {
+      id: `msg-outreach-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      senderId: "user",
+      senderName: "You",
+      senderAvatar: "ME",
+      content,
+      timestamp: new Date(),
+      isOwn: true,
+      status: "sent" as const,
+      channel: channel || "email",
+    };
+
+    set((state) => {
+      const existing = state.conversations.find((c) => c.supplierId === supplierId);
+      if (existing) {
+        return {
+          conversations: state.conversations.map((conv) =>
+            conv.id === existing.id
+              ? {
+                  ...conv,
+                  messages: [...conv.messages, newMessage],
+                  lastMessage: content.slice(0, 100) + (content.length > 100 ? "..." : ""),
+                  lastMessageTime: new Date(),
+                }
+              : conv
+          ),
+        };
+      }
+
+      const newConversation: Conversation = {
+        id: `conv-outreach-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        supplierId,
+        supplierName,
+        supplierLogo: logo,
+        supplierIndustry: "Supplier",
+        lastMessage: content.slice(0, 100) + (content.length > 100 ? "..." : ""),
+        lastMessageTime: new Date(),
+        unreadCount: 0,
+        isOnline: false,
+        messages: [newMessage],
+      };
+
+      return { conversations: [newConversation, ...state.conversations] };
+    });
   },
 }));
 

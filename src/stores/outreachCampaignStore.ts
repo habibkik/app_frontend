@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { supabase } from "@/integrations/supabase/client";
+import { useConversationsStore } from "@/stores/conversationsStore";
 
 export interface OutreachCampaign {
   id: string;
@@ -101,6 +102,7 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
   },
 
   approveCampaign: async (id) => {
+    const campaign = get().campaigns.find((c) => c.id === id);
     const { error } = await supabase
       .from("outreach_campaigns")
       .update({ status: "approved" })
@@ -111,11 +113,17 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
           c.id === id ? { ...c, status: "approved" } : c
         ),
       }));
+      if (campaign) {
+        useConversationsStore.getState().addOutreachMessage(
+          campaign.supplier_id, campaign.supplier_name, campaign.message, campaign.channel, campaign.product_name
+        );
+      }
     }
   },
 
   approveAll: async () => {
-    const draftIds = get().campaigns.filter((c) => c.status === "draft").map((c) => c.id);
+    const drafts = get().campaigns.filter((c) => c.status === "draft");
+    const draftIds = drafts.map((c) => c.id);
     if (draftIds.length === 0) return;
     const { error } = await supabase
       .from("outreach_campaigns")
@@ -127,6 +135,12 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
           draftIds.includes(c.id) ? { ...c, status: "approved" } : c
         ),
       }));
+      const convStore = useConversationsStore.getState();
+      for (const campaign of drafts) {
+        convStore.addOutreachMessage(
+          campaign.supplier_id, campaign.supplier_name, campaign.message, campaign.channel, campaign.product_name
+        );
+      }
     }
   },
 
