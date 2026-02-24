@@ -1,57 +1,44 @@
 
 
-## Add Pro Photography Image Picker to All Website Builder Block Sections
+## Add Background Image + Pro Photography Picker to All Remaining Blocks
 
-### Problem
-Currently, only the Hero block has an image picker grid, and it still references the old legacy `store.images` instead of `store.proImages`. The About, Solution, and Product Catalog blocks have image URL text inputs but no way to browse and select from generated pro photography images.
+### Current State
+Six blocks already have image fields with `ProImagePicker`: Hero, Product Catalog, About, Solution, Problem Agitation, and Offer Pricing.
+
+Six blocks have **no** image support: **Testimonials, FAQ, Contact, Order Form, Social Proof, Market Stats**.
 
 ### Changes
 
-**File: `src/features/seller/components/website-builder/BlockConfigurator.tsx`**
-
-1. **Create a reusable `ProImagePicker` component** inside the file that:
-   - Reads `useContentStudioStore((s) => s.proImages)` to get all pro photography images
-   - Filters to only those with a `imageUrl` set (generated images)
-   - Displays a scrollable grid of thumbnail previews with labels
-   - Highlights the currently selected image with a checkmark overlay
-   - Calls a provided `onSelect(imageUrl)` callback when clicked
-   - Shows "No pro images yet. Generate them in Content Studio > Pro Photography." when empty
-
-2. **Update `HeroForm`** (line 136-173):
-   - Replace `useContentStudioStore((s) => s.images)` with the new `ProImagePicker` component
-   - Pass `currentValue={config.backgroundImageUrl}` and `onSelect={(url) => update({ backgroundImageUrl: url })}`
-
-3. **Update `AboutForm`** (line 202-209):
-   - Add `ProImagePicker` below the Image URL input
-   - Pass `currentValue={config.imageUrl}` and `onSelect={(url) => update({ imageUrl: url })}`
-
-4. **Update `SolutionForm`** (line 326-351):
-   - Add `ProImagePicker` below the Image URL input
-   - Pass `currentValue={config.imageUrl}` and `onSelect={(url) => update({ imageUrl: url })}`
-
-5. **Update `ProductCatalogForm`** (line 176-199):
-   - Add a new "Featured Image" field with a text input and `ProImagePicker`
-   - This maps to `config.featuredImage` (a new optional field)
-   - Update `ProductCatalogBlockConfig` in `types.ts` to include `featuredImage?: string`
-
-### ProImagePicker Component Design
-
-The component will render:
-- A label: "Pick from Pro Photography" with a camera icon
-- A 2-column grid of image thumbnails (aspect-video ratio)
-- Each thumbnail shows the image, a bottom label bar, and a check overlay when selected
-- A text note when no images are available
-
-### Type Update
-
 **File: `src/features/seller/components/website-builder/types.ts`**
 
-- Add `featuredImage?: string` to `ProductCatalogBlockConfig`
+Add `backgroundImageUrl?: string` to these interfaces:
+- `TestimonialsBlockConfig` (line 38)
+- `FaqBlockConfig` (line 42)
+- `ContactBlockConfig` (line 46)
+- `OrderFormBlockConfig` (line 52)
+- `SocialProofBlockConfig` (line 57)
+- `MarketStatsBlockConfig` (line 61)
 
-### Files Changed
+**File: `src/features/seller/components/website-builder/BlockConfigurator.tsx`**
 
-| File | Change |
+Add a Background Image URL input + `ProImagePicker` to each of the six forms:
+
+1. **TestimonialsForm** (after the "Add Testimonial" button, ~line 250): Add `Field` for Background Image URL + `ProImagePicker`
+2. **FaqForm** (after the "Add FAQ" button, ~line 276): Same
+3. **ContactForm** (after Show Address switch, ~line 293): Same
+4. **OrderFormConfig** (after Product Name, ~line 301): Same
+5. **HeadingOnly** (line 305-307): Convert to include Background Image URL + `ProImagePicker` below the heading input. Since this is shared by Social Proof and Market Stats, both get the picker automatically.
+
+### Summary
+
+| Block | Field Added |
 |---|---|
-| `src/features/seller/components/website-builder/types.ts` | Add `featuredImage?: string` to `ProductCatalogBlockConfig` |
-| `src/features/seller/components/website-builder/BlockConfigurator.tsx` | Create reusable `ProImagePicker`, add it to Hero, About, Solution, and Product Catalog forms |
+| Testimonials | `backgroundImageUrl?: string` + picker |
+| FAQ | `backgroundImageUrl?: string` + picker |
+| Contact | `backgroundImageUrl?: string` + picker |
+| Order Form | `backgroundImageUrl?: string` + picker |
+| Social Proof | `backgroundImageUrl?: string` + picker |
+| Market Stats | `backgroundImageUrl?: string` + picker |
+
+All blocks will now let users set a background image via URL or pick from generated Pro Photography assets.
 
