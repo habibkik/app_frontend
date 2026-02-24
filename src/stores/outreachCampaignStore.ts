@@ -178,17 +178,58 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
   prepareCampaigns: async (suppliers, productName) => {
     set({ loading: true, error: null });
     try {
-      const { data, error } = await supabase.functions.invoke("prepare-outreach-campaigns", {
-        body: { suppliers, productName },
-      });
-      if (error) throw error;
-      if (data?.error) {
-        set({ error: data.error, loading: false });
-        return 0;
+      // Check if user is authenticated first
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // Authenticated: use edge function for AI-generated messages
+        const { data, error } = await supabase.functions.invoke("prepare-outreach-campaigns", {
+          body: { suppliers, productName },
+        });
+        if (error) throw error;
+        if (data?.error) {
+          set({ error: data.error, loading: false });
+          return 0;
+        }
+        await get().fetchCampaigns();
+        set({ loading: false });
+        return data?.campaigns_created || 0;
+      } else {
+        // Not authenticated: generate local mock campaigns
+        const channels = ["email", "linkedin", "whatsapp", "sms", "phone_call", "facebook", "instagram", "tiktok", "twitter"];
+        const newCampaigns: OutreachCampaign[] = [];
+        for (const supplier of suppliers) {
+          for (const channel of channels) {
+            const product = productName || "your products";
+            newCampaigns.push({
+              id: `local-${supplier.id || supplier.name}-${channel}-${Date.now()}`,
+              user_id: "demo",
+              supplier_id: supplier.id || supplier.name.toLowerCase().replace(/\s+/g, "-"),
+              supplier_name: supplier.name,
+              product_name: productName || null,
+              channel,
+              message: `Hi, I'm interested in sourcing ${product} from ${supplier.name}. Could we discuss pricing and availability for bulk orders?`,
+              subject: channel === "email" ? `Sourcing Inquiry – ${product}` : null,
+              status: "draft",
+              auto_repeat: false,
+              repeat_interval_hours: 24,
+              max_auto_runs: 1,
+              runs_completed: 0,
+              last_sent_at: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              response_received: null,
+              response_channel: null,
+              responded_at: null,
+            });
+          }
+        }
+        set((s) => ({
+          campaigns: [...newCampaigns, ...s.campaigns],
+          loading: false,
+        }));
+        return newCampaigns.length;
       }
-      await get().fetchCampaigns();
-      set({ loading: false });
-      return data?.campaigns_created || 0;
     } catch (e: any) {
       set({ error: e.message || "Failed to prepare campaigns", loading: false });
       return 0;
