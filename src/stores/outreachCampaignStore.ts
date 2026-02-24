@@ -120,6 +120,7 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
         );
         toast.success("Campaign approved", {
           description: `Conversation created for ${campaign.supplier_name} via ${campaign.channel}.`,
+          action: { label: "View Conversations", onClick: () => window.location.assign("/dashboard/conversations") },
         });
       }
     }
@@ -149,6 +150,7 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
       }
       toast.success(`${drafts.length} campaigns approved`, {
         description: `${uniqueSuppliers.size} conversation${uniqueSuppliers.size !== 1 ? "s" : ""} created or updated.`,
+        action: { label: "View Conversations", onClick: () => window.location.assign("/dashboard/conversations") },
       });
     }
   },
