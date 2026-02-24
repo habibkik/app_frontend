@@ -36,29 +36,35 @@ export interface AboutBlockConfig {
 
 export interface TestimonialsBlockConfig {
   items: { quote: string; author: string }[];
+  backgroundImageUrl?: string;
 }
 
 export interface FaqBlockConfig {
   items: { question: string; answer: string }[];
+  backgroundImageUrl?: string;
 }
 
 export interface ContactBlockConfig {
   heading: string;
   showPhone: boolean;
   showAddress: boolean;
+  backgroundImageUrl?: string;
 }
 
 export interface OrderFormBlockConfig {
   heading: string;
   productName: string;
+  backgroundImageUrl?: string;
 }
 
 export interface SocialProofBlockConfig {
   heading: string;
+  backgroundImageUrl?: string;
 }
 
 export interface MarketStatsBlockConfig {
   heading: string;
+  backgroundImageUrl?: string;
 }
 
 export interface ProblemAgitationBlockConfig {
