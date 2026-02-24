@@ -42,6 +42,7 @@ import Settings from "@/pages/dashboard/Settings";
 import RFQCampaignPage from "@/pages/dashboard/RFQCampaign";
 import DailyReportPage from "@/pages/dashboard/DailyReport";
 import DemandSignals from "@/pages/dashboard/DemandSignals";
+import OutreachHub from "@/pages/dashboard/OutreachHub";
 import NotFound from "@/pages/NotFound";
 
 export function Router() {
@@ -67,6 +68,7 @@ export function Router() {
       <Route path="/dashboard/rfq-campaign" element={<ProtectedRoute><RFQCampaignPage /></ProtectedRoute>} />
       <Route path="/dashboard/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
       <Route path="/dashboard/saved" element={<ProtectedRoute><SavedSuppliers /></ProtectedRoute>} />
+      <Route path="/dashboard/outreach-hub" element={<ProtectedRoute><OutreachHub /></ProtectedRoute>} />
       
       {/* Producer mode pages */}
       <Route path="/dashboard/producer" element={<ProtectedRoute><ProducerDashboard /></ProtectedRoute>} />

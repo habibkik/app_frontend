@@ -47,6 +47,7 @@ const buyerNavigation: NavGroup[] = [
     label: "Sourcing",
     items: [
       { title: "Supplier Search", url: "/dashboard/suppliers", icon: Search },
+      { title: "Outreach Hub", url: "/dashboard/outreach-hub", icon: Send },
       { title: "My RFQs", url: "/dashboard/rfqs", icon: FileText },
       { title: "Conversations", url: "/dashboard/conversations", icon: MessageSquare },
       { title: "Saved Suppliers", url: "/dashboard/saved", icon: Bookmark },
