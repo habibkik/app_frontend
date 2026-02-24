@@ -18,6 +18,9 @@ export interface OutreachCampaign {
   last_sent_at: string | null;
   created_at: string;
   updated_at: string;
+  response_received: string | null;
+  response_channel: string | null;
+  responded_at: string | null;
 }
 
 export interface AutomationRule {
@@ -47,6 +50,8 @@ interface OutreachCampaignState {
   updateRule: (id: string, updates: Partial<AutomationRule>) => Promise<void>;
   deleteRule: (id: string) => Promise<void>;
   prepareCampaigns: (suppliers: any[], productName?: string) => Promise<number>;
+  updateCampaignResponse: (id: string, response: string, channel: string) => Promise<void>;
+  prepareCampaignsForSupplier: (supplier: any, productName?: string) => Promise<number>;
 }
 
 export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get) => ({
@@ -188,5 +193,30 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
       set({ error: e.message || "Failed to prepare campaigns", loading: false });
       return 0;
     }
+  },
+
+  updateCampaignResponse: async (id, response, channel) => {
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("outreach_campaigns")
+      .update({
+        response_received: response,
+        response_channel: channel,
+        responded_at: now,
+      } as any)
+      .eq("id", id);
+    if (!error) {
+      set((s) => ({
+        campaigns: s.campaigns.map((c) =>
+          c.id === id
+            ? { ...c, response_received: response, response_channel: channel, responded_at: now }
+            : c
+        ),
+      }));
+    }
+  },
+
+  prepareCampaignsForSupplier: async (supplier, productName) => {
+    return get().prepareCampaigns([supplier], productName);
   },
 }));
