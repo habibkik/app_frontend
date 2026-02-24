@@ -4,31 +4,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCheck, Send, Settings2, History } from "lucide-react";
+import { CheckCheck, Send, Settings2, History, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import { useOutreachCampaignStore } from "@/stores/outreachCampaignStore";
 import { OutreachCampaignCard } from "@/components/outreach/OutreachCampaignCard";
+import { OutreachSupplierDiscoveryCard } from "@/components/outreach/OutreachSupplierDiscoveryCard";
 import { AutomationRulesPanel } from "@/components/outreach/AutomationRulesPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { mockSuppliers, type Supplier } from "@/data/suppliers";
+import { useDiscoveredSuppliersStore } from "@/stores/discoveredSuppliersStore";
+import { useNavigate } from "react-router-dom";
+
+const CHANNEL_LABELS: Record<string, string> = {
+  email: "Email", linkedin: "LinkedIn", whatsapp: "WhatsApp", sms: "SMS",
+  phone_call: "Phone", facebook: "Facebook", instagram: "Instagram",
+  tiktok: "TikTok", twitter: "Twitter/X",
+};
 
 export default function OutreachHub() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const {
-    campaigns,
-    rules,
-    loading,
-    fetchCampaigns,
-    fetchRules,
-    approveCampaign,
-    approveAll,
-    updateCampaignMessage,
-    deleteCampaign,
-    addRule,
-    updateRule,
-    deleteRule,
+    campaigns, rules, loading,
+    fetchCampaigns, fetchRules,
+    approveCampaign, approveAll,
+    updateCampaignMessage, deleteCampaign,
+    addRule, updateRule, deleteRule,
+    prepareCampaignsForSupplier,
   } = useOutreachCampaignStore();
 
+  const { discoveredSuppliers } = useDiscoveredSuppliersStore();
   const [userId, setUserId] = useState("");
+  const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCampaigns();
@@ -38,15 +45,29 @@ export default function OutreachHub() {
     });
   }, [fetchCampaigns, fetchRules]);
 
-  const groupedCampaigns = useMemo(() => {
-    const map = new Map<string, typeof campaigns>();
+  // Merge all suppliers and separate those with/without campaigns
+  const { suppliersWithCampaigns, suppliersWithoutCampaigns } = useMemo(() => {
+    const campaignSupplierIds = new Set(campaigns.map((c) => c.supplier_id));
+    
+    // Merge mock + discovered, deduplicate by id
+    const allSuppliersMap = new Map<string, Supplier>();
+    mockSuppliers.forEach((s) => allSuppliersMap.set(s.id, s));
+    discoveredSuppliers.forEach((s) => allSuppliersMap.set(s.id, s));
+
+    const withCampaigns: Array<[string, typeof campaigns]> = [];
+    const campaignMap = new Map<string, typeof campaigns>();
     campaigns.forEach((c) => {
-      const key = c.supplier_id;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(c);
+      if (!campaignMap.has(c.supplier_id)) campaignMap.set(c.supplier_id, []);
+      campaignMap.get(c.supplier_id)!.push(c);
     });
-    return Array.from(map.entries());
-  }, [campaigns]);
+    campaignMap.forEach((cs, sid) => withCampaigns.push([sid, cs]));
+
+    const without = Array.from(allSuppliersMap.values()).filter(
+      (s) => !campaignSupplierIds.has(s.id)
+    );
+
+    return { suppliersWithCampaigns: withCampaigns, suppliersWithoutCampaigns: without };
+  }, [campaigns, discoveredSuppliers]);
 
   const draftCount = campaigns.filter((c) => c.status === "draft").length;
   const sentCampaigns = campaigns.filter((c) => c.status === "sent" || c.status === "approved");
@@ -59,6 +80,19 @@ export default function OutreachHub() {
   const handleApproveAllForSupplier = async (ids: string[]) => {
     for (const id of ids) await approveCampaign(id);
     toast({ title: "Approved", description: `${ids.length} campaigns approved.` });
+  };
+
+  const handleGenerateCampaigns = async (supplier: Supplier) => {
+    const count = await prepareCampaignsForSupplier({
+      id: supplier.id,
+      name: supplier.name,
+      industry: supplier.industry,
+      location: `${supplier.location.city}, ${supplier.location.country}`,
+    });
+    if (count > 0) {
+      toast({ title: "Campaigns Generated", description: `${count} outreach campaigns created for ${supplier.name}.` });
+    }
+    return count;
   };
 
   return (
@@ -95,6 +129,11 @@ export default function OutreachHub() {
             <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
               History
+              {sentCampaigns.filter((c) => c.response_received).length > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {sentCampaigns.filter((c) => c.response_received).length}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -103,26 +142,47 @@ export default function OutreachHub() {
               Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-48 w-full rounded-xl" />
               ))
-            ) : groupedCampaigns.length === 0 ? (
-              <div className="text-center py-16">
-                <Send className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                <h3 className="text-lg font-semibold text-foreground">No campaigns yet</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Upload a product image in Supplier Search to auto-generate outreach campaigns
-                </p>
-              </div>
             ) : (
-              groupedCampaigns.map(([supplierId, supplierCampaigns]) => (
-                <OutreachCampaignCard
-                  key={supplierId}
-                  supplierName={supplierCampaigns[0].supplier_name}
-                  campaigns={supplierCampaigns}
-                  onApprove={approveCampaign}
-                  onApproveAll={handleApproveAllForSupplier}
-                  onUpdateMessage={updateCampaignMessage}
-                  onDelete={deleteCampaign}
-                />
-              ))
+              <>
+                {/* Suppliers WITH campaigns */}
+                {suppliersWithCampaigns.length > 0 && suppliersWithCampaigns.map(([supplierId, supplierCampaigns]) => (
+                  <OutreachCampaignCard
+                    key={supplierId}
+                    supplierName={supplierCampaigns[0].supplier_name}
+                    campaigns={supplierCampaigns}
+                    onApprove={approveCampaign}
+                    onApproveAll={handleApproveAllForSupplier}
+                    onUpdateMessage={updateCampaignMessage}
+                    onDelete={deleteCampaign}
+                  />
+                ))}
+
+                {/* Suppliers WITHOUT campaigns */}
+                {suppliersWithoutCampaigns.length > 0 && (
+                  <div className="space-y-2 mt-6">
+                    <h3 className="text-sm font-medium text-muted-foreground px-1">
+                      All Suppliers — No campaigns yet ({suppliersWithoutCampaigns.length})
+                    </h3>
+                    {suppliersWithoutCampaigns.map((supplier) => (
+                      <OutreachSupplierDiscoveryCard
+                        key={supplier.id}
+                        supplier={supplier}
+                        onGenerateCampaigns={handleGenerateCampaigns}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {suppliersWithCampaigns.length === 0 && suppliersWithoutCampaigns.length === 0 && (
+                  <div className="text-center py-16">
+                    <Send className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground">No campaigns yet</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Upload a product image in Supplier Search to auto-generate outreach campaigns
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
 
@@ -148,20 +208,54 @@ export default function OutreachHub() {
             ) : (
               <div className="space-y-2">
                 {sentCampaigns.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="text-xs">{c.channel}</Badge>
-                      <span className="text-sm font-medium">{c.supplier_name}</span>
-                      {c.product_name && <span className="text-xs text-muted-foreground">• {c.product_name}</span>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={c.status === "sent" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}>
-                        {c.status}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(c.updated_at).toLocaleDateString()}
-                      </span>
-                    </div>
+                  <div key={c.id} className="rounded-lg bg-muted/30 border border-border/30 overflow-hidden">
+                    <button
+                      className="w-full flex items-center justify-between p-3 text-left hover:bg-muted/50 transition-colors"
+                      onClick={() => setExpandedHistory(expandedHistory === c.id ? null : c.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Badge variant="outline" className="text-xs">{CHANNEL_LABELS[c.channel] || c.channel}</Badge>
+                        <span className="text-sm font-medium">{c.supplier_name}</span>
+                        {c.product_name && <span className="text-xs text-muted-foreground">• {c.product_name}</span>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {c.response_received ? (
+                          <Badge className="bg-emerald-500/10 text-emerald-600 text-xs">Responded</Badge>
+                        ) : (
+                          <Badge className="bg-amber-500/10 text-amber-600 text-xs">Awaiting Response</Badge>
+                        )}
+                        {c.response_channel && (
+                          <Badge variant="outline" className="text-xs">via {CHANNEL_LABELS[c.response_channel] || c.response_channel}</Badge>
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(c.updated_at).toLocaleDateString()}
+                        </span>
+                        {expandedHistory === c.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </div>
+                    </button>
+                    {expandedHistory === c.id && (
+                      <div className="px-4 pb-3 border-t border-border/30 pt-3 space-y-2">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Sent Message</p>
+                          <p className="text-sm bg-muted/50 p-2 rounded">{c.message || "—"}</p>
+                        </div>
+                        {c.response_received && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Response</p>
+                            <p className="text-sm bg-emerald-500/5 p-2 rounded border border-emerald-500/20">{c.response_received}</p>
+                          </div>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5"
+                          onClick={() => navigate("/dashboard/conversations")}
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          Open Conversation
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

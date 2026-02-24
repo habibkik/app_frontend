@@ -426,6 +426,9 @@ export type Database = {
           message: string | null
           product_name: string | null
           repeat_interval_hours: number
+          responded_at: string | null
+          response_channel: string | null
+          response_received: string | null
           runs_completed: number
           status: string
           subject: string | null
@@ -444,6 +447,9 @@ export type Database = {
           message?: string | null
           product_name?: string | null
           repeat_interval_hours?: number
+          responded_at?: string | null
+          response_channel?: string | null
+          response_received?: string | null
           runs_completed?: number
           status?: string
           subject?: string | null
@@ -462,6 +468,9 @@ export type Database = {
           message?: string | null
           product_name?: string | null
           repeat_interval_hours?: number
+          responded_at?: string | null
+          response_channel?: string | null
+          response_received?: string | null
           runs_completed?: number
           status?: string
           subject?: string | null

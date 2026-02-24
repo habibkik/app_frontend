@@ -7,6 +7,7 @@ export interface Message {
   timestamp: Date;
   isOwn: boolean;
   status: "sent" | "delivered" | "read";
+  channel?: string; // email, linkedin, whatsapp, sms, phone, facebook, instagram, tiktok, twitter
   attachments?: {
     name: string;
     type: string;

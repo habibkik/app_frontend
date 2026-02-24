@@ -42,7 +42,7 @@ interface ConversationsActions {
   setActiveConversationId: (id: string | null) => void;
   getConversation: (id: string) => Conversation | undefined;
   getConversationBySupplier: (supplierId: string) => Conversation | undefined;
-  addMessage: (conversationId: string, content: string, attachments?: Message["attachments"]) => void;
+  addMessage: (conversationId: string, content: string, attachments?: Message["attachments"], channel?: string) => void;
   createConversation: (data: NewConversationData) => string;
   markAsRead: (conversationId: string) => void;
   getTotalUnreadCount: () => number;
@@ -78,7 +78,7 @@ export const useConversationsStore = create<ConversationsStore>((set, get) => ({
     }
   },
 
-  addMessage: (conversationId, content, attachments) => {
+  addMessage: (conversationId, content, attachments, channel) => {
     const newMessage: Message = {
       id: `msg-${Date.now()}`,
       senderId: "user",
@@ -89,6 +89,7 @@ export const useConversationsStore = create<ConversationsStore>((set, get) => ({
       isOwn: true,
       status: "sent",
       attachments,
+      channel: channel || "email",
     };
 
     set((state) => ({
