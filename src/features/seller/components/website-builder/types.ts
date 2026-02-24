@@ -19,6 +19,7 @@ export interface HeroBlockConfig {
   subtitle: string;
   ctaText: string;
   backgroundImageUrl: string;
+  overlayOpacity?: number;
 }
 
 export interface ProductCatalogBlockConfig {
@@ -37,11 +38,13 @@ export interface AboutBlockConfig {
 export interface TestimonialsBlockConfig {
   items: { quote: string; author: string }[];
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export interface FaqBlockConfig {
   items: { question: string; answer: string }[];
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export interface ContactBlockConfig {
@@ -49,22 +52,26 @@ export interface ContactBlockConfig {
   showPhone: boolean;
   showAddress: boolean;
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export interface OrderFormBlockConfig {
   heading: string;
   productName: string;
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export interface SocialProofBlockConfig {
   heading: string;
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export interface MarketStatsBlockConfig {
   heading: string;
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export interface ProblemAgitationBlockConfig {
@@ -74,6 +81,7 @@ export interface ProblemAgitationBlockConfig {
   reinforcement: string;
   imageUrl?: string;
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export interface SolutionBlockConfig {
@@ -93,6 +101,7 @@ export interface OfferPricingBlockConfig {
   ctaText: string;
   imageUrl?: string;
   backgroundImageUrl?: string;
+  overlayOpacity?: number;
 }
 
 export type BlockConfig =

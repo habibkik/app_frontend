@@ -38,6 +38,16 @@ function bgStyle(fallback: string, imageUrl?: string): string {
   return `background:${fallback};`;
 }
 
+/** Wraps section content with a semi-transparent overlay when a background image is set */
+function wrapWithOverlay(innerHtml: string, imageUrl?: string, opacity?: number): string {
+  if (!imageUrl) return innerHtml;
+  const op = typeof opacity === "number" ? opacity : 0.5;
+  return `<div style="position:relative;">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,${op});pointer-events:none;z-index:0;"></div>
+  <div style="position:relative;z-index:1;">${innerHtml}</div>
+</div>`;
+}
+
 function borderRadiusValue(br: string) {
   switch (br) {
     case "none": return "0";
@@ -52,12 +62,14 @@ function renderHero(cfg: HeroBlockConfig, theme: LandingPageTheme) {
   const bg = cfg.backgroundImageUrl
     ? `background-image:url('${cfg.backgroundImageUrl}');background-size:cover;background-position:center;`
     : `background:${theme.primaryColor};`;
-  return `<section style="${bg}color:#fff;padding:80px 20px;text-align:${theme.heroStyle === "left-aligned" ? "left" : "center"};">
+  const inner = `
   <div style="max-width:900px;margin:0 auto;">
     <h1 style="font-family:${theme.headingFont};font-size:2.5rem;margin:0 0 16px;">${cfg.title}</h1>
     <p style="font-size:1.2rem;opacity:.9;margin:0 0 24px;">${cfg.subtitle}</p>
     <a href="#order" style="display:inline-block;padding:14px 32px;background:#fff;color:${theme.primaryColor};border-radius:${borderRadiusValue(theme.borderRadius)};text-decoration:none;font-weight:600;">${cfg.ctaText}</a>
-  </div>
+  </div>`;
+  return `<section style="${bg}color:#fff;padding:80px 20px;text-align:${theme.heroStyle === "left-aligned" ? "left" : "center"};">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
@@ -101,32 +113,36 @@ function renderTestimonials(cfg: TestimonialsBlockConfig, theme: LandingPageThem
       <p style="font-style:italic;color:#374151;margin:0 0 12px;">"${t.quote}"</p>
       <p style="margin:0;font-weight:600;color:${theme.primaryColor};font-size:.9rem;">— ${t.author}</p>
     </div>`).join("");
-  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  const inner = `
   <div style="max-width:900px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">What Our Customers Say</h2>
+    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">What Our Customers Say</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">${cards}</div>
-  </div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
 function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
   const items = cfg.items.map((f) => `
-    <div style="border-bottom:1px solid #e5e7eb;padding:16px 0;">
-      <h4 style="margin:0 0 8px;font-family:${theme.headingFont};color:${theme.textColor};">${f.question}</h4>
-      <p style="margin:0;color:#6b7280;font-size:.9rem;">${f.answer}</p>
+    <div style="border-bottom:1px solid ${cfg.backgroundImageUrl ? "rgba(255,255,255,.2)" : "#e5e7eb"};padding:16px 0;">
+      <h4 style="margin:0 0 8px;font-family:${theme.headingFont};color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${f.question}</h4>
+      <p style="margin:0;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;">${f.answer}</p>
     </div>`).join("");
-  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  const inner = `
   <div style="max-width:700px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">Frequently Asked Questions</h2>
+    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">Frequently Asked Questions</h2>
     ${items}
-  </div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
 function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
-  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  const inner = `
   <div style="max-width:500px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
+    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
     <form style="display:flex;flex-direction:column;gap:12px;">
       <input placeholder="Your Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;">
       <input type="email" placeholder="Your Email" style="padding:12px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;">
@@ -134,14 +150,16 @@ function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
       <textarea placeholder="Your Message" rows="4" style="padding:12px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;resize:vertical;"></textarea>
       <button type="submit" style="padding:14px;background:${theme.primaryColor};color:#fff;border:none;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:1rem;cursor:pointer;font-weight:600;">Send Message</button>
     </form>
-  </div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
 function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
-  return `<section id="order" style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  const inner = `
   <div style="max-width:500px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
+    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
     <form style="display:flex;flex-direction:column;gap:12px;">
       <input placeholder="Full Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;">
       <input type="email" placeholder="Email" style="padding:12px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;">
@@ -150,51 +168,64 @@ function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
       <textarea placeholder="Shipping Address" rows="3" style="padding:12px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;resize:vertical;"></textarea>
       <button type="submit" style="padding:14px;background:${theme.primaryColor};color:#fff;border:none;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:1rem;cursor:pointer;font-weight:600;">Place Order</button>
     </form>
-  </div>
+  </div>`;
+  return `<section id="order" style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
 function renderSocialProof(cfg: SocialProofBlockConfig, theme: LandingPageTheme, stats?: { postCount: number; totalEngagement: number }) {
   const postCount = stats?.postCount ?? 0;
   const engagement = stats?.totalEngagement ?? 0;
-  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const inner = `
   <div style="max-width:700px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
+    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
     <div style="display:flex;justify-content:center;gap:48px;">
-      <div><p style="font-size:2rem;font-weight:700;color:${theme.primaryColor};margin:0;">${postCount}</p><p style="color:#6b7280;font-size:.9rem;margin:4px 0 0;">Posts Published</p></div>
-      <div><p style="font-size:2rem;font-weight:700;color:${theme.primaryColor};margin:0;">${engagement.toLocaleString()}</p><p style="color:#6b7280;font-size:.9rem;margin:4px 0 0;">Total Engagement</p></div>
+      <div><p style="font-size:2rem;font-weight:700;color:${cfg.backgroundImageUrl ? "#fff" : theme.primaryColor};margin:0;">${postCount}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Posts Published</p></div>
+      <div><p style="font-size:2rem;font-weight:700;color:${cfg.backgroundImageUrl ? "#fff" : theme.primaryColor};margin:0;">${engagement.toLocaleString()}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Total Engagement</p></div>
     </div>
-  </div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
 function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme, marketData?: { priceRange?: { min: number; max: number }; demandTrend?: string; competitorCount?: number }) {
-  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const accentColor = cfg.backgroundImageUrl ? "#fff" : theme.primaryColor;
+  const subColor = cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280";
+  const inner = `
   <div style="max-width:700px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${theme.textColor};">${cfg.heading}</h2>
+    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
     <div style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;">
-      ${marketData?.priceRange ? `<div><p style="font-size:1.5rem;font-weight:700;color:${theme.primaryColor};margin:0;">$${marketData.priceRange.min} – $${marketData.priceRange.max}</p><p style="color:#6b7280;font-size:.9rem;margin:4px 0 0;">Market Price Range</p></div>` : ""}
-      ${marketData?.demandTrend ? `<div><p style="font-size:1.5rem;font-weight:700;color:${theme.primaryColor};margin:0;text-transform:capitalize;">${marketData.demandTrend}</p><p style="color:#6b7280;font-size:.9rem;margin:4px 0 0;">Demand Trend</p></div>` : ""}
-      ${marketData?.competitorCount !== undefined ? `<div><p style="font-size:1.5rem;font-weight:700;color:${theme.primaryColor};margin:0;">${marketData.competitorCount}</p><p style="color:#6b7280;font-size:.9rem;margin:4px 0 0;">Competitors Tracked</p></div>` : ""}
+      ${marketData?.priceRange ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;">$${marketData.priceRange.min} – $${marketData.priceRange.max}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Market Price Range</p></div>` : ""}
+      ${marketData?.demandTrend ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;text-transform:capitalize;">${marketData.demandTrend}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Demand Trend</p></div>` : ""}
+      ${marketData?.competitorCount !== undefined ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;">${marketData.competitorCount}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Competitors Tracked</p></div>` : ""}
     </div>
-  </div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
 function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: LandingPageTheme) {
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
   const bullets = cfg.painPoints.map((p) => `
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:${borderRadiusValue(theme.borderRadius)};padding:24px;text-align:center;">
       <div style="font-size:2rem;margin-bottom:8px;">${p.icon}</div>
       <h4 style="font-family:${theme.headingFont};margin:0 0 8px;color:${theme.textColor};">${p.title}</h4>
       <p style="margin:0;color:#6b7280;font-size:.9rem;">${p.description}</p>
     </div>`).join("");
-  return `<section style="padding:60px 20px;${bgStyle("#fef2f2", cfg.backgroundImageUrl)}">
+  const inner = `
   <div style="max-width:800px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${theme.textColor};">${cfg.heading}</h2>
-    <p style="color:#6b7280;margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>
+    <h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${textColor};">${cfg.heading}</h2>
+    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">${bullets}</div>
-    <p style="margin-top:32px;font-size:1.15rem;font-weight:600;color:${theme.primaryColor};">${cfg.reinforcement}</p>
-  </div>
+    <p style="margin-top:32px;font-size:1.15rem;font-weight:600;color:${cfg.backgroundImageUrl ? "#fff" : theme.primaryColor};">${cfg.reinforcement}</p>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle("#fef2f2", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
@@ -215,7 +246,7 @@ function renderSolution(cfg: SolutionBlockConfig, theme: LandingPageTheme) {
 
 function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageTheme) {
   const values = cfg.valueItems.map((v) => `<li style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#374151;">✓ ${v}</li>`).join("");
-  return `<section style="padding:60px 20px;${bgStyle(`linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`, cfg.backgroundImageUrl)}">
+  const inner = `
   <div style="max-width:500px;margin:0 auto;text-align:center;background:#fff;border-radius:${borderRadiusValue(theme.borderRadius)};padding:40px;box-shadow:0 4px 24px rgba(0,0,0,.08);">
     <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${theme.textColor};">${cfg.heading}</h2>
     <ul style="list-style:none;padding:0;margin:0 0 24px;text-align:left;">${values}</ul>
@@ -223,7 +254,9 @@ function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageThem
     <p style="font-size:2.5rem;font-weight:800;color:${theme.primaryColor};margin:4px 0 16px;">${cfg.actualPrice}</p>
     ${cfg.scarcityText ? `<p style="color:#dc2626;font-weight:600;font-size:.9rem;margin:0 0 16px;">⚡ ${cfg.scarcityText}</p>` : ""}
     <a href="#order" style="display:inline-block;padding:16px 40px;background:${theme.primaryColor};color:#fff;border-radius:${borderRadiusValue(theme.borderRadius)};text-decoration:none;font-weight:700;font-size:1.1rem;">${cfg.ctaText}</a>
-  </div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle(`linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
