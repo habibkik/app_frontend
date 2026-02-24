@@ -1,44 +1,45 @@
 
 
-## Add Background Image + Pro Photography Picker to All Remaining Blocks
+## Fix: Background Images Not Rendering in Website Preview
 
-### Current State
-Six blocks already have image fields with `ProImagePicker`: Hero, Product Catalog, About, Solution, Problem Agitation, and Offer Pricing.
+### Root Cause
+Two issues are preventing background images from appearing:
 
-Six blocks have **no** image support: **Testimonials, FAQ, Contact, Order Form, Social Proof, Market Stats**.
+1. **`generateStorefrontHtml.ts` ignores `backgroundImageUrl`**: Every render function (Testimonials, FAQ, Contact, Order Form, Social Proof, Market Stats, Problem Agitation, Offer Pricing) uses hardcoded background colors and never checks the `backgroundImageUrl` field from block config. So even though the picker correctly saves the URL to the store, the generated HTML never uses it.
+
+2. **"Use Pro Images" button bug**: In `WebsiteBuilder.tsx` line 269, the Hero block sets `backgroundImage` instead of `backgroundImageUrl`, which is the field the Hero renderer actually reads.
 
 ### Changes
 
-**File: `src/features/seller/components/website-builder/types.ts`**
+**File: `src/features/seller/components/website-builder/generateStorefrontHtml.ts`**
 
-Add `backgroundImageUrl?: string` to these interfaces:
-- `TestimonialsBlockConfig` (line 38)
-- `FaqBlockConfig` (line 42)
-- `ContactBlockConfig` (line 46)
-- `OrderFormBlockConfig` (line 52)
-- `SocialProofBlockConfig` (line 57)
-- `MarketStatsBlockConfig` (line 61)
+Create a helper function to generate background style from `backgroundImageUrl`:
 
-**File: `src/features/seller/components/website-builder/BlockConfigurator.tsx`**
+```typescript
+function bgStyle(fallback: string, imageUrl?: string): string {
+  if (imageUrl) return `background-image:url('${imageUrl}');background-size:cover;background-position:center;`;
+  return `background:${fallback};`;
+}
+```
 
-Add a Background Image URL input + `ProImagePicker` to each of the six forms:
+Update each render function to use `cfg.backgroundImageUrl` when present:
 
-1. **TestimonialsForm** (after the "Add Testimonial" button, ~line 250): Add `Field` for Background Image URL + `ProImagePicker`
-2. **FaqForm** (after the "Add FAQ" button, ~line 276): Same
-3. **ContactForm** (after Show Address switch, ~line 293): Same
-4. **OrderFormConfig** (after Product Name, ~line 301): Same
-5. **HeadingOnly** (line 305-307): Convert to include Background Image URL + `ProImagePicker` below the heading input. Since this is shared by Social Proof and Market Stats, both get the picker automatically.
+| Function | Current background | Change |
+|---|---|---|
+| `renderTestimonials` (line 99) | `background:#f9fafb;` | Use `bgStyle("#f9fafb", cfg.backgroundImageUrl)` |
+| `renderFaq` (line 113) | `background:${theme.bgColor};` | Use `bgStyle(theme.bgColor, cfg.backgroundImageUrl)` |
+| `renderContact` (line 122) | `background:#f9fafb;` | Use `bgStyle("#f9fafb", cfg.backgroundImageUrl)` |
+| `renderOrderForm` (line 137) | `background:${theme.bgColor};` | Use `bgStyle(theme.bgColor, cfg.backgroundImageUrl)` |
+| `renderSocialProof` (line 155) | `background:#f9fafb;` | Use `bgStyle("#f9fafb", cfg.backgroundImageUrl)` |
+| `renderMarketStats` (line 167) | `background:${theme.bgColor};` | Use `bgStyle(theme.bgColor, cfg.backgroundImageUrl)` |
+| `renderProblemAgitation` (line 186) | `background:#fef2f2;` | Use `bgStyle("#fef2f2", cfg.backgroundImageUrl)` |
+| `renderOfferPricing` (line 213) | `background:linear-gradient(...)` | Use `bgStyle(\`linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)\`, cfg.backgroundImageUrl)` |
+
+**File: `src/features/seller/components/website-builder/WebsiteBuilder.tsx`**
+
+- Line 269: Change `backgroundImage` to `backgroundImageUrl` so the Hero block's "Use Pro Images" button sets the correct field.
 
 ### Summary
 
-| Block | Field Added |
-|---|---|
-| Testimonials | `backgroundImageUrl?: string` + picker |
-| FAQ | `backgroundImageUrl?: string` + picker |
-| Contact | `backgroundImageUrl?: string` + picker |
-| Order Form | `backgroundImageUrl?: string` + picker |
-| Social Proof | `backgroundImageUrl?: string` + picker |
-| Market Stats | `backgroundImageUrl?: string` + picker |
-
-All blocks will now let users set a background image via URL or pick from generated Pro Photography assets.
+Two files, one helper function, and fixing one typo. After this, selecting a Pro Photography image in any block's configurator will immediately render it as the section background in the live preview.
 
