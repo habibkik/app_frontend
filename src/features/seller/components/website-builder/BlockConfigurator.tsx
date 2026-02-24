@@ -247,6 +247,8 @@ function TestimonialsForm({ config, update }: { config: TestimonialsBlockConfig;
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Testimonial</Button>
+      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
     </>
   );
 }
@@ -273,6 +275,8 @@ function FaqForm({ config, update }: { config: FaqBlockConfig; update: (c: any) 
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add FAQ</Button>
+      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
     </>
   );
 }
@@ -289,6 +293,8 @@ function ContactForm({ config, update }: { config: ContactBlockConfig; update: (
         <Label className="text-xs">Show Address Field</Label>
         <Switch checked={config.showAddress} onCheckedChange={(v) => update({ showAddress: v })} className="scale-75" />
       </div>
+      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
     </>
   );
 }
@@ -298,12 +304,20 @@ function OrderFormConfig({ config, update }: { config: OrderFormBlockConfig; upd
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Product Name"><Input value={config.productName} onChange={(e) => update({ productName: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
     </>
   );
 }
 
-function HeadingOnly({ config, update }: { config: { heading: string }; update: (c: any) => void }) {
-  return <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>;
+function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string }; update: (c: any) => void }) {
+  return (
+    <>
+      <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Background Image URL"><Input value={config.backgroundImageUrl || ""} onChange={(e) => update({ backgroundImageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
+      <ProImagePicker currentValue={config.backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
+    </>
+  );
 }
 
 // --- New block forms ---
