@@ -266,7 +266,7 @@ export const WebsiteBuilder: React.FC = () => {
             const productImg = available.find((i) => i.id === "packshot-front");
             store.blocks.forEach((block) => {
               if (block.type === "hero" && heroImg?.imageUrl) {
-                store.updateBlockConfig(block.id, { backgroundImage: heroImg.imageUrl });
+                store.updateBlockConfig(block.id, { backgroundImageUrl: heroImg.imageUrl });
               }
               if (block.type === "about" && aboutImg?.imageUrl) {
                 store.updateBlockConfig(block.id, { imageUrl: aboutImg.imageUrl });

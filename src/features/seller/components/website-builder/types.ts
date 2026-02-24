@@ -73,6 +73,7 @@ export interface ProblemAgitationBlockConfig {
   painPoints: { icon: string; title: string; description: string }[];
   reinforcement: string;
   imageUrl?: string;
+  backgroundImageUrl?: string;
 }
 
 export interface SolutionBlockConfig {
@@ -91,6 +92,7 @@ export interface OfferPricingBlockConfig {
   scarcityText: string;
   ctaText: string;
   imageUrl?: string;
+  backgroundImageUrl?: string;
 }
 
 export type BlockConfig =
