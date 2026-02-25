@@ -21,6 +21,7 @@ import {
   Newspaper,
   Radar,
   Calculator,
+  Brain,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -58,6 +59,7 @@ const buyerNavigation: NavGroup[] = [
     label: "Analysis",
     items: [
       { title: "Should-Cost Model", url: "/dashboard/should-cost", icon: Calculator },
+      { title: "Negotiation AI", url: "/dashboard/negotiation", icon: Brain },
     ],
   },
   {

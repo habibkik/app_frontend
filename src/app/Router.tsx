@@ -44,6 +44,7 @@ import DailyReportPage from "@/pages/dashboard/DailyReport";
 import DemandSignals from "@/pages/dashboard/DemandSignals";
 import OutreachHub from "@/pages/dashboard/OutreachHub";
 import ShouldCost from "@/pages/dashboard/ShouldCost";
+import NegotiationIntelligence from "@/pages/dashboard/NegotiationIntelligence";
 import NotFound from "@/pages/NotFound";
 
 export function Router() {
@@ -71,6 +72,7 @@ export function Router() {
       <Route path="/dashboard/saved" element={<ProtectedRoute><SavedSuppliers /></ProtectedRoute>} />
       <Route path="/dashboard/outreach-hub" element={<ProtectedRoute><OutreachHub /></ProtectedRoute>} />
       <Route path="/dashboard/should-cost" element={<ProtectedRoute><ShouldCost /></ProtectedRoute>} />
+      <Route path="/dashboard/negotiation" element={<ProtectedRoute><NegotiationIntelligence /></ProtectedRoute>} />
       
       {/* Producer mode pages */}
       <Route path="/dashboard/producer" element={<ProtectedRoute><ProducerDashboard /></ProtectedRoute>} />
