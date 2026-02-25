@@ -1,49 +1,126 @@
 
 
-## Auto-Create Conversations When Campaigns Are Approved
+## Enhance Buyer Mode with Professional Procurement Best Practices
 
-### Problem
-When a campaign is approved in the Outreach Hub, no conversation is created in the Conversations page. Users have to manually navigate and create conversations.
+Based on the comprehensive procurement framework you shared, here are the key enhancements to bring the buyer mode to OEM-level procurement standards.
 
-### Solution
-When a campaign (or batch of campaigns) is approved, automatically create or update conversations in the conversations store with the outreach messages, tagged by channel.
+### Current State
 
-### Changes
+The buyer mode currently has:
+- Basic RFQ creation (title, description, category, quantity, target price, delivery date/location)
+- RFQ list with search/filter/sort
+- 4-step RFQ Campaign Builder wizard
+- Supplier search with AI image discovery
+- Saved suppliers with tags/notes
+- Basic dashboard stats and alerts
 
-#### 1. `src/stores/conversationsStore.ts` — Add `addOutreachMessage` method
+### What's Missing (mapped to best practices)
 
-Add a new action to the interface and implementation:
+The RFQ form lacks critical procurement fields (Incoterms, payment terms, quality standards, certifications, evaluation criteria, pricing breakdown requirements). There's no structured way to compare quotes side-by-side. No supplier scorecard or risk scoring. No procurement-specific KPIs.
 
-```typescript
-addOutreachMessage: (supplierId, supplierName, message, channel, productName) => void;
-```
+---
 
-Implementation logic:
-- Check if a conversation already exists for that `supplierId`
-- If yes: append the message to that conversation with the correct channel tag
-- If no: create a new `Conversation` object with the supplier info, add the message as the first message, and prepend it to the conversations list
-- The message is marked as `isOwn: true` (outgoing outreach) with the campaign channel
+### Planned Changes
 
-The supplier logo will be derived from the first two letters of the supplier name (e.g., "TP" for "TechParts").
+#### 1. Enhanced RFQ Data Model (`src/data/rfqs.ts`)
 
-#### 2. `src/stores/outreachCampaignStore.ts` — Wire approve actions to conversations
+Extend `RFQItem` with professional procurement fields:
 
-Import `useConversationsStore` and call `addOutreachMessage` after each successful approval:
+- `incoterm` — EXW, FOB, CIF, DDP, etc.
+- `paymentTerms` — Net 30, Net 60, LC, etc.
+- `qualityStandards` — ISO 9001, FDA, CE, etc. (array)
+- `certificationsRequired` — specific certs needed (array)
+- `evaluationCriteria` — weighted criteria: `{ criterion: string; weight: number }[]`
+- `pricingBreakdownRequired` — boolean flag requesting cost transparency
+- `clarificationDeadline` — date for Q&A window
+- `sampleRequired` — boolean
+- `warrantyTerms` — string
+- `complianceNotes` — regulatory/import notes
 
-**`approveCampaign`**: After setting status to "approved", find the campaign data and call:
-```typescript
-const conv = useConversationsStore.getState();
-conv.addOutreachMessage(campaign.supplier_id, campaign.supplier_name, campaign.message, campaign.channel, campaign.product_name);
-```
+Add new mock data reflecting these fields.
 
-**`approveAll`**: After bulk-updating all drafts, loop through each approved campaign and call `addOutreachMessage` for each one. Campaigns for the same supplier will be grouped into the same conversation automatically (since `addOutreachMessage` checks for existing conversations).
+#### 2. Enhanced RFQ Creation Dialog (`src/components/rfqs/CreateRFQDialog.tsx`)
+
+Restructure into a multi-step form (3 tabs):
+
+**Tab 1 — Basics** (existing fields, improved):
+- Title, description, category, quantity, unit, target price, currency
+
+**Tab 2 — Requirements** (new):
+- Incoterm selector (EXW / FOB / CIF / DDP / DAP)
+- Payment terms selector
+- Quality standards multi-select
+- Certifications required multi-select
+- Sample required toggle
+- Warranty terms field
+- Compliance notes textarea
+
+**Tab 3 — Evaluation & Timeline** (new):
+- Weighted evaluation criteria builder (add/remove rows with criterion name + weight %)
+- Weight total validation (must sum to 100%)
+- Clarification deadline date picker
+- Submission deadline (delivery date, existing)
+- Pricing breakdown required toggle
+- Attachments zone (existing)
+
+#### 3. RFQ Detail View Modal (`src/components/rfqs/RFQDetailModal.tsx` — new file)
+
+A comprehensive modal triggered from the RFQ table "View Details" action:
+
+- Full RFQ information display with all new fields
+- **Quote Comparison Tab** — side-by-side mock quotes from suppliers with:
+  - Unit price, tooling cost, MOQ, logistics, taxes
+  - Lead time, payment terms offered
+  - Weighted score calculation based on evaluation criteria
+  - Visual bar chart comparing total scores
+  - "Award" button on best quote
+- **Timeline Tab** — visual timeline of RFQ lifecycle (created → clarification → submission → evaluation → award)
+- **Activity Log** — mock log of events (quote received, clarification asked, etc.)
+
+#### 4. Supplier Scorecard Component (`src/components/buyer/SupplierScorecard.tsx` — new file)
+
+A reusable scorecard widget based on the OEM template:
+
+- 7 dimensions: Quality (30%), Delivery (25%), Cost (20%), Innovation (10%), Responsiveness (5%), Risk (5%), Sustainability (5%)
+- Radar chart visualization using Recharts
+- Editable scores (1–5 scale per dimension)
+- Weighted total score calculation
+- Color-coded risk level (Low / Medium / High)
+- Integrated into the Saved Suppliers detail view
+
+#### 5. Enhanced Buyer Dashboard (`src/features/buyer/pages/BuyerDashboard.tsx`)
+
+Add a new **Procurement KPIs** section with:
+
+- RFQ Cycle Time (avg days from creation to award)
+- Cost Savings vs Target Price (%)
+- Supplier Response Rate (%)
+- Quote Accuracy (variance vs final contract)
+- Dual Sourcing Coverage (%)
+- On-Time RFQ Submission Rate
+
+These are displayed as a horizontal scrollable card row with trend indicators.
+
+#### 6. Navigation Update (`src/features/dashboard/config/navigation.ts`)
+
+No new pages needed — the enhancements are within existing pages (RFQs, Saved Suppliers, Buyer Dashboard).
+
+---
 
 ### Files Modified
-- `src/stores/conversationsStore.ts` — add `addOutreachMessage` to interface and implementation
-- `src/stores/outreachCampaignStore.ts` — import conversations store and call `addOutreachMessage` in `approveCampaign` and `approveAll`
+- `src/data/rfqs.ts` — extend RFQItem type + mock data + add Incoterms/payment terms constants
+- `src/components/rfqs/CreateRFQDialog.tsx` — multi-tab form with new fields
+- `src/pages/dashboard/RFQs.tsx` — wire up RFQ detail modal
+- `src/features/buyer/pages/BuyerDashboard.tsx` — add procurement KPIs section
 
-### Result
-- Approving a single campaign creates/updates a conversation with that message tagged by channel
-- Approving all campaigns creates conversations for every supplier, with all channel messages grouped per supplier
-- Users see all outreach messages immediately in the Conversations page with channel badges
+### Files Created
+- `src/components/rfqs/RFQDetailModal.tsx` — full detail view with quote comparison
+- `src/components/buyer/SupplierScorecard.tsx` — weighted evaluation scorecard with radar chart
+
+### Technical Notes
+- All new form fields use Zod validation with sensible defaults (optional where appropriate)
+- Evaluation criteria weights validated to sum to 100%
+- Quote comparison uses mock data simulating supplier responses
+- Radar chart uses existing Recharts dependency
+- No database changes needed — all data is local/mock for now
 
