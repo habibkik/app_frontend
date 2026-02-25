@@ -1,5 +1,14 @@
 export type RFQStatus = "draft" | "pending" | "quoted" | "awarded" | "closed" | "expired";
 
+export type Incoterm = "EXW" | "FOB" | "CIF" | "DDP" | "DAP" | "FCA" | "CPT" | "CIP";
+
+export type PaymentTerm = "Net 30" | "Net 60" | "Net 90" | "LC at Sight" | "LC 30 Days" | "TT Advance" | "TT 50/50" | "Open Account";
+
+export interface EvaluationCriterion {
+  criterion: string;
+  weight: number;
+}
+
 export interface RFQItem {
   id: string;
   title: string;
@@ -16,6 +25,33 @@ export interface RFQItem {
   expiresAt: string;
   quotesReceived: number;
   attachments: number;
+  // Professional procurement fields
+  incoterm?: Incoterm;
+  paymentTerms?: PaymentTerm;
+  qualityStandards?: string[];
+  certificationsRequired?: string[];
+  evaluationCriteria?: EvaluationCriterion[];
+  pricingBreakdownRequired?: boolean;
+  clarificationDeadline?: string;
+  sampleRequired?: boolean;
+  warrantyTerms?: string;
+  complianceNotes?: string;
+}
+
+export interface SupplierQuote {
+  id: string;
+  supplierName: string;
+  supplierCountry: string;
+  unitPrice: number;
+  toolingCost: number;
+  moq: number;
+  logisticsCost: number;
+  taxes: number;
+  leadTimeDays: number;
+  paymentTermsOffered: string;
+  certifications: string[];
+  totalScore?: number;
+  submittedAt: string;
 }
 
 export const mockRFQs: RFQItem[] = [
@@ -35,6 +71,21 @@ export const mockRFQs: RFQItem[] = [
     expiresAt: "2024-02-15",
     quotesReceived: 8,
     attachments: 3,
+    incoterm: "FOB",
+    paymentTerms: "Net 30",
+    qualityStandards: ["ISO 9001", "IPC-A-610"],
+    certificationsRequired: ["ISO 9001", "UL Listed"],
+    evaluationCriteria: [
+      { criterion: "Price", weight: 40 },
+      { criterion: "Quality", weight: 25 },
+      { criterion: "Delivery", weight: 20 },
+      { criterion: "Terms", weight: 15 },
+    ],
+    pricingBreakdownRequired: true,
+    clarificationDeadline: "2024-01-25",
+    sampleRequired: true,
+    warrantyTerms: "12 months",
+    complianceNotes: "Must comply with RoHS and REACH regulations.",
   },
   {
     id: "RFQ-2024-002",
@@ -52,6 +103,18 @@ export const mockRFQs: RFQItem[] = [
     expiresAt: "2024-02-20",
     quotesReceived: 3,
     attachments: 2,
+    incoterm: "CIF",
+    paymentTerms: "TT 50/50",
+    qualityStandards: ["GOTS", "OEKO-TEX"],
+    certificationsRequired: ["GOTS Certified"],
+    evaluationCriteria: [
+      { criterion: "Price", weight: 30 },
+      { criterion: "Quality", weight: 35 },
+      { criterion: "Sustainability", weight: 20 },
+      { criterion: "Delivery", weight: 15 },
+    ],
+    pricingBreakdownRequired: true,
+    sampleRequired: true,
   },
   {
     id: "RFQ-2024-003",
@@ -69,6 +132,21 @@ export const mockRFQs: RFQItem[] = [
     expiresAt: "2024-02-10",
     quotesReceived: 5,
     attachments: 4,
+    incoterm: "DDP",
+    paymentTerms: "Net 60",
+    qualityStandards: ["ISO 13485", "ISO 9001"],
+    certificationsRequired: ["ISO 13485", "FDA Registered"],
+    evaluationCriteria: [
+      { criterion: "Quality", weight: 35 },
+      { criterion: "Price", weight: 25 },
+      { criterion: "Compliance", weight: 20 },
+      { criterion: "Delivery", weight: 20 },
+    ],
+    pricingBreakdownRequired: true,
+    clarificationDeadline: "2024-01-20",
+    sampleRequired: true,
+    warrantyTerms: "24 months",
+    complianceNotes: "FDA Class II medical device components. Full traceability required.",
   },
   {
     id: "RFQ-2024-004",
@@ -86,6 +164,11 @@ export const mockRFQs: RFQItem[] = [
     expiresAt: "2024-02-25",
     quotesReceived: 2,
     attachments: 1,
+    incoterm: "FOB",
+    paymentTerms: "Net 30",
+    qualityStandards: ["BPI Certified"],
+    pricingBreakdownRequired: false,
+    sampleRequired: true,
   },
   {
     id: "RFQ-2024-005",
@@ -103,6 +186,21 @@ export const mockRFQs: RFQItem[] = [
     expiresAt: "2024-02-28",
     quotesReceived: 0,
     attachments: 5,
+    incoterm: "DDP",
+    paymentTerms: "LC at Sight",
+    qualityStandards: ["ISO 13485", "ISO 9001"],
+    certificationsRequired: ["FDA 510(k)", "CE Mark", "ISO 13485"],
+    evaluationCriteria: [
+      { criterion: "Quality", weight: 40 },
+      { criterion: "Compliance", weight: 25 },
+      { criterion: "Price", weight: 20 },
+      { criterion: "Delivery", weight: 15 },
+    ],
+    pricingBreakdownRequired: true,
+    clarificationDeadline: "2024-02-10",
+    sampleRequired: true,
+    warrantyTerms: "36 months",
+    complianceNotes: "Full FDA compliance. Must provide PPAP documentation and complete traceability.",
   },
   {
     id: "RFQ-2024-006",
@@ -120,6 +218,12 @@ export const mockRFQs: RFQItem[] = [
     expiresAt: "2024-01-15",
     quotesReceived: 6,
     attachments: 2,
+    incoterm: "CIF",
+    paymentTerms: "Net 30",
+    qualityStandards: ["FSSC 22000"],
+    certificationsRequired: ["USDA Organic", "Kosher"],
+    pricingBreakdownRequired: true,
+    sampleRequired: true,
   },
   {
     id: "RFQ-2024-007",
@@ -137,8 +241,37 @@ export const mockRFQs: RFQItem[] = [
     expiresAt: "2023-12-01",
     quotesReceived: 4,
     attachments: 3,
+    incoterm: "DAP",
+    paymentTerms: "TT 50/50",
+    qualityStandards: ["IATF 16949", "ISO 9001"],
+    certificationsRequired: ["UN 38.3", "IEC 62660"],
+    evaluationCriteria: [
+      { criterion: "Quality", weight: 30 },
+      { criterion: "Price", weight: 25 },
+      { criterion: "Innovation", weight: 25 },
+      { criterion: "Delivery", weight: 20 },
+    ],
+    pricingBreakdownRequired: true,
+    sampleRequired: false,
+    warrantyTerms: "60 months / 100,000 km",
+    complianceNotes: "Must meet UN transport safety standards for lithium batteries.",
   },
 ];
+
+// Mock supplier quotes for RFQ-2024-001
+export const mockSupplierQuotes: Record<string, SupplierQuote[]> = {
+  "RFQ-2024-001": [
+    { id: "Q1", supplierName: "Shenzhen PCB Solutions", supplierCountry: "China", unitPrice: 10.20, toolingCost: 2500, moq: 1000, logisticsCost: 1800, taxes: 450, leadTimeDays: 21, paymentTermsOffered: "Net 30", certifications: ["ISO 9001", "UL Listed"], submittedAt: "2024-01-20" },
+    { id: "Q2", supplierName: "TechAssembly Vietnam", supplierCountry: "Vietnam", unitPrice: 11.80, toolingCost: 1800, moq: 500, logisticsCost: 2200, taxes: 380, leadTimeDays: 28, paymentTermsOffered: "TT 50/50", certifications: ["ISO 9001"], submittedAt: "2024-01-22" },
+    { id: "Q3", supplierName: "EuroCircuits GmbH", supplierCountry: "Germany", unitPrice: 14.50, toolingCost: 3200, moq: 250, logisticsCost: 800, taxes: 620, leadTimeDays: 14, paymentTermsOffered: "Net 60", certifications: ["ISO 9001", "UL Listed", "IATF 16949"], submittedAt: "2024-01-18" },
+    { id: "Q4", supplierName: "IndiaCircuit Technologies", supplierCountry: "India", unitPrice: 9.80, toolingCost: 2000, moq: 2000, logisticsCost: 2500, taxes: 520, leadTimeDays: 35, paymentTermsOffered: "LC at Sight", certifications: ["ISO 9001"], submittedAt: "2024-01-25" },
+  ],
+  "RFQ-2024-003": [
+    { id: "Q5", supplierName: "Precision Metal Works", supplierCountry: "USA", unitPrice: 42.00, toolingCost: 8000, moq: 100, logisticsCost: 500, taxes: 0, leadTimeDays: 18, paymentTermsOffered: "Net 30", certifications: ["ISO 13485", "FDA Registered"], submittedAt: "2024-01-15" },
+    { id: "Q6", supplierName: "SinoMach CNC", supplierCountry: "China", unitPrice: 28.50, toolingCost: 5000, moq: 200, logisticsCost: 3200, taxes: 1200, leadTimeDays: 30, paymentTermsOffered: "TT 50/50", certifications: ["ISO 9001", "ISO 13485"], submittedAt: "2024-01-18" },
+    { id: "Q7", supplierName: "SwissPrecision AG", supplierCountry: "Switzerland", unitPrice: 52.00, toolingCost: 12000, moq: 50, logisticsCost: 1800, taxes: 800, leadTimeDays: 12, paymentTermsOffered: "Net 60", certifications: ["ISO 13485", "FDA Registered", "CE Mark"], submittedAt: "2024-01-16" },
+  ],
+};
 
 export const rfqCategories = [
   "Electronics",
@@ -162,6 +295,28 @@ export const rfqUnits = [
   "liters",
   "boxes",
   "pallets",
+];
+
+export const incoterms: Incoterm[] = ["EXW", "FCA", "FOB", "CIF", "CIP", "CPT", "DAP", "DDP"];
+
+export const paymentTermsOptions: PaymentTerm[] = [
+  "Net 30", "Net 60", "Net 90", "LC at Sight", "LC 30 Days", "TT Advance", "TT 50/50", "Open Account",
+];
+
+export const qualityStandardsList = [
+  "ISO 9001", "ISO 13485", "ISO 14001", "ISO 45001",
+  "IATF 16949", "AS9100", "IPC-A-610",
+  "FDA Registered", "CE Mark", "UL Listed",
+  "GOTS", "OEKO-TEX", "BPI Certified",
+  "FSSC 22000", "GMP",
+];
+
+export const certificationsList = [
+  "ISO 9001", "ISO 13485", "ISO 14001",
+  "FDA 510(k)", "FDA Registered", "CE Mark", "UL Listed",
+  "IATF 16949", "AS9100",
+  "GOTS Certified", "USDA Organic", "Kosher", "Halal",
+  "UN 38.3", "IEC 62660", "RoHS", "REACH",
 ];
 
 export const statusConfig: Record<RFQStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; className: string }> = {

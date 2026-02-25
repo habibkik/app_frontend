@@ -3,43 +3,30 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, Plus, Upload } from "lucide-react";
+import { CalendarIcon, Loader2, Plus, Upload, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { rfqCategories, rfqUnits, RFQItem } from "@/data/rfqs";
+  rfqCategories, rfqUnits, incoterms, paymentTermsOptions, qualityStandardsList, certificationsList,
+  type RFQItem, type Incoterm, type PaymentTerm,
+} from "@/data/rfqs";
 import { cn } from "@/lib/utils";
 
 const createRFQSchema = z.object({
@@ -52,6 +39,17 @@ const createRFQSchema = z.object({
   currency: z.string().default("USD"),
   deliveryLocation: z.string().min(3, "Please enter delivery location"),
   deliveryDate: z.date({ required_error: "Please select a delivery date" }),
+  // Requirements
+  incoterm: z.string().optional(),
+  paymentTerms: z.string().optional(),
+  qualityStandards: z.array(z.string()).default([]),
+  certificationsRequired: z.array(z.string()).default([]),
+  sampleRequired: z.boolean().default(false),
+  warrantyTerms: z.string().optional(),
+  complianceNotes: z.string().optional(),
+  // Evaluation
+  pricingBreakdownRequired: z.boolean().default(true),
+  clarificationDeadline: z.date().optional(),
 });
 
 type CreateRFQFormData = z.infer<typeof createRFQSchema>;
@@ -63,27 +61,33 @@ interface CreateRFQDialogProps {
 export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState("basics");
+  const [evalCriteria, setEvalCriteria] = useState<{ criterion: string; weight: number }[]>([
+    { criterion: "Price", weight: 40 },
+    { criterion: "Quality", weight: 30 },
+    { criterion: "Delivery", weight: 20 },
+    { criterion: "Terms", weight: 10 },
+  ]);
 
   const form = useForm<CreateRFQFormData>({
     resolver: zodResolver(createRFQSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      category: "",
-      quantity: 1,
-      unit: "units",
-      targetPrice: undefined,
-      currency: "USD",
-      deliveryLocation: "",
+      title: "", description: "", category: "", quantity: 1, unit: "units",
+      targetPrice: undefined, currency: "USD", deliveryLocation: "",
+      qualityStandards: [], certificationsRequired: [],
+      sampleRequired: false, pricingBreakdownRequired: true,
     },
   });
 
+  const totalWeight = evalCriteria.reduce((sum, c) => sum + c.weight, 0);
+
+  const toggleArrayItem = (arr: string[], item: string) =>
+    arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item];
+
   const onSubmit = async (data: CreateRFQFormData) => {
     setIsSubmitting(true);
-    
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
+
     onCreateRFQ({
       title: data.title,
       description: data.description,
@@ -94,11 +98,22 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
       currency: data.currency,
       deliveryLocation: data.deliveryLocation,
       deliveryDate: format(data.deliveryDate, "yyyy-MM-dd"),
+      incoterm: data.incoterm as Incoterm | undefined,
+      paymentTerms: data.paymentTerms as PaymentTerm | undefined,
+      qualityStandards: data.qualityStandards,
+      certificationsRequired: data.certificationsRequired,
+      evaluationCriteria: evalCriteria,
+      pricingBreakdownRequired: data.pricingBreakdownRequired,
+      clarificationDeadline: data.clarificationDeadline ? format(data.clarificationDeadline, "yyyy-MM-dd") : undefined,
+      sampleRequired: data.sampleRequired,
+      warrantyTerms: data.warrantyTerms,
+      complianceNotes: data.complianceNotes,
     });
-    
+
     setIsSubmitting(false);
     setOpen(false);
     form.reset();
+    setActiveTab("basics");
   };
 
   return (
@@ -109,228 +124,330 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
           Create RFQ
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[680px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New RFQ</DialogTitle>
           <DialogDescription>
-            Fill in the details below to create a new Request for Quotation.
+            Professional Request for Quotation with evaluation criteria.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>RFQ Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., PCB Assembly for IoT Devices" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="basics">1. Basics</TabsTrigger>
+                <TabsTrigger value="requirements">2. Requirements</TabsTrigger>
+                <TabsTrigger value="evaluation">3. Evaluation</TabsTrigger>
+              </TabsList>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe your requirements in detail..."
-                      className="min-h-[100px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Include specifications, quality requirements, and any certifications needed.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
+              {/* TAB 1 — Basics */}
+              <TabsContent value="basics" className="space-y-4 mt-4">
+                <FormField control={form.control} name="title" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel>RFQ Title</FormLabel>
+                    <FormControl><Input placeholder="e.g., PCB Assembly for IoT Devices" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="description" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Describe your requirements in detail..." className="min-h-[100px]" {...field} />
+                    </FormControl>
+                    <FormDescription>Include specifications, quality requirements, and certifications needed.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="category" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {rfqCategories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="deliveryLocation" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Delivery Location</FormLabel>
+                      <FormControl><Input placeholder="City, Country" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <FormField control={form.control} name="quantity" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantity</FormLabel>
+                      <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="unit" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Unit</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {rfqUnits.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="targetPrice" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Target Price (opt.)</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                          <Input type="number" step="0.01" min={0} className="pl-7" placeholder="0.00" {...field} />
+                        </div>
                       </FormControl>
-                      <SelectContent>
-                        {rfqCategories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+              </TabsContent>
 
-              <FormField
-                control={form.control}
-                name="deliveryLocation"
-                render={({ field }) => (
+              {/* TAB 2 — Requirements */}
+              <TabsContent value="requirements" className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="incoterm" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Incoterm</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select Incoterm" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {incoterms.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="paymentTerms" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Terms</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select terms" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          {paymentTermsOptions.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )} />
+                </div>
+
+                <FormField control={form.control} name="qualityStandards" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Delivery Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="City, Country" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="unit"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Unit</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {rfqUnits.map((unit) => (
-                          <SelectItem key={unit} value={unit}>
-                            {unit}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="targetPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Target Price (optional)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                          $
-                        </span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min={0}
-                          className="pl-7"
-                          placeholder="0.00"
-                          {...field}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="deliveryDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Required Delivery Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
+                    <FormLabel>Quality Standards</FormLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {qualityStandardsList.map((qs) => (
+                        <Badge
+                          key={qs}
+                          variant={field.value?.includes(qs) ? "default" : "outline"}
+                          className="cursor-pointer transition-colors"
+                          onClick={() => field.onChange(toggleArrayItem(field.value || [], qs))}
                         >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                          {qs}
+                        </Badge>
+                      ))}
+                    </div>
+                  </FormItem>
+                )} />
 
-            {/* Attachments placeholder */}
-            <div className="border-2 border-dashed rounded-lg p-6 text-center">
-              <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Drag & drop files here or click to upload
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                PDF, DOC, XLS, images up to 10MB
-              </p>
-            </div>
+                <FormField control={form.control} name="certificationsRequired" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Certifications Required</FormLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {certificationsList.map((c) => (
+                        <Badge
+                          key={c}
+                          variant={field.value?.includes(c) ? "default" : "outline"}
+                          className="cursor-pointer transition-colors"
+                          onClick={() => field.onChange(toggleArrayItem(field.value || [], c))}
+                        >
+                          {c}
+                        </Badge>
+                      ))}
+                    </div>
+                  </FormItem>
+                )} />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="sampleRequired" render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                      <div>
+                        <FormLabel className="text-sm">Sample Required</FormLabel>
+                        <FormDescription className="text-xs">Request sample before award</FormDescription>
+                      </div>
+                      <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="warrantyTerms" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Warranty Terms</FormLabel>
+                      <FormControl><Input placeholder="e.g., 12 months" {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                </div>
+
+                <FormField control={form.control} name="complianceNotes" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Compliance / Regulatory Notes</FormLabel>
+                    <FormControl><Textarea placeholder="Import restrictions, regulatory requirements..." className="min-h-[60px]" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+              </TabsContent>
+
+              {/* TAB 3 — Evaluation & Timeline */}
+              <TabsContent value="evaluation" className="space-y-4 mt-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <FormLabel>Evaluation Criteria</FormLabel>
+                    <span className={cn("text-sm font-medium", totalWeight === 100 ? "text-success" : "text-destructive")}>
+                      Total: {totalWeight}%
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {evalCriteria.map((ec, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <Input
+                          value={ec.criterion}
+                          onChange={(e) => {
+                            const updated = [...evalCriteria];
+                            updated[idx].criterion = e.target.value;
+                            setEvalCriteria(updated);
+                          }}
+                          placeholder="Criterion name"
+                          className="flex-1"
+                        />
+                        <div className="relative w-20">
+                          <Input
+                            type="number"
+                            value={ec.weight}
+                            onChange={(e) => {
+                              const updated = [...evalCriteria];
+                              updated[idx].weight = Number(e.target.value);
+                              setEvalCriteria(updated);
+                            }}
+                            min={0}
+                            max={100}
+                            className="pr-6"
+                          />
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">%</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0"
+                          onClick={() => setEvalCriteria(evalCriteria.filter((_, i) => i !== idx))}
+                          disabled={evalCriteria.length <= 1}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => setEvalCriteria([...evalCriteria, { criterion: "", weight: 0 }])}
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" /> Add Criterion
+                  </Button>
+                  {totalWeight !== 100 && (
+                    <p className="text-xs text-destructive mt-1">Weights must sum to 100%</p>
+                  )}
+                  <Progress value={totalWeight} className="mt-2 h-1.5" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="clarificationDeadline" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Clarification Deadline</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                              {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(d) => d < new Date()} initialFocus className="p-3 pointer-events-auto" />
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  )} />
+
+                  <FormField control={form.control} name="deliveryDate" render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Submission Deadline</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
+                              {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(d) => d < new Date()} initialFocus className="p-3 pointer-events-auto" />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+
+                <FormField control={form.control} name="pricingBreakdownRequired" render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                    <div>
+                      <FormLabel className="text-sm">Pricing Breakdown Required</FormLabel>
+                      <FormDescription className="text-xs">Request cost transparency from suppliers</FormDescription>
+                    </div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                  </FormItem>
+                )} />
+
+                {/* Attachments placeholder */}
+                <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                  <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">Drag & drop files here or click to upload</p>
+                  <p className="text-xs text-muted-foreground mt-1">PDF, DOC, XLS, images up to 10MB</p>
+                </div>
+              </TabsContent>
+            </Tabs>
 
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Create RFQ"
-                )}
-              </Button>
+              {activeTab !== "basics" && (
+                <Button type="button" variant="outline" onClick={() => setActiveTab(activeTab === "evaluation" ? "requirements" : "basics")}>
+                  Back
+                </Button>
+              )}
+              {activeTab !== "evaluation" ? (
+                <Button type="button" onClick={() => setActiveTab(activeTab === "basics" ? "requirements" : "evaluation")}>
+                  Next
+                </Button>
+              ) : (
+                <Button type="submit" disabled={isSubmitting || totalWeight !== 100}>
+                  {isSubmitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating...</> : "Create RFQ"}
+                </Button>
+              )}
             </DialogFooter>
           </form>
         </Form>

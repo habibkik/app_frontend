@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { RFQDetailModal } from "@/components/rfqs/RFQDetailModal";
 import {
   FileText,
   Search,
@@ -60,6 +61,7 @@ export default function RFQsPage() {
   const [sortField, setSortField] = useState<SortField>("createdAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRFQ, setSelectedRFQ] = useState<RFQItem | null>(null);
   const itemsPerPage = 5;
 
   // Filter and sort RFQs
@@ -365,7 +367,7 @@ export default function RFQsPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setSelectedRFQ(rfq)}>
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
@@ -439,6 +441,8 @@ export default function RFQsPage() {
             </div>
           )}
         </div>
+
+        <RFQDetailModal rfq={selectedRFQ} open={!!selectedRFQ} onOpenChange={(open) => !open && setSelectedRFQ(null)} />
       </div>
     </DashboardLayout>
   );

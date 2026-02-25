@@ -16,8 +16,10 @@ import {
 import {
   Search, FileText, MessageSquare, Bookmark, ArrowRight,
   ShoppingCart, Users, Clock, CheckCircle2, AlertCircle, TrendingUp,
+  Target, DollarSign, BarChart3, ShieldCheck, Timer,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 // ── Derived data ───────────────────────────────────────────
 
@@ -62,8 +64,16 @@ const alertIconMap: Record<string, React.ReactNode> = {
   supplier: <Users className="h-4 w-4 mt-0.5 text-blue-500 shrink-0" />,
 };
 
-// ── Component ──────────────────────────────────────────────
+const procurementKPIs = [
+  { label: "RFQ Cycle Time", value: "12.4 days", trend: "-2.1d", positive: true, icon: Timer },
+  { label: "Cost Savings vs Target", value: "8.3%", trend: "+1.2%", positive: true, icon: DollarSign },
+  { label: "Supplier Response Rate", value: "76%", trend: "+5%", positive: true, icon: Target },
+  { label: "Quote Accuracy", value: "94%", trend: "+2%", positive: true, icon: BarChart3 },
+  { label: "Dual Sourcing Coverage", value: "62%", trend: "+8%", positive: true, icon: ShieldCheck },
+  { label: "On-Time RFQ Submission", value: "89%", trend: "-1%", positive: false, icon: Clock },
+];
 
+// ── Component ──────────────────────────────────────────────
 export default function BuyerDashboard() {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -127,6 +137,34 @@ export default function BuyerDashboard() {
               </CardContent>
             </Card>
           ))}
+        </motion.div>
+
+        {/* Procurement KPIs */}
+        <motion.div variants={item}>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Procurement KPIs</CardTitle>
+              <CardDescription>Key performance indicators for your sourcing operations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {procurementKPIs.map((kpi) => (
+                  <Card key={kpi.label} className="min-w-[160px] bg-muted/40 shrink-0">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <kpi.icon className="h-4 w-4 text-primary" />
+                        <span className="text-xs text-muted-foreground">{kpi.label}</span>
+                      </div>
+                      <p className="text-lg font-bold">{kpi.value}</p>
+                      <span className={cn("text-xs font-medium", kpi.positive ? "text-success" : "text-destructive")}>
+                        {kpi.trend}
+                      </span>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
