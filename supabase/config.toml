@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.prepare-outreach-campaigns]
 verify_jwt = false
+
+[functions.negotiation-intelligence]
+verify_jwt = false
