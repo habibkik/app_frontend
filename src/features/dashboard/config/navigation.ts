@@ -20,6 +20,7 @@ import {
   Map,
   Newspaper,
   Radar,
+  Calculator,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -51,6 +52,12 @@ const buyerNavigation: NavGroup[] = [
       { title: "My RFQs", url: "/dashboard/rfqs", icon: FileText },
       { title: "Conversations", url: "/dashboard/conversations", icon: MessageSquare },
       { title: "Saved Suppliers", url: "/dashboard/saved", icon: Bookmark },
+    ],
+  },
+  {
+    label: "Analysis",
+    items: [
+      { title: "Should-Cost Model", url: "/dashboard/should-cost", icon: Calculator },
     ],
   },
   {
