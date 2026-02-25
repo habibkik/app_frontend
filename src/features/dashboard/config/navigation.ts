@@ -22,6 +22,7 @@ import {
   Radar,
   Calculator,
   Brain,
+  GitCompareArrows,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -53,6 +54,7 @@ const buyerNavigation: NavGroup[] = [
       { title: "My RFQs", url: "/dashboard/rfqs", icon: FileText },
       { title: "Conversations", url: "/dashboard/conversations", icon: MessageSquare },
       { title: "Saved Suppliers", url: "/dashboard/saved", icon: Bookmark },
+      { title: "Compare Suppliers", url: "/dashboard/compare", icon: GitCompareArrows },
     ],
   },
   {
