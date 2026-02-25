@@ -18,6 +18,7 @@ import {
   StickyNote,
   Edit3,
   X,
+  Shield,
 } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,6 +66,7 @@ import { BulkTagAssignModal } from "@/components/suppliers/BulkTagAssignModal";
 import { Supplier, mockSuppliers } from "@/data/suppliers";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { SupplierRiskScoring, SupplierRiskBadge } from "@/components/suppliers/SupplierRiskScoring";
 
 export default function SavedSuppliersPage() {
   const { t } = useTranslation();
@@ -479,6 +481,11 @@ export default function SavedSuppliersPage() {
                             </div>
                           )}
 
+                          {/* Risk Score Compact */}
+                          <div className="mb-3 p-2.5 rounded-lg border border-border/50 bg-muted/30">
+                            <SupplierRiskScoring supplier={supplier} compact />
+                          </div>
+
                           {/* Industry Badge */}
                           <div className="mb-4">
                             <Badge variant="outline">{supplier.industry}</Badge>
@@ -560,6 +567,7 @@ export default function SavedSuppliersPage() {
                     <TableHead>Supplier</TableHead>
                     <TableHead className="hidden sm:table-cell">Tags</TableHead>
                     <TableHead className="hidden md:table-cell">Notes</TableHead>
+                    <TableHead>Risk</TableHead>
                     <TableHead>Rating</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -639,6 +647,9 @@ export default function SavedSuppliersPage() {
                                 No notes
                               </span>
                             )}
+                          </TableCell>
+                          <TableCell>
+                            <SupplierRiskBadge supplier={supplier} />
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
@@ -725,6 +736,21 @@ export default function SavedSuppliersPage() {
               </CardContent>
             </Card>
           </motion.div>
+        )}
+
+        {/* Risk Assessment Panels for selected supplier */}
+        {filteredSuppliers.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Supplier Risk Assessment
+            </h2>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {filteredSuppliers.slice(0, 4).map((supplier) => (
+                <SupplierRiskScoring key={supplier.id} supplier={supplier} />
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Contact Modal */}
