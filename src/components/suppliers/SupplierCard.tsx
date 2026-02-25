@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Supplier } from "@/data/suppliers";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { SupplierRiskBadge } from "@/components/suppliers/SupplierRiskScoring";
 
 interface SupplierCardProps {
   supplier: Supplier;
@@ -38,6 +39,7 @@ export function SupplierCard({ supplier, onContact, onSave, onClick, onNameClick
                 {supplier.name}
               </h3>
               {supplier.verified && <BadgeCheck className="h-4 w-4 text-primary flex-shrink-0" />}
+              <SupplierRiskBadge supplier={supplier} />
             </div>
             
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
