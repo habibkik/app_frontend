@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Check, CheckCheck, Trash2, Mail, Linkedin, MessageCircle, Phone, Facebook, Instagram, Send, Twitter } from "lucide-react";
+import { ChevronDown, ChevronUp, Check, CheckCheck, Trash2, Mail, Linkedin, MessageCircle, Phone, Facebook, Instagram, Send, Twitter, Target, RefreshCw, Leaf, GitBranch, FileText, Sparkles } from "lucide-react";
 import { ChannelMessageEditor } from "./ChannelMessageEditor";
 import { PersonalizationScore } from "./PersonalizationScore";
 import { SequenceBuilder } from "./SequenceBuilder";
@@ -39,6 +39,15 @@ const TIER_LABELS: Record<string, { label: string; color: string }> = {
   C: { label: "Tier C — Backup", color: "bg-muted text-muted-foreground" },
 };
 
+const OBJECTIVE_BADGES: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
+  sourcing: { label: "Sourcing", icon: <Target className="h-3 w-3" />, color: "bg-chart-1/10 text-chart-1 border-chart-1/20" },
+  renewal: { label: "Renewal", icon: <RefreshCw className="h-3 w-3" />, color: "bg-chart-2/10 text-chart-2 border-chart-2/20" },
+  esg: { label: "ESG", icon: <Leaf className="h-3 w-3" />, color: "bg-chart-3/10 text-chart-3 border-chart-3/20" },
+  dual: { label: "Dual Source", icon: <GitBranch className="h-3 w-3" />, color: "bg-chart-4/10 text-chart-4 border-chart-4/20" },
+  "rfq-followup": { label: "RFQ Follow-up", icon: <FileText className="h-3 w-3" />, color: "bg-chart-5/10 text-chart-5 border-chart-5/20" },
+  general: { label: "General", icon: <Sparkles className="h-3 w-3" />, color: "bg-muted text-muted-foreground border-border" },
+};
+
 interface OutreachCampaignCardProps {
   supplierName: string;
   campaigns: OutreachCampaign[];
@@ -61,6 +70,8 @@ export function OutreachCampaignCard({
   const draftCount = campaigns.filter((c) => c.status === "draft").length;
   const productName = campaigns[0]?.product_name;
   const tier = campaigns[0]?.supplier_tier;
+  const objective = campaigns[0]?.objective;
+  const objectiveBadge = objective ? OBJECTIVE_BADGES[objective] : null;
   const hasSequence = campaigns.some((c) => (c.scheduled_day || 1) > 1 || (c.sequence_step || 1) > 1);
 
   return (
@@ -79,6 +90,12 @@ export function OutreachCampaignCard({
                   <CardTitle className="text-base">{supplierName}</CardTitle>
                   {tier && TIER_LABELS[tier] && (
                     <Badge className={`text-[10px] ${TIER_LABELS[tier].color}`}>{TIER_LABELS[tier].label}</Badge>
+                  )}
+                  {objectiveBadge && (
+                    <Badge variant="outline" className={`text-[10px] gap-1 ${objectiveBadge.color}`}>
+                      {objectiveBadge.icon}
+                      {objectiveBadge.label}
+                    </Badge>
                   )}
                 </div>
                 {productName && (
