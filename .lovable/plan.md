@@ -1,126 +1,141 @@
 
 
-## Enhance Buyer Mode with Professional Procurement Best Practices
+## Add Missing Procurement Best Practices
 
-Based on the comprehensive procurement framework you shared, here are the key enhancements to bring the buyer mode to OEM-level procurement standards.
+After thorough review of the existing codebase against your comprehensive guide, here is what already exists and what needs to be added.
 
-### Current State
+### Already Implemented
+- RFQ creation with Incoterms, payment terms, quality standards, certifications, evaluation criteria, sample required, warranty, compliance notes
+- RFQ detail modal with quote comparison, weighted scoring, timeline, activity log
+- Should-cost calculator with cost breakdown (Material, Labor, Machine, Tooling, Overhead, Margin)
+- Negotiation intelligence AI (generates tactics, scripts, cost drivers, supplier risks)
+- Supplier scorecard with radar chart (7 dimensions)
+- Supplier risk scoring (Financial, Operational, Compliance, Geopolitical)
+- Supplier comparison tool (3-6 suppliers side-by-side)
+- Procurement KPIs on buyer dashboard
+- RFQ Campaign Builder (select suppliers, customize message, send)
 
-The buyer mode currently has:
-- Basic RFQ creation (title, description, category, quantity, target price, delivery date/location)
-- RFQ list with search/filter/sort
-- 4-step RFQ Campaign Builder wizard
-- Supplier search with AI image discovery
-- Saved suppliers with tags/notes
-- Basic dashboard stats and alerts
+### What is Missing
 
-### What's Missing (mapped to best practices)
-
-The RFQ form lacks critical procurement fields (Incoterms, payment terms, quality standards, certifications, evaluation criteria, pricing breakdown requirements). There's no structured way to compare quotes side-by-side. No supplier scorecard or risk scoring. No procurement-specific KPIs.
+The following features from your guide are not yet in the platform:
 
 ---
 
 ### Planned Changes
 
-#### 1. Enhanced RFQ Data Model (`src/data/rfqs.ts`)
+#### 1. Enhanced RFQ Form — Missing Fields (`src/components/rfqs/CreateRFQDialog.tsx`)
 
-Extend `RFQItem` with professional procurement fields:
+Add to Tab 1 (Basics):
+- **Quotation Validity** — number input (default 90 days)
+- **Country of Origin** — text input
+- **Packaging Requirements** — textarea
+- **Labelling Requirements** — textarea
 
-- `incoterm` — EXW, FOB, CIF, DDP, etc.
-- `paymentTerms` — Net 30, Net 60, LC, etc.
-- `qualityStandards` — ISO 9001, FDA, CE, etc. (array)
-- `certificationsRequired` — specific certs needed (array)
-- `evaluationCriteria` — weighted criteria: `{ criterion: string; weight: number }[]`
-- `pricingBreakdownRequired` — boolean flag requesting cost transparency
-- `clarificationDeadline` — date for Q&A window
-- `sampleRequired` — boolean
-- `warrantyTerms` — string
-- `complianceNotes` — regulatory/import notes
+Add to Tab 2 (Requirements):
+- **Required Documents** — multi-select checklist: Company Profile, Financial Statement, Certifications, References, Compliance Declaration
+- **Submission Instructions** — textarea (email, format, deadline note)
 
-Add new mock data reflecting these fields.
+Update `src/data/rfqs.ts` RFQItem type with these new fields and update mock data.
 
-#### 2. Enhanced RFQ Creation Dialog (`src/components/rfqs/CreateRFQDialog.tsx`)
+#### 2. Industry Procurement Playbook (`src/pages/dashboard/IndustryPlaybook.tsx` — new)
 
-Restructure into a multi-step form (3 tabs):
+A comprehensive reference page with 12 industry tabs, each containing:
+- **RFQ Best Practices** — industry-specific checklist of what to include
+- **Negotiation Tactics** — key levers and strategies
+- **Key Strategy** — the one-liner strategic focus
 
-**Tab 1 — Basics** (existing fields, improved):
-- Title, description, category, quantity, unit, target price, currency
+Industries: Manufacturing, IT/Software, Construction, Healthcare, Retail/FMCG, Energy/Utilities, Logistics, Hospitality, Financial Services, Agriculture, Chemical, Textile/Apparel.
 
-**Tab 2 — Requirements** (new):
-- Incoterm selector (EXW / FOB / CIF / DDP / DAP)
-- Payment terms selector
-- Quality standards multi-select
-- Certifications required multi-select
-- Sample required toggle
-- Warranty terms field
-- Compliance notes textarea
+Each tab renders as a structured card with collapsible sections. No AI needed — this is static reference content from your guide.
 
-**Tab 3 — Evaluation & Timeline** (new):
-- Weighted evaluation criteria builder (add/remove rows with criterion name + weight %)
-- Weight total validation (must sum to 100%)
-- Clarification deadline date picker
-- Submission deadline (delivery date, existing)
-- Pricing breakdown required toggle
-- Attachments zone (existing)
+#### 3. Kraljic Matrix Classifier (`src/pages/dashboard/KraljicMatrix.tsx` — new)
 
-#### 3. RFQ Detail View Modal (`src/components/rfqs/RFQDetailModal.tsx` — new file)
+Interactive 2x2 matrix tool:
+- User inputs a purchase item name
+- Two sliders: **Supply Risk** (Low to High) and **Business Impact** (Low to High)
+- Item plots on a visual 2x2 grid
+- Quadrant labels: Non-Critical, Leverage, Bottleneck, Strategic
+- Each quadrant shows recommended strategy from your guide
+- Users can add multiple items and see them all plotted
+- Includes industry examples per quadrant (from your guide)
 
-A comprehensive modal triggered from the RFQ table "View Details" action:
+#### 4. Negotiation Playbook & Scripts Library (`src/pages/dashboard/NegotiationPlaybook.tsx` — new)
 
-- Full RFQ information display with all new fields
-- **Quote Comparison Tab** — side-by-side mock quotes from suppliers with:
-  - Unit price, tooling cost, MOQ, logistics, taxes
-  - Lead time, payment terms offered
-  - Weighted score calculation based on evaluation criteria
-  - Visual bar chart comparing total scores
-  - "Award" button on best quote
-- **Timeline Tab** — visual timeline of RFQ lifecycle (created → clarification → submission → evaluation → award)
-- **Activity Log** — mock log of events (quote received, clarification asked, etc.)
+A static reference page with two sections:
 
-#### 4. Supplier Scorecard Component (`src/components/buyer/SupplierScorecard.tsx` — new file)
+**Section A — Psychological Tactics (12 tactics from your guide):**
+Each as a card with title, description, example phrase, and when-to-use note:
+1. The Flinch
+2. Strategic Silence
+3. Good Cop / Bad Cop (Internal)
+4. The Nibble
+5. Anchoring Power
+6. Limited Budget Frame
+7. Future Business Leverage
+8. Controlled Concessions
+9. Walk-Away Power
+10. Scarcity Reversal
+11. Data Dominance
+12. Emotional Neutrality
 
-A reusable scorecard widget based on the OEM template:
+**Section B — Ready-to-Use Scripts:**
+Copyable script cards for each scenario: Opening, Price Too High, Anchoring Lower, Impossible Response, Trade-Off, Better Payment Terms, Competitive Pressure, Closing Summary.
 
-- 7 dimensions: Quality (30%), Delivery (25%), Cost (20%), Innovation (10%), Responsiveness (5%), Risk (5%), Sustainability (5%)
-- Radar chart visualization using Recharts
-- Editable scores (1–5 scale per dimension)
-- Weighted total score calculation
-- Color-coded risk level (Low / Medium / High)
-- Integrated into the Saved Suppliers detail view
+**Section C — Golden Rules:**
+Visual banner with the 4 golden rules and universal principles.
 
-#### 5. Enhanced Buyer Dashboard (`src/features/buyer/pages/BuyerDashboard.tsx`)
+#### 5. Contract Clause Checklist (`src/pages/dashboard/ContractChecklist.tsx` — new)
 
-Add a new **Procurement KPIs** section with:
+Interactive checklist page with 15 contract clauses from your guide:
+- Each clause as a collapsible card with: Name, Description, Key Points, Risk Level
+- Checkbox to mark as reviewed/included
+- Progress bar showing how many clauses are covered
+- Clauses: Price Protection, Delivery Penalty, Quality/Inspection, Warranty, Termination, Force Majeure, Confidentiality/IP, Indemnification, Insurance, Payment Protection, Performance Bond, Dispute Resolution, Change Management, Audit Rights, ESG/Compliance
+- Export summary button (copy to clipboard)
 
-- RFQ Cycle Time (avg days from creation to award)
-- Cost Savings vs Target Price (%)
-- Supplier Response Rate (%)
-- Quote Accuracy (variance vs final contract)
-- Dual Sourcing Coverage (%)
-- On-Time RFQ Submission Rate
+#### 6. Enhanced Negotiation Intelligence — BATNA & Cost Analysis (`src/pages/dashboard/NegotiationIntelligence.tsx`)
 
-These are displayed as a horizontal scrollable card row with trend indicators.
+Add to the existing negotiation page:
+- **BATNA Section** — inputs for Target Price, Walk-Away Price, and Best Alternative description
+- **Should-Cost vs Quoted Gap** — when user provides should-cost estimate, show visual gap analysis bar
+- **Industry Margin Benchmarks** — static reference showing average margins by industry (Manufacturing 8-15%, IT 20-40%, Distribution 5-10%)
+- Pass BATNA data to the AI edge function for more targeted recommendations
 
-#### 6. Navigation Update (`src/features/dashboard/config/navigation.ts`)
+#### 7. Navigation Updates (`src/features/dashboard/config/navigation.ts`)
 
-No new pages needed — the enhancements are within existing pages (RFQs, Saved Suppliers, Buyer Dashboard).
+Add to Buyer "Analysis" section:
+- **Industry Playbook** (BookOpen icon)
+- **Kraljic Matrix** (Grid3X3 icon)
+- **Negotiation Playbook** (ScrollText icon)
+- **Contract Checklist** (ClipboardCheck icon)
+
+#### 8. Router Updates (`src/app/Router.tsx`)
+
+Register 4 new routes:
+- `/dashboard/industry-playbook`
+- `/dashboard/kraljic`
+- `/dashboard/negotiation-playbook`
+- `/dashboard/contract-checklist`
 
 ---
 
 ### Files Modified
-- `src/data/rfqs.ts` — extend RFQItem type + mock data + add Incoterms/payment terms constants
-- `src/components/rfqs/CreateRFQDialog.tsx` — multi-tab form with new fields
-- `src/pages/dashboard/RFQs.tsx` — wire up RFQ detail modal
-- `src/features/buyer/pages/BuyerDashboard.tsx` — add procurement KPIs section
+- `src/data/rfqs.ts` — extend RFQItem with quotationValidity, countryOfOrigin, packagingRequirements, labellingRequirements, requiredDocuments, submissionInstructions
+- `src/components/rfqs/CreateRFQDialog.tsx` — add missing form fields to tabs 1 and 2
+- `src/pages/dashboard/NegotiationIntelligence.tsx` — add BATNA inputs, should-cost gap, industry margins
+- `src/features/dashboard/config/navigation.ts` — add 4 new nav items
+- `src/app/Router.tsx` — add 4 new routes
 
 ### Files Created
-- `src/components/rfqs/RFQDetailModal.tsx` — full detail view with quote comparison
-- `src/components/buyer/SupplierScorecard.tsx` — weighted evaluation scorecard with radar chart
+- `src/pages/dashboard/IndustryPlaybook.tsx` — 12 industry-specific RFQ and negotiation reference
+- `src/pages/dashboard/KraljicMatrix.tsx` — interactive purchase classification tool
+- `src/pages/dashboard/NegotiationPlaybook.tsx` — psychological tactics and scripts library
+- `src/pages/dashboard/ContractChecklist.tsx` — 15-clause contract review checklist
 
 ### Technical Notes
-- All new form fields use Zod validation with sensible defaults (optional where appropriate)
-- Evaluation criteria weights validated to sum to 100%
-- Quote comparison uses mock data simulating supplier responses
-- Radar chart uses existing Recharts dependency
-- No database changes needed — all data is local/mock for now
+- All new pages are static reference content (no API calls needed) except the BATNA enhancement which extends the existing edge function
+- Industry playbook and negotiation playbook use collapsible cards for clean organization
+- Contract checklist state is managed locally with useState (persists during session)
+- Kraljic matrix uses a simple SVG or positioned div grid for the 2x2 plot
+- All content is sourced directly from the user's procurement guide
 
