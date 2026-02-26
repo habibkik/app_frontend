@@ -96,6 +96,15 @@ const RISK_COLORS: Record<string, string> = {
   high: "text-destructive",
 };
 
+const DEMO_QUOTES: QuoteInput[] = [
+  { id: crypto.randomUUID(), supplierName: "Precision Machining Co. (Germany)", unitPrice: 124.50, toolingCost: 8500, moq: 500, leadTimeDays: 28, paymentTerms: "Net 45", notes: "ISO 9001 certified, existing supplier" },
+  { id: crypto.randomUUID(), supplierName: "TechParts Asia (China)", unitPrice: 87.20, toolingCost: 4200, moq: 1000, leadTimeDays: 42, paymentTerms: "30% advance, 70% on delivery", notes: "New vendor, IATF 16949 pending" },
+  { id: crypto.randomUUID(), supplierName: "Midwest Manufacturing (USA)", unitPrice: 142.00, toolingCost: 12000, moq: 250, leadTimeDays: 18, paymentTerms: "Net 30", notes: "Domestic supplier, fast turnaround" },
+  { id: crypto.randomUUID(), supplierName: "EuroCast Industries (Poland)", unitPrice: 98.75, toolingCost: 6800, moq: 750, leadTimeDays: 35, paymentTerms: "Net 60", notes: "ISO 14001 + 9001, competitive pricing" },
+  { id: crypto.randomUUID(), supplierName: "Apex Components (India)", unitPrice: 79.90, toolingCost: 3500, moq: 2000, leadTimeDays: 50, paymentTerms: "LC at sight", notes: "Lowest price, high MOQ requirement" },
+  { id: crypto.randomUUID(), supplierName: "Nova Precision (Turkey)", unitPrice: 105.30, toolingCost: 5600, moq: 500, leadTimeDays: 30, paymentTerms: "Net 45", notes: "Growing capacity, AS9100 certified" },
+];
+
 export default function NegotiationIntelligencePage() {
   const fc = useFormatCurrency();
   const [productName, setProductName] = useState("");
@@ -107,6 +116,18 @@ export default function NegotiationIntelligencePage() {
   const [quotes, setQuotes] = useState<QuoteInput[]>([emptyQuote(), emptyQuote()]);
   const [result, setResult] = useState<NegotiationResult | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const loadDemoData = () => {
+    setProductName("CNC Machined Aluminum Housing – Part #AH-2026-X");
+    setTargetPrice(95.00);
+    setMarketBenchmark(108.50);
+    setWalkAwayPrice(130.00);
+    setBestAlternative("Switch to EuroCast Industries at $98.75/unit with 3-year volume commitment");
+    setShouldCostEstimate(88.00);
+    setQuotes(DEMO_QUOTES.map(q => ({ ...q, id: crypto.randomUUID() })));
+    setResult(null);
+    toast.success("Demo data loaded – 6 supplier quotes ready for analysis");
+  };
 
   const addQuote = () => setQuotes((q) => [...q, emptyQuote()]);
   const removeQuote = (id: string) => setQuotes((q) => q.filter((x) => x.id !== id));
@@ -165,6 +186,10 @@ export default function NegotiationIntelligencePage() {
               AI-powered tactics & scripts based on supplier quote analysis
             </p>
           </div>
+          <Button variant="outline" size="sm" onClick={loadDemoData}>
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            Load Demo Data
+          </Button>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
