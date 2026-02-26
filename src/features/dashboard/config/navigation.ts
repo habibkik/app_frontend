@@ -23,6 +23,10 @@ import {
   Calculator,
   Brain,
   GitCompareArrows,
+  BookOpen,
+  Grid3X3,
+  ScrollText,
+  ClipboardCheck,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -62,6 +66,10 @@ const buyerNavigation: NavGroup[] = [
     items: [
       { title: "Should-Cost Model", url: "/dashboard/should-cost", icon: Calculator },
       { title: "Negotiation AI", url: "/dashboard/negotiation", icon: Brain },
+      { title: "Industry Playbook", url: "/dashboard/industry-playbook", icon: BookOpen },
+      { title: "Kraljic Matrix", url: "/dashboard/kraljic", icon: Grid3X3 },
+      { title: "Negotiation Playbook", url: "/dashboard/negotiation-playbook", icon: ScrollText },
+      { title: "Contract Checklist", url: "/dashboard/contract-checklist", icon: ClipboardCheck },
     ],
   },
   {

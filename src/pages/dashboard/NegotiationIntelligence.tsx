@@ -101,6 +101,9 @@ export default function NegotiationIntelligencePage() {
   const [productName, setProductName] = useState("");
   const [targetPrice, setTargetPrice] = useState<number>(0);
   const [marketBenchmark, setMarketBenchmark] = useState<number>(0);
+  const [walkAwayPrice, setWalkAwayPrice] = useState<number>(0);
+  const [bestAlternative, setBestAlternative] = useState("");
+  const [shouldCostEstimate, setShouldCostEstimate] = useState<number>(0);
   const [quotes, setQuotes] = useState<QuoteInput[]>([emptyQuote(), emptyQuote()]);
   const [result, setResult] = useState<NegotiationResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -124,6 +127,9 @@ export default function NegotiationIntelligencePage() {
           productName,
           targetPrice: targetPrice || undefined,
           marketBenchmark: marketBenchmark || undefined,
+          walkAwayPrice: walkAwayPrice || undefined,
+          bestAlternative: bestAlternative || undefined,
+          shouldCostEstimate: shouldCostEstimate || undefined,
         },
       });
       if (error) throw error;
@@ -181,6 +187,73 @@ export default function NegotiationIntelligencePage() {
                   <div className="space-y-1.5">
                     <Label className="text-sm">Market Benchmark</Label>
                     <Input type="number" min={0} step={0.01} value={marketBenchmark || ""} onChange={(e) => setMarketBenchmark(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* BATNA Section */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  BATNA & Cost Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Walk-Away Price</Label>
+                    <Input type="number" min={0} step={0.01} value={walkAwayPrice || ""} onChange={(e) => setWalkAwayPrice(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Should-Cost Estimate</Label>
+                    <Input type="number" min={0} step={0.01} value={shouldCostEstimate || ""} onChange={(e) => setShouldCostEstimate(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm">Best Alternative (BATNA)</Label>
+                  <Input value={bestAlternative} onChange={(e) => setBestAlternative(e.target.value)} placeholder="e.g. Switch to Supplier B at $90/unit" className="h-8 text-sm" />
+                </div>
+
+                {/* Gap analysis */}
+                {shouldCostEstimate > 0 && quotes.some(q => q.unitPrice > 0) && (() => {
+                  const avgQuoted = quotes.filter(q => q.unitPrice > 0).reduce((s, q) => s + q.unitPrice, 0) / quotes.filter(q => q.unitPrice > 0).length;
+                  const gap = avgQuoted - shouldCostEstimate;
+                  const gapPct = ((gap / avgQuoted) * 100).toFixed(1);
+                  return (
+                    <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
+                      <div className="flex justify-between text-xs">
+                        <span>Should-Cost: <strong>${shouldCostEstimate.toFixed(2)}</strong></span>
+                        <span>Avg Quoted: <strong>${avgQuoted.toFixed(2)}</strong></span>
+                      </div>
+                      <div className="relative h-3 bg-muted rounded-full overflow-hidden">
+                        <div className="absolute inset-y-0 left-0 bg-emerald-500 rounded-full" style={{ width: `${Math.min((shouldCostEstimate / avgQuoted) * 100, 100)}%` }} />
+                        {gap > 0 && <div className="absolute inset-y-0 bg-destructive/30 rounded-r-full" style={{ left: `${(shouldCostEstimate / avgQuoted) * 100}%`, right: 0 }} />}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {gap > 0 ? `Negotiation gap: $${gap.toFixed(2)} (${gapPct}% above should-cost)` : "Quoted price is at or below should-cost estimate ✓"}
+                      </p>
+                    </div>
+                  );
+                })()}
+
+                {/* Industry margins */}
+                <div className="p-3 rounded-lg border bg-muted/30">
+                  <p className="text-xs font-medium mb-1.5">Industry Margin Benchmarks</p>
+                  <div className="grid grid-cols-3 gap-2 text-[10px]">
+                    <div className="text-center p-1.5 rounded bg-background border">
+                      <p className="font-bold">8–15%</p>
+                      <p className="text-muted-foreground">Manufacturing</p>
+                    </div>
+                    <div className="text-center p-1.5 rounded bg-background border">
+                      <p className="font-bold">20–40%</p>
+                      <p className="text-muted-foreground">IT / Software</p>
+                    </div>
+                    <div className="text-center p-1.5 rounded bg-background border">
+                      <p className="font-bold">5–10%</p>
+                      <p className="text-muted-foreground">Distribution</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>
