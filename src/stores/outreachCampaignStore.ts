@@ -57,7 +57,7 @@ interface OutreachCampaignState {
   deleteRule: (id: string) => Promise<void>;
   prepareCampaigns: (suppliers: any[], productName?: string, objective?: string, supplierTier?: string) => Promise<number>;
   updateCampaignResponse: (id: string, response: string, channel: string) => Promise<void>;
-  prepareCampaignsForSupplier: (supplier: any, productName?: string) => Promise<number>;
+  prepareCampaignsForSupplier: (supplier: any, productName?: string, objective?: string, supplierTier?: string) => Promise<number>;
 }
 
 export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get) => ({
@@ -222,22 +222,63 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
         set({ loading: false });
         return data?.campaigns_created || 0;
       } else {
-        // Not authenticated: generate local mock campaigns
-        const channels = ["email", "linkedin", "whatsapp", "sms", "phone_call", "facebook", "instagram", "tiktok", "twitter"];
+        // Not authenticated: generate local mock campaigns with objective-specific content
+        const OBJECTIVE_SEQUENCES: Record<string, { day: number; channel: string; getMessage: (product: string, name: string) => string; getSubject?: (product: string) => string }[]> = {
+          sourcing: [
+            { day: 1, channel: "email", getMessage: (p, n) => `Dear ${n} team,\n\nWe are evaluating qualified suppliers for ${p} and your capabilities align with our requirements. Could you share your product catalog, MOQ, and lead times?\n\nWe'd appreciate a brief call to discuss qualification criteria and volume forecasts.`, getSubject: (p) => `Supplier Qualification Inquiry – ${p}` },
+            { day: 3, channel: "linkedin", getMessage: (p, n) => `Hi! We're sourcing ${p} and came across ${n}. Would love to connect and explore a potential supply partnership.` },
+            { day: 5, channel: "email", getMessage: (p, n) => `Following up on our inquiry about ${p}. To proceed with qualification, could you provide:\n\n1. Quality certifications (ISO/IATF)\n2. Production capacity & current utilization\n3. Reference customers in our industry\n\nLooking forward to your response.`, getSubject: (p) => `Qualification Follow-up – ${p}` },
+            { day: 8, channel: "phone_call", getMessage: (p, n) => `Call script for ${n}:\n- Introduce our company and sourcing needs for ${p}\n- Ask about capacity and lead times\n- Discuss sample/trial order process\n- Confirm next steps for formal RFQ` },
+            { day: 12, channel: "email", getMessage: (p, n) => `We're finalizing our shortlist for ${p} suppliers. Our projected annual volume is significant and we'd like to include ${n} in our RFQ process. Please confirm your interest by end of week.`, getSubject: (p) => `Volume Opportunity – ${p} Supplier Selection` },
+            { day: 16, channel: "email", getMessage: (p, n) => `This is our final follow-up regarding ${p} sourcing. If we don't hear back, we'll proceed with other qualified suppliers. We'd love to include ${n} — please let us know if you're interested.`, getSubject: (p) => `Final Follow-up – ${p} Supplier Inquiry` },
+          ],
+          renewal: [
+            { day: 1, channel: "email", getMessage: (p, n) => `Hi ${n},\n\nAs part of our periodic supplier review, we're benchmarking pricing and terms for ${p}. We value our relationship and want to ensure mutual competitiveness.\n\nCould we schedule a call to discuss updated pricing for the next contract period?`, getSubject: (p) => `Periodic Review – ${p} Supply Agreement` },
+            { day: 5, channel: "email", getMessage: (p, n) => `Following up on our review for ${p}. We've received competitive benchmarks from the market and would like to give ${n} the opportunity to present updated terms before we finalize decisions.`, getSubject: (p) => `Market Benchmark Update – ${p}` },
+            { day: 10, channel: "linkedin", getMessage: (p, n) => `Hi! Quick note regarding our ${p} contract renewal discussion. Would be great to connect and align on next steps. Looking forward to continuing our partnership with ${n}.` },
+          ],
+          esg: [
+            { day: 1, channel: "email", getMessage: (p, n) => `Dear ${n},\n\nAs part of our ESG compliance program, we're requesting sustainability certifications and environmental data from all suppliers in our ${p} supply chain.\n\nPlease share:\n1. ISO 14001 / SA8000 certifications\n2. Carbon footprint data\n3. Conflict minerals declaration\n\nCompliance deadline: 30 days.`, getSubject: (p) => `ESG Compliance Request – ${p} Supply Chain` },
+            { day: 5, channel: "email", getMessage: (p, n) => `Friendly reminder regarding our ESG documentation request for ${p}. Non-compliance may affect future order allocation. We're happy to assist if you need guidance on the requirements.`, getSubject: (p) => `ESG Documentation Reminder – ${p}` },
+            { day: 12, channel: "phone_call", getMessage: (p, n) => `Escalation call script for ${n}:\n- Reference ESG compliance deadline for ${p}\n- Offer to connect them with our sustainability team\n- Explain implications of non-compliance on future orders\n- Document commitments and follow-up dates` },
+          ],
+          dual: [
+            { day: 1, channel: "email", getMessage: (p, n) => `Dear ${n},\n\nWe're diversifying our supply base for ${p} to strengthen resilience. Your capabilities are of interest.\n\nCould you provide an overview of your production capacity, quality systems, and ability to ramp up for our volume requirements?`, getSubject: (p) => `Dual Sourcing Inquiry – ${p}` },
+            { day: 3, channel: "linkedin", getMessage: (p, n) => `Hi! We're building a dual-source strategy for ${p} and ${n} looks like a strong fit. Would love to discuss capabilities and potential collaboration.` },
+            { day: 7, channel: "email", getMessage: (p, n) => `Following up on our dual sourcing inquiry for ${p}. To move forward with qualification, we'd need:\n\n1. Plant audit availability\n2. Sample production timeline\n3. Preliminary pricing for our volume range\n\nPlease advise on next steps.`, getSubject: (p) => `Qualification Next Steps – ${p}` },
+            { day: 14, channel: "email", getMessage: (p, n) => `We're sending our formal RFQ for ${p} dual sourcing. ${n} has been shortlisted based on initial assessment. Please find the RFQ details and respond within 10 business days.`, getSubject: (p) => `Formal RFQ – ${p} Dual Source Program` },
+          ],
+          "rfq-followup": [
+            { day: 1, channel: "email", getMessage: (p, n) => `Hi ${n},\n\nJust confirming receipt of our RFQ for ${p} sent recently. Please acknowledge receipt and let us know if you have any questions about the specifications or timeline.`, getSubject: (p) => `RFQ Receipt Confirmation – ${p}` },
+            { day: 4, channel: "phone_call", getMessage: (p, n) => `Call script for ${n}:\n- Confirm they received the ${p} RFQ\n- Answer any technical questions\n- Remind of submission deadline\n- Offer to extend if needed for quality response` },
+            { day: 8, channel: "email", getMessage: (p, n) => `Reminder: The submission deadline for our ${p} RFQ is approaching. We want to include ${n} in our evaluation. Please submit your proposal at your earliest convenience.`, getSubject: (p) => `RFQ Deadline Reminder – ${p}` },
+          ],
+          general: [
+            { day: 1, channel: "email", getMessage: (p, n) => `Hi, I'm interested in sourcing ${p} from ${n}. Could we discuss pricing and availability for bulk orders?`, getSubject: (p) => `Sourcing Inquiry – ${p}` },
+            { day: 3, channel: "linkedin", getMessage: (p, n) => `Hi! We're looking into ${p} and came across ${n}. Would love to connect and discuss a potential partnership.` },
+            { day: 5, channel: "email", getMessage: (p, n) => `Following up on our inquiry about ${p}. We'd love to learn more about your capabilities and pricing structure.`, getSubject: (p) => `Follow-up – ${p} Inquiry` },
+            { day: 8, channel: "whatsapp", getMessage: (p, n) => `Hi ${n}! Quick follow-up on our ${p} sourcing inquiry. Are you available for a brief chat this week?` },
+            { day: 12, channel: "email", getMessage: (p, n) => `This is our final follow-up regarding ${p}. If we don't hear back, we'll move forward with other suppliers. We'd love to work with ${n}!`, getSubject: (p) => `Final Follow-up – ${p}` },
+          ],
+        };
+
         const newCampaigns: OutreachCampaign[] = [];
+        const effectiveObjective = objective || "general";
+        const sequence = OBJECTIVE_SEQUENCES[effectiveObjective] || OBJECTIVE_SEQUENCES.general;
+
         for (const supplier of suppliers) {
-          for (let channelIndex = 0; channelIndex < channels.length; channelIndex++) {
-            const channel = channels[channelIndex];
-            const product = productName || "your products";
+          const product = productName || "your products";
+          for (let i = 0; i < sequence.length; i++) {
+            const step = sequence[i];
             newCampaigns.push({
-              id: `local-${supplier.id || supplier.name}-${channel}-${Date.now()}`,
+              id: `local-${supplier.id || supplier.name}-${step.channel}-${i}-${Date.now()}`,
               user_id: "demo",
               supplier_id: supplier.id || supplier.name.toLowerCase().replace(/\s+/g, "-"),
               supplier_name: supplier.name,
               product_name: productName || null,
-              channel,
-              message: `Hi, I'm interested in sourcing ${product} from ${supplier.name}. Could we discuss pricing and availability for bulk orders?`,
-              subject: channel === "email" ? `Sourcing Inquiry – ${product}` : null,
+              channel: step.channel,
+              message: step.getMessage(product, supplier.name),
+              subject: step.getSubject ? step.getSubject(product) : null,
               status: "draft",
               auto_repeat: false,
               repeat_interval_hours: 24,
@@ -249,9 +290,9 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
               response_received: null,
               response_channel: null,
               responded_at: null,
-              sequence_step: channelIndex + 1,
-              scheduled_day: 1,
-              objective: objective || null,
+              sequence_step: i + 1,
+              scheduled_day: step.day,
+              objective: effectiveObjective,
               supplier_tier: supplierTier || null,
             });
           }
@@ -289,7 +330,7 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
     }
   },
 
-  prepareCampaignsForSupplier: async (supplier, productName) => {
-    return get().prepareCampaigns([supplier], productName);
+  prepareCampaignsForSupplier: async (supplier, productName, objective, supplierTier) => {
+    return get().prepareCampaigns([supplier], productName, objective, supplierTier);
   },
 }));
