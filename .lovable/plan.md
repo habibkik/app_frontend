@@ -1,141 +1,168 @@
 
 
-## Add Missing Procurement Best Practices
+## Enhance Outreach Hub with Professional Best Practices
 
-After thorough review of the existing codebase against your comprehensive guide, here is what already exists and what needs to be added.
+### Gap Analysis
 
-### Already Implemented
-- RFQ creation with Incoterms, payment terms, quality standards, certifications, evaluation criteria, sample required, warranty, compliance notes
-- RFQ detail modal with quote comparison, weighted scoring, timeline, activity log
-- Should-cost calculator with cost breakdown (Material, Labor, Machine, Tooling, Overhead, Margin)
-- Negotiation intelligence AI (generates tactics, scripts, cost drivers, supplier risks)
-- Supplier scorecard with radar chart (7 dimensions)
-- Supplier risk scoring (Financial, Operational, Compliance, Geopolitical)
-- Supplier comparison tool (3-6 suppliers side-by-side)
-- Procurement KPIs on buyer dashboard
-- RFQ Campaign Builder (select suppliers, customize message, send)
+**Already implemented:**
+- Single-touch campaign generation across 9 channels
+- Automation rules (product/channel/interval/max runs)
+- History tab with response tracking
+- Channel message editor with per-channel character limits
+- Approve/approve-all workflow
+- AI-generated messages via backend function
 
-### What is Missing
-
-The following features from your guide are not yet in the platform:
+**Missing from the guide (to be added):**
 
 ---
 
 ### Planned Changes
 
-#### 1. Enhanced RFQ Form — Missing Fields (`src/components/rfqs/CreateRFQDialog.tsx`)
+#### 1. Campaign Objective Selector (`src/components/outreach/CampaignObjectiveSelector.tsx` -- new)
 
-Add to Tab 1 (Basics):
-- **Quotation Validity** — number input (default 90 days)
-- **Country of Origin** — text input
-- **Packaging Requirements** — textarea
-- **Labelling Requirements** — textarea
+Add an objective picker at the top of the Campaigns tab. Options:
+- **Supplier Sourcing** -- Find and qualify new suppliers
+- **Contract Renewal Leverage** -- Create competitive pressure before renegotiation
+- **Dual Sourcing** -- Find backup supplier
+- **ESG Compliance** -- Request updated certifications
+- **RFQ Follow-up** -- Follow up on sent RFQs
+- **General Inquiry** -- Custom outreach
 
-Add to Tab 2 (Requirements):
-- **Required Documents** — multi-select checklist: Company Profile, Financial Statement, Certifications, References, Compliance Declaration
-- **Submission Instructions** — textarea (email, format, deadline note)
+The selected objective is passed to the AI edge function to tailor message tone and content. Displayed as a row of selectable cards with icon, title, and one-line description.
 
-Update `src/data/rfqs.ts` RFQItem type with these new fields and update mock data.
+#### 2. Multi-Step Sequence Builder (`src/components/outreach/SequenceBuilder.tsx` -- new)
 
-#### 2. Industry Procurement Playbook (`src/pages/dashboard/IndustryPlaybook.tsx` — new)
+Replace the current single-message-per-channel approach with a multi-step sequence timeline. Each supplier campaign becomes a **sequence** of 5-7 touches across multiple days:
 
-A comprehensive reference page with 12 industry tabs, each containing:
-- **RFQ Best Practices** — industry-specific checklist of what to include
-- **Negotiation Tactics** — key levers and strategies
-- **Key Strategy** — the one-liner strategic focus
+- Visual timeline showing Day 1, 3, 5, 8, 12, 16 with channel icons
+- Each step shows: day number, channel, message preview, status (pending/sent/replied)
+- Users can add/remove/reorder steps
+- Default sequence auto-generated based on selected objective
 
-Industries: Manufacturing, IT/Software, Construction, Healthcare, Retail/FMCG, Energy/Utilities, Logistics, Hospitality, Financial Services, Agriculture, Chemical, Textile/Apparel.
+The `OutreachCampaign` store type gets a new `sequence_step` (number) and `scheduled_day` (number) field. Campaigns for the same supplier are grouped into a sequence and ordered by `scheduled_day`.
 
-Each tab renders as a structured card with collapsible sections. No AI needed — this is static reference content from your guide.
+#### 3. Sequence Templates Library (`src/components/outreach/SequenceTemplatesPanel.tsx` -- new)
 
-#### 3. Kraljic Matrix Classifier (`src/pages/dashboard/KraljicMatrix.tsx` — new)
+A modal/drawer with pre-built sequence templates from the guide:
 
-Interactive 2x2 matrix tool:
-- User inputs a purchase item name
-- Two sliders: **Supply Risk** (Low to High) and **Business Impact** (Low to High)
-- Item plots on a visual 2x2 grid
-- Quadrant labels: Non-Critical, Leverage, Bottleneck, Strategic
-- Each quadrant shows recommended strategy from your guide
-- Users can add multiple items and see them all plotted
-- Includes industry examples per quadrant (from your guide)
+- **Supplier Sourcing (15-18 days, 6 touches)**: Email → LinkedIn → Follow-up Email → Phone → Value Add Email → Breakup Email
+- **Contract Renewal Leverage**: Soft market check email → competitor benchmarking → LinkedIn touch
+- **ESG Compliance**: Certification request → reminder → escalation
+- **Dual Sourcing**: Capability inquiry → qualification → RFQ
 
-#### 4. Negotiation Playbook & Scripts Library (`src/pages/dashboard/NegotiationPlaybook.tsx` — new)
+Each template shows: name, description, timeline visualization, touch count, duration. Users click "Apply Template" to populate the sequence for selected suppliers.
 
-A static reference page with two sections:
+#### 4. Outreach KPI Dashboard (`src/components/outreach/OutreachMetricsDashboard.tsx` -- new)
 
-**Section A — Psychological Tactics (12 tactics from your guide):**
-Each as a card with title, description, example phrase, and when-to-use note:
-1. The Flinch
-2. Strategic Silence
-3. Good Cop / Bad Cop (Internal)
-4. The Nibble
-5. Anchoring Power
-6. Limited Budget Frame
-7. Future Business Leverage
-8. Controlled Concessions
-9. Walk-Away Power
-10. Scarcity Reversal
-11. Data Dominance
-12. Emotional Neutrality
+New **Metrics** tab on the Outreach Hub with:
 
-**Section B — Ready-to-Use Scripts:**
-Copyable script cards for each scenario: Opening, Price Too High, Anchoring Lower, Impossible Response, Trade-Off, Better Payment Terms, Competitive Pressure, Closing Summary.
+**Top Funnel Cards:**
+- Campaigns Sent (total)
+- Open Rate (target: 45-65%)
+- Bounce Rate (target: <3%)
 
-**Section C — Golden Rules:**
-Visual banner with the 4 golden rules and universal principles.
+**Engagement Cards:**
+- Reply Rate (target: 8-20%)
+- Positive Reply Rate
+- LinkedIn Acceptance Rate (target: >30%)
 
-#### 5. Contract Clause Checklist (`src/pages/dashboard/ContractChecklist.tsx` — new)
+**Conversion Cards:**
+- Meetings Booked
+- Qualified Suppliers
+- RFQs Sent
 
-Interactive checklist page with 15 contract clauses from your guide:
-- Each clause as a collapsible card with: Name, Description, Key Points, Risk Level
-- Checkbox to mark as reviewed/included
-- Progress bar showing how many clauses are covered
-- Clauses: Price Protection, Delivery Penalty, Quality/Inspection, Warranty, Termination, Force Majeure, Confidentiality/IP, Indemnification, Insurance, Payment Protection, Performance Bond, Dispute Resolution, Change Management, Audit Rights, ESG/Compliance
-- Export summary button (copy to clipboard)
+**Performance Table:**
+A summary table: Metric | Target | Actual | Status (green/amber/red badges)
 
-#### 6. Enhanced Negotiation Intelligence — BATNA & Cost Analysis (`src/pages/dashboard/NegotiationIntelligence.tsx`)
+Data is computed from existing campaign statuses. Metrics like open rate use simulated values since actual email tracking is not integrated, but the structure is ready for real data.
 
-Add to the existing negotiation page:
-- **BATNA Section** — inputs for Target Price, Walk-Away Price, and Best Alternative description
-- **Should-Cost vs Quoted Gap** — when user provides should-cost estimate, show visual gap analysis bar
-- **Industry Margin Benchmarks** — static reference showing average margins by industry (Manufacturing 8-15%, IT 20-40%, Distribution 5-10%)
-- Pass BATNA data to the AI edge function for more targeted recommendations
+#### 5. Channel Strategy Guide (`src/components/outreach/ChannelStrategyGuide.tsx` -- new)
 
-#### 7. Navigation Updates (`src/features/dashboard/config/navigation.ts`)
+A collapsible reference panel (accessible via an info button) showing best practices per channel from the guide:
 
-Add to Buyer "Analysis" section:
-- **Industry Playbook** (BookOpen icon)
-- **Kraljic Matrix** (Grid3X3 icon)
-- **Negotiation Playbook** (ScrollText icon)
-- **Contract Checklist** (ClipboardCheck icon)
+| Channel | Best For | Avoid |
+|---------|----------|-------|
+| Email | Formal qualification, RFQ | Long messages |
+| LinkedIn | First touch | Hard selling |
+| WhatsApp | Follow-up | Cold outreach |
+| SMS | Reminder | Prospecting |
+| Phone | Fast decision | Unprepared calls |
+| Facebook | Research | Negotiation |
+| Instagram | Verification | Formal RFQ |
+| TikTok | Intelligence | Business negotiation |
 
-#### 8. Router Updates (`src/app/Router.tsx`)
+Plus key rules: 3-6 lines max, one CTA, personalization line, follow-up 3-5 days later.
 
-Register 4 new routes:
-- `/dashboard/industry-playbook`
-- `/dashboard/kraljic`
-- `/dashboard/negotiation-playbook`
-- `/dashboard/contract-checklist`
+#### 6. Personalization Score Badge (`src/components/outreach/PersonalizationScore.tsx` -- new)
+
+A small badge on each campaign message showing a personalization score (0-100%):
+- Checks for: recipient name, company name, industry reference, specific detail, single CTA
+- Color coded: Red (<40%), Amber (40-70%), Green (>70%)
+- Tooltip shows which personalization elements are present/missing
+
+#### 7. Supplier Tier Classification
+
+Add a tier selector on the `OutreachSupplierDiscoveryCard`:
+- **Tier A - Strategic**: Executive-level intro sequence
+- **Tier B - Operational**: Procurement-led outreach
+- **Tier C - Backup**: Automated sequence
+
+The tier determines which default sequence template is applied and the level of personalization expected. Stored locally in component state.
+
+#### 8. Psychology Triggers Reference (`src/components/outreach/PsychologyTriggersPanel.tsx` -- new)
+
+A small expandable panel within the Campaigns tab header showing quick-reference psychological triggers with copyable example phrases:
+- **Curiosity**: "Are you currently supplying [industry] companies in [region]?"
+- **Scarcity**: "We are shortlisting 3 suppliers for long-term partnership."
+- **Authority**: "Our procurement team is conducting a structured sourcing program."
+- **Social Proof**: "We are currently working with suppliers in [region] and expanding."
+
+Each trigger has a "Copy" button to paste into message editors.
+
+#### 9. Edge Function Enhancement (`supabase/functions/prepare-outreach-campaigns/index.ts`)
+
+Update the AI prompt to accept:
+- `objective` (sourcing/renewal/esg/dual/rfq-followup/general)
+- `sequenceTemplate` (template ID to follow)
+- `supplierTier` (A/B/C)
+
+Generate multi-step sequences instead of single messages. Return an array with `scheduled_day` and `sequence_step` for each message. Use the guide's exact template structures for each objective type.
+
+#### 10. Outreach Hub Page Updates (`src/pages/dashboard/OutreachHub.tsx`)
+
+- Add **Metrics** tab alongside Campaigns, Automation, History
+- Add Campaign Objective selector above the supplier list
+- Add "Templates" button opening the SequenceTemplatesPanel
+- Add "Channel Guide" info button opening the strategy reference
+- Add Psychology Triggers expandable section
+- Group campaigns by supplier AND show them as a timeline sequence rather than flat list
+- Add tier badges next to supplier names
 
 ---
 
 ### Files Modified
-- `src/data/rfqs.ts` — extend RFQItem with quotationValidity, countryOfOrigin, packagingRequirements, labellingRequirements, requiredDocuments, submissionInstructions
-- `src/components/rfqs/CreateRFQDialog.tsx` — add missing form fields to tabs 1 and 2
-- `src/pages/dashboard/NegotiationIntelligence.tsx` — add BATNA inputs, should-cost gap, industry margins
-- `src/features/dashboard/config/navigation.ts` — add 4 new nav items
-- `src/app/Router.tsx` — add 4 new routes
+- `src/pages/dashboard/OutreachHub.tsx` -- add Metrics tab, objective selector, templates button, channel guide trigger, psychology triggers panel, sequence timeline grouping
+- `src/stores/outreachCampaignStore.ts` -- add `sequence_step`, `scheduled_day`, `objective`, `supplier_tier` to OutreachCampaign type; update `prepareCampaigns` to accept objective/tier params
+- `src/components/outreach/OutreachCampaignCard.tsx` -- render campaigns as sequence timeline instead of flat list; add personalization score badge
+- `src/components/outreach/OutreachSupplierDiscoveryCard.tsx` -- add tier selector dropdown
+- `supabase/functions/prepare-outreach-campaigns/index.ts` -- accept objective/tier/template params; generate multi-step sequences with scheduled_day
 
 ### Files Created
-- `src/pages/dashboard/IndustryPlaybook.tsx` — 12 industry-specific RFQ and negotiation reference
-- `src/pages/dashboard/KraljicMatrix.tsx` — interactive purchase classification tool
-- `src/pages/dashboard/NegotiationPlaybook.tsx` — psychological tactics and scripts library
-- `src/pages/dashboard/ContractChecklist.tsx` — 15-clause contract review checklist
+- `src/components/outreach/CampaignObjectiveSelector.tsx` -- objective picker cards
+- `src/components/outreach/SequenceBuilder.tsx` -- multi-step sequence timeline component
+- `src/components/outreach/SequenceTemplatesPanel.tsx` -- pre-built template library modal
+- `src/components/outreach/OutreachMetricsDashboard.tsx` -- KPI dashboard with metrics cards and performance table
+- `src/components/outreach/ChannelStrategyGuide.tsx` -- channel best practices reference panel
+- `src/components/outreach/PersonalizationScore.tsx` -- personalization score badge component
+- `src/components/outreach/PsychologyTriggersPanel.tsx` -- copyable psychology trigger phrases
+
+### Database Changes
+- Add columns to `outreach_campaigns` table: `sequence_step` (integer, default 1), `scheduled_day` (integer, default 1), `objective` (text, nullable), `supplier_tier` (text, nullable)
 
 ### Technical Notes
-- All new pages are static reference content (no API calls needed) except the BATNA enhancement which extends the existing edge function
-- Industry playbook and negotiation playbook use collapsible cards for clean organization
-- Contract checklist state is managed locally with useState (persists during session)
-- Kraljic matrix uses a simple SVG or positioned div grid for the 2x2 plot
-- All content is sourced directly from the user's procurement guide
+- All new reference panels (Channel Strategy Guide, Psychology Triggers, Templates) are static content from the user's guide -- no API calls needed
+- KPI metrics are computed from existing campaign data (status counts) with placeholder targets
+- The multi-step sequence is backwards-compatible: existing single-touch campaigns render as step 1 of a 1-step sequence
+- Personalization scoring runs client-side by checking for name/company/industry tokens in the message text
+- Supplier tier is stored on the campaign record so the edge function can tailor AI output accordingly
 
