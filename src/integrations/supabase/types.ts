@@ -424,16 +424,20 @@ export type Database = {
           last_sent_at: string | null
           max_auto_runs: number
           message: string | null
+          objective: string | null
           product_name: string | null
           repeat_interval_hours: number
           responded_at: string | null
           response_channel: string | null
           response_received: string | null
           runs_completed: number
+          scheduled_day: number
+          sequence_step: number
           status: string
           subject: string | null
           supplier_id: string
           supplier_name: string
+          supplier_tier: string | null
           updated_at: string
           user_id: string
         }
@@ -445,16 +449,20 @@ export type Database = {
           last_sent_at?: string | null
           max_auto_runs?: number
           message?: string | null
+          objective?: string | null
           product_name?: string | null
           repeat_interval_hours?: number
           responded_at?: string | null
           response_channel?: string | null
           response_received?: string | null
           runs_completed?: number
+          scheduled_day?: number
+          sequence_step?: number
           status?: string
           subject?: string | null
           supplier_id: string
           supplier_name: string
+          supplier_tier?: string | null
           updated_at?: string
           user_id: string
         }
@@ -466,16 +474,20 @@ export type Database = {
           last_sent_at?: string | null
           max_auto_runs?: number
           message?: string | null
+          objective?: string | null
           product_name?: string | null
           repeat_interval_hours?: number
           responded_at?: string | null
           response_channel?: string | null
           response_received?: string | null
           runs_completed?: number
+          scheduled_day?: number
+          sequence_step?: number
           status?: string
           subject?: string | null
           supplier_id?: string
           supplier_name?: string
+          supplier_tier?: string | null
           updated_at?: string
           user_id?: string
         }
