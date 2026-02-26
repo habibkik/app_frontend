@@ -23,6 +23,10 @@ export interface OutreachCampaign {
   response_received: string | null;
   response_channel: string | null;
   responded_at: string | null;
+  sequence_step: number;
+  scheduled_day: number;
+  objective: string | null;
+  supplier_tier: string | null;
 }
 
 export interface AutomationRule {
@@ -51,7 +55,7 @@ interface OutreachCampaignState {
   addRule: (rule: Omit<AutomationRule, "id" | "created_at" | "updated_at">) => Promise<void>;
   updateRule: (id: string, updates: Partial<AutomationRule>) => Promise<void>;
   deleteRule: (id: string) => Promise<void>;
-  prepareCampaigns: (suppliers: any[], productName?: string) => Promise<number>;
+  prepareCampaigns: (suppliers: any[], productName?: string, objective?: string, supplierTier?: string) => Promise<number>;
   updateCampaignResponse: (id: string, response: string, channel: string) => Promise<void>;
   prepareCampaignsForSupplier: (supplier: any, productName?: string) => Promise<number>;
 }
@@ -200,16 +204,14 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
     }
   },
 
-  prepareCampaigns: async (suppliers, productName) => {
+  prepareCampaigns: async (suppliers, productName, objective, supplierTier) => {
     set({ loading: true, error: null });
     try {
-      // Check if user is authenticated first
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session) {
-        // Authenticated: use edge function for AI-generated messages
         const { data, error } = await supabase.functions.invoke("prepare-outreach-campaigns", {
-          body: { suppliers, productName },
+          body: { suppliers, productName, objective: objective || "general", supplierTier: supplierTier || "B" },
         });
         if (error) throw error;
         if (data?.error) {
@@ -224,7 +226,8 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
         const channels = ["email", "linkedin", "whatsapp", "sms", "phone_call", "facebook", "instagram", "tiktok", "twitter"];
         const newCampaigns: OutreachCampaign[] = [];
         for (const supplier of suppliers) {
-          for (const channel of channels) {
+          for (let channelIndex = 0; channelIndex < channels.length; channelIndex++) {
+            const channel = channels[channelIndex];
             const product = productName || "your products";
             newCampaigns.push({
               id: `local-${supplier.id || supplier.name}-${channel}-${Date.now()}`,
@@ -246,6 +249,10 @@ export const useOutreachCampaignStore = create<OutreachCampaignState>((set, get)
               response_received: null,
               response_channel: null,
               responded_at: null,
+              sequence_step: channelIndex + 1,
+              scheduled_day: 1,
+              objective: objective || null,
+              supplier_tier: supplierTier || null,
             });
           }
         }

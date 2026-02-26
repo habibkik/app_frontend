@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Send, Star, MapPin } from "lucide-react";
 import type { Supplier } from "@/data/suppliers";
 
 interface OutreachSupplierDiscoveryCardProps {
   supplier: Supplier;
-  onGenerateCampaigns: (supplier: Supplier) => Promise<number>;
+  onGenerateCampaigns: (supplier: Supplier, tier?: string) => Promise<number>;
 }
 
 export function OutreachSupplierDiscoveryCard({
@@ -15,10 +16,11 @@ export function OutreachSupplierDiscoveryCard({
   onGenerateCampaigns,
 }: OutreachSupplierDiscoveryCardProps) {
   const [loading, setLoading] = useState(false);
+  const [tier, setTier] = useState("B");
 
   const handleGenerate = async () => {
     setLoading(true);
-    await onGenerateCampaigns(supplier);
+    await onGenerateCampaigns(supplier, tier);
     setLoading(false);
   };
 
@@ -52,20 +54,32 @@ export function OutreachSupplierDiscoveryCard({
               </div>
             </div>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            className="gap-1.5 flex-shrink-0"
-            onClick={handleGenerate}
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Send className="h-3.5 w-3.5" />
-            )}
-            {loading ? "Generating..." : "Generate Campaigns"}
-          </Button>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Select value={tier} onValueChange={setTier}>
+              <SelectTrigger className="h-8 w-[130px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="A">Tier A — Strategic</SelectItem>
+                <SelectItem value="B">Tier B — Operational</SelectItem>
+                <SelectItem value="C">Tier C — Backup</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              onClick={handleGenerate}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
+              {loading ? "Generating..." : "Generate"}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

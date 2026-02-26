@@ -7,17 +7,50 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const CHANNELS = [
-  { id: "email", label: "Email", maxLen: 2000, style: "formal business email with subject line" },
-  { id: "linkedin", label: "LinkedIn", maxLen: 500, style: "professional networking message" },
-  { id: "whatsapp", label: "WhatsApp", maxLen: 500, style: "conversational and concise" },
-  { id: "sms", label: "SMS", maxLen: 160, style: "ultra-brief, max 160 characters" },
-  { id: "phone_call", label: "Phone Call", maxLen: 1000, style: "phone call script with talking points" },
-  { id: "facebook", label: "Facebook", maxLen: 500, style: "social media inquiry, friendly" },
-  { id: "instagram", label: "Instagram", maxLen: 500, style: "DM style, casual professional" },
-  { id: "tiktok", label: "TikTok", maxLen: 300, style: "casual business, trendy" },
-  { id: "twitter", label: "Twitter/X", maxLen: 280, style: "short pitch, under 280 chars" },
-];
+const SEQUENCE_TEMPLATES: Record<string, { day: number; channel: string; style: string }[]> = {
+  sourcing: [
+    { day: 1, channel: "email", style: "formal introduction email with subject line" },
+    { day: 3, channel: "linkedin", style: "short professional LinkedIn connection message" },
+    { day: 5, channel: "email", style: "follow-up email with qualification questions" },
+    { day: 8, channel: "phone_call", style: "phone call script with talking points" },
+    { day: 12, channel: "email", style: "value-add email sharing volume potential" },
+    { day: 16, channel: "email", style: "breakup email, polite close" },
+  ],
+  renewal: [
+    { day: 1, channel: "email", style: "soft market check email, position as periodic review" },
+    { day: 5, channel: "email", style: "competitor benchmarking mention" },
+    { day: 10, channel: "linkedin", style: "LinkedIn professional touch" },
+  ],
+  esg: [
+    { day: 1, channel: "email", style: "formal ESG certification request email" },
+    { day: 5, channel: "email", style: "friendly reminder email" },
+    { day: 12, channel: "phone_call", style: "escalation phone call script" },
+  ],
+  dual: [
+    { day: 1, channel: "email", style: "capability inquiry email" },
+    { day: 3, channel: "linkedin", style: "LinkedIn connection request" },
+    { day: 7, channel: "email", style: "qualification follow-up email" },
+    { day: 14, channel: "email", style: "RFQ invitation email" },
+  ],
+  "rfq-followup": [
+    { day: 1, channel: "email", style: "RFQ follow-up checking receipt" },
+    { day: 4, channel: "phone_call", style: "phone call to confirm RFQ receipt" },
+    { day: 8, channel: "email", style: "deadline reminder email" },
+  ],
+  general: [
+    { day: 1, channel: "email", style: "formal business email with subject line" },
+    { day: 3, channel: "linkedin", style: "professional networking message" },
+    { day: 5, channel: "email", style: "follow-up email" },
+    { day: 8, channel: "whatsapp", style: "conversational follow-up" },
+    { day: 12, channel: "email", style: "breakup email" },
+  ],
+};
+
+const TIER_INSTRUCTIONS: Record<string, string> = {
+  A: "This is a Tier A Strategic supplier. Use executive-level language, mention long-term partnership, and be highly personalized.",
+  B: "This is a Tier B Operational supplier. Use professional procurement language, focus on capabilities and pricing.",
+  C: "This is a Tier C Backup supplier. Keep messages concise and automated-friendly, focus on basic qualification.",
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -33,7 +66,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Validate JWT explicitly
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -53,7 +85,7 @@ serve(async (req) => {
     }
     const userId = user.id;
 
-    const { suppliers, productName } = await req.json();
+    const { suppliers, productName, objective = "general", supplierTier = "B" } = await req.json();
 
     if (!suppliers || !Array.isArray(suppliers) || suppliers.length === 0) {
       return new Response(JSON.stringify({ error: "No suppliers provided" }), {
@@ -62,11 +94,13 @@ serve(async (req) => {
       });
     }
 
+    const sequenceSteps = SEQUENCE_TEMPLATES[objective] || SEQUENCE_TEMPLATES.general;
+    const tierInstruction = TIER_INSTRUCTIONS[supplierTier] || TIER_INSTRUCTIONS.B;
     const allCampaigns: any[] = [];
 
     for (const supplier of suppliers) {
-      const channelDescriptions = CHANNELS.map(
-        (c) => `- ${c.id}: ${c.style} (max ${c.maxLen} chars)`
+      const stepsDescription = sequenceSteps.map(
+        (s, i) => `Step ${i + 1} (Day ${s.day}, ${s.channel}): ${s.style}`
       ).join("\n");
 
       const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -80,19 +114,19 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `You are an expert B2B outreach copywriter. Generate personalized outreach messages for contacting a supplier across multiple channels. Each message should be appropriate for its channel's tone and length limit. For email, also provide a subject line.`,
+              content: `You are an expert B2B outreach copywriter specializing in procurement. Generate a multi-step outreach sequence for contacting a supplier. Each step should match the channel's tone and character limits. For email steps, include a subject line. ${tierInstruction}`,
             },
             {
               role: "user",
-              content: `Supplier: ${supplier.name}\nLocation: ${supplier.location || "Unknown"}\nProduct: ${productName || "General inquiry"}\nSpecializations: ${supplier.specializations?.join(", ") || "N/A"}\n\nGenerate messages for these channels:\n${channelDescriptions}`,
+              content: `Supplier: ${supplier.name}\nLocation: ${supplier.location || "Unknown"}\nProduct: ${productName || "General inquiry"}\nSpecializations: ${supplier.specializations?.join(", ") || "N/A"}\nObjective: ${objective}\n\nGenerate messages for this sequence:\n${stepsDescription}`,
             },
           ],
           tools: [
             {
               type: "function",
               function: {
-                name: "return_outreach_messages",
-                description: "Return outreach messages for all channels",
+                name: "return_sequence_messages",
+                description: "Return outreach sequence messages",
                 parameters: {
                   type: "object",
                   properties: {
@@ -101,11 +135,13 @@ serve(async (req) => {
                       items: {
                         type: "object",
                         properties: {
+                          step: { type: "number" },
+                          day: { type: "number" },
                           channel: { type: "string" },
                           message: { type: "string" },
                           subject: { type: "string", description: "Only for email channel" },
                         },
-                        required: ["channel", "message"],
+                        required: ["step", "day", "channel", "message"],
                         additionalProperties: false,
                       },
                     },
@@ -116,7 +152,7 @@ serve(async (req) => {
               },
             },
           ],
-          tool_choice: { type: "function", function: { name: "return_outreach_messages" } },
+          tool_choice: { type: "function", function: { name: "return_sequence_messages" } },
         }),
       });
 
@@ -132,29 +168,47 @@ serve(async (req) => {
           });
         }
         console.error("AI error:", aiResponse.status);
+        // Fallback
+        for (let i = 0; i < sequenceSteps.length; i++) {
+          const step = sequenceSteps[i];
+          allCampaigns.push({
+            user_id: userId,
+            supplier_id: supplier.id || supplier.name.toLowerCase().replace(/\s+/g, "-"),
+            supplier_name: supplier.name,
+            product_name: productName || null,
+            channel: step.channel,
+            message: `Hi, I'm interested in sourcing ${productName || "products"} from ${supplier.name}. Could we discuss pricing and availability?`,
+            subject: step.channel === "email" ? `Sourcing Inquiry - ${productName || "Products"}` : null,
+            status: "draft",
+            sequence_step: i + 1,
+            scheduled_day: step.day,
+            objective,
+            supplier_tier: supplierTier,
+          });
+        }
         continue;
       }
 
       const aiData = await aiResponse.json();
       const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
-      let channelMessages: any[] = [];
+      let seqMessages: any[] = [];
 
       try {
         const parsed = JSON.parse(toolCall.function.arguments);
-        channelMessages = parsed.messages || [];
+        seqMessages = parsed.messages || [];
       } catch {
         console.error("Failed to parse AI response for", supplier.name);
-        // Fallback: create basic messages
-        channelMessages = CHANNELS.map((c) => ({
-          channel: c.id,
+        seqMessages = sequenceSteps.map((s, i) => ({
+          step: i + 1,
+          day: s.day,
+          channel: s.channel,
           message: `Hi, I'm interested in sourcing ${productName || "products"} from ${supplier.name}. Could we discuss pricing and availability?`,
-          subject: c.id === "email" ? `Sourcing Inquiry - ${productName || "Products"}` : undefined,
+          subject: s.channel === "email" ? `Sourcing Inquiry - ${productName || "Products"}` : undefined,
         }));
       }
 
-      // Insert campaigns into DB
-      for (const msg of channelMessages) {
-        const campaign = {
+      for (const msg of seqMessages) {
+        allCampaigns.push({
           user_id: userId,
           supplier_id: supplier.id || supplier.name.toLowerCase().replace(/\s+/g, "-"),
           supplier_name: supplier.name,
@@ -163,12 +217,14 @@ serve(async (req) => {
           message: msg.message,
           subject: msg.subject || null,
           status: "draft",
-        };
-        allCampaigns.push(campaign);
+          sequence_step: msg.step || 1,
+          scheduled_day: msg.day || 1,
+          objective,
+          supplier_tier: supplierTier,
+        });
       }
     }
 
-    // Bulk insert
     if (allCampaigns.length > 0) {
       const { error: insertError } = await supabase
         .from("outreach_campaigns")

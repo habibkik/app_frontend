@@ -4,16 +4,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCheck, Send, Settings2, History, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCheck, Send, Settings2, History, MessageSquare, ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
 import { useOutreachCampaignStore } from "@/stores/outreachCampaignStore";
 import { OutreachCampaignCard } from "@/components/outreach/OutreachCampaignCard";
 import { OutreachSupplierDiscoveryCard } from "@/components/outreach/OutreachSupplierDiscoveryCard";
 import { AutomationRulesPanel } from "@/components/outreach/AutomationRulesPanel";
+import { CampaignObjectiveSelector, type CampaignObjective } from "@/components/outreach/CampaignObjectiveSelector";
+import { SequenceTemplatesPanel, type SequenceTemplate } from "@/components/outreach/SequenceTemplatesPanel";
+import { OutreachMetricsDashboard } from "@/components/outreach/OutreachMetricsDashboard";
+import { ChannelStrategyGuide } from "@/components/outreach/ChannelStrategyGuide";
+import { PsychologyTriggersPanel } from "@/components/outreach/PsychologyTriggersPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { mockSuppliers, type Supplier } from "@/data/suppliers";
 import { useDiscoveredSuppliersStore } from "@/stores/discoveredSuppliersStore";
 import { useNavigate } from "react-router-dom";
+import { toast as sonnerToast } from "sonner";
 
 const CHANNEL_LABELS: Record<string, string> = {
   email: "Email", linkedin: "LinkedIn", whatsapp: "WhatsApp", sms: "SMS",
@@ -36,6 +42,7 @@ export default function OutreachHub() {
   const { discoveredSuppliers } = useDiscoveredSuppliersStore();
   const [userId, setUserId] = useState("");
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
+  const [objective, setObjective] = useState<CampaignObjective>("sourcing");
 
   useEffect(() => {
     fetchCampaigns();
@@ -45,11 +52,8 @@ export default function OutreachHub() {
     });
   }, [fetchCampaigns, fetchRules]);
 
-  // Merge all suppliers and separate those with/without campaigns
   const { suppliersWithCampaigns, suppliersWithoutCampaigns } = useMemo(() => {
     const campaignSupplierIds = new Set(campaigns.map((c) => c.supplier_id));
-    
-    // Merge mock + discovered, deduplicate by id
     const allSuppliersMap = new Map<string, Supplier>();
     mockSuppliers.forEach((s) => allSuppliersMap.set(s.id, s));
     discoveredSuppliers.forEach((s) => allSuppliersMap.set(s.id, s));
@@ -82,7 +86,7 @@ export default function OutreachHub() {
     toast({ title: "Approved", description: `${ids.length} campaigns approved.` });
   };
 
-  const handleGenerateCampaigns = async (supplier: Supplier) => {
+  const handleGenerateCampaigns = async (supplier: Supplier, tier?: string) => {
     const count = await prepareCampaignsForSupplier({
       id: supplier.id,
       name: supplier.name,
@@ -95,6 +99,12 @@ export default function OutreachHub() {
     return count;
   };
 
+  const handleApplyTemplate = (template: SequenceTemplate) => {
+    sonnerToast.success(`Template "${template.name}" applied`, {
+      description: `${template.touches} touches over ${template.duration}. Select suppliers to generate sequences.`,
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -105,26 +115,33 @@ export default function OutreachHub() {
               Review, edit, and launch outreach campaigns across all channels
             </p>
           </div>
-          {draftCount > 0 && (
-            <Button onClick={handleApproveAll} className="gap-1.5">
-              <CheckCheck className="h-4 w-4" />
-              Approve All ({draftCount})
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            <ChannelStrategyGuide />
+            {draftCount > 0 && (
+              <Button onClick={handleApproveAll} className="gap-1.5">
+                <CheckCheck className="h-4 w-4" />
+                Approve All ({draftCount})
+              </Button>
+            )}
+          </div>
         </div>
 
         <Tabs defaultValue="campaigns">
           <TabsList>
             <TabsTrigger value="campaigns" className="gap-1.5">
               <Send className="h-4 w-4" />
-              Prepared Campaigns
+              Campaigns
               {draftCount > 0 && (
                 <Badge variant="secondary" className="ml-1 text-xs">{draftCount}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="metrics" className="gap-1.5">
+              <BarChart3 className="h-4 w-4" />
+              Metrics
+            </TabsTrigger>
             <TabsTrigger value="automation" className="gap-1.5">
               <Settings2 className="h-4 w-4" />
-              Automation Rules
+              Automation
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
@@ -138,13 +155,21 @@ export default function OutreachHub() {
           </TabsList>
 
           <TabsContent value="campaigns" className="mt-6 space-y-4">
+            {/* Objective Selector */}
+            <CampaignObjectiveSelector selected={objective} onSelect={setObjective} />
+
+            {/* Tools bar */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <SequenceTemplatesPanel onApplyTemplate={handleApplyTemplate} />
+              <PsychologyTriggersPanel />
+            </div>
+
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-48 w-full rounded-xl" />
               ))
             ) : (
               <>
-                {/* Suppliers WITH campaigns */}
                 {suppliersWithCampaigns.length > 0 && suppliersWithCampaigns.map(([supplierId, supplierCampaigns]) => (
                   <OutreachCampaignCard
                     key={supplierId}
@@ -157,7 +182,6 @@ export default function OutreachHub() {
                   />
                 ))}
 
-                {/* Suppliers WITHOUT campaigns */}
                 {suppliersWithoutCampaigns.length > 0 && (
                   <div className="space-y-2 mt-6">
                     <h3 className="text-sm font-medium text-muted-foreground px-1">
@@ -184,6 +208,10 @@ export default function OutreachHub() {
                 )}
               </>
             )}
+          </TabsContent>
+
+          <TabsContent value="metrics" className="mt-6">
+            <OutreachMetricsDashboard campaigns={campaigns} />
           </TabsContent>
 
           <TabsContent value="automation" className="mt-6">
