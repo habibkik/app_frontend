@@ -29,6 +29,10 @@ import {
 } from "@/data/rfqs";
 import { cn } from "@/lib/utils";
 
+const requiredDocumentsList = [
+  "Company Profile", "Financial Statement", "Certifications", "References", "Compliance Declaration",
+];
+
 const createRFQSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters").max(100),
   description: z.string().min(20, "Description must be at least 20 characters").max(1000),
@@ -50,6 +54,13 @@ const createRFQSchema = z.object({
   // Evaluation
   pricingBreakdownRequired: z.boolean().default(true),
   clarificationDeadline: z.date().optional(),
+  // New professional fields
+  quotationValidity: z.coerce.number().default(90),
+  countryOfOrigin: z.string().optional(),
+  packagingRequirements: z.string().optional(),
+  labellingRequirements: z.string().optional(),
+  requiredDocuments: z.array(z.string()).default([]),
+  submissionInstructions: z.string().optional(),
 });
 
 type CreateRFQFormData = z.infer<typeof createRFQSchema>;
@@ -76,6 +87,8 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
       targetPrice: undefined, currency: "USD", deliveryLocation: "",
       qualityStandards: [], certificationsRequired: [],
       sampleRequired: false, pricingBreakdownRequired: true,
+      quotationValidity: 90, countryOfOrigin: "", packagingRequirements: "",
+      labellingRequirements: "", requiredDocuments: [], submissionInstructions: "",
     },
   });
 
@@ -217,6 +230,35 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
                     </FormItem>
                   )} />
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="quotationValidity" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quotation Validity (days)</FormLabel>
+                      <FormControl><Input type="number" min={1} placeholder="90" {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="countryOfOrigin" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Country of Origin</FormLabel>
+                      <FormControl><Input placeholder="e.g., China, Germany" {...field} /></FormControl>
+                    </FormItem>
+                  )} />
+                </div>
+
+                <FormField control={form.control} name="packagingRequirements" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Packaging Requirements</FormLabel>
+                    <FormControl><Textarea placeholder="Anti-static bags, moisture barrier, palletized..." className="min-h-[60px]" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="labellingRequirements" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Labelling Requirements</FormLabel>
+                    <FormControl><Textarea placeholder="Part number, lot code, date of manufacture..." className="min-h-[60px]" {...field} /></FormControl>
+                  </FormItem>
+                )} />
               </TabsContent>
 
               {/* TAB 2 — Requirements */}
@@ -304,6 +346,31 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
                   <FormItem>
                     <FormLabel>Compliance / Regulatory Notes</FormLabel>
                     <FormControl><Textarea placeholder="Import restrictions, regulatory requirements..." className="min-h-[60px]" {...field} /></FormControl>
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="requiredDocuments" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Required Documents</FormLabel>
+                    <div className="flex flex-wrap gap-2">
+                      {requiredDocumentsList.map((doc) => (
+                        <Badge
+                          key={doc}
+                          variant={field.value?.includes(doc) ? "default" : "outline"}
+                          className="cursor-pointer transition-colors"
+                          onClick={() => field.onChange(toggleArrayItem(field.value || [], doc))}
+                        >
+                          {doc}
+                        </Badge>
+                      ))}
+                    </div>
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="submissionInstructions" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Submission Instructions</FormLabel>
+                    <FormControl><Textarea placeholder="Send PDF quotation to procurement@company.com before deadline..." className="min-h-[60px]" {...field} /></FormControl>
                   </FormItem>
                 )} />
               </TabsContent>

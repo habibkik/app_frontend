@@ -36,6 +36,13 @@ export interface RFQItem {
   sampleRequired?: boolean;
   warrantyTerms?: string;
   complianceNotes?: string;
+  // Additional professional fields
+  quotationValidity?: number;
+  countryOfOrigin?: string;
+  packagingRequirements?: string;
+  labellingRequirements?: string;
+  requiredDocuments?: string[];
+  submissionInstructions?: string;
 }
 
 export interface SupplierQuote {
@@ -86,6 +93,12 @@ export const mockRFQs: RFQItem[] = [
     sampleRequired: true,
     warrantyTerms: "12 months",
     complianceNotes: "Must comply with RoHS and REACH regulations.",
+    quotationValidity: 90,
+    countryOfOrigin: "China",
+    packagingRequirements: "Anti-static packaging with moisture barrier bags",
+    labellingRequirements: "Part number, lot code, date of manufacture",
+    requiredDocuments: ["Company Profile", "Certifications", "References"],
+    submissionInstructions: "Submit PDF quotation to procurement@company.com before deadline.",
   },
   {
     id: "RFQ-2024-002",
@@ -147,6 +160,10 @@ export const mockRFQs: RFQItem[] = [
     sampleRequired: true,
     warrantyTerms: "24 months",
     complianceNotes: "FDA Class II medical device components. Full traceability required.",
+    quotationValidity: 60,
+    countryOfOrigin: "USA",
+    packagingRequirements: "Clean room compatible packaging, individually wrapped",
+    requiredDocuments: ["Company Profile", "Financial Statement", "Certifications", "Compliance Declaration"],
   },
   {
     id: "RFQ-2024-004",
