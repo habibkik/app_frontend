@@ -20,6 +20,7 @@ import SavedSuppliers from "@/pages/dashboard/SavedSuppliers";
 import BOM from "@/pages/dashboard/BOM";
 import Components from "@/pages/dashboard/Components";
 import Feasibility from "@/pages/dashboard/Feasibility";
+import DFMReview from "@/pages/dashboard/DFMReview";
 import GTM from "@/pages/dashboard/GTM";
 
 // Seller feature pages (still using old location during migration)
@@ -89,6 +90,7 @@ export function Router() {
       <Route path="/dashboard/bom" element={<ProtectedRoute><BOM /></ProtectedRoute>} />
       <Route path="/dashboard/components" element={<ProtectedRoute><Components /></ProtectedRoute>} />
       <Route path="/dashboard/feasibility" element={<ProtectedRoute><Feasibility /></ProtectedRoute>} />
+      <Route path="/dashboard/dfm-review" element={<ProtectedRoute><DFMReview /></ProtectedRoute>} />
       <Route path="/dashboard/gtm" element={<ProtectedRoute><GTM /></ProtectedRoute>} />
       
       {/* Seller mode pages */}

@@ -101,6 +101,7 @@ const producerNavigation: NavGroup[] = [
       { title: "Reverse Engineering", url: "/dashboard/bom", icon: Wrench },
       { title: "Component Supply", url: "/dashboard/components", icon: Package },
       { title: "Production Feasibility", url: "/dashboard/feasibility", icon: Factory },
+      { title: "DFM/DFA Review", url: "/dashboard/dfm-review", icon: ClipboardCheck },
     ],
   },
   {

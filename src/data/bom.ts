@@ -10,6 +10,9 @@ export interface BOMComponent {
   matchedSuppliers: number;
   specifications?: string;
   material?: string;
+  bomLevel?: number;
+  kraljicQuadrant?: "strategic" | "leverage" | "bottleneck" | "commodity";
+  riskClassification?: "high" | "medium" | "low";
 }
 
 export interface BOMAnalysis {
