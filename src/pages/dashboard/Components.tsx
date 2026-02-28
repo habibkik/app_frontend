@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Package, Search, Filter, History, Trash2 } from "lucide-react";
+import { Package, Search, Filter, History, Trash2, Loader2, Sparkles } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import {
 } from "@/data/components";
 import { calculateSupplyChainRisk } from "@/lib/supply-chain-risk";
 import { useComponentSupplierStore, type ComponentSupplierMatch } from "@/stores/componentSupplierStore";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ComponentsPage() {
   const { t } = useTranslation();
@@ -49,14 +50,32 @@ export default function ComponentsPage() {
   );
   const [selectedSupplier, setSelectedSupplier] = useState<ComponentSupplierMatch | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  
+  const [loadingComponents, setLoadingComponents] = useState<Set<string>>(new Set());
+  const [aiQuotes, setAiQuotes] = useState<Record<string, SupplierQuote[]>>({});
+
   // Component supplier store
-  const { searchHistory, clearHistory } = useComponentSupplierStore();
+  const { searchHistory, clearHistory, addSearchResult, getSuppliersByComponent } = useComponentSupplierStore();
+
+  // All quotes: AI-generated (if available) or mock fallback
+  const getQuotes = useCallback((componentId: string): SupplierQuote[] => {
+    return aiQuotes[componentId] || getQuotesForComponent(componentId);
+  }, [aiQuotes]);
+
+  // All supplier quotes for risk/flow (merge AI + mock)
+  const allQuotes = useMemo(() => {
+    const merged = [...mockSupplierQuotes];
+    Object.values(aiQuotes).forEach(quotes => {
+      quotes.forEach(q => {
+        if (!merged.find(m => m.id === q.id)) merged.push(q);
+      });
+    });
+    return merged;
+  }, [aiQuotes]);
 
   // Calculate supply chain risk
   const riskScore = useMemo(() => {
-    return calculateSupplyChainRisk(mockComponentParts, mockSupplierQuotes);
-  }, []);
+    return calculateSupplyChainRisk(mockComponentParts, allQuotes);
+  }, [allQuotes]);
 
   // Get unique categories
   const categories = Array.from(new Set(mockComponentParts.map((p) => p.category)));
@@ -70,8 +89,107 @@ export default function ComponentsPage() {
     return matchesSearch && matchesCategory;
   });
 
+  const fetchAISuppliers = useCallback(async (componentId: string) => {
+    const part = mockComponentParts.find(p => p.id === componentId);
+    if (!part) return;
+
+    // Don't refetch if already loaded
+    if (aiQuotes[componentId]) return;
+
+    setLoadingComponents(prev => new Set(prev).add(componentId));
+
+    try {
+      const { data, error } = await supabase.functions.invoke("component-sourcing", {
+        body: {
+          componentName: part.name,
+          category: part.category,
+          material: part.specifications,
+          specifications: part.description,
+          quantity: part.requiredQuantity,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.success || !data?.suppliers) throw new Error("No suppliers returned");
+
+      // Convert AI suppliers to SupplierQuote format
+      const quotes: SupplierQuote[] = data.suppliers.map((s: any, i: number) => ({
+        id: `ai-${componentId}-${i}`,
+        supplierId: s.supplierId || `ai-sup-${i}`,
+        supplierName: s.name,
+        supplierLogo: s.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase(),
+        supplierLocation: s.location,
+        componentId,
+        unitPrice: s.unitPrice,
+        moq: s.moq,
+        leadTime: s.leadTime,
+        leadTimeDays: s.leadTimeDays,
+        rating: s.rating,
+        certifications: s.certifications || [],
+        inStock: s.inStock,
+        stockQuantity: s.stockQuantity || 0,
+        industry: s.industry,
+        specializations: s.specializations || [],
+        description: s.description,
+        yearEstablished: s.yearEstablished,
+        verified: s.verified ?? true,
+      }));
+
+      setAiQuotes(prev => ({ ...prev, [componentId]: quotes }));
+
+      // Save to search history store
+      addSearchResult({
+        componentId,
+        componentName: part.name,
+        category: part.category,
+        suppliers: quotes.map(q => ({
+          id: q.id,
+          supplierId: q.supplierId,
+          name: q.supplierName,
+          logo: q.supplierLogo,
+          location: q.supplierLocation,
+          unitPrice: q.unitPrice,
+          moq: q.moq,
+          leadTime: q.leadTime,
+          leadTimeDays: q.leadTimeDays,
+          rating: q.rating,
+          certifications: q.certifications,
+          inStock: q.inStock,
+          stockQuantity: q.stockQuantity,
+          industry: q.industry,
+          specializations: q.specializations,
+          description: q.description,
+          yearEstablished: q.yearEstablished,
+          verified: q.verified,
+        })),
+      });
+
+      if (data.marketInsight) {
+        toast({
+          title: "AI Sourcing Complete",
+          description: data.marketInsight.slice(0, 120) + "...",
+        });
+      }
+    } catch (err: any) {
+      console.error("AI sourcing error:", err);
+      // Keep mock data as fallback – no toast needed since mock data still shows
+    } finally {
+      setLoadingComponents(prev => {
+        const next = new Set(prev);
+        next.delete(componentId);
+        return next;
+      });
+    }
+  }, [aiQuotes, addSearchResult, toast]);
+
   const handleToggleExpand = (componentId: string) => {
+    const isExpanding = expandedComponent !== componentId;
     setExpandedComponent((prev) => (prev === componentId ? null : componentId));
+    
+    // Trigger AI sourcing when expanding
+    if (isExpanding) {
+      fetchAISuppliers(componentId);
+    }
   };
 
   const handleSelectQuote = (componentId: string, quoteId: string) => {
@@ -83,7 +201,6 @@ export default function ComponentsPage() {
   };
 
   const handleSupplierClick = (quote: SupplierQuote) => {
-    // Convert SupplierQuote to ComponentSupplierMatch format
     const supplierMatch: ComponentSupplierMatch = {
       id: quote.id,
       supplierId: quote.supplierId,
@@ -120,7 +237,6 @@ export default function ComponentsPage() {
   };
 
   const handleLoadComparison = (loadedSelections: ComparisonSelection[]) => {
-    // Merge loaded selections with current parts (in case parts changed)
     const mergedSelections = mockComponentParts.map((part) => {
       const loaded = loadedSelections.find((s) => s.componentId === part.id);
       return loaded || { componentId: part.id, selectedQuoteId: null };
@@ -130,17 +246,22 @@ export default function ComponentsPage() {
 
   const getSelectedQuote = (componentId: string) => {
     const selection = selections.find((s) => s.componentId === componentId);
-    return mockSupplierQuotes.find((q) => q.id === selection?.selectedQuoteId) || null;
+    const quotes = getQuotes(componentId);
+    return quotes.find((q) => q.id === selection?.selectedQuoteId) || null;
   };
 
   // Calculate totals for save dialog
   const selectedQuotes = selections
-    .map((s) => mockSupplierQuotes.find((q) => q.id === s.selectedQuoteId))
+    .map((s) => {
+      const quotes = getQuotes(s.componentId);
+      return quotes.find((q) => q.id === s.selectedQuoteId);
+    })
     .filter(Boolean);
-  
+
   const totalCost = selections.reduce((sum, sel) => {
     const part = mockComponentParts.find((p) => p.id === sel.componentId);
-    const quote = mockSupplierQuotes.find((q) => q.id === sel.selectedQuoteId);
+    const quotes = getQuotes(sel.componentId);
+    const quote = quotes.find((q) => q.id === sel.selectedQuoteId);
     if (!part || !quote) return sum;
     return sum + quote.unitPrice * part.requiredQuantity;
   }, 0);
@@ -182,7 +303,7 @@ export default function ComponentsPage() {
 
         {/* Supply Chain Overview */}
         <div className="grid gap-4 lg:grid-cols-2">
-          <SupplyChainFlow parts={mockComponentParts} quotes={mockSupplierQuotes} />
+          <SupplyChainFlow parts={mockComponentParts} quotes={allQuotes} />
           <SupplyChainRiskPanel riskScore={riskScore} />
         </div>
 
@@ -224,9 +345,11 @@ export default function ComponentsPage() {
             {/* Component Cards */}
             <div className="space-y-3">
               {filteredParts.map((part, index) => {
-                const quotes = getQuotesForComponent(part.id);
-                const selectedQuote = getSelectedQuote(part.id);
                 const isExpanded = expandedComponent === part.id;
+                const isLoading = loadingComponents.has(part.id);
+                const quotes = getQuotes(part.id);
+                const hasAiQuotes = !!aiQuotes[part.id];
+                const selectedQuote = getSelectedQuote(part.id);
 
                 return (
                   <div key={part.id} className="space-y-2">
@@ -238,6 +361,25 @@ export default function ComponentsPage() {
                       onToggle={() => handleToggleExpand(part.id)}
                       index={index}
                     />
+                    {/* Loading indicator */}
+                    {isExpanded && isLoading && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center gap-2 px-4 py-3 rounded-lg bg-primary/5 border border-primary/20"
+                      >
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                        <span className="text-sm text-primary">Finding AI-powered supplier recommendations...</span>
+                      </motion.div>
+                    )}
+                    {/* AI badge when loaded */}
+                    {isExpanded && hasAiQuotes && !isLoading && (
+                      <div className="flex items-center gap-1.5 px-4 py-1">
+                        <Badge variant="outline" className="gap-1 text-xs">
+                          <Sparkles className="h-3 w-3" /> AI-Sourced Suppliers
+                        </Badge>
+                      </div>
+                    )}
                     <SupplierQuoteList
                       component={part}
                       quotes={quotes}
