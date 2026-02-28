@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "@/hooks/useToast";
 import { useAnalysisStore } from "@/stores/analysisStore";
+import { BOMSelector } from "@/components/shared/BOMSelector";
 
 // Default mock data as fallback
 const defaultPhases = [
@@ -173,7 +174,8 @@ export default function GTMPage() {
               </Badge>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap items-center">
+            <BOMSelector fallbackLabel="Demo Product" />
             <Button variant="outline" className="gap-2">
               <FileText className="h-4 w-4" />
               {t("pages.gtm.exportPlan")}

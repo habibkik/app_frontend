@@ -57,6 +57,7 @@ import {
 } from "@/features/dashboard";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { BOMSelector } from "@/components/shared/BOMSelector";
 
 const rfqChartConfig = {
   created: { label: "Created", color: "hsl(var(--chart-1))" },
@@ -328,7 +329,8 @@ export default function AnalyticsPage() {
                 {t("pages.analytics.subtitle")}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <BOMSelector fallbackLabel="All Products" />
               <Button variant="outline">
                 <Download className="h-4 w-4 mr-2" />
                 Export
