@@ -1,5 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/hooks/useToast";
 import { Wrench, Sparkles, Filter, Search, ImageIcon, Factory, Repeat2, Map, GitBranch } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +39,7 @@ import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 
 export default function BOMPage() {
   const fc = useFormatCurrency();
+  const { user } = useAuth();
   const { 
     producerResults, 
     currentImage, 
@@ -93,6 +97,25 @@ export default function BOMPage() {
     setIsAnalyzing(false);
   };
 
+  // Save BOM analysis to database
+  const saveBOMToDatabase = useCallback(async (name: string, category: string, bomComponents: BOMComponent[], conf: number) => {
+    if (!user?.id) return;
+    try {
+      await supabase.from("bom_analyses").insert({
+        user_id: user.id,
+        product_name: name,
+        product_category: category,
+        components_json: bomComponents as any,
+        confidence: conf,
+        image_url: currentImage ? `data:image/jpeg;base64,${currentImage.substring(0, 100)}...` : null,
+        architecture: architecture || null,
+      });
+      toast({ title: "BOM saved", description: "Analysis persisted to your account." });
+    } catch (err) {
+      console.error("Failed to save BOM:", err);
+    }
+  }, [user?.id, currentImage, architecture]);
+
   const handleAIAnalysisComplete = (analyzedComponents: AnalyzedComponent[], name: string) => {
     const bomComponents: BOMComponent[] = analyzedComponents.map((comp, index) => ({
       id: `ai-comp-${index + 1}`,
@@ -114,6 +137,7 @@ export default function BOMPage() {
     setComponents(bomComponents);
     setConfidence(avgConfidence);
     setHasAnalysis(true);
+    saveBOMToDatabase(name, productCategory, bomComponents, avgConfidence);
   };
 
   const handleViewSuppliers = (component: BOMComponent) => {

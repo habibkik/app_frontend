@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -5,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useAnalysisStore, type BOMAnalysisResult } from "@/stores/analysisStore";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { supabase } from "@/integrations/supabase/client";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +27,7 @@ const costBreakdownData = [
 
 const COST_COLORS = ["hsl(var(--primary))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"];
 
-const recentBOMs = [
+const defaultRecentBOMs = [
   { name: "Servo Motor XR-500", components: 24, cost: 2840, feasibility: 82, updated: new Date(Date.now() - 3600000).toISOString() },
   { name: "Hydraulic Pump HP-200", components: 18, cost: 1560, feasibility: 71, updated: new Date(Date.now() - 86400000).toISOString() },
   { name: "CNC Controller Board", components: 42, cost: 4200, feasibility: 88, updated: new Date(Date.now() - 172800000).toISOString() },
@@ -68,6 +70,31 @@ export default function ProducerDashboard() {
   const producerResults = useAnalysisStore((s) => s.producerResults);
   const { symbol } = useCurrency();
   const fc = useFormatCurrency();
+  const [recentBOMs, setRecentBOMs] = useState(defaultRecentBOMs);
+
+  // Load real BOM analyses from database
+  useEffect(() => {
+    if (!user?.id) return;
+    const loadBOMs = async () => {
+      const { data } = await supabase
+        .from("bom_analyses")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (data && data.length > 0) {
+        const realBOMs = data.map((b: any) => ({
+          name: b.product_name,
+          components: Array.isArray(b.components_json) ? (b.components_json as any[]).length : 0,
+          cost: Array.isArray(b.components_json) ? (b.components_json as any[]).reduce((s: number, c: any) => s + (c.totalCost || 0), 0) : 0,
+          feasibility: Math.round(Number(b.confidence) || 0),
+          updated: b.created_at,
+        }));
+        setRecentBOMs(realBOMs);
+      }
+    };
+    loadBOMs();
+  }, [user?.id]);
 
   const productionStats = [
     { label: t("producerDashboard.stats.activeBoms"), value: "18", icon: Layers, color: "text-primary" },
