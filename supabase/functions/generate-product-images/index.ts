@@ -141,18 +141,31 @@ serve(async (req) => {
       messageContent = prompt;
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: messageContent }],
-        modalities: ["image", "text"],
-      }),
-    });
+    // Helper to call AI gateway
+    const callGateway = async (content: any) => {
+      return fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [{ role: "user", content }],
+          modalities: ["image", "text"],
+        }),
+      });
+    };
+
+    let response = await callGateway(messageContent);
+
+    // If multimodal request failed with 500, fall back to text-only prompt
+    if (!response.ok && response.status === 500 && messageContent !== prompt) {
+      console.warn("Multimodal request failed, falling back to text-only prompt");
+      await response.text(); // consume body
+      messageContent = prompt;
+      response = await callGateway(prompt);
+    }
 
     if (!response.ok) {
       if (response.status === 429) {
