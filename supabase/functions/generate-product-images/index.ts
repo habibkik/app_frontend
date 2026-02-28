@@ -141,8 +141,13 @@ serve(async (req) => {
       messageContent = prompt;
     }
 
-    // Helper to call AI gateway
-    const callGateway = async (content: any) => {
+    const MODELS = [
+      "google/gemini-3-pro-image-preview",
+      "google/gemini-2.5-flash-image",
+    ];
+
+    // Helper to call AI gateway with a specific model
+    const callGateway = async (content: any, model: string) => {
       return fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -150,39 +155,54 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
+          model,
           messages: [{ role: "user", content }],
           modalities: ["image", "text"],
         }),
       });
     };
 
-    let response = await callGateway(messageContent);
+    let response: Response | null = null;
+    let lastErrorText = "";
+    let lastStatus = 0;
 
-    // If multimodal request failed with 500, fall back to text-only prompt
-    if (!response.ok && response.status === 500 && messageContent !== prompt) {
-      console.warn("Multimodal request failed, falling back to text-only prompt");
-      await response.text(); // consume body
-      messageContent = prompt;
-      response = await callGateway(prompt);
+    for (const model of MODELS) {
+      console.log(`Trying model: ${model}`);
+      response = await callGateway(messageContent, model);
+
+      // If multimodal failed with 500, try text-only with same model
+      if (!response.ok && response.status === 500 && messageContent !== prompt) {
+        console.warn(`Multimodal failed on ${model}, trying text-only`);
+        await response.text();
+        response = await callGateway(prompt, model);
+      }
+
+      if (response.ok) break;
+
+      // Consume body before trying next model
+      lastStatus = response.status;
+      lastErrorText = await response.text();
+      console.warn(`Model ${model} failed with ${lastStatus}, trying next`);
     }
 
-    if (!response.ok) {
-      if (response.status === 429) {
+    if (!response || !response.ok) {
+      if (lastStatus === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
+      if (lastStatus === 402) {
         return new Response(
           JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      console.error("AI gateway error:", lastStatus, lastErrorText);
+      return new Response(
+        JSON.stringify({ error: "Image generation service is temporarily unavailable. Please try again in a few minutes." }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
@@ -190,23 +210,14 @@ serve(async (req) => {
 
     // Retry once if no image was returned (model sometimes returns text-only)
     if (!imageUrl) {
-      console.warn(`No image in first attempt for ${imageType}, retrying...`);
-      const retryResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
-          messages: [{ role: "user", content: messageContent }],
-          modalities: ["image", "text"],
-        }),
-      });
+      console.warn(`No image in first attempt for ${imageType}, retrying with primary model...`);
+      const retryResponse = await callGateway(prompt, MODELS[0]);
 
       if (retryResponse.ok) {
         const retryData = await retryResponse.json();
         imageUrl = retryData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      } else {
+        await retryResponse.text();
       }
     }
 
