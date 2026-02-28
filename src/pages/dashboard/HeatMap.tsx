@@ -5,7 +5,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical, Layers } from "lucide-react";
+import { Map, Globe, TrendingUp, DollarSign, LayoutGrid, MapIcon, FlaskConical, Layers, Package } from "lucide-react";
 
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -20,6 +20,7 @@ import { useModeStore } from "@/stores/modeStore";
 import { DEMO_HEAT_MAP_REGIONS } from "@/data/demoMarketData";
 import { DEMO_BUYER_MAP_ENTITIES, DEMO_PRODUCER_MAP_ENTITIES, DEMO_SELLER_MAP_ENTITIES, DEMO_DEMAND_SIGNAL_ENTITIES } from "@/data/demoMapData";
 import { useDemandSignalStore } from "@/stores/demandSignalStore";
+import { BOMSelector } from "@/components/shared/BOMSelector";
 import type { MarketHeatMapRegion, MapEntity } from "@/stores/analysisStore";
 
 const modeContent = {
@@ -146,8 +147,11 @@ function HeatMapContent() {
           </div>
         </div>
 
-        {/* Controls row: View Toggle + Globe Toggle */}
+        {/* Controls row: BOM Selector + View Toggle + Globe Toggle */}
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {/* BOM / Product Selector */}
+          <BOMSelector fallbackLabel="Demo Data" />
+
           {/* Map / Grid toggle */}
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
             <Button
