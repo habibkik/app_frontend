@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageForAI } from "@/utils/resizeImage";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useContentStudioStore } from "@/stores/contentStudioStore";
 import { PRO_IMAGE_SECTIONS } from "./types";
@@ -55,24 +56,35 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   });
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
 
-  // Auto-populate reference from Market Intelligence on mount
+  // Auto-populate reference from Market Intelligence on mount (resize it)
   useEffect(() => {
     if (currentImage && !store.referenceImageUrl) {
-      store.setReferenceImageUrl(currentImage);
+      resizeImageForAI(currentImage).then((resized) => {
+        store.setReferenceImageUrl(resized);
+      }).catch(() => {
+        store.setReferenceImageUrl(currentImage);
+      });
     }
   }, [currentImage, store.referenceImageUrl]);
 
   const referenceImageUrl = store.referenceImageUrl || currentImage || null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      store.setReferenceImageUrl(reader.result as string);
-      toast.success("Reference image set");
-    };
-    reader.readAsDataURL(file);
+    try {
+      const reader = new FileReader();
+      const rawUrl = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const resized = await resizeImageForAI(rawUrl);
+      store.setReferenceImageUrl(resized);
+      toast.success("Reference image set (resized for AI)");
+    } catch {
+      toast.error("Failed to process image");
+    }
   };
 
   const generateProImage = useCallback(

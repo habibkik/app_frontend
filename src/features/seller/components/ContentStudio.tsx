@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { resizeImageForAI } from "@/utils/resizeImage";
 import { useAnalysisStore, type MarketAnalysisResult } from "@/stores/analysisStore";
 import { useContentStudioStore } from "@/stores/contentStudioStore";
 import type {
@@ -491,12 +492,13 @@ export const ContentStudio = () => {
 
       // Step 1: Pro Photography
       updateStep(0, "running");
-      const refImg = store.referenceImageUrl || useAnalysisStore.getState().currentImage;
-      if (!refImg) {
+      const rawRefImg = store.referenceImageUrl || useAnalysisStore.getState().currentImage;
+      if (!rawRefImg) {
         toast.error("No reference image available. Upload a product image in Market Intelligence first.");
         store.setIsGeneratingKit(false);
         return;
       }
+      const refImg = await resizeImageForAI(rawRefImg);
       store.setReferenceImageUrl(refImg);
       const proTypes = store.proImages.map((i) => i.id);
       for (const type of proTypes) {
