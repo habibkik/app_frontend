@@ -114,16 +114,29 @@ serve(async (req) => {
     // Build message content - multimodal if reference image provided
     let messageContent: any;
     if (referenceImageUrl) {
-      messageContent = [
-        {
-          type: "text",
-          text: `Using the provided product image as reference, generate a new image. Maintain the exact product appearance (shape, color, branding, proportions, logos, text). ${prompt}`,
-        },
-        {
-          type: "image_url",
-          image_url: { url: referenceImageUrl },
-        },
-      ];
+      // Ensure proper data URI format for base64 images
+      let imageDataUrl = referenceImageUrl;
+      if (!referenceImageUrl.startsWith("data:") && !referenceImageUrl.startsWith("http")) {
+        // Raw base64 – assume JPEG
+        imageDataUrl = `data:image/jpeg;base64,${referenceImageUrl}`;
+      }
+
+      // Check if image is too large (>1MB base64 ≈ 1.37M chars) – skip reference to avoid gateway errors
+      if (imageDataUrl.length > 1_400_000) {
+        console.warn("Reference image too large, generating without reference");
+        messageContent = prompt;
+      } else {
+        messageContent = [
+          {
+            type: "text",
+            text: `Using the provided product image as reference, generate a new image. Maintain the exact product appearance (shape, color, branding, proportions, logos, text). ${prompt}`,
+          },
+          {
+            type: "image_url",
+            image_url: { url: imageDataUrl },
+          },
+        ];
+      }
     } else {
       messageContent = prompt;
     }
