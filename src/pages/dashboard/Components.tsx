@@ -1,7 +1,7 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Package, Search, Filter, History, Trash2, Loader2, Sparkles, Info } from "lucide-react";
+import { Package, Search, Filter, History, Trash2, Loader2, Sparkles, Info, ChevronDown } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,8 +31,17 @@ import {
 } from "@/data/components";
 import { calculateSupplyChainRisk } from "@/lib/supply-chain-risk";
 import { useComponentSupplierStore, type ComponentSupplierMatch } from "@/stores/componentSupplierStore";
-import { useAnalysisStore } from "@/stores/analysisStore";
+import { useAnalysisStore, type BOMAnalysisResult, type IdentifiedComponent } from "@/stores/analysisStore";
 import { supabase } from "@/integrations/supabase/client";
+
+interface SavedBOM {
+  id: string;
+  product_name: string;
+  components_json: any;
+  confidence: number;
+  created_at: string;
+  product_category: string | null;
+}
 
 /** Convert BOM analysis components to ComponentPart[] */
 function bomToComponentParts(
@@ -53,6 +62,48 @@ export default function ComponentsPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const producerResults = useAnalysisStore((s) => s.producerResults);
+  const setProducerResults = useAnalysisStore((s) => s.setProducerResults);
+
+  // Saved BOMs from database
+  const [savedBOMs, setSavedBOMs] = useState<SavedBOM[]>([]);
+  const [selectedBOMId, setSelectedBOMId] = useState<string>("current");
+
+  useEffect(() => {
+    const fetchBOMs = async () => {
+      const { data } = await supabase
+        .from("bom_analyses")
+        .select("id, product_name, components_json, confidence, created_at, product_category")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (data) setSavedBOMs(data);
+    };
+    fetchBOMs();
+  }, []);
+
+  const handleBOMSelect = (bomId: string) => {
+    setSelectedBOMId(bomId);
+    if (bomId === "current") return; // keep current store state
+    if (bomId === "mock") {
+      useAnalysisStore.getState().clearResults("producer");
+      return;
+    }
+    const bom = savedBOMs.find(b => b.id === bomId);
+    if (!bom) return;
+    const components = (Array.isArray(bom.components_json) ? bom.components_json : []) as IdentifiedComponent[];
+    const totalCost = components.reduce((s, c) => s + (c.estimatedUnitCost || 0) * (c.quantity || 1), 0);
+    const result: BOMAnalysisResult = {
+      success: true,
+      productName: bom.product_name,
+      productCategory: bom.product_category || "General",
+      components,
+      overallConfidence: bom.confidence || 0.8,
+      processingTime: 0,
+      suggestedTags: [],
+      attributes: {},
+      totalEstimatedCost: totalCost,
+    };
+    setProducerResults(result);
+  };
 
   // Derive parts from BOM analysis or fall back to mock
   const activeParts = useMemo<ComponentPart[]>(() => {
@@ -211,9 +262,40 @@ export default function ComponentsPage() {
               <p className="text-muted-foreground">{t("pages.componentSupply.subtitle")}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* BOM Selector Dropdown */}
+            <Select value={selectedBOMId} onValueChange={handleBOMSelect}>
+              <SelectTrigger className="w-[220px] h-9 text-sm">
+                <Package className="h-3.5 w-3.5 mr-1.5 shrink-0" />
+                <SelectValue placeholder="Select BOM / Product" />
+              </SelectTrigger>
+              <SelectContent>
+                {producerResults && (
+                  <SelectItem value="current">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="h-3 w-3 text-primary" />
+                      <span>{producerResults.productName}</span>
+                      <Badge variant="secondary" className="text-[10px] px-1 py-0 ml-1">Active</Badge>
+                    </div>
+                  </SelectItem>
+                )}
+                <SelectItem value="mock">
+                  <span className="text-muted-foreground">Demo Components</span>
+                </SelectItem>
+                {savedBOMs.map((bom) => (
+                  <SelectItem key={bom.id} value={bom.id}>
+                    <div className="flex items-center gap-1.5">
+                      <span>{bom.product_name}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {new Date(bom.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {isFromBOM && (
-              <Badge variant="outline" className="gap-1"><Sparkles className="h-3 w-3" /> From BOM: {producerResults?.productName}</Badge>
+              <Badge variant="outline" className="gap-1 text-xs"><Sparkles className="h-3 w-3" /> {producerResults?.components.length} parts</Badge>
             )}
             <LoadComparisonDialog onLoad={handleLoadComparison} />
             <SaveComparisonDialog selections={selections} totalCost={totalCost} completionPercent={completionPercent} onSave={() => {}} />
