@@ -100,13 +100,17 @@ export default function GTMPage() {
       const productName = producerResults?.productName || "Manufacturing Product";
       const productCategory = producerResults?.productCategory || "Industrial";
       const componentsSummary = producerResults?.components?.slice(0, 5).map(c => c.name).join(", ") || "";
+      const totalBOMCost = producerResults?.totalEstimatedCost || 0;
+      const componentCount = producerResults?.components?.length || 0;
 
       const { data, error } = await supabase.functions.invoke("generate-gtm-strategy", {
         body: {
           productName,
           productCategory,
           componentsSummary,
-          feasibilityScore: 76,
+          totalBOMCost,
+          componentCount,
+          feasibilityScore: producerResults ? Math.round(producerResults.overallConfidence * 100) : 76,
           targetMarkets: ["North America", "Europe", "Asia Pacific"],
         },
       });

@@ -14,6 +14,7 @@ import { toast } from "@/hooks/useToast";
 interface BOMCostSummaryProps {
   components: BOMComponent[];
   confidence: number;
+  productName?: string;
 }
 
 interface AIEstimate {
@@ -29,7 +30,7 @@ interface AIEstimate {
   savingsJustification?: string;
 }
 
-export function BOMCostSummary({ components, confidence }: BOMCostSummaryProps) {
+export function BOMCostSummary({ components, confidence, productName }: BOMCostSummaryProps) {
   const { t } = useTranslation();
   const fc = useFormatCurrency();
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -76,7 +77,7 @@ export function BOMCostSummary({ components, confidence }: BOMCostSummaryProps) 
             totalCost: c.totalCost,
             material: c.material || c.category,
           })),
-          productName: "BOM Product",
+          productName: productName || "BOM Product",
           productionVolume: 1000,
         },
       });

@@ -96,10 +96,16 @@ export default function ProducerDashboard() {
     loadBOMs();
   }, [user?.id]);
 
+  const activeBomCount = recentBOMs.length;
+  const totalComponents = recentBOMs.reduce((s, b) => s + b.components, 0);
+  const avgFeasibility = recentBOMs.length > 0
+    ? Math.round(recentBOMs.reduce((s, b) => s + b.feasibility, 0) / recentBOMs.length)
+    : 76;
+
   const productionStats = [
-    { label: t("producerDashboard.stats.activeBoms"), value: "18", icon: Layers, color: "text-primary" },
-    { label: t("producerDashboard.stats.componentsTracked"), value: "342", icon: Package, color: "text-amber-500" },
-    { label: t("producerDashboard.stats.avgFeasibility"), value: "76/100", icon: Factory, color: "text-emerald-500" },
+    { label: t("producerDashboard.stats.activeBoms"), value: String(activeBomCount), icon: Layers, color: "text-primary" },
+    { label: t("producerDashboard.stats.componentsTracked"), value: String(totalComponents), icon: Package, color: "text-amber-500" },
+    { label: t("producerDashboard.stats.avgFeasibility"), value: `${avgFeasibility}/100`, icon: Factory, color: "text-emerald-500" },
   ];
 
   const keyActions = [
