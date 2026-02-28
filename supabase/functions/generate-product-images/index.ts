@@ -121,8 +121,8 @@ serve(async (req) => {
         imageDataUrl = `data:image/jpeg;base64,${referenceImageUrl}`;
       }
 
-      // Check if image is too large (>200KB base64 ≈ 270K chars) – skip reference to avoid gateway crashes
-      if (imageDataUrl.length > 270_000) {
+      // Check if image is too large (>500KB base64 ≈ 680K chars) – skip reference as safety net
+      if (imageDataUrl.length > 680_000) {
         console.warn("Reference image too large, generating without reference");
         messageContent = prompt;
       } else {
