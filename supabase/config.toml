@@ -59,3 +59,12 @@ verify_jwt = false
 
 [functions.negotiation-intelligence]
 verify_jwt = false
+
+[functions.generate-gtm-strategy]
+verify_jwt = false
+
+[functions.generate-cost-estimate]
+verify_jwt = false
+
+[functions.component-sourcing]
+verify_jwt = false
