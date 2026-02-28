@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
   PieChart, Pie, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import {
@@ -16,8 +19,18 @@ import {
   RotateCcw, Copy, CheckCircle2, Sparkles,
 } from "lucide-react";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
-import { useAnalysisStore } from "@/stores/analysisStore";
+import { useAnalysisStore, type BOMAnalysisResult, type IdentifiedComponent } from "@/stores/analysisStore";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+interface SavedBOM {
+  id: string;
+  product_name: string;
+  components_json: any;
+  confidence: number;
+  created_at: string;
+  product_category: string | null;
+}
 
 // CostInputs interface and DEFAULT_INPUTS
 interface CostInputs {
@@ -89,7 +102,57 @@ export default function ShouldCostPage() {
   const [inputs, setInputs] = useState<CostInputs>(DEFAULT_INPUTS);
   const fc = useFormatCurrency();
   const producerResults = useAnalysisStore((s) => s.producerResults);
+  const setProducerResults = useAnalysisStore((s) => s.setProducerResults);
 
+  // Saved BOMs from database
+  const [savedBOMs, setSavedBOMs] = useState<SavedBOM[]>([]);
+  const [selectedBOMId, setSelectedBOMId] = useState<string>("current");
+
+  useEffect(() => {
+    const fetchBOMs = async () => {
+      const { data } = await supabase
+        .from("bom_analyses")
+        .select("id, product_name, components_json, confidence, created_at, product_category")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (data) setSavedBOMs(data);
+    };
+    fetchBOMs();
+  }, []);
+
+  const handleBOMSelect = (bomId: string) => {
+    setSelectedBOMId(bomId);
+    if (bomId === "current") return;
+    if (bomId === "none") {
+      useAnalysisStore.getState().clearResults("producer");
+      return;
+    }
+    const bom = savedBOMs.find(b => b.id === bomId);
+    if (!bom) return;
+    const components = (Array.isArray(bom.components_json) ? bom.components_json : []) as IdentifiedComponent[];
+    const totalCost = components.reduce((s, c) => s + (c.estimatedUnitCost || 0) * (c.quantity || 1), 0);
+    const result: BOMAnalysisResult = {
+      success: true,
+      productName: bom.product_name,
+      productCategory: bom.product_category || "General",
+      components,
+      overallConfidence: bom.confidence || 0.8,
+      processingTime: 0,
+      suggestedTags: [],
+      attributes: {},
+      totalEstimatedCost: totalCost,
+    };
+    setProducerResults(result);
+    // Auto-fill inputs from the selected BOM
+    setInputs(prev => ({
+      ...prev,
+      productName: bom.product_name,
+      materialCostPerUnit: Math.round(totalCost * 100) / 100,
+      materialWeight: 0,
+      materialPricePerKg: 0,
+    }));
+    toast.success("BOM data applied", { description: `Loaded ${components.length} components from ${bom.product_name}` });
+  };
   const hasBOMData = !!(producerResults?.components?.length);
   const bomApplied = hasBOMData && inputs.productName === producerResults?.productName;
 
@@ -191,7 +254,38 @@ export default function ShouldCostPage() {
             </h1>
             <p className="text-sm text-muted-foreground">Estimate expected production cost to benchmark supplier quotes</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap items-center">
+            {/* BOM Selector Dropdown */}
+            <Select value={selectedBOMId} onValueChange={handleBOMSelect}>
+              <SelectTrigger className="w-[220px] h-9 text-sm">
+                <Package className="h-3.5 w-3.5 mr-1.5 shrink-0" />
+                <SelectValue placeholder="Select BOM / Product" />
+              </SelectTrigger>
+              <SelectContent>
+                {producerResults && (
+                  <SelectItem value="current">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="h-3 w-3 text-primary" />
+                      <span>{producerResults.productName}</span>
+                      <Badge variant="secondary" className="text-[10px] px-1 py-0 ml-1">Active</Badge>
+                    </div>
+                  </SelectItem>
+                )}
+                <SelectItem value="none">
+                  <span className="text-muted-foreground">No BOM (manual input)</span>
+                </SelectItem>
+                {savedBOMs.map((bom) => (
+                  <SelectItem key={bom.id} value={bom.id}>
+                    <div className="flex items-center gap-1.5">
+                      <span>{bom.product_name}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {new Date(bom.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {hasBOMData && !bomApplied && (
               <Button variant="default" size="sm" onClick={handleAutoFillFromBOM} className="gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" /> Auto-fill from BOM
