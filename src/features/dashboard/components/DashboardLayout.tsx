@@ -4,6 +4,7 @@ import { DashboardModeProvider } from "@/features/dashboard";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { DashboardHeader } from "./DashboardHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ActiveBOMBanner } from "@/components/producer/ActiveBOMBanner";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -20,6 +21,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <DashboardSidebar side={side} />
           <SidebarInset className="flex flex-col flex-1">
             <DashboardHeader />
+            <ActiveBOMBanner />
             <main className="flex-1 p-2 sm:p-4 md:p-6 bg-background">
               {children}
             </main>
