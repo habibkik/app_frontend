@@ -1,40 +1,20 @@
 
 
-## Plan: Draw a connection line from user location to clicked entity
+## Plan: Close popup card on map click or second dot click
 
-When a user clicks on a supplier/factory/entity marker on the heat map, and the user's geolocation is available, draw an animated arc line from the user's blue dot to the clicked entity's position.
+**Problem**: The info card (popup) that appears when clicking a supplier/factory marker stays open permanently. Clicking elsewhere on the map or on another dot doesn't dismiss it — only the small close button works.
 
-### Approach
+**Fix**: Add a single `click` event listener on the map itself that clears all pinned states (`pinnedEntity`, `pinnedRegion`, `buyerSelectedPoint`) whenever the user clicks on empty map space (not on a marker). This gives natural "click anywhere to dismiss" behavior.
 
-Create a new inner component `ConnectionLine` that renders inside the `<Map>` context. It will:
+### Changes in `src/components/shared/MapcnHeatMap.tsx`
 
-1. **Use MapLibre's native GeoJSON source + line layer** — add a `geojson` source with a `LineString` feature connecting `userCoords` to the pinned entity's coordinates
-2. **Create a curved arc** — compute intermediate points along a great-circle arc (5-10 interpolated points with a slight vertical bulge) so the line looks like a flight path rather than a straight segment
-3. **Style the line** — dashed, animated, with a color matching the mode (emerald for buyer, violet for producer, orange for seller)
-4. **Show/hide reactively** — the line appears when `pinnedEntity` is set and `userCoords` is available; it disappears when the popup is closed (pinnedEntity becomes null)
-5. **For buyer cluster mode** — also connect to the selected cluster point (the `BuyerClusterLayer` already tracks a `selected` state; we'll lift that state up or pass userCoords down and draw the line from within)
+1. **Add a map click listener** inside the main component that fires on every map click. Use a small `useEffect` that:
+   - Listens for the map's `click` event
+   - Checks if the click hit any marker element (using `e.originalEvent.target` to detect if a marker `div` was clicked)
+   - If the click is on empty map space → clear `setPinnedEntity(null)`, `setPinnedRegion(null)`, `setBuyerSelectedPoint(null)`
+   - This naturally closes the popup card and removes the connection line
 
-### Changes
+2. **Toggle behavior already works** for same-marker clicks — the existing `handleClickEntity` already toggles via `prev?.id === entity.id ? null : entity`. No change needed there.
 
-**`src/components/shared/MapcnHeatMap.tsx`**:
-- Add a `ConnectionLine` component (~50 lines) that:
-  - Accepts `userCoords`, `targetLat`, `targetLng`, `color`
-  - Uses `useMap()` to access the MapLibre instance
-  - On mount/update: adds a GeoJSON source with a curved `LineString` and a `line` layer with dash-array animation
-  - On unmount: removes source and layer
-  - Computes arc points using simple lat/lng interpolation with altitude bulge
-- Render `<ConnectionLine>` inside `<Map>` whenever `pinnedEntity && userCoords` (for producer/seller modes)
-- For buyer mode: pass `userCoords` into `BuyerClusterLayer`, and render `ConnectionLine` when a cluster point is selected
-- The line will also show distance label via the existing `TransportChip` in popups (already implemented)
-
-### Technical Details
-
-```text
-User Blue Dot ──── curved dashed line ────> Pinned Entity Marker
-   (lat,lng)         (arc interpolation)        (lat,lng)
-```
-
-Arc interpolation: 8 intermediate points, with a latitude offset proportional to distance to create a subtle curve. The line layer uses `line-dasharray: [2, 2]` for a dashed effect and mode-specific coloring.
-
-Source/layer IDs will be unique (`connection-line-src`, `connection-line-layer`) and cleaned up on unmount to prevent stale layers when theme changes trigger `styledata` events.
+This is a lightweight addition (~15 lines) that gives intuitive close-on-click-away behavior across all three modes.
 
