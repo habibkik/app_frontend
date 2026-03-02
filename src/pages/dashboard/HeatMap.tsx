@@ -147,55 +147,9 @@ function HeatMapContent() {
           </div>
         </div>
 
-        {/* Controls row: BOM Selector + View Toggle + Globe Toggle */}
+        {/* BOM / Product Selector */}
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
-          {/* BOM / Product Selector */}
           <BOMSelector fallbackLabel="Demo Data" />
-
-          {/* Map / Grid toggle */}
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            <Button
-              variant={viewMode === "map" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("map")}
-              className="gap-2"
-            >
-              <MapIcon className="h-4 w-4" />
-              {t("pages.heatMap.mapView")}
-            </Button>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className="gap-2"
-            >
-              <LayoutGrid className="h-4 w-4" />
-              {t("pages.heatMap.gridView")}
-            </Button>
-          </div>
-
-          {/* Globe / Flat projection toggle — only visible in map view */}
-          {viewMode === "map" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setProjection((p) => (p === "mercator" ? "globe" : "mercator"))}
-              className="gap-2"
-              title={projection === "mercator" ? "Switch to 3D Globe" : "Switch to Flat Map"}
-            >
-              {projection === "globe" ? (
-                <>
-                  <Layers className="h-4 w-4" />
-                  Flat
-                </>
-              ) : (
-                <>
-                  <Globe className="h-4 w-4" />
-                  Globe
-                </>
-              )}
-            </Button>
-          )}
         </div>
       </div>
 
@@ -289,6 +243,52 @@ function HeatMapContent() {
           </Card>
         </div>
       )}
+
+      {/* View Toggle Bar: Map / Grid / Globe */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+          <Button
+            variant={viewMode === "map" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("map")}
+            className="gap-2"
+          >
+            <MapIcon className="h-4 w-4" />
+            {t("pages.heatMap.mapView")}
+          </Button>
+          <Button
+            variant={viewMode === "grid" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("grid")}
+            className="gap-2"
+          >
+            <LayoutGrid className="h-4 w-4" />
+            {t("pages.heatMap.gridView")}
+          </Button>
+        </div>
+
+        {viewMode === "map" && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setProjection((p) => (p === "mercator" ? "globe" : "mercator"))}
+            className="gap-2"
+            title={projection === "mercator" ? "Switch to 3D Globe" : "Switch to Flat Map"}
+          >
+            {projection === "globe" ? (
+              <>
+                <Layers className="h-4 w-4" />
+                Flat
+              </>
+            ) : (
+              <>
+                <Globe className="h-4 w-4" />
+                Globe
+              </>
+            )}
+          </Button>
+        )}
+      </div>
 
       {/* Map View — mapcn (no API key needed) */}
       {viewMode === "map" && (
