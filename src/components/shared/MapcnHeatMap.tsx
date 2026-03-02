@@ -943,15 +943,30 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
 
   // Track recent marker clicks so MapClickDismiss doesn't immediately undo them
   const markerClickedRef = useRef(false);
+  // Fade-out animation state
+  const [dismissing, setDismissing] = useState(false);
+  const FADE_MS = 250;
+
+  const dismissAll = useCallback(() => {
+    setDismissing(true);
+    setTimeout(() => {
+      setPinnedEntity(null);
+      setPinnedRegion(null);
+      setBuyerSelectedPoint(null);
+      setDismissing(false);
+    }, FADE_MS);
+  }, []);
 
   const handleClickEntity = (entity: MapEntity) => {
     markerClickedRef.current = true;
     setTimeout(() => { markerClickedRef.current = false; }, 50);
+    setDismissing(false);
     setPinnedEntity((prev) => prev?.id === entity.id ? null : entity);
   };
   const handleClickRegion = (region: MarketHeatMapRegion) => {
     markerClickedRef.current = true;
     setTimeout(() => { markerClickedRef.current = false; }, 50);
+    setDismissing(false);
     setPinnedRegion((prev) => prev?.region === region.region ? null : region);
   };
 
@@ -1031,7 +1046,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
       <div style={{ height }} className="w-full">
         <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
           <MapControls showZoom showFullscreen position="top-right" />
-          <MapClickDismiss markerClickedRef={markerClickedRef} onDismiss={() => { setPinnedEntity(null); setPinnedRegion(null); setBuyerSelectedPoint(null); }} />
+          <MapClickDismiss markerClickedRef={markerClickedRef} onDismiss={dismissAll} />
 
           {/* User location blue dot */}
           {userCoords && (
@@ -1104,6 +1119,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
               offset={20}
               closeButton
               onClose={() => setPinnedEntity(null)}
+              className={`transition-opacity duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
             >
               <ProducerPopup entity={pinnedEntity} userCoords={userCoords} />
             </MapPopup>
@@ -1164,6 +1180,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
               offset={20}
               closeButton
               onClose={() => setPinnedEntity(null)}
+              className={`transition-all duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
             >
               <SellerEntityPopup entity={pinnedEntity} userCoords={userCoords} />
             </MapPopup>
@@ -1178,6 +1195,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
               offset={20}
               closeButton
               onClose={() => setPinnedRegion(null)}
+              className={`transition-all duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
             >
               <SellerPopup region={pinnedRegion} userCoords={userCoords} />
             </MapPopup>
