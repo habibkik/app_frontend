@@ -1024,6 +1024,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
       <div style={{ height }} className="w-full">
         <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
           <MapControls showZoom showFullscreen position="top-right" />
+          <MapClickDismiss onDismiss={() => { setPinnedEntity(null); setPinnedRegion(null); setBuyerSelectedPoint(null); }} />
 
           {/* User location blue dot */}
           {userCoords && (
@@ -1199,5 +1200,28 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
       <MapLegend mode={mode} />
     </Card>
   );
+}
+
+// ============================================================
+// MAP CLICK DISMISS — clears popups when clicking empty map space
+// ============================================================
+function MapClickDismiss({ onDismiss }: { onDismiss: () => void }) {
+  const { map, isLoaded } = useMap();
+  const cbRef = useRef(onDismiss);
+  cbRef.current = onDismiss;
+
+  useEffect(() => {
+    if (!map || !isLoaded) return;
+    const handler = (e: maplibregl.MapMouseEvent) => {
+      // If the click target is inside a marker element, ignore — let marker handle it
+      const target = (e.originalEvent?.target as HTMLElement);
+      if (target?.closest?.(".maplibregl-marker")) return;
+      cbRef.current();
+    };
+    map.on("click", handler);
+    return () => { map.off("click", handler); };
+  }, [map, isLoaded]);
+
+  return null;
 }
 
