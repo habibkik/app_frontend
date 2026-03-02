@@ -1,20 +1,28 @@
 
 
-## Problem
+## Two Issues to Fix
 
-MapLibre's `map.on("click", handler)` fires independently from DOM click events on markers. The `event.originalEvent.target` in that handler points to the **map canvas element**, not the marker `<div>`. This means:
+### Issue 1: Click-to-dismiss still not working
 
-1. `e.stopPropagation()` in marker click handlers has no effect on MapLibre's map click
-2. The `target.closest(".maplibregl-marker")` check on line 1248 never matches because `target` is always the canvas
-3. The 100ms `markerClickedRef` timeout is a race condition — unreliable across browsers/devices
+The `document.elementsFromPoint()` approach is correct in theory, but there's a subtle problem: **MapLibre markers have `pointer-events: auto` on their container, but the map canvas sits in a separate stacking context**. When MapLibre fires its `map.on("click")`, the `originalEvent` is the actual DOM `MouseEvent` from the canvas. `document.elementsFromPoint()` should find the marker divs since they are absolutely positioned on top of the canvas.
 
-## Solution (per MapLibre docs pattern)
+However, looking deeper at the code, I suspect the issue is that the **map click handler and the marker DOM click handler fire in rapid succession**, and the state update from `handleClickEntity` (which sets `pinnedEntity`) hasn't committed yet when `MapClickDismiss` fires `dismissAll`. Both run synchronously in the same microtask.
 
-Replace the timing-based ref guard with a **robust DOM hit-test**. Instead of checking `event.originalEvent.target` (which is always the canvas), use `document.elementsFromPoint()` to check if a marker element exists at the click coordinates. This is the reliable way to detect marker clicks from within a map-level click handler.
+**The fix**: Use a simple `requestAnimationFrame` delay in `MapClickDismiss` to ensure the marker's DOM click handler runs first. Alternatively — and more robustly — add a `data-map-marker` attribute to marker elements and check with `elementsFromPoint` more broadly, AND add a small `setTimeout(0)` to defer the dismiss check.
 
-### Changes in `src/components/shared/MapcnHeatMap.tsx`
+Actually, the most reliable approach: **skip `map.on("click")` entirely**. Instead, attach a single `click` listener to the map's **canvas container element** (`map.getCanvasContainer()`). This is a normal DOM element, so `e.target` and `e.stopPropagation()` work correctly. When the user clicks a marker, `stopPropagation` prevents the canvas container listener from firing. When they click empty space, the canvas receives the click and dismiss fires.
 
-**1. Simplify `MapClickDismiss`** — remove `markerClickedRef` dependency, use `elementsFromPoint`:
+### Issue 2: Show all 3 transport modes with distance
+
+Currently `TransportChip` shows only the **recommended** transport mode (the one matching the distance threshold). The user wants to see all 3 modes (Road, Sea, Air) with the distance, so users can compare costs across shipping methods.
+
+---
+
+### Changes
+
+#### File: `src/components/shared/MapcnHeatMap.tsx`
+
+**1. Fix `MapClickDismiss`** — Replace `map.on("click")` with a DOM click listener on `map.getCanvasContainer()`:
 
 ```typescript
 function MapClickDismiss({ onDismiss }: { onDismiss: () => void }) {
@@ -24,42 +32,42 @@ function MapClickDismiss({ onDismiss }: { onDismiss: () => void }) {
 
   useEffect(() => {
     if (!map || !isLoaded) return;
-    const handler = (e: maplibregl.MapMouseEvent) => {
-      const { clientX, clientY } = e.originalEvent;
-      const els = document.elementsFromPoint(clientX, clientY);
-      const hitMarker = els.some(el =>
-        el.closest(".maplibregl-marker") || el.closest(".maplibregl-popup")
-      );
-      if (hitMarker) return;
-      cbRef.current();
+    const container = map.getCanvasContainer();
+    const handler = (e: Event) => {
+      const target = e.target as HTMLElement;
+      // If click landed on the canvas itself (not a marker/popup), dismiss
+      if (target.tagName === "CANVAS") {
+        cbRef.current();
+      }
     };
-    map.on("click", handler);
-    return () => { map.off("click", handler); };
+    container.addEventListener("click", handler);
+    return () => { container.removeEventListener("click", handler); };
   }, [map, isLoaded]);
 
   return null;
 }
 ```
 
-**2. Remove `markerClickedRef`** — delete the ref declaration and all references to it (~lines 955, 964-965, 971-972, 1053).
+This works because:
+- Marker clicks go through DOM marker elements → `e.target` is NOT the canvas
+- Empty map clicks go through the canvas → `e.target.tagName === "CANVAS"`
+- No timing issues, no `elementsFromPoint`, no ref guards
 
-**3. Simplify marker click handlers** — remove ref manipulation, keep only state logic:
+**2. Replace `TransportChip` with `AllTransportModes`** — Show all 3 transport options (Road, Sea, Air) with the distance, highlighting the recommended one:
 
 ```typescript
-const handleClickEntity = (entity: MapEntity, e?: MouseEvent) => {
-  e?.stopPropagation();
-  setDismissing(false);
-  setPinnedEntity((prev) => prev?.id === entity.id ? null : entity);
-};
+function AllTransportModes({ lat, lng, userCoords }: { lat: number; lng: number; userCoords: UserCoords | null }) {
+  if (!userCoords) return null;
+  const distKm = haversineKm(userCoords.lat, userCoords.lng, lat, lng);
+  const recommended = getTransportInfo(distKm);
+  const allModes = [
+    { mode: "road", icon: Truck, label: "Road freight", cost: getRoadCost(distKm) },
+    { mode: "sea",  icon: Ship,  label: "Sea freight",  cost: getSeaCost(distKm) },
+    { mode: "air",  icon: Plane, label: "Air freight",  cost: getAirCost(distKm) },
+  ];
+  // Show distance + all 3 modes, with recommended one highlighted
+}
 ```
 
-Same for `handleClickRegion`.
-
-**4. Update `<MapClickDismiss>` usage** — remove the `markerClickedRef` prop:
-
-```tsx
-<MapClickDismiss onDismiss={dismissAll} />
-```
-
-This is ~10 lines changed. `document.elementsFromPoint()` is the standard browser API that reliably detects if a marker sits under the click point, regardless of how MapLibre dispatches its events.
+**3. Update `src/utils/transportEstimate.ts`** — Export individual cost functions for each mode so all 3 can be displayed regardless of distance.
 
