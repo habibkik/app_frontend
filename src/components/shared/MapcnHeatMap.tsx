@@ -3,7 +3,7 @@
  * No API key required. Uses free CARTO tiles with auto light/dark theme.
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users, Radar } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MapPopup, MapClusterLayer, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,140 @@ import type { MapEntity, MarketHeatMapRegion } from "@/stores/analysisStore";
 import type { DashboardMode } from "@/features/dashboard";
 import { useUserLocation, type UserCoords } from "@/hooks/useUserLocation";
 import { haversineKm, getTransportInfo, formatDistance } from "@/utils/transportEstimate";
+
+// ============================================================
+// CONNECTION LINE — curved arc from user location to target
+// ============================================================
+const SRC_ID = "connection-line-src";
+const LAYER_ID = "connection-line-layer";
+
+/** Compute arc points with a subtle latitude bulge to look like a flight path. */
+function computeArcPoints(
+  from: [number, number], // [lng, lat]
+  to: [number, number],
+  steps = 40,
+): [number, number][] {
+  const points: [number, number][] = [];
+  const dLng = to[0] - from[0];
+  const dLat = to[1] - from[1];
+  const dist = Math.sqrt(dLng * dLng + dLat * dLat); // rough degree distance
+  const bulge = Math.min(dist * 0.15, 8); // cap the curve height
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const lng = from[0] + dLng * t;
+    const lat = from[1] + dLat * t + Math.sin(t * Math.PI) * bulge;
+    points.push([lng, lat]);
+  }
+  return points;
+}
+
+function ConnectionLine({
+  userCoords,
+  targetLng,
+  targetLat,
+  color,
+}: {
+  userCoords: UserCoords;
+  targetLng: number;
+  targetLat: number;
+  color: string;
+}) {
+  const { map, isLoaded } = useMap();
+  const animRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!map || !isLoaded) return;
+
+    const arc = computeArcPoints(
+      [userCoords.lng, userCoords.lat],
+      [targetLng, targetLat],
+    );
+
+    const geojson: GeoJSON.Feature<GeoJSON.LineString> = {
+      type: "Feature",
+      properties: {},
+      geometry: { type: "LineString", coordinates: arc },
+    };
+
+    // Add or update source
+    const existing = map.getSource(SRC_ID) as maplibregl.GeoJSONSource | undefined;
+    if (existing) {
+      existing.setData(geojson);
+    } else {
+      map.addSource(SRC_ID, { type: "geojson", data: geojson });
+    }
+
+    // Add layer if not already present
+    if (!map.getLayer(LAYER_ID)) {
+      map.addLayer({
+        id: LAYER_ID,
+        type: "line",
+        source: SRC_ID,
+        paint: {
+          "line-color": color,
+          "line-width": 2.5,
+          "line-dasharray": [2, 2],
+          "line-opacity": 0.85,
+        },
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
+      });
+    } else {
+      map.setPaintProperty(LAYER_ID, "line-color", color);
+    }
+
+    // Animate dash offset for a marching-ants effect
+    let offset = 0;
+    const animate = () => {
+      offset = (offset + 0.15) % 4;
+      if (map.getLayer(LAYER_ID)) {
+        map.setPaintProperty(LAYER_ID, "line-dasharray", [2, 2]);
+      }
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animRef.current = requestAnimationFrame(animate);
+
+    // Also re-add layer after style changes (theme switch)
+    const onStyleData = () => {
+      if (!map.getSource(SRC_ID)) {
+        map.addSource(SRC_ID, { type: "geojson", data: geojson });
+      }
+      if (!map.getLayer(LAYER_ID)) {
+        map.addLayer({
+          id: LAYER_ID,
+          type: "line",
+          source: SRC_ID,
+          paint: {
+            "line-color": color,
+            "line-width": 2.5,
+            "line-dasharray": [2, 2],
+            "line-opacity": 0.85,
+          },
+          layout: { "line-cap": "round", "line-join": "round" },
+        });
+      }
+    };
+    map.on("styledata", onStyleData);
+
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      map.off("styledata", onStyleData);
+      if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID);
+      if (map.getSource(SRC_ID)) map.removeSource(SRC_ID);
+    };
+  }, [map, isLoaded, userCoords.lat, userCoords.lng, targetLat, targetLng, color]);
+
+  return null;
+}
+
+/** Mode-aware arc color */
+function getConnectionColor(mode: DashboardMode): string {
+  if (mode === "buyer") return "#10b981";   // emerald
+  if (mode === "producer") return "#7c3aed"; // violet
+  return "#f59e0b"; // amber for seller
+}
 
 // ============================================================
 // TYPES
@@ -347,8 +481,24 @@ interface SelectedPoint {
   props: SupplierFeatureProps;
 }
 
-function BuyerClusterLayer({ entities, userCoords }: { entities: MapEntity[]; userCoords: UserCoords | null }) {
+function BuyerClusterLayer({
+  entities,
+  userCoords,
+  onSelectPoint,
+}: {
+  entities: MapEntity[];
+  userCoords: UserCoords | null;
+  onSelectPoint?: (pt: SelectedPoint | null) => void;
+}) {
   const [selected, setSelected] = useState<SelectedPoint | null>(null);
+
+  const handleSelect = useCallback(
+    (pt: SelectedPoint | null) => {
+      setSelected(pt);
+      onSelectPoint?.(pt);
+    },
+    [onSelectPoint],
+  );
 
   // Convert entities → GeoJSON FeatureCollection
   const geojson = useMemo<GeoJSON.FeatureCollection<GeoJSON.Point, SupplierFeatureProps>>(() => ({
@@ -382,7 +532,7 @@ function BuyerClusterLayer({ entities, userCoords }: { entities: MapEntity[]; us
         pointColor="#10b981"
         onPointClick={(feature, coordinates) => {
           const props = feature.properties as SupplierFeatureProps;
-          setSelected({
+          handleSelect({
             longitude: coordinates[0],
             latitude: coordinates[1],
             props,
@@ -395,7 +545,7 @@ function BuyerClusterLayer({ entities, userCoords }: { entities: MapEntity[]; us
         <MapPopup
           longitude={selected.longitude}
           latitude={selected.latitude}
-          onClose={() => setSelected(null)}
+          onClose={() => handleSelect(null)}
           closeButton
         >
           <BuyerPopupCard
@@ -408,7 +558,7 @@ function BuyerClusterLayer({ entities, userCoords }: { entities: MapEntity[]; us
             lat={selected.latitude}
             lng={selected.longitude}
             userCoords={userCoords}
-            onClose={() => setSelected(null)}
+            onClose={() => handleSelect(null)}
           />
         </MapPopup>
       )}
@@ -766,6 +916,8 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
   // ── Pinned (clicked) state ────────────────────────────────
   const [pinnedEntity, setPinnedEntity] = useState<MapEntity | null>(null);
   const [pinnedRegion, setPinnedRegion] = useState<MarketHeatMapRegion | null>(null);
+  // Buyer cluster selected point (lifted from BuyerClusterLayer)
+  const [buyerSelectedPoint, setBuyerSelectedPoint] = useState<SelectedPoint | null>(null);
 
   const handleClickEntity = (entity: MapEntity) => {
     setPinnedEntity((prev) => prev?.id === entity.id ? null : entity);
@@ -872,7 +1024,31 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
           <FlyToEntity entity={activeEntity} />
 
           {/* BUYER MODE — clustered supplier layer */}
-          {mode === "buyer" && <BuyerClusterLayer entities={filteredEntities} userCoords={userCoords} />}
+          {mode === "buyer" && (
+            <BuyerClusterLayer
+              entities={filteredEntities}
+              userCoords={userCoords}
+              onSelectPoint={setBuyerSelectedPoint}
+            />
+          )}
+
+          {/* CONNECTION LINE — curved arc from user location to selected entity */}
+          {userCoords && mode === "buyer" && buyerSelectedPoint && (
+            <ConnectionLine
+              userCoords={userCoords}
+              targetLng={buyerSelectedPoint.longitude}
+              targetLat={buyerSelectedPoint.latitude}
+              color={getConnectionColor(mode)}
+            />
+          )}
+          {userCoords && mode !== "buyer" && pinnedEntity && (
+            <ConnectionLine
+              userCoords={userCoords}
+              targetLng={pinnedEntity.geoLocation.longitude}
+              targetLat={pinnedEntity.geoLocation.latitude}
+              color={getConnectionColor(mode)}
+            />
+          )}
 
           {/* PRODUCER MODE — competitor factory markers */}
           {mode === "producer" &&
