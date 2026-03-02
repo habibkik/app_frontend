@@ -941,34 +941,30 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
   // Buyer cluster selected point (lifted from BuyerClusterLayer)
   const [buyerSelectedPoint, setBuyerSelectedPoint] = useState<SelectedPoint | null>(null);
 
-  // Track recent marker clicks so MapClickDismiss doesn't immediately undo them
-  const markerClickedRef = useRef(false);
-  // Fade-out animation state
-  const [dismissing, setDismissing] = useState(false);
-  const FADE_MS = 250;
+   // Fade-out animation state
+   const [dismissing, setDismissing] = useState(false);
+   const FADE_MS = 250;
 
-  const dismissAll = useCallback(() => {
-    setDismissing(true);
-    setTimeout(() => {
-      setPinnedEntity(null);
-      setPinnedRegion(null);
-      setBuyerSelectedPoint(null);
-      setDismissing(false);
-    }, FADE_MS);
-  }, []);
+   const dismissAll = useCallback(() => {
+     setDismissing(true);
+     setTimeout(() => {
+       setPinnedEntity(null);
+       setPinnedRegion(null);
+       setBuyerSelectedPoint(null);
+       setDismissing(false);
+     }, FADE_MS);
+   }, []);
 
-  const handleClickEntity = (entity: MapEntity) => {
-    markerClickedRef.current = true;
-    setTimeout(() => { markerClickedRef.current = false; }, 50);
-    setDismissing(false);
-    setPinnedEntity((prev) => prev?.id === entity.id ? null : entity);
-  };
-  const handleClickRegion = (region: MarketHeatMapRegion) => {
-    markerClickedRef.current = true;
-    setTimeout(() => { markerClickedRef.current = false; }, 50);
-    setDismissing(false);
-    setPinnedRegion((prev) => prev?.region === region.region ? null : region);
-  };
+   const handleClickEntity = (entity: MapEntity, e?: MouseEvent) => {
+     e?.stopPropagation();
+     setDismissing(false);
+     setPinnedEntity((prev) => prev?.id === entity.id ? null : entity);
+   };
+   const handleClickRegion = (region: MarketHeatMapRegion, e?: MouseEvent) => {
+     e?.stopPropagation();
+     setDismissing(false);
+     setPinnedRegion((prev) => prev?.region === region.region ? null : region);
+   };
 
   // ── Apply filters ──────────────────────────────────────────
   const filteredEntities = useMemo(() => {
@@ -1046,7 +1042,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
       <div style={{ height }} className="w-full">
         <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
           <MapControls showZoom showFullscreen position="top-right" />
-          <MapClickDismiss markerClickedRef={markerClickedRef} onDismiss={dismissAll} />
+          <MapClickDismiss onDismiss={dismissAll} />
 
           {/* User location blue dot */}
           {userCoords && (
@@ -1102,7 +1098,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                 key={entity.id}
                 longitude={entity.geoLocation.longitude}
                 latitude={entity.geoLocation.latitude}
-                onClick={() => handleClickEntity(entity)}
+                onClick={(e) => handleClickEntity(entity, e)}
               >
                 <MarkerContent>
                   <MarkerDot color="#7c3aed" icon={Factory} active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id} />
@@ -1134,7 +1130,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                   key={`region-${idx}`}
                   longitude={region.geoLocation!.longitude}
                   latitude={region.geoLocation!.latitude}
-                  onClick={() => handleClickRegion(region)}
+                  onClick={(e) => handleClickRegion(region, e)}
                 >
                   <MarkerContent>
                     <MarkerDot
@@ -1158,7 +1154,7 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                   key={entity.id}
                   longitude={entity.geoLocation.longitude}
                   latitude={entity.geoLocation.latitude}
-                  onClick={() => handleClickEntity(entity)}
+                  onClick={(e) => handleClickEntity(entity, e)}
                 >
                   <MarkerContent>
                     <MarkerDot
@@ -1230,24 +1226,22 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
 // ============================================================
 // MAP CLICK DISMISS — clears popups when clicking empty map space
 // ============================================================
-function MapClickDismiss({ markerClickedRef, onDismiss }: { markerClickedRef: React.RefObject<boolean>; onDismiss: () => void }) {
-  const { map, isLoaded } = useMap();
-  const cbRef = useRef(onDismiss);
-  cbRef.current = onDismiss;
+function MapClickDismiss({ onDismiss }: { onDismiss: () => void }) {
+   const { map, isLoaded } = useMap();
+   const cbRef = useRef(onDismiss);
+   cbRef.current = onDismiss;
 
-  useEffect(() => {
-    if (!map || !isLoaded) return;
-    const handler = (e: maplibregl.MapMouseEvent) => {
-      const target = (e.originalEvent?.target as HTMLElement);
-      if (target?.closest?.(".maplibregl-marker, .maplibregl-popup")) return;
-      // Skip if a marker handler just fired
-      if (markerClickedRef.current) return;
-      cbRef.current();
-    };
-    map.on("click", handler);
-    return () => { map.off("click", handler); };
-  }, [map, isLoaded, markerClickedRef]);
+   useEffect(() => {
+     if (!map || !isLoaded) return;
+     const handler = (e: maplibregl.MapMouseEvent) => {
+       const target = (e.originalEvent?.target as HTMLElement);
+       if (target?.closest?.(".maplibregl-marker, .maplibregl-popup")) return;
+       cbRef.current();
+     };
+     map.on("click", handler);
+     return () => { map.off("click", handler); };
+   }, [map, isLoaded]);
 
-  return null;
+   return null;
 }
 
