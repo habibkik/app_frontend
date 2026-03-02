@@ -4,7 +4,7 @@
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users, Radar } from "lucide-react";
+import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users, Radar, Clock } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MapPopup, MapClusterLayer, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -268,9 +268,9 @@ function TransportChip({
   const recommended = getTransportInfo(distKm);
 
   const allModes = [
-    { mode: "road" as const, icon: Truck, label: "Road", cost: getRoadCost(distKm), color: "#10b981" },
-    { mode: "sea" as const,  icon: Ship,  label: "Sea",  cost: getSeaCost(distKm),  color: "#3b82f6" },
-    { mode: "air" as const,  icon: Plane, label: "Air",  cost: getAirCost(distKm),  color: "#f59e0b" },
+    { mode: "road" as const, icon: Truck, label: "Road", cost: getRoadCost(distKm), color: "#10b981", days: distKm <= 500 ? "1–3 days" : distKm <= 1500 ? "3–5 days" : "5–10 days" },
+    { mode: "sea" as const,  icon: Ship,  label: "Sea",  cost: getSeaCost(distKm),  color: "#3b82f6", days: distKm <= 4000 ? "14–21 days" : "25–40 days" },
+    { mode: "air" as const,  icon: Plane, label: "Air",  cost: getAirCost(distKm),  color: "#f59e0b", days: distKm <= 4000 ? "1–3 days" : "2–5 days" },
   ];
 
   return (
@@ -281,7 +281,7 @@ function TransportChip({
         <span className="font-semibold text-foreground">{formatDistance(distKm)}</span>
       </div>
       <div className="space-y-1">
-        {allModes.map(({ mode, icon: Icon, label, cost, color }) => {
+        {allModes.map(({ mode, icon: Icon, label, cost, color, days }) => {
           const isRecommended = mode === recommended.mode;
           return (
             <div
@@ -302,7 +302,13 @@ function TransportChip({
                   Best
                 </Badge>
               )}
-              <span className="ml-auto opacity-80 font-normal">{cost}</span>
+              <span className="ml-auto flex items-center gap-2">
+                <span className="flex items-center gap-0.5 opacity-70 font-normal">
+                  <Clock className="h-3 w-3" />
+                  {days}
+                </span>
+                <span className="opacity-80 font-normal">{cost}</span>
+              </span>
             </div>
           );
         })}
