@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Search, Users, MessageSquare, Send, Check, ChevronRight, ChevronLeft,
-  Mail, Phone, MessageCircle, ArrowRight,
+  Mail, Phone, MessageCircle, ArrowRight, Linkedin, Facebook, Instagram, Twitter, Youtube, Video, Globe,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -191,8 +191,17 @@ export function RFQCampaignBuilder() {
             <CardContent className="space-y-4">
               {[
                 { id: "email", label: t("rfqCampaign.channelEmail"), icon: Mail },
-                { id: "whatsapp", label: t("rfqCampaign.channelWhatsApp"), icon: MessageCircle },
+                { id: "whatsapp", label: "WhatsApp", icon: MessageCircle },
                 { id: "phone", label: t("rfqCampaign.channelPhone"), icon: Phone },
+                { id: "linkedin", label: "LinkedIn", icon: Linkedin },
+                { id: "sms", label: "SMS", icon: MessageSquare },
+                { id: "facebook", label: "Facebook", icon: Facebook },
+                { id: "instagram", label: "Instagram", icon: Instagram },
+                { id: "twitter", label: "Twitter / X", icon: Twitter },
+                { id: "telegram", label: "Telegram", icon: Send },
+                { id: "tiktok", label: "TikTok", icon: Video },
+                { id: "youtube", label: "YouTube", icon: Youtube },
+                { id: "pinterest", label: "Pinterest", icon: Globe },
               ].map((ch) => (
                 <div key={ch.id} className={cn(
                   "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors",
