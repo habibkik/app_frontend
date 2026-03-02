@@ -1,7 +1,7 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
-import { Package, Search, Filter, History, Trash2, Loader2, Sparkles, Info, ChevronDown } from "lucide-react";
+import { Package, Search, Filter, History, Trash2, Loader2, Sparkles } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,19 +31,10 @@ import {
 } from "@/data/components";
 import { calculateSupplyChainRisk } from "@/lib/supply-chain-risk";
 import { useComponentSupplierStore, type ComponentSupplierMatch } from "@/stores/componentSupplierStore";
-import { useAnalysisStore, type BOMAnalysisResult, type IdentifiedComponent } from "@/stores/analysisStore";
+import { useAnalysisStore } from "@/stores/analysisStore";
 import { supabase } from "@/integrations/supabase/client";
+import { BOMSelector } from "@/components/shared/BOMSelector";
 
-interface SavedBOM {
-  id: string;
-  product_name: string;
-  components_json: any;
-  confidence: number;
-  created_at: string;
-  product_category: string | null;
-}
-
-/** Convert BOM analysis components to ComponentPart[] */
 function bomToComponentParts(
   components: { name: string; category: string; quantity: number; unit: string; estimatedUnitCost: number; specifications: string; material: string }[]
 ): ComponentPart[] {
@@ -62,50 +53,7 @@ export default function ComponentsPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const producerResults = useAnalysisStore((s) => s.producerResults);
-  const setProducerResults = useAnalysisStore((s) => s.setProducerResults);
 
-  // Saved BOMs from database
-  const [savedBOMs, setSavedBOMs] = useState<SavedBOM[]>([]);
-  const [selectedBOMId, setSelectedBOMId] = useState<string>("current");
-
-  useEffect(() => {
-    const fetchBOMs = async () => {
-      const { data } = await supabase
-        .from("bom_analyses")
-        .select("id, product_name, components_json, confidence, created_at, product_category")
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (data) setSavedBOMs(data);
-    };
-    fetchBOMs();
-  }, []);
-
-  const handleBOMSelect = (bomId: string) => {
-    setSelectedBOMId(bomId);
-    if (bomId === "current") return; // keep current store state
-    if (bomId === "mock") {
-      useAnalysisStore.getState().clearResults("producer");
-      return;
-    }
-    const bom = savedBOMs.find(b => b.id === bomId);
-    if (!bom) return;
-    const components = (Array.isArray(bom.components_json) ? bom.components_json : []) as IdentifiedComponent[];
-    const totalCost = components.reduce((s, c) => s + (c.estimatedUnitCost || 0) * (c.quantity || 1), 0);
-    const result: BOMAnalysisResult = {
-      success: true,
-      productName: bom.product_name,
-      productCategory: bom.product_category || "General",
-      components,
-      overallConfidence: bom.confidence || 0.8,
-      processingTime: 0,
-      suggestedTags: [],
-      attributes: {},
-      totalEstimatedCost: totalCost,
-    };
-    setProducerResults(result);
-  };
-
-  // Derive parts from BOM analysis or fall back to mock
   const activeParts = useMemo<ComponentPart[]>(() => {
     if (producerResults?.components?.length) {
       return bomToComponentParts(producerResults.components);
@@ -126,7 +74,6 @@ export default function ComponentsPage() {
   const [loadingComponents, setLoadingComponents] = useState<Set<string>>(new Set());
   const [aiQuotes, setAiQuotes] = useState<Record<string, SupplierQuote[]>>({});
 
-  // Reset selections when parts change
   useMemo(() => {
     setSelections(activeParts.map((part) => ({ componentId: part.id, selectedQuoteId: null })));
   }, [activeParts]);
@@ -157,7 +104,6 @@ export default function ComponentsPage() {
   const fetchAISuppliers = useCallback(async (componentId: string) => {
     const part = activeParts.find(p => p.id === componentId);
     if (!part || aiQuotes[componentId]) return;
-
     setLoadingComponents(prev => new Set(prev).add(componentId));
     try {
       const { data, error } = await supabase.functions.invoke("component-sourcing", {
@@ -165,29 +111,14 @@ export default function ComponentsPage() {
       });
       if (error) throw error;
       if (!data?.success || !data?.suppliers) throw new Error("No suppliers returned");
-
       const quotes: SupplierQuote[] = data.suppliers.map((s: any, i: number) => ({
-        id: `ai-${componentId}-${i}`,
-        supplierId: s.supplierId || `ai-sup-${i}`,
-        supplierName: s.name,
+        id: `ai-${componentId}-${i}`, supplierId: s.supplierId || `ai-sup-${i}`, supplierName: s.name,
         supplierLogo: s.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase(),
-        supplierLocation: s.location,
-        componentId,
-        unitPrice: s.unitPrice,
-        moq: s.moq,
-        leadTime: s.leadTime,
-        leadTimeDays: s.leadTimeDays,
-        rating: s.rating,
-        certifications: s.certifications || [],
-        inStock: s.inStock,
-        stockQuantity: s.stockQuantity || 0,
-        industry: s.industry,
-        specializations: s.specializations || [],
-        description: s.description,
-        yearEstablished: s.yearEstablished,
-        verified: s.verified ?? true,
+        supplierLocation: s.location, componentId, unitPrice: s.unitPrice, moq: s.moq, leadTime: s.leadTime,
+        leadTimeDays: s.leadTimeDays, rating: s.rating, certifications: s.certifications || [], inStock: s.inStock,
+        stockQuantity: s.stockQuantity || 0, industry: s.industry, specializations: s.specializations || [],
+        description: s.description, yearEstablished: s.yearEstablished, verified: s.verified ?? true,
       }));
-
       setAiQuotes(prev => ({ ...prev, [componentId]: quotes }));
       addSearchResult({
         componentId, componentName: part.name, category: part.category,
@@ -195,7 +126,7 @@ export default function ComponentsPage() {
       });
       if (data.marketInsight) toast({ title: "AI Sourcing Complete", description: data.marketInsight.slice(0, 120) + "..." });
     } catch {
-      // Mock data fallback — silent
+      // silent fallback
     } finally {
       setLoadingComponents(prev => { const next = new Set(prev); next.delete(componentId); return next; });
     }
@@ -251,7 +182,6 @@ export default function ComponentsPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Page Header */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -263,37 +193,7 @@ export default function ComponentsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            {/* BOM Selector Dropdown */}
-            <Select value={selectedBOMId} onValueChange={handleBOMSelect}>
-              <SelectTrigger className="w-[220px] h-9 text-sm">
-                <Package className="h-3.5 w-3.5 mr-1.5 shrink-0" />
-                <SelectValue placeholder="Select BOM / Product" />
-              </SelectTrigger>
-              <SelectContent>
-                {producerResults && (
-                  <SelectItem value="current">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="h-3 w-3 text-primary" />
-                      <span>{producerResults.productName}</span>
-                      <Badge variant="secondary" className="text-[10px] px-1 py-0 ml-1">Active</Badge>
-                    </div>
-                  </SelectItem>
-                )}
-                <SelectItem value="mock">
-                  <span className="text-muted-foreground">Demo Components</span>
-                </SelectItem>
-                {savedBOMs.map((bom) => (
-                  <SelectItem key={bom.id} value={bom.id}>
-                    <div className="flex items-center gap-1.5">
-                      <span>{bom.product_name}</span>
-                      <span className="text-[10px] text-muted-foreground">
-                        {new Date(bom.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <BOMSelector fallbackLabel="Demo Components" />
             {isFromBOM && (
               <Badge variant="outline" className="gap-1 text-xs"><Sparkles className="h-3 w-3" /> {producerResults?.components.length} parts</Badge>
             )}
@@ -302,16 +202,13 @@ export default function ComponentsPage() {
           </div>
         </motion.div>
 
-        {/* Supply Chain Overview */}
         <div className="grid gap-4 lg:grid-cols-2">
           <SupplyChainFlow parts={activeParts} quotes={allQuotes} />
           <SupplyChainRiskPanel riskScore={riskScore} />
         </div>
 
-        {/* Main Content */}
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
-            {/* Filters */}
             <Card>
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -333,7 +230,6 @@ export default function ComponentsPage() {
               </CardContent>
             </Card>
 
-            {/* Component Cards */}
             <div className="space-y-3">
               {filteredParts.map((part, index) => {
                 const isExpanded = expandedComponent === part.id;
@@ -369,7 +265,6 @@ export default function ComponentsPage() {
             <CostComparisonChart parts={activeParts} selections={selections} />
           </div>
 
-          {/* Right Sidebar */}
           <div className="space-y-4">
             <ComparisonSummary parts={activeParts} selections={selections} onCreateOrder={handleCreateOrder} />
             {searchHistory.length > 0 && (

@@ -3,6 +3,7 @@ export { UniversalImageUpload } from "./UniversalImageUpload";
 export { GlobalAnalysisIndicator } from "./GlobalAnalysisIndicator";
 export { AnalysisErrorDisplay } from "./AnalysisErrorDisplay";
 export { ResultsBadge } from "./ResultsBadge";
+export { BOMSelector } from "./BOMSelector";
 
 // Map components
 export { MapboxMap } from "./MapboxMap";
