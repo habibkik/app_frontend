@@ -55,13 +55,19 @@ function ConnectionLine({
   const { map, isLoaded } = useMap();
   const animRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (!map || !isLoaded) return;
-
-    const arc = computeArcPoints(
+  // Compute arc + midpoint + distance once
+  const { arc, midpoint, distLabel } = useMemo(() => {
+    const pts = computeArcPoints(
       [userCoords.lng, userCoords.lat],
       [targetLng, targetLat],
     );
+    const mid = pts[Math.floor(pts.length / 2)];
+    const km = haversineKm(userCoords.lat, userCoords.lng, targetLat, targetLng);
+    return { arc: pts, midpoint: mid, distLabel: formatDistance(km) };
+  }, [userCoords.lat, userCoords.lng, targetLat, targetLng]);
+
+  useEffect(() => {
+    if (!map || !isLoaded) return;
 
     const geojson: GeoJSON.Feature<GeoJSON.LineString> = {
       type: "Feature",
@@ -137,9 +143,25 @@ function ConnectionLine({
       if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID);
       if (map.getSource(SRC_ID)) map.removeSource(SRC_ID);
     };
-  }, [map, isLoaded, userCoords.lat, userCoords.lng, targetLat, targetLng, color]);
+  }, [map, isLoaded, arc, color]);
 
-  return null;
+  // Render a distance label at the arc midpoint via a MapMarker
+  return (
+    <MapMarker longitude={midpoint[0]} latitude={midpoint[1]}>
+      <MarkerContent>
+        <div
+          className="px-2 py-0.5 rounded-full text-[10px] font-bold shadow-md border whitespace-nowrap pointer-events-none"
+          style={{
+            backgroundColor: color,
+            color: "#fff",
+            borderColor: "rgba(255,255,255,0.5)",
+          }}
+        >
+          {distLabel}
+        </div>
+      </MarkerContent>
+    </MapMarker>
+  );
 }
 
 /** Mode-aware arc color */
