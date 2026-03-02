@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import type { MapEntity, MarketHeatMapRegion } from "@/stores/analysisStore";
 import type { DashboardMode } from "@/features/dashboard";
 import { useUserLocation, type UserCoords } from "@/hooks/useUserLocation";
-import { haversineKm, getTransportInfo, formatDistance } from "@/utils/transportEstimate";
+import { haversineKm, getTransportInfo, formatDistance, getRoadCost, getSeaCost, getAirCost } from "@/utils/transportEstimate";
 
 // ============================================================
 // CONNECTION LINE — curved arc from user location to target
@@ -253,7 +253,7 @@ function MarkerDot({ color, icon: Icon, active }: { color: string; icon: React.E
 }
 
 // ============================================================
-// TRANSPORT CHIP — shown in all enriched popups
+// TRANSPORT CHIP — shows ALL 3 transport modes with distance
 // ============================================================
 function TransportChip({
   lat, lng, userCoords,
@@ -265,9 +265,13 @@ function TransportChip({
   if (!userCoords) return null;
 
   const distKm = haversineKm(userCoords.lat, userCoords.lng, lat, lng);
-  const info = getTransportInfo(distKm);
+  const recommended = getTransportInfo(distKm);
 
-  const ModeIcon = info.mode === "road" ? Truck : info.mode === "sea" ? Ship : Plane;
+  const allModes = [
+    { mode: "road" as const, icon: Truck, label: "Road", cost: getRoadCost(distKm), color: "#10b981" },
+    { mode: "sea" as const,  icon: Ship,  label: "Sea",  cost: getSeaCost(distKm),  color: "#3b82f6" },
+    { mode: "air" as const,  icon: Plane, label: "Air",  cost: getAirCost(distKm),  color: "#f59e0b" },
+  ];
 
   return (
     <div className="mt-2 pt-2 border-t border-border space-y-1.5">
@@ -276,13 +280,32 @@ function TransportChip({
         <span className="text-muted-foreground">Distance:</span>
         <span className="font-semibold text-foreground">{formatDistance(distKm)}</span>
       </div>
-      <div
-        className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium"
-        style={{ backgroundColor: `${info.color}1a`, color: info.color }}
-      >
-        <ModeIcon className="h-3.5 w-3.5 shrink-0" />
-        <span>{info.label}</span>
-        <span className="ml-auto opacity-80 font-normal">{info.costRange}</span>
+      <div className="space-y-1">
+        {allModes.map(({ mode, icon: Icon, label, cost, color }) => {
+          const isRecommended = mode === recommended.mode;
+          return (
+            <div
+              key={mode}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${
+                isRecommended ? "ring-1 ring-offset-1" : "opacity-60"
+              }`}
+              style={{
+                backgroundColor: `${color}1a`,
+                color: color,
+                ...(isRecommended ? { ringColor: color } : {}),
+              }}
+            >
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              <span>{label}</span>
+              {isRecommended && (
+                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 ml-1 border-current">
+                  Best
+                </Badge>
+              )}
+              <span className="ml-auto opacity-80 font-normal">{cost}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -1233,17 +1256,16 @@ function MapClickDismiss({ onDismiss }: { onDismiss: () => void }) {
 
    useEffect(() => {
      if (!map || !isLoaded) return;
-     const handler = (e: maplibregl.MapMouseEvent) => {
-       const { clientX, clientY } = e.originalEvent;
-       const els = document.elementsFromPoint(clientX, clientY);
-       const hitMarker = els.some(el =>
-         el.closest(".maplibregl-marker") || el.closest(".maplibregl-popup")
-       );
-       if (hitMarker) return;
-       cbRef.current();
+     const container = map.getCanvasContainer();
+     const handler = (e: Event) => {
+       const target = e.target as HTMLElement;
+       // Only dismiss when the click lands on the canvas itself (empty map space)
+       if (target.tagName === "CANVAS") {
+         cbRef.current();
+       }
      };
-     map.on("click", handler);
-     return () => { map.off("click", handler); };
+     container.addEventListener("click", handler);
+     return () => { container.removeEventListener("click", handler); };
    }, [map, isLoaded]);
 
    return null;

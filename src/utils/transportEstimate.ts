@@ -59,6 +59,21 @@ export function getTransportInfo(distanceKm: number): TransportInfo {
   };
 }
 
+/** Individual mode cost strings — always available regardless of distance. */
+export function getRoadCost(distKm: number): string {
+  const cost = Math.max(10, Math.round(distKm * 0.12));
+  return `~$${cost}–${Math.round(cost * 1.4)}/CBM`;
+}
+
+export function getSeaCost(distKm: number): string {
+  const base = distKm <= 4000 ? 300 : 900;
+  return `~$${base}–${base + 700}/TEU`;
+}
+
+export function getAirCost(_distKm: number): string {
+  return "~$4–8/kg";
+}
+
 /** Returns a human-readable distance string. */
 export function formatDistance(km: number): string {
   if (km < 1) return "<1 km";
