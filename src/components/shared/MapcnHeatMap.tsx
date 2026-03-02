@@ -4,7 +4,7 @@
  * Buyer mode uses MapClusterLayer for automatic clustering with count badges.
  */
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users, Radar, Clock } from "lucide-react";
+import { Factory, Flame, TrendingUp, MapPin, Star, X, Search, Truck, Ship, Plane, Users, Radar, Clock, BarChart3 } from "lucide-react";
 import { Map, MapControls, MapMarker, MarkerContent, MapPopup, MapClusterLayer, useMap } from "@/components/ui/map";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,8 @@ import type { MapEntity, MarketHeatMapRegion } from "@/stores/analysisStore";
 import type { DashboardMode } from "@/features/dashboard";
 import { useUserLocation, type UserCoords } from "@/hooks/useUserLocation";
 import { haversineKm, getTransportInfo, formatDistance, getRoadCost, getSeaCost, getAirCost } from "@/utils/transportEstimate";
+import { MapComparePanel } from "@/components/shared/MapComparePanel";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // ============================================================
 // CONNECTION LINE — curved arc from user location to target
@@ -321,7 +323,7 @@ function TransportChip({
 // BUYER POPUP CARD (used both inline and as standalone MapPopup)
 // ============================================================
 function BuyerPopupCard({
-  name, matchScore, city, country, priceMin, priceMax, lat, lng, userCoords, onClose
+  name, matchScore, city, country, priceMin, priceMax, lat, lng, userCoords, onClose, inCompare, onCompareToggle,
 }: {
   name: string;
   matchScore?: number;
@@ -333,6 +335,8 @@ function BuyerPopupCard({
   lng: number;
   userCoords: UserCoords | null;
   onClose?: () => void;
+  inCompare?: boolean;
+  onCompareToggle?: () => void;
 }) {
   const scoreColor =
     matchScore && matchScore >= 80
@@ -375,6 +379,13 @@ function BuyerPopupCard({
         </div>
       </div>
       <TransportChip lat={lat} lng={lng} userCoords={userCoords} />
+      {onCompareToggle && (
+        <label className="flex items-center gap-2 mt-2 pt-2 border-t border-border cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+          <Checkbox checked={inCompare} onCheckedChange={onCompareToggle} className="h-3.5 w-3.5" />
+          <BarChart3 className="h-3 w-3" />
+          Add to compare
+        </label>
+      )}
     </div>
   );
 }
@@ -382,7 +393,7 @@ function BuyerPopupCard({
 // ============================================================
 // PRODUCER MARKER POPUP
 // ============================================================
-function ProducerPopup({ entity, userCoords }: { entity: MapEntity; userCoords: UserCoords | null }) {
+function ProducerPopup({ entity, userCoords, inCompare, onCompareToggle }: { entity: MapEntity; userCoords: UserCoords | null; inCompare?: boolean; onCompareToggle?: () => void }) {
   return (
     <div className="p-3 min-w-[220px] max-w-[280px]">
       <div className="flex items-start justify-between gap-2 mb-2">
@@ -419,6 +430,13 @@ function ProducerPopup({ entity, userCoords }: { entity: MapEntity; userCoords: 
         lng={entity.geoLocation.longitude}
         userCoords={userCoords}
       />
+      {onCompareToggle && (
+        <label className="flex items-center gap-2 mt-2 pt-2 border-t border-border cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+          <Checkbox checked={inCompare} onCheckedChange={onCompareToggle} className="h-3.5 w-3.5" />
+          <BarChart3 className="h-3 w-3" />
+          Add to compare
+        </label>
+      )}
     </div>
   );
 }
@@ -477,7 +495,7 @@ function SellerPopup({ region, userCoords }: { region: MarketHeatMapRegion; user
 // ============================================================
 // SELLER ENTITY POPUP (potential client / demand point)
 // ============================================================
-function SellerEntityPopup({ entity, userCoords }: { entity: MapEntity; userCoords: UserCoords | null }) {
+function SellerEntityPopup({ entity, userCoords, inCompare, onCompareToggle }: { entity: MapEntity; userCoords: UserCoords | null; inCompare?: boolean; onCompareToggle?: () => void }) {
   const isClient = entity.clientType === "potential_client";
   const isSignal = entity.clientType === "demand_signal";
   const badgeStyle = isSignal
@@ -519,6 +537,13 @@ function SellerEntityPopup({ entity, userCoords }: { entity: MapEntity; userCoor
         lng={entity.geoLocation.longitude}
         userCoords={userCoords}
       />
+      {onCompareToggle && (
+        <label className="flex items-center gap-2 mt-2 pt-2 border-t border-border cursor-pointer text-xs text-muted-foreground hover:text-foreground">
+          <Checkbox checked={inCompare} onCheckedChange={onCompareToggle} className="h-3.5 w-3.5" />
+          <BarChart3 className="h-3 w-3" />
+          Add to compare
+        </label>
+      )}
     </div>
   );
 }
@@ -536,10 +561,14 @@ function BuyerClusterLayer({
   entities,
   userCoords,
   onSelectPoint,
+  isInCompare,
+  onCompareToggle,
 }: {
   entities: MapEntity[];
   userCoords: UserCoords | null;
   onSelectPoint?: (pt: SelectedPoint | null) => void;
+  isInCompare?: (id: string) => boolean;
+  onCompareToggle?: (entity: MapEntity) => void;
 }) {
   const [selected, setSelected] = useState<SelectedPoint | null>(null);
 
@@ -610,6 +639,11 @@ function BuyerClusterLayer({
             lng={selected.longitude}
             userCoords={userCoords}
             onClose={() => handleSelect(null)}
+            inCompare={isInCompare?.(selected.props.id)}
+            onCompareToggle={onCompareToggle ? () => {
+              const entity = entities.find((e) => e.id === selected.props.id);
+              if (entity) onCompareToggle(entity);
+            } : undefined}
           />
         </MapPopup>
       )}
@@ -970,6 +1004,19 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
    // Buyer cluster selected point (lifted from BuyerClusterLayer)
    const [buyerSelectedPoint, setBuyerSelectedPoint] = useState<SelectedPoint | null>(null);
 
+   // ── Compare state ──────────────────────────────────────────
+   const [compareEntities, setCompareEntities] = useState<MapEntity[]>([]);
+   const [showCompare, setShowCompare] = useState(false);
+   const toggleCompare = useCallback((entity: MapEntity) => {
+     setCompareEntities((prev) => {
+       const exists = prev.some((e) => e.id === entity.id);
+       if (exists) return prev.filter((e) => e.id !== entity.id);
+       if (prev.length >= 6) return prev; // max 6
+       return [...prev, entity];
+     });
+   }, []);
+   const isInCompare = useCallback((id: string) => compareEntities.some((e) => e.id === id), [compareEntities]);
+
     // Fade-out animation state
     const [dismissing, setDismissing] = useState(false);
     const FADE_MS = 250;
@@ -1068,117 +1115,64 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
         totalCount={totalCount}
       />
 
-      <div style={{ height }} className="w-full">
-        <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
-          <MapControls showZoom showFullscreen position="top-right" />
-          <MapClickDismiss onDismiss={dismissAll} />
+      <div className="flex" style={{ height }}>
+        <div className="flex-1 min-w-0 relative">
+          <Map center={[centerLng, centerLat]} zoom={projection === "globe" ? 1.2 : 1.8} className="w-full h-full" projection={{ type: projection }}>
+            <MapControls showZoom showFullscreen position="top-right" />
+            <MapClickDismiss onDismiss={dismissAll} />
 
-          {/* User location blue dot */}
-          {userCoords && (
-            <MapMarker longitude={userCoords.lng} latitude={userCoords.lat}>
-              <MarkerContent>
-                <div className="relative flex items-center justify-center">
-                  <span className="absolute w-8 h-8 rounded-full bg-blue-500/30 animate-ping" />
-                  <span className="absolute w-6 h-6 rounded-full bg-blue-500/20 animate-pulse" />
-                  <div className="relative w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white shadow-md" />
-                </div>
-              </MarkerContent>
-            </MapMarker>
-          )}
-
-          {/* FlyTo handlers — fire when a grid card is clicked */}
-          <FlyToRegion
-            region={activeRegion}
-            onArrived={() => activeRegion && setOpenPopupRegion(activeRegion.region)}
-          />
-          <FlyToEntity entity={activeEntity} />
-
-          {/* BUYER MODE — clustered supplier layer */}
-          {mode === "buyer" && (
-            <BuyerClusterLayer
-              entities={filteredEntities}
-              userCoords={userCoords}
-              onSelectPoint={setBuyerSelectedPoint}
-            />
-          )}
-
-          {/* CONNECTION LINE — curved arc from user location to selected entity */}
-          {userCoords && mode === "buyer" && buyerSelectedPoint && (
-            <ConnectionLine
-              userCoords={userCoords}
-              targetLng={buyerSelectedPoint.longitude}
-              targetLat={buyerSelectedPoint.latitude}
-              color={getConnectionColor(mode)}
-            />
-          )}
-          {userCoords && mode !== "buyer" && pinnedEntity && (
-            <ConnectionLine
-              userCoords={userCoords}
-              targetLng={pinnedEntity.geoLocation.longitude}
-              targetLat={pinnedEntity.geoLocation.latitude}
-              color={getConnectionColor(mode)}
-            />
-          )}
-
-          {/* PRODUCER MODE — competitor factory markers */}
-          {mode === "producer" &&
-            filteredEntities.map((entity) => (
-              <MapMarker
-                key={entity.id}
-                longitude={entity.geoLocation.longitude}
-                latitude={entity.geoLocation.latitude}
-                onClick={(e) => handleClickEntity(entity, e)}
-              >
+            {/* User location blue dot */}
+            {userCoords && (
+              <MapMarker longitude={userCoords.lng} latitude={userCoords.lat}>
                 <MarkerContent>
-                  <MarkerDot color="#7c3aed" icon={Factory} active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id} />
+                  <div className="relative flex items-center justify-center">
+                    <span className="absolute w-8 h-8 rounded-full bg-blue-500/30 animate-ping" />
+                    <span className="absolute w-6 h-6 rounded-full bg-blue-500/20 animate-pulse" />
+                    <div className="relative w-3.5 h-3.5 rounded-full bg-blue-500 border-2 border-white shadow-md" />
+                  </div>
                 </MarkerContent>
               </MapMarker>
-            ))}
+            )}
 
-          {/* PRODUCER pinned popup — stays open until closed */}
-          {mode === "producer" && pinnedEntity && (
-            <MapPopup
-              longitude={pinnedEntity.geoLocation.longitude}
-              latitude={pinnedEntity.geoLocation.latitude}
-              anchor="bottom"
-              offset={20}
-              closeButton
-              onClose={() => setPinnedEntity(null)}
-              className={`transition-opacity duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
-            >
-              <ProducerPopup entity={pinnedEntity} userCoords={userCoords} />
-            </MapPopup>
-          )}
+            {/* FlyTo handlers — fire when a grid card is clicked */}
+            <FlyToRegion
+              region={activeRegion}
+              onArrived={() => activeRegion && setOpenPopupRegion(activeRegion.region)}
+            />
+            <FlyToEntity entity={activeEntity} />
 
-          {/* SELLER MODE — region demand markers */}
-          {mode === "seller" &&
-            filteredRegions
-              .filter((r) => r.geoLocation)
-              .map((region, idx) => (
-                <MapMarker
-                  key={`region-${idx}`}
-                  longitude={region.geoLocation!.longitude}
-                  latitude={region.geoLocation!.latitude}
-                  onClick={(e) => handleClickRegion(region, e)}
-                >
-                  <MarkerContent>
-                    <MarkerDot
-                      color={getDemandMarkerColor(region.demand)}
-                      icon={Flame}
-                      active={activeRegion?.region === region.region || pinnedRegion?.region === region.region}
-                    />
-                  </MarkerContent>
-                </MapMarker>
-              ))}
+            {/* BUYER MODE — clustered supplier layer */}
+            {mode === "buyer" && (
+              <BuyerClusterLayer
+                entities={filteredEntities}
+                userCoords={userCoords}
+                onSelectPoint={setBuyerSelectedPoint}
+                isInCompare={isInCompare}
+                onCompareToggle={toggleCompare}
+              />
+            )}
 
-          {/* SELLER MODE — entity markers (potential clients + demand points) */}
-          {mode === "seller" &&
-            filteredEntities.map((entity) => {
-              const isClient = entity.clientType === "potential_client";
-              const isSignal = entity.clientType === "demand_signal";
-              const color = isSignal ? "#8b5cf6" : isClient ? "#10b981" : "#f59e0b";
-              const icon = isSignal ? Radar : isClient ? Users : TrendingUp;
-              return (
+            {/* CONNECTION LINE — curved arc from user location to selected entity */}
+            {userCoords && mode === "buyer" && buyerSelectedPoint && (
+              <ConnectionLine
+                userCoords={userCoords}
+                targetLng={buyerSelectedPoint.longitude}
+                targetLat={buyerSelectedPoint.latitude}
+                color={getConnectionColor(mode)}
+              />
+            )}
+            {userCoords && mode !== "buyer" && pinnedEntity && (
+              <ConnectionLine
+                userCoords={userCoords}
+                targetLng={pinnedEntity.geoLocation.longitude}
+                targetLat={pinnedEntity.geoLocation.latitude}
+                color={getConnectionColor(mode)}
+              />
+            )}
+
+            {/* PRODUCER MODE — competitor factory markers */}
+            {mode === "producer" &&
+              filteredEntities.map((entity) => (
                 <MapMarker
                   key={entity.id}
                   longitude={entity.geoLocation.longitude}
@@ -1186,64 +1180,146 @@ export function MapcnHeatMap({ entities, regions, mode, height = 500, className,
                   onClick={(e) => handleClickEntity(entity, e)}
                 >
                   <MarkerContent>
-                    <MarkerDot
-                      color={color}
-                      icon={icon}
-                      active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id}
-                    />
+                    <MarkerDot color="#7c3aed" icon={Factory} active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id} />
                   </MarkerContent>
                 </MapMarker>
-              );
-            })}
+              ))}
 
-          {/* SELLER entity pinned popup */}
-          {mode === "seller" && pinnedEntity && (
-            <MapPopup
-              longitude={pinnedEntity.geoLocation.longitude}
-              latitude={pinnedEntity.geoLocation.latitude}
-              anchor="bottom"
-              offset={20}
-              closeButton
-              onClose={() => setPinnedEntity(null)}
-              className={`transition-all duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
-            >
-              <SellerEntityPopup entity={pinnedEntity} userCoords={userCoords} />
-            </MapPopup>
-          )}
-
-          {/* SELLER pinned popup — stays open until closed */}
-          {mode === "seller" && pinnedRegion && !openPopupRegion && (
-            <MapPopup
-              longitude={pinnedRegion.geoLocation!.longitude}
-              latitude={pinnedRegion.geoLocation!.latitude}
-              anchor="bottom"
-              offset={20}
-              closeButton
-              onClose={() => setPinnedRegion(null)}
-              className={`transition-all duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
-            >
-              <SellerPopup region={pinnedRegion} userCoords={userCoords} />
-            </MapPopup>
-          )}
-
-          {/* Standalone popup that auto-opens after flyTo for the active region */}
-          {mode === "seller" && openPopupRegion && (() => {
-            const target = regions.find(
-              (r) => r.region === openPopupRegion && r.geoLocation
-            );
-            if (!target) return null;
-            return (
+            {/* PRODUCER pinned popup — stays open until closed */}
+            {mode === "producer" && pinnedEntity && (
               <MapPopup
-                longitude={target.geoLocation!.longitude}
-                latitude={target.geoLocation!.latitude}
-                onClose={() => setOpenPopupRegion(null)}
+                longitude={pinnedEntity.geoLocation.longitude}
+                latitude={pinnedEntity.geoLocation.latitude}
+                anchor="bottom"
+                offset={20}
                 closeButton
+                onClose={() => setPinnedEntity(null)}
+                className={`transition-opacity duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
               >
-                <SellerPopup region={target} userCoords={userCoords} />
+                <ProducerPopup entity={pinnedEntity} userCoords={userCoords} inCompare={isInCompare(pinnedEntity.id)} onCompareToggle={() => toggleCompare(pinnedEntity)} />
               </MapPopup>
-            );
-          })()}
-        </Map>
+            )}
+
+            {/* SELLER MODE — region demand markers */}
+            {mode === "seller" &&
+              filteredRegions
+                .filter((r) => r.geoLocation)
+                .map((region, idx) => (
+                  <MapMarker
+                    key={`region-${idx}`}
+                    longitude={region.geoLocation!.longitude}
+                    latitude={region.geoLocation!.latitude}
+                    onClick={(e) => handleClickRegion(region, e)}
+                  >
+                    <MarkerContent>
+                      <MarkerDot
+                        color={getDemandMarkerColor(region.demand)}
+                        icon={Flame}
+                        active={activeRegion?.region === region.region || pinnedRegion?.region === region.region}
+                      />
+                    </MarkerContent>
+                  </MapMarker>
+                ))}
+
+            {/* SELLER MODE — entity markers (potential clients + demand points) */}
+            {mode === "seller" &&
+              filteredEntities.map((entity) => {
+                const isClient = entity.clientType === "potential_client";
+                const isSignal = entity.clientType === "demand_signal";
+                const color = isSignal ? "#8b5cf6" : isClient ? "#10b981" : "#f59e0b";
+                const icon = isSignal ? Radar : isClient ? Users : TrendingUp;
+                return (
+                  <MapMarker
+                    key={entity.id}
+                    longitude={entity.geoLocation.longitude}
+                    latitude={entity.geoLocation.latitude}
+                    onClick={(e) => handleClickEntity(entity, e)}
+                  >
+                    <MarkerContent>
+                      <MarkerDot
+                        color={color}
+                        icon={icon}
+                        active={activeEntity?.id === entity.id || pinnedEntity?.id === entity.id}
+                      />
+                    </MarkerContent>
+                  </MapMarker>
+                );
+              })}
+
+            {/* SELLER entity pinned popup */}
+            {mode === "seller" && pinnedEntity && (
+              <MapPopup
+                longitude={pinnedEntity.geoLocation.longitude}
+                latitude={pinnedEntity.geoLocation.latitude}
+                anchor="bottom"
+                offset={20}
+                closeButton
+                onClose={() => setPinnedEntity(null)}
+                className={`transition-all duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
+              >
+                <SellerEntityPopup entity={pinnedEntity} userCoords={userCoords} inCompare={isInCompare(pinnedEntity.id)} onCompareToggle={() => toggleCompare(pinnedEntity)} />
+              </MapPopup>
+            )}
+
+            {/* SELLER pinned popup — stays open until closed */}
+            {mode === "seller" && pinnedRegion && !openPopupRegion && (
+              <MapPopup
+                longitude={pinnedRegion.geoLocation!.longitude}
+                latitude={pinnedRegion.geoLocation!.latitude}
+                anchor="bottom"
+                offset={20}
+                closeButton
+                onClose={() => setPinnedRegion(null)}
+                className={`transition-all duration-250 ${dismissing ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
+              >
+                <SellerPopup region={pinnedRegion} userCoords={userCoords} />
+              </MapPopup>
+            )}
+
+            {/* Standalone popup that auto-opens after flyTo for the active region */}
+            {mode === "seller" && openPopupRegion && (() => {
+              const target = regions.find(
+                (r) => r.region === openPopupRegion && r.geoLocation
+              );
+              if (!target) return null;
+              return (
+                <MapPopup
+                  longitude={target.geoLocation!.longitude}
+                  latitude={target.geoLocation!.latitude}
+                  onClose={() => setOpenPopupRegion(null)}
+                  closeButton
+                >
+                  <SellerPopup region={target} userCoords={userCoords} />
+                </MapPopup>
+              );
+            })()}
+          </Map>
+
+          {/* Floating compare button */}
+          {compareEntities.length > 0 && !showCompare && (
+            <div className="absolute bottom-4 right-4 z-10">
+              <Button
+                size="sm"
+                onClick={() => setShowCompare(true)}
+                className="gap-2 shadow-lg"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Compare ({compareEntities.length})
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Compare side panel */}
+        {showCompare && (
+          <MapComparePanel
+            entities={compareEntities}
+            userCoords={userCoords}
+            onRemove={(id) => setCompareEntities((prev) => prev.filter((e) => e.id !== id))}
+            onClear={() => { setCompareEntities([]); setShowCompare(false); }}
+            onClose={() => setShowCompare(false)}
+          />
+        )}
       </div>
 
       {/* Color legend panel — always shown below the map */}
