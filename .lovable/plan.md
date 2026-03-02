@@ -1,43 +1,40 @@
 
 
-## Plan: Connect BOM Analysis Data Across All Producer Pages
+## Plan: Draw a connection line from user location to clicked entity
 
-When a BOM analysis completes (via image upload or AI analysis), the result is stored in `useAnalysisStore().producerResults`. Currently, only `BOM.tsx` and `GTM.tsx` read from this store. The other pages (Feasibility, Components, ShouldCost) use hardcoded mock data, ignoring real analysis results.
+When a user clicks on a supplier/factory/entity marker on the heat map, and the user's geolocation is available, draw an animated arc line from the user's blue dot to the clicked entity's position.
 
-### Changes Required
+### Approach
 
-#### 1. Feasibility Page (`src/pages/dashboard/Feasibility.tsx`)
-- Import `useAnalysisStore` and read `producerResults`
-- When `producerResults` exists, convert its `components` array to `BOMComponent[]` format and pass to `FeasibilityAnalysisComponent` instead of `mockBOMComponents`
-- Replace the hardcoded `mockProjects` selector with real BOM analyses loaded from the `bom_analyses` database table
-- Auto-select the latest BOM analysis as the active project
-- Keep mock projects as fallback when no real data exists
+Create a new inner component `ConnectionLine` that renders inside the `<Map>` context. It will:
 
-#### 2. Components Page (`src/pages/dashboard/Components.tsx`)
-- Import `useAnalysisStore` and read `producerResults`
-- When `producerResults` exists, dynamically generate `ComponentPart[]` from the BOM components instead of using `mockComponentParts`
-- Merge AI-generated parts with mock data as fallback
-- Update all references to `mockComponentParts` (filters, categories, risk calculation, cost chart) to use the dynamic list
+1. **Use MapLibre's native GeoJSON source + line layer** — add a `geojson` source with a `LineString` feature connecting `userCoords` to the pinned entity's coordinates
+2. **Create a curved arc** — compute intermediate points along a great-circle arc (5-10 interpolated points with a slight vertical bulge) so the line looks like a flight path rather than a straight segment
+3. **Style the line** — dashed, animated, with a color matching the mode (emerald for buyer, violet for producer, orange for seller)
+4. **Show/hide reactively** — the line appears when `pinnedEntity` is set and `userCoords` is available; it disappears when the popup is closed (pinnedEntity becomes null)
+5. **For buyer cluster mode** — also connect to the selected cluster point (the `BuyerClusterLayer` already tracks a `selected` state; we'll lift that state up or pass userCoords down and draw the line from within)
 
-#### 3. Should-Cost Page (`src/pages/dashboard/ShouldCost.tsx`)
-- Import `useAnalysisStore` and read `producerResults`
-- When `producerResults` exists, auto-populate the product name, material cost per unit (from total BOM cost / volume), and volume fields
-- Add an "Auto-fill from BOM" button that loads BOM data into the calculator inputs
-- Show a banner when BOM data is available but not yet applied
+### Changes
 
-#### 4. BOM Cost Summary (`src/components/bom/BOMCostSummary.tsx`)
-- Pass `productName` from the BOM analysis to the `generate-cost-estimate` edge function instead of hardcoded "BOM Product"
-- Accept an optional `productName` prop
+**`src/components/shared/MapcnHeatMap.tsx`**:
+- Add a `ConnectionLine` component (~50 lines) that:
+  - Accepts `userCoords`, `targetLat`, `targetLng`, `color`
+  - Uses `useMap()` to access the MapLibre instance
+  - On mount/update: adds a GeoJSON source with a curved `LineString` and a `line` layer with dash-array animation
+  - On unmount: removes source and layer
+  - Computes arc points using simple lat/lng interpolation with altitude bulge
+- Render `<ConnectionLine>` inside `<Map>` whenever `pinnedEntity && userCoords` (for producer/seller modes)
+- For buyer mode: pass `userCoords` into `BuyerClusterLayer`, and render `ConnectionLine` when a cluster point is selected
+- The line will also show distance label via the existing `TransportChip` in popups (already implemented)
 
-#### 5. GTM Page (`src/pages/dashboard/GTM.tsx`)
-- Already reads `producerResults` -- enhance to also pass the total BOM cost and component count to the GTM strategy generator for more accurate revenue projections
+### Technical Details
 
-#### 6. Producer Dashboard (`src/features/producer/pages/ProducerDashboard.tsx`)
-- Already loads real BOMs from DB -- enhance stats cards to show real counts from the `bom_analyses` table instead of hardcoded "18" and "342"
+```text
+User Blue Dot ──── curved dashed line ────> Pinned Entity Marker
+   (lat,lng)         (arc interpolation)        (lat,lng)
+```
 
-### Technical Approach
-- All pages read from the same `useAnalysisStore` (Zustand, persisted) -- no new stores needed
-- BOM components are converted to each page's expected format at the page level
-- Mock data remains as fallback when no analysis has been performed
-- No database or edge function changes required
+Arc interpolation: 8 intermediate points, with a latitude offset proportional to distance to create a subtle curve. The line layer uses `line-dasharray: [2, 2]` for a dashed effect and mode-specific coloring.
+
+Source/layer IDs will be unique (`connection-line-src`, `connection-line-layer`) and cleaned up on unmount to prevent stale layers when theme changes trigger `styledata` events.
 
