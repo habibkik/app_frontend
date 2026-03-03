@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -9,7 +9,7 @@ import {
   Inbox, Zap, BarChart3, Rocket, UserPlus, Heart,
   FlaskConical, Trash2, KanbanSquare, TrendingUp, Settings, Users,
   RotateCcw, ChevronDown, Flame, Clock, Play, Check, X, Sparkles, SkipForward,
-  CheckCircle2, Lightbulb, ArrowRight,
+  CheckCircle2, Lightbulb, ArrowRight, History, CalendarDays,
 } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,6 +101,9 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
   const [approvedAt, setApprovedAt] = useState<Record<string, string>>({});
   const [runningAll, setRunningAll] = useState(false);
   const [runAllProgress, setRunAllProgress] = useState({ current: 0, total: 0 });
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyItems, setHistoryItems] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const aiContext = useMemo(() => {
     const channelBreakdown: Record<string, number> = {};
@@ -165,16 +168,38 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
     }
   }, [aiContext]);
 
-  const approveTask = useCallback((item: ChecklistItem) => {
+  const approveTask = useCallback(async (item: ChecklistItem) => {
+    const result = aiResults[item.id];
     markComplete(item);
-    setApprovedAt((prev) => ({ ...prev, [item.id]: new Date().toLocaleTimeString() }));
+    const time = new Date().toLocaleTimeString();
+    setApprovedAt((prev) => ({ ...prev, [item.id]: time }));
     setAiResults((prev) => {
       const next = { ...prev };
       delete next[item.id];
       return next;
     });
     toast.success(`"${item.task}" approved & completed`);
-  }, [markComplete]);
+
+    // Persist to database
+    if (result) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData.user) {
+          await supabase.from("workflow_ai_results").insert({
+            user_id: userData.user.id,
+            task_id: item.id,
+            task_name: item.task,
+            summary: result.summary,
+            recommendations_json: result.recommendations,
+            suggested_actions_json: result.suggestedActions,
+            status: "approved",
+          });
+        }
+      } catch (e) {
+        console.error("Failed to persist workflow result:", e);
+      }
+    }
+  }, [markComplete, aiResults]);
 
   const dismissTask = useCallback((item: ChecklistItem) => {
     setAiResults((prev) => {
@@ -206,6 +231,26 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
     setRunningAll(false);
     toast.success(`AI analysis complete for ${pending.length} tasks. Review and approve each one.`);
   }, [isChecked, aiResults, loadingTasks, runAI]);
+
+  const fetchHistory = useCallback(async () => {
+    setLoadingHistory(true);
+    try {
+      const { data } = await supabase
+        .from("workflow_ai_results")
+        .select("*")
+        .order("completed_at", { ascending: false })
+        .limit(30);
+      setHistoryItems(data || []);
+    } catch (e) {
+      console.error("Failed to fetch history:", e);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showHistory) fetchHistory();
+  }, [showHistory, fetchHistory]);
 
   const resetDay = () => {
     setCheckedDaily({});
@@ -409,9 +454,70 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                 </div>
               </div>
             ))}
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs w-full" onClick={resetDay}>
-              <RotateCcw className="h-3 w-3" /> Reset Day
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="gap-1.5 text-xs flex-1" onClick={resetDay}>
+                <RotateCcw className="h-3 w-3" /> Reset Day
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-xs flex-1"
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                <History className="h-3 w-3" /> {showHistory ? "Hide" : "View"} History
+              </Button>
+            </div>
+
+            {/* History Section */}
+            {showHistory && (
+              <div className="border-t border-border/30 pt-3 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+                  <CalendarDays className="h-3 w-3" /> Workflow History
+                </p>
+                {loadingHistory ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-12 w-full rounded" />
+                    <Skeleton className="h-12 w-full rounded" />
+                  </div>
+                ) : historyItems.length === 0 ? (
+                  <p className="text-xs text-muted-foreground text-center py-4">No history yet. Approve AI tasks to build your history.</p>
+                ) : (
+                  <div className="space-y-1.5 max-h-80 overflow-y-auto">
+                    {historyItems.map((h) => (
+                      <Collapsible key={h.id}>
+                        <CollapsibleTrigger className="w-full">
+                          <div className="flex items-center gap-2 p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors text-left w-full">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium truncate">{h.task_name}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {new Date(h.completed_at).toLocaleDateString()} at {new Date(h.completed_at).toLocaleTimeString()}
+                              </p>
+                            </div>
+                            <ChevronDown className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="px-2 pb-2 pt-1 space-y-2 ml-5">
+                            <p className="text-xs text-foreground/80">{h.summary}</p>
+                            {Array.isArray(h.recommendations_json) && h.recommendations_json.length > 0 && (
+                              <ul className="space-y-0.5">
+                                {(h.recommendations_json as string[]).map((rec, i) => (
+                                  <li key={i} className="text-[10px] text-muted-foreground flex items-start gap-1.5">
+                                    <ArrowRight className="h-2.5 w-2.5 text-primary mt-0.5 flex-shrink-0" />
+                                    {rec}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </CollapsibleContent>
       </Card>
