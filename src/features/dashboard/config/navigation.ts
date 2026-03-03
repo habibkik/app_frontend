@@ -24,8 +24,6 @@ import {
   Brain,
   GitCompareArrows,
   BookOpen,
-  Grid3X3,
-  ScrollText,
   ClipboardCheck,
   LucideIcon,
 } from "lucide-react";
@@ -66,9 +64,6 @@ const buyerNavigation: NavGroup[] = [
     label: "Analysis",
     items: [
       { title: "Negotiation AI", url: "/dashboard/negotiation", icon: Brain },
-      { title: "Industry Playbook", url: "/dashboard/industry-playbook", icon: BookOpen },
-      { title: "Kraljic Matrix", url: "/dashboard/kraljic", icon: Grid3X3 },
-      { title: "Negotiation Playbook", url: "/dashboard/negotiation-playbook", icon: ScrollText },
       { title: "Contract Checklist", url: "/dashboard/contract-checklist", icon: ClipboardCheck },
     ],
   },
