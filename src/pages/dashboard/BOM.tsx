@@ -219,10 +219,7 @@ export default function BOMPage() {
           )}
         </motion.div>
 
-        {/* Product Architecture Selector */}
-        {!hasAnalysis && (
-          <ProductArchitectureSelector value={architecture} onChange={setArchitecture} />
-        )}
+        {/* Product Architecture Selector - moved inside upload flow */}
 
         <AnimatePresence mode="wait">
           {!hasAnalysis ? (
@@ -261,6 +258,9 @@ export default function BOMPage() {
                     </div>
                     <UniversalImageUpload 
                       onAnalysisComplete={() => {}}
+                      extraContent={
+                        <ProductArchitectureSelector value={architecture} onChange={setArchitecture} />
+                      }
                     />
                   </div>
                 </TabsContent>
