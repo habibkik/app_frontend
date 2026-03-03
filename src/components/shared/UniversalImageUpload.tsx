@@ -73,7 +73,7 @@ export function UniversalImageUpload({
       icon: Package,
       title: t("imageUpload.producerTitle"),
       subtitle: t("imageUpload.producerSubtitle"),
-      buttonText: t("imageUpload.producerButton"),
+      buttonText: t("imageUpload.producerButton", "Analyse"),
       processingSteps: [
         t("imageUpload.scanningStructure"),
         t("imageUpload.identifyingComponents"),
@@ -350,7 +350,7 @@ export function UniversalImageUpload({
               </div>
               
               <p className="text-xs text-muted-foreground mt-4">
-                {t("imageUpload.supportsFormats")}
+                {t("imageUpload", "Drop your product image here")}
               </p>
             </div>
           </motion.div>
