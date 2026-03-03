@@ -163,7 +163,7 @@ export default function OutreachHub() {
 
           <TabsContent value="campaigns" className="mt-6 space-y-4">
             {/* Daily Workflow */}
-            <DailyWorkflowChecklist />
+            <DailyWorkflowChecklist campaigns={campaigns} />
 
             {/* Compliance */}
             <ComplianceBestPractices />
