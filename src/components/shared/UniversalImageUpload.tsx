@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useDashboardMode } from "@/features/dashboard";
 import { useAnalysisStore } from "@/stores/analysisStore";
@@ -103,6 +104,7 @@ export function UniversalImageUpload({
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [productDescription, setProductDescription] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const {
@@ -175,6 +177,7 @@ export function UniversalImageUpload({
   const clearImage = () => {
     setPreviewUrl(null);
     setFileName(null);
+    setProductDescription("");
     clearCurrentImage();
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -204,6 +207,7 @@ export function UniversalImageUpload({
       const request = {
         imageBase64: currentImage,
         mimeType: "image/jpeg",
+        additionalContext: productDescription.trim() || undefined,
       };
 
       let analysisSuccessful = false;
@@ -401,6 +405,17 @@ export function UniversalImageUpload({
               )}
             </div>
             
+            {/* Product Description */}
+            {!isAnalyzing && (
+              <Textarea
+                value={productDescription}
+                onChange={(e) => setProductDescription(e.target.value)}
+                placeholder={t("imageUpload.descriptionPlaceholder", "Describe your product to improve results (e.g., material, size, specifications, intended use...)")}
+                className="resize-none text-sm"
+                rows={2}
+              />
+            )}
+
             {/* File info & Actions */}
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3 min-w-0">
