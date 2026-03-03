@@ -65,7 +65,6 @@ const buyerNavigation: NavGroup[] = [
   {
     label: "Analysis",
     items: [
-      { title: "Should-Cost Model", url: "/dashboard/should-cost", icon: Calculator },
       { title: "Negotiation AI", url: "/dashboard/negotiation", icon: Brain },
       { title: "Industry Playbook", url: "/dashboard/industry-playbook", icon: BookOpen },
       { title: "Kraljic Matrix", url: "/dashboard/kraljic", icon: Grid3X3 },
@@ -102,6 +101,7 @@ const producerNavigation: NavGroup[] = [
       { title: "Reverse Engineering", url: "/dashboard/bom", icon: Wrench },
       { title: "Component Supply", url: "/dashboard/components", icon: Package },
       { title: "Production Feasibility", url: "/dashboard/feasibility", icon: Factory },
+      { title: "Should-Cost Model", url: "/dashboard/should-cost", icon: Calculator },
       { title: "DFM/DFA Review", url: "/dashboard/dfm-review", icon: ClipboardCheck },
     ],
   },
