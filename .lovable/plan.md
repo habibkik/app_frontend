@@ -1,73 +1,76 @@
 
 
-## Two Issues to Fix
+## Audit: RFQ Feature Checklist
 
-### Issue 1: Click-to-dismiss still not working
+### Already Implemented
+| Feature | Status | Where |
+|---------|--------|-------|
+| Quote Comparison Matrix | Done | RFQDetailModal (quotes tab with scoring + chart) |
+| Metrics & Analytics | Done | /dashboard/analytics with RFQ trends |
+| Security & Compliance | Done | Settings → Security section |
+| Supplier Qualification Scoring | Done | SupplierRiskScoring component, scorecards |
+| Smart Notifications | Done | Settings → Notifications section |
+| Supplier Communication Portal | Done | /dashboard/conversations (messaging) |
+| RFQ Creation Templates | Partial | Campaign builder has channel templates; CreateRFQDialog has no saved templates |
+| Mobile App Access | Partial | Responsive design exists; no PWA/install prompt |
 
-The `document.elementsFromPoint()` approach is correct in theory, but there's a subtle problem: **MapLibre markers have `pointer-events: auto` on their container, but the map canvas sits in a separate stacking context**. When MapLibre fires its `map.on("click")`, the `originalEvent` is the actual DOM `MouseEvent` from the canvas. `document.elementsFromPoint()` should find the marker divs since they are absolutely positioned on top of the canvas.
+### Missing Features to Add
 
-However, looking deeper at the code, I suspect the issue is that the **map click handler and the marker DOM click handler fire in rapid succession**, and the state update from `handleClickEntity` (which sets `pinnedEntity`) hasn't committed yet when `MapClickDismiss` fires `dismissAll`. Both run synchronously in the same microtask.
+**6 new features across 8 new files + edits to 3 existing files:**
 
-**The fix**: Use a simple `requestAnimationFrame` delay in `MapClickDismiss` to ensure the marker's DOM click handler runs first. Alternatively — and more robustly — add a `data-map-marker` attribute to marker elements and check with `elementsFromPoint` more broadly, AND add a small `setTimeout(0)` to defer the dismiss check.
+#### 1. AI-Powered RFQ Drafting
+Add an "AI Draft" button to `CreateRFQDialog` that auto-fills the form (title, description, specs) based on a short product prompt. Uses a simple local generation approach with pre-built templates by category.
 
-Actually, the most reliable approach: **skip `map.on("click")` entirely**. Instead, attach a single `click` listener to the map's **canvas container element** (`map.getCanvasContainer()`). This is a normal DOM element, so `e.target` and `e.stopPropagation()` work correctly. When the user clicks a marker, `stopPropagation` prevents the canvas container listener from firing. When they click empty space, the canvas receives the click and dismiss fires.
+- Edit `src/components/rfqs/CreateRFQDialog.tsx` — add AI draft button + logic
 
-### Issue 2: Show all 3 transport modes with distance
+#### 2. RFQ Templates Library
+New page to save/load RFQ templates. Users can save current RFQ configs as named templates and re-use them.
 
-Currently `TransportChip` shows only the **recommended** transport mode (the one matching the distance threshold). The user wants to see all 3 modes (Road, Sea, Air) with the distance, so users can compare costs across shipping methods.
+- Create `src/components/rfqs/RFQTemplatesLibrary.tsx` — template cards with save/load/delete
+- Edit `CreateRFQDialog.tsx` — add "Load Template" option
 
----
+#### 3. Approval Workflows
+Add a multi-level approval flow to RFQs. Users define approval stages (e.g., Manager → Director → VP) and track approval status per RFQ.
 
-### Changes
+- Create `src/components/rfqs/ApprovalWorkflow.tsx` — visual workflow builder + status tracker
+- Edit `RFQDetailModal.tsx` — add "Approvals" tab
 
-#### File: `src/components/shared/MapcnHeatMap.tsx`
+#### 4. Collaborative Team Space
+Add comments/notes and team activity on each RFQ. Team members can leave threaded comments and see shared history.
 
-**1. Fix `MapClickDismiss`** — Replace `map.on("click")` with a DOM click listener on `map.getCanvasContainer()`:
+- Create `src/components/rfqs/RFQTeamComments.tsx` — comment thread UI
+- Edit `RFQDetailModal.tsx` — add "Team" tab with comments + history
 
-```typescript
-function MapClickDismiss({ onDismiss }: { onDismiss: () => void }) {
-  const { map, isLoaded } = useMap();
-  const cbRef = useRef(onDismiss);
-  cbRef.current = onDismiss;
+#### 5. Automated PO Creation
+When an RFQ is awarded, show a "Generate PO" button that creates a purchase order from the accepted quote data.
 
-  useEffect(() => {
-    if (!map || !isLoaded) return;
-    const container = map.getCanvasContainer();
-    const handler = (e: Event) => {
-      const target = e.target as HTMLElement;
-      // If click landed on the canvas itself (not a marker/popup), dismiss
-      if (target.tagName === "CANVAS") {
-        cbRef.current();
-      }
-    };
-    container.addEventListener("click", handler);
-    return () => { container.removeEventListener("click", handler); };
-  }, [map, isLoaded]);
+- Create `src/components/rfqs/PurchaseOrderGenerator.tsx` — PO preview/export component
+- Edit `RFQDetailModal.tsx` — add PO generation in quotes tab for awarded RFQs
 
-  return null;
-}
-```
+#### 6. Price Forecasting (AI)
+Add a price forecast panel showing predicted future costs based on historical quote data, with a simple trend chart.
 
-This works because:
-- Marker clicks go through DOM marker elements → `e.target` is NOT the canvas
-- Empty map clicks go through the canvas → `e.target.tagName === "CANVAS"`
-- No timing issues, no `elementsFromPoint`, no ref guards
+- Create `src/components/rfqs/PriceForecastPanel.tsx` — trend chart + prediction cards
+- Edit `RFQDetailModal.tsx` — add "Forecast" tab
 
-**2. Replace `TransportChip` with `AllTransportModes`** — Show all 3 transport options (Road, Sea, Air) with the distance, highlighting the recommended one:
+#### 7. ERP Integration (Settings placeholder)
+Add an ERP integration section to Settings showing SAP, Oracle, MS Dynamics connection cards with status.
 
-```typescript
-function AllTransportModes({ lat, lng, userCoords }: { lat: number; lng: number; userCoords: UserCoords | null }) {
-  if (!userCoords) return null;
-  const distKm = haversineKm(userCoords.lat, userCoords.lng, lat, lng);
-  const recommended = getTransportInfo(distKm);
-  const allModes = [
-    { mode: "road", icon: Truck, label: "Road freight", cost: getRoadCost(distKm) },
-    { mode: "sea",  icon: Ship,  label: "Sea freight",  cost: getSeaCost(distKm) },
-    { mode: "air",  icon: Plane, label: "Air freight",  cost: getAirCost(distKm) },
-  ];
-  // Show distance + all 3 modes, with recommended one highlighted
-}
-```
+- Create `src/components/settings/ERPIntegrationSection.tsx`
+- Edit `src/pages/dashboard/Settings.tsx` — add ERP tab
 
-**3. Update `src/utils/transportEstimate.ts`** — Export individual cost functions for each mode so all 3 can be displayed regardless of distance.
+#### 8. AI Suggestion Library
+A panel that stores past RFQ responses/answers and suggests reusable snippets when composing new RFQs.
+
+- Create `src/components/rfqs/AISuggestionLibrary.tsx` — searchable snippet library
+- Edit `RFQCampaignBuilder.tsx` — add suggestion sidebar toggle in message step
+
+### Navigation Update
+- Add "RFQ Templates" nav item under Buyer → Sourcing in `navigation.ts`
+
+### Summary of Changes
+- **8 new components** created
+- **5 existing files** edited (CreateRFQDialog, RFQDetailModal, RFQCampaignBuilder, Settings, navigation)
+- All features are client-side with mock data (no database needed)
+- RFQDetailModal tabs expand from 4 to 7 (Details, Quotes, Approvals, Team, Forecast, Timeline, Activity)
 
