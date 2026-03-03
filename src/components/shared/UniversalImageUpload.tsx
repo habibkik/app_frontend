@@ -43,11 +43,13 @@ import { useTranslation } from "react-i18next";
 interface UniversalImageUploadProps {
   onAnalysisComplete?: () => void;
   compact?: boolean;
+  extraContent?: React.ReactNode;
 }
 
 export function UniversalImageUpload({ 
   onAnalysisComplete,
   compact = false,
+  extraContent,
 }: UniversalImageUploadProps) {
   const { t } = useTranslation();
   const { mode } = useDashboardMode();
@@ -415,6 +417,9 @@ export function UniversalImageUpload({
                 rows={2}
               />
             )}
+
+            {/* Extra content slot (e.g. Product Architecture) */}
+            {!isAnalyzing && extraContent}
 
             {/* File info & Actions */}
             <div className="flex items-center justify-between gap-4">
