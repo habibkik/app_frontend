@@ -99,6 +99,8 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
   const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
   const [aiResults, setAiResults] = useState<Record<string, AIResult>>({});
   const [approvedAt, setApprovedAt] = useState<Record<string, string>>({});
+  const [runningAll, setRunningAll] = useState(false);
+  const [runAllProgress, setRunAllProgress] = useState({ current: 0, total: 0 });
 
   const aiContext = useMemo(() => {
     const channelBreakdown: Record<string, number> = {};
@@ -187,6 +189,24 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
     toast.info(`"${item.task}" skipped`);
   }, [markComplete]);
 
+  const runAllPending = useCallback(async () => {
+    const pending = dailyChecklist.filter(
+      (item) => !isChecked(item) && !aiResults[item.id] && !loadingTasks[item.id]
+    );
+    if (pending.length === 0) {
+      toast.info("No pending tasks to analyze.");
+      return;
+    }
+    setRunningAll(true);
+    setRunAllProgress({ current: 0, total: pending.length });
+    for (let i = 0; i < pending.length; i++) {
+      setRunAllProgress({ current: i + 1, total: pending.length });
+      await runAI(pending[i]);
+    }
+    setRunningAll(false);
+    toast.success(`AI analysis complete for ${pending.length} tasks. Review and approve each one.`);
+  }, [isChecked, aiResults, loadingTasks, runAI]);
+
   const resetDay = () => {
     setCheckedDaily({});
     setAiResults({});
@@ -217,7 +237,22 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
               <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${!collapsed ? "rotate-180" : ""}`} />
             </div>
           </CollapsibleTrigger>
-          <Progress value={progress} className="h-1.5 mt-2" />
+          <div className="flex items-center gap-2 mt-2">
+            <Progress value={progress} className="h-1.5 flex-1" />
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs gap-1.5 px-3 flex-shrink-0"
+              disabled={runningAll || completedCount === totalDailyItems}
+              onClick={(e) => { e.stopPropagation(); runAllPending(); }}
+            >
+              {runningAll ? (
+                <><Sparkles className="h-3 w-3 animate-pulse" /> Running {runAllProgress.current}/{runAllProgress.total}...</>
+              ) : (
+                <><Play className="h-3 w-3" /> Run All AI Tasks</>
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CollapsibleContent>
           <CardContent className="pt-0 space-y-4">
