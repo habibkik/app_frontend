@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2, Plus, Upload, Trash2 } from "lucide-react";
+import { CalendarIcon, Loader2, Plus, Upload, Trash2, Sparkles, FileText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +73,7 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("basics");
+  const [aiDrafting, setAiDrafting] = useState(false);
   const [evalCriteria, setEvalCriteria] = useState<{ criterion: string; weight: number }[]>([
     { criterion: "Price", weight: 40 },
     { criterion: "Quality", weight: 30 },
@@ -93,6 +94,26 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
   });
 
   const totalWeight = evalCriteria.reduce((sum, c) => sum + c.weight, 0);
+
+  const AI_DRAFTS: Record<string, { title: string; description: string; category: string; quantity: number; unit: string }> = {
+    Electronics: { title: "PCB Assembly for IoT Sensor Module", description: "We require high-precision PCB assembly for our next-generation IoT sensor modules. Components include SMD resistors, capacitors, microcontrollers (ARM Cortex-M4), and RF antenna modules. Boards must pass IPC Class 2 inspection standards with <0.1% defect rate. Lead-free soldering (RoHS) mandatory.", category: "Electronics", quantity: 5000, unit: "units" },
+    "Raw Materials": { title: "High-Grade Stainless Steel 304L Sheets", description: "Sourcing cold-rolled stainless steel 304L sheets for industrial equipment manufacturing. Thickness: 2mm ± 0.1mm. Surface finish: 2B. Must comply with ASTM A240 standards. Mill test certificates required with each shipment.", category: "Raw Materials", quantity: 20000, unit: "kg" },
+    Textiles: { title: "Organic Cotton Fabric for Apparel Line", description: "We need GOTS-certified organic cotton fabric (200 GSM, twill weave) for our sustainable fashion line. Colors: navy, white, forest green. Pre-shrunk and colorfast. AZO-free dyes required. OEKO-TEX Standard 100 certification needed.", category: "Textiles", quantity: 15000, unit: "meters" },
+    Machinery: { title: "CNC Milling Machine — 5-Axis", description: "Procurement of a 5-axis CNC milling machine for precision metal parts manufacturing. Requirements: travel X/Y/Z 800×500×500mm, spindle speed ≥12,000 RPM, tool changer ≥24 positions. Installation, training, and 24-month warranty included.", category: "Machinery", quantity: 2, unit: "units" },
+  };
+
+  const handleAIDraft = async () => {
+    setAiDrafting(true);
+    await new Promise((r) => setTimeout(r, 1500));
+    const category = form.getValues("category") || "Electronics";
+    const draft = AI_DRAFTS[category] || AI_DRAFTS["Electronics"];
+    form.setValue("title", draft.title);
+    form.setValue("description", draft.description);
+    form.setValue("category", draft.category);
+    form.setValue("quantity", draft.quantity);
+    form.setValue("unit", draft.unit);
+    setAiDrafting(false);
+  };
 
   const toggleArrayItem = (arr: string[], item: string) =>
     arr.includes(item) ? arr.filter((i) => i !== item) : [...arr, item];
@@ -139,10 +160,16 @@ export function CreateRFQDialog({ onCreateRFQ }: CreateRFQDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[680px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New RFQ</DialogTitle>
-          <DialogDescription>
-            Professional Request for Quotation with evaluation criteria.
-          </DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle>Create New RFQ</DialogTitle>
+              <DialogDescription>Professional Request for Quotation with evaluation criteria.</DialogDescription>
+            </div>
+            <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs" onClick={handleAIDraft} disabled={aiDrafting}>
+              <Sparkles className={`h-3.5 w-3.5 ${aiDrafting ? "animate-spin" : ""}`} />
+              {aiDrafting ? "Drafting..." : "AI Draft"}
+            </Button>
+          </div>
         </DialogHeader>
 
         <Form {...form}>

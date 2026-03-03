@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
   Search, Users, MessageSquare, Send, Check, ChevronRight, ChevronLeft,
-  Mail, Phone, MessageCircle, ArrowRight, Linkedin, Facebook, Instagram, Twitter, Youtube, Video, Globe,
+  Mail, Phone, MessageCircle, ArrowRight, Linkedin, Facebook, Instagram, Twitter, Youtube, Video, Globe, Brain,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { AISuggestionLibrary } from "./AISuggestionLibrary";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const MOCK_SUPPLIERS = [
   { id: "1", name: "Shanghai Steel Co.", email: true, whatsapp: true, phone: true },
@@ -325,7 +327,24 @@ export function RFQCampaignBuilder() {
               />
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">{currentMsg.length} {t("common.characters")}</p>
-                <Badge variant="outline" className="text-xs">{CHANNEL_LABELS[activeChannel]}</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">{CHANNEL_LABELS[activeChannel]}</Badge>
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-1 text-xs">
+                        <Brain className="h-3.5 w-3.5" /> AI Snippets
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent>
+                      <SheetHeader><SheetTitle>AI Suggestion Library</SheetTitle></SheetHeader>
+                      <div className="mt-4">
+                        <AISuggestionLibrary onInsert={(content) => {
+                          setChannelMessages((prev) => ({ ...prev, [activeChannel]: (prev[activeChannel] || "") + "\n\n" + content }));
+                        }} />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
               </div>
             </CardContent>
           </Card>
