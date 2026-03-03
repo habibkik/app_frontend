@@ -64,7 +64,7 @@ const buyerNavigation: NavGroup[] = [
     label: "Analysis",
     items: [
       { title: "Negotiation AI", url: "/dashboard/negotiation", icon: Brain },
-      { title: "Contract Checklist", url: "/dashboard/contract-checklist", icon: ClipboardCheck },
+      
     ],
   },
   {
