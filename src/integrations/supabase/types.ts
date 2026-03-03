@@ -918,6 +918,45 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_ai_results: {
+        Row: {
+          completed_at: string
+          created_at: string
+          id: string
+          recommendations_json: Json
+          status: string
+          suggested_actions_json: Json
+          summary: string
+          task_id: string
+          task_name: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          recommendations_json?: Json
+          status?: string
+          suggested_actions_json?: Json
+          summary: string
+          task_id: string
+          task_name: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          id?: string
+          recommendations_json?: Json
+          status?: string
+          suggested_actions_json?: Json
+          summary?: string
+          task_id?: string
+          task_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
