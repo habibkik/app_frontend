@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCheck, Send, Settings2, History, MessageSquare, ChevronDown, ChevronUp, BarChart3 } from "lucide-react";
+import { CheckCheck, Send, Settings2, History, MessageSquare, ChevronDown, ChevronUp, BarChart3, FileText } from "lucide-react";
 import { useOutreachCampaignStore } from "@/stores/outreachCampaignStore";
 import { OutreachCampaignCard } from "@/components/outreach/OutreachCampaignCard";
 import { OutreachSupplierDiscoveryCard } from "@/components/outreach/OutreachSupplierDiscoveryCard";
@@ -14,6 +14,9 @@ import { SequenceTemplatesPanel, type SequenceTemplate } from "@/components/outr
 import { OutreachMetricsDashboard } from "@/components/outreach/OutreachMetricsDashboard";
 import { ChannelStrategyGuide } from "@/components/outreach/ChannelStrategyGuide";
 import { PsychologyTriggersPanel } from "@/components/outreach/PsychologyTriggersPanel";
+import { ComplianceBestPractices } from "@/components/outreach/ComplianceBestPractices";
+import { DailyWorkflowChecklist } from "@/components/outreach/DailyWorkflowChecklist";
+import { MessageTemplateLibrary } from "@/components/outreach/MessageTemplateLibrary";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { mockSuppliers, type Supplier } from "@/data/suppliers";
@@ -127,13 +130,17 @@ export default function OutreachHub() {
         </div>
 
         <Tabs defaultValue="campaigns">
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="campaigns" className="gap-1.5">
               <Send className="h-4 w-4" />
               Campaigns
               {draftCount > 0 && (
                 <Badge variant="secondary" className="ml-1 text-xs">{draftCount}</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="gap-1.5">
+              <FileText className="h-4 w-4" />
+              Templates
             </TabsTrigger>
             <TabsTrigger value="metrics" className="gap-1.5">
               <BarChart3 className="h-4 w-4" />
@@ -155,6 +162,12 @@ export default function OutreachHub() {
           </TabsList>
 
           <TabsContent value="campaigns" className="mt-6 space-y-4">
+            {/* Daily Workflow */}
+            <DailyWorkflowChecklist />
+
+            {/* Compliance */}
+            <ComplianceBestPractices />
+
             {/* Objective Selector */}
             <CampaignObjectiveSelector selected={objective} onSelect={setObjective} />
 
@@ -208,6 +221,10 @@ export default function OutreachHub() {
                 )}
               </>
             )}
+          </TabsContent>
+
+          <TabsContent value="templates" className="mt-6">
+            <MessageTemplateLibrary />
           </TabsContent>
 
           <TabsContent value="metrics" className="mt-6">
