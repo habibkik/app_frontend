@@ -33,6 +33,10 @@ const ERP_SYSTEMS: ERPSystem[] = [
     id: "netsuite", name: "Oracle NetSuite", description: "Cloud business management suite for growing companies",
     logo: "NS", connected: false, modules: ["Procurement", "Inventory", "Financials"],
   },
+  {
+    id: "odoo", name: "Odoo ERP", description: "Open-source modular ERP with purchasing, inventory, and manufacturing",
+    logo: "ODO", connected: false, modules: ["Purchase", "Inventory", "Manufacturing", "Accounting"],
+  },
 ];
 
 export function ERPIntegrationSection() {
