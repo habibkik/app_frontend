@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Award, Calendar, Clock, FileText, MessageSquare, Package, Shield, TrendingUp } from "lucide-react";
+import { Award, Calendar, Clock, FileText, MessageSquare, Package, Shield, TrendingUp, Users, BarChart3 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -13,6 +13,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { type RFQItem, type SupplierQuote, mockSupplierQuotes, statusConfig } from "@/data/rfqs";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ApprovalWorkflow } from "./ApprovalWorkflow";
+import { RFQTeamComments } from "./RFQTeamComments";
+import { PurchaseOrderGenerator } from "./PurchaseOrderGenerator";
+import { PriceForecastPanel } from "./PriceForecastPanel";
 
 interface RFQDetailModalProps {
   rfq: RFQItem | null;
@@ -92,11 +96,14 @@ export function RFQDetailModal({ rfq, open, onOpenChange }: RFQDetailModalProps)
         </DialogHeader>
 
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="quotes">Quotes ({quotes.length})</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsList className="flex w-full flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
+            <TabsTrigger value="quotes" className="text-xs">Quotes ({quotes.length})</TabsTrigger>
+            <TabsTrigger value="approvals" className="text-xs">Approvals</TabsTrigger>
+            <TabsTrigger value="team" className="text-xs">Team</TabsTrigger>
+            <TabsTrigger value="forecast" className="text-xs">Forecast</TabsTrigger>
+            <TabsTrigger value="timeline" className="text-xs">Timeline</TabsTrigger>
+            <TabsTrigger value="activity" className="text-xs">Activity</TabsTrigger>
           </TabsList>
 
           {/* DETAILS */}
@@ -224,14 +231,49 @@ export function RFQDetailModal({ rfq, open, onOpenChange }: RFQDetailModalProps)
                                 <Award className="h-3 w-3" /> Award
                               </Button>
                             )}
+                            {idx === 0 && rfq.status === "awarded" && (
+                              <Badge variant="default" className="text-xs">Winner</Badge>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Automated PO for awarded RFQs */}
+                {rfq.status === "awarded" && scoredQuotes.length > 0 && (
+                  <div className="mt-4">
+                    <PurchaseOrderGenerator
+                      rfqId={rfq.id}
+                      rfqTitle={rfq.title}
+                      supplierName={scoredQuotes[0].supplierName}
+                      unitPrice={scoredQuotes[0].unitPrice}
+                      quantity={rfq.quantity}
+                      unit={rfq.unit}
+                      toolingCost={scoredQuotes[0].toolingCost}
+                      logisticsCost={scoredQuotes[0].logisticsCost}
+                      leadTimeDays={scoredQuotes[0].leadTimeDays}
+                    />
+                  </div>
+                )}
               </>
             )}
+          </TabsContent>
+
+          {/* APPROVALS */}
+          <TabsContent value="approvals" className="mt-4">
+            <ApprovalWorkflow rfqId={rfq.id} />
+          </TabsContent>
+
+          {/* TEAM */}
+          <TabsContent value="team" className="mt-4">
+            <RFQTeamComments rfqId={rfq.id} />
+          </TabsContent>
+
+          {/* FORECAST */}
+          <TabsContent value="forecast" className="mt-4">
+            <PriceForecastPanel category={rfq.category} currentPrice={rfq.targetPrice} />
           </TabsContent>
 
           {/* TIMELINE */}

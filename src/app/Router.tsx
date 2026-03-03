@@ -41,6 +41,7 @@ import SellerAnalytics from "@/pages/dashboard/SellerAnalytics";
 import HeatMap from "@/pages/dashboard/HeatMap";
 import Settings from "@/pages/dashboard/Settings";
 import RFQCampaignPage from "@/pages/dashboard/RFQCampaign";
+import RFQTemplates from "@/pages/dashboard/RFQTemplates";
 import DailyReportPage from "@/pages/dashboard/DailyReport";
 import DemandSignals from "@/pages/dashboard/DemandSignals";
 import OutreachHub from "@/pages/dashboard/OutreachHub";
@@ -74,6 +75,7 @@ export function Router() {
       <Route path="/dashboard/suppliers" element={<ProtectedRoute><Suppliers /></ProtectedRoute>} />
       <Route path="/dashboard/rfqs" element={<ProtectedRoute><RFQs /></ProtectedRoute>} />
       <Route path="/dashboard/rfq-campaign" element={<ProtectedRoute><RFQCampaignPage /></ProtectedRoute>} />
+      <Route path="/dashboard/rfq-templates" element={<ProtectedRoute><RFQTemplates /></ProtectedRoute>} />
       <Route path="/dashboard/conversations" element={<ProtectedRoute><Conversations /></ProtectedRoute>} />
       <Route path="/dashboard/saved" element={<ProtectedRoute><SavedSuppliers /></ProtectedRoute>} />
       <Route path="/dashboard/outreach-hub" element={<ProtectedRoute><OutreachHub /></ProtectedRoute>} />

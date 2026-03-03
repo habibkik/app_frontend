@@ -56,6 +56,7 @@ const buyerNavigation: NavGroup[] = [
       { title: "Supplier Search", url: "/dashboard/suppliers", icon: Search },
       { title: "Outreach Hub", url: "/dashboard/outreach-hub", icon: Send },
       { title: "My RFQs", url: "/dashboard/rfqs", icon: FileText },
+      { title: "RFQ Templates", url: "/dashboard/rfq-templates", icon: BookOpen },
       { title: "Conversations", url: "/dashboard/conversations", icon: MessageSquare },
       { title: "Saved Suppliers", url: "/dashboard/saved", icon: Bookmark },
       { title: "Compare Suppliers", url: "/dashboard/compare", icon: GitCompareArrows },
