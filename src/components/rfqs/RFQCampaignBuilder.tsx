@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
@@ -26,11 +26,69 @@ const MOCK_SUPPLIERS = [
   { id: "5", name: "São Paulo Plastics", email: true, whatsapp: false, phone: false },
 ];
 
-const TEMPLATES = [
-  { id: "quick", body: "Dear {{supplier_name}},\n\nWe are interested in {{product_name}}. Could you please send us a quote for {{quantity}} units with delivery by {{desired_delivery}}?\n\nBest regards" },
-  { id: "bulk", body: "Dear {{supplier_name}},\n\nWe are looking to place a bulk order for {{product_name}}. Required quantity: {{quantity}} units.\n\nPlease include volume discounts, delivery timeline to reach us by {{desired_delivery}}, and payment terms.\n\nThank you" },
-  { id: "custom", body: "" },
-];
+const CHANNEL_TEMPLATES: Record<string, { quick: string; bulk: string }> = {
+  email: {
+    quick: "Dear {{supplier_name}},\n\nWe are interested in {{product_name}}. Could you please send us a quote for {{quantity}} units with delivery by {{desired_delivery}}?\n\nWe look forward to your prompt response.\n\nBest regards",
+    bulk: "Dear {{supplier_name}},\n\nWe are looking to place a bulk order for {{product_name}}. Required quantity: {{quantity}} units.\n\nPlease include volume discounts, delivery timeline to reach us by {{desired_delivery}}, and payment terms.\n\nThank you",
+  },
+  linkedin: {
+    quick: "Hi {{supplier_name}}, we're sourcing {{product_name}} ({{quantity}} units, needed by {{desired_delivery}}). Would you be open to providing a quote? Looking forward to connecting.",
+    bulk: "Hi {{supplier_name}}, we're evaluating partners for a bulk order of {{product_name}} — {{quantity}} units by {{desired_delivery}}. Could we discuss volume pricing and terms?",
+  },
+  whatsapp: {
+    quick: "Hi {{supplier_name}}! 👋 We need a quote for {{product_name}}, qty {{quantity}}, delivery by {{desired_delivery}}. Can you help?",
+    bulk: "Hi {{supplier_name}}! We're sourcing {{product_name}} in bulk — {{quantity}} units by {{desired_delivery}}. Could you share pricing & MOQ? Thanks! 🙏",
+  },
+  sms: {
+    quick: "{{supplier_name}}: Quote needed for {{product_name}}, {{quantity}} units by {{desired_delivery}}. Reply or call us.",
+    bulk: "{{supplier_name}}: Bulk inquiry — {{product_name}}, {{quantity}} units by {{desired_delivery}}. Volume pricing? Reply to discuss.",
+  },
+  phone: {
+    quick: "Call script — Introduce yourself, mention interest in {{product_name}}, request quote for {{quantity}} units with delivery by {{desired_delivery}}. Ask about lead times and payment terms.",
+    bulk: "Call script — Introduce yourself, explain bulk requirement for {{product_name}} ({{quantity}} units by {{desired_delivery}}). Discuss volume discounts, MOQ, logistics, and payment terms.",
+  },
+  telegram: {
+    quick: "Hi {{supplier_name}}! We're looking for {{product_name}} — {{quantity}} units by {{desired_delivery}}. Could you share a quote?",
+    bulk: "Hi {{supplier_name}}! Bulk order inquiry: {{product_name}}, {{quantity}} units needed by {{desired_delivery}}. Volume pricing available? 📦",
+  },
+  facebook: {
+    quick: "Hello {{supplier_name}}, we're interested in {{product_name}}. Could you provide a quote for {{quantity}} units by {{desired_delivery}}? Thanks!",
+    bulk: "Hello {{supplier_name}}, we need {{product_name}} in bulk — {{quantity}} units by {{desired_delivery}}. Can you share volume pricing and delivery options?",
+  },
+  instagram: {
+    quick: "Hi {{supplier_name}}! 👋 Interested in {{product_name}}. Need {{quantity}} units by {{desired_delivery}}. DM us a quote?",
+    bulk: "Hi {{supplier_name}}! Looking for bulk supply of {{product_name}} ({{quantity}} units by {{desired_delivery}}). Can you share pricing? 📩",
+  },
+  twitter: {
+    quick: "Hi @{{supplier_name}}, interested in {{product_name}} — {{quantity}} units by {{desired_delivery}}. Can you DM us a quote?",
+    bulk: "@{{supplier_name}} Bulk inquiry: {{product_name}}, {{quantity}} units by {{desired_delivery}}. Volume pricing? Let's connect via DM.",
+  },
+  tiktok: {
+    quick: "Hi {{supplier_name}}! Saw your products — need a quote for {{product_name}}, {{quantity}} units by {{desired_delivery}} 🙏",
+    bulk: "Hi {{supplier_name}}! Bulk inquiry for {{product_name}} — {{quantity}} units by {{desired_delivery}}. Volume deals? Let's chat! 📦",
+  },
+  youtube: {
+    quick: "Hi {{supplier_name}}, we're interested in {{product_name}} ({{quantity}} units by {{desired_delivery}}). Could you share pricing details?",
+    bulk: "Hi {{supplier_name}}, bulk sourcing inquiry for {{product_name}} — {{quantity}} units by {{desired_delivery}}. Please share volume pricing and lead times.",
+  },
+  pinterest: {
+    quick: "Hi {{supplier_name}}, love your {{product_name}}! Need {{quantity}} units by {{desired_delivery}}. Can you send a quote?",
+    bulk: "Hi {{supplier_name}}, bulk inquiry for {{product_name}} — {{quantity}} units by {{desired_delivery}}. Volume pricing available?",
+  },
+};
+
+const CHANNEL_LABELS: Record<string, string> = {
+  email: "Email", whatsapp: "WhatsApp", phone: "Phone", linkedin: "LinkedIn",
+  sms: "SMS", facebook: "Facebook", instagram: "Instagram", twitter: "Twitter/X",
+  telegram: "Telegram", tiktok: "TikTok", youtube: "YouTube", pinterest: "Pinterest",
+};
+
+const getTemplateForChannel = (channel: string, tplType: string): string => {
+  const ch = CHANNEL_TEMPLATES[channel] || CHANNEL_TEMPLATES.email;
+  if (tplType === "bulk") return ch.bulk;
+  if (tplType === "custom") return "";
+  return ch.quick;
+};
 
 const VARIABLES = ["{{supplier_name}}", "{{product_name}}", "{{quantity}}", "{{desired_delivery}}"];
 
@@ -41,10 +99,27 @@ export function RFQCampaignBuilder() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
   const [template, setTemplate] = useState("quick");
-  const [message, setMessage] = useState(TEMPLATES[0].body);
+  const [channelMessages, setChannelMessages] = useState<Record<string, string>>({
+    email: getTemplateForChannel("email", "quick"),
+  });
+  const [activeChannel, setActiveChannel] = useState("email");
   const [emailSubject, setEmailSubject] = useState("");
   const [channels, setChannels] = useState<string[]>(["email"]);
   const [confirmed, setConfirmed] = useState(false);
+
+  // Sync channel messages when channels change
+  useEffect(() => {
+    setChannelMessages((prev) => {
+      const next: Record<string, string> = {};
+      for (const ch of channels) {
+        next[ch] = prev[ch] ?? getTemplateForChannel(ch, template);
+      }
+      return next;
+    });
+    if (!channels.includes(activeChannel) && channels.length > 0) {
+      setActiveChannel(channels[0]);
+    }
+  }, [channels]);
 
   const filteredSuppliers = MOCK_SUPPLIERS.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -64,12 +139,18 @@ export function RFQCampaignBuilder() {
 
   const handleTemplateChange = (val: string) => {
     setTemplate(val);
-    const tpl = TEMPLATES.find((t) => t.id === val);
-    if (tpl) setMessage(tpl.body);
+    const next: Record<string, string> = {};
+    for (const ch of channels) {
+      next[ch] = getTemplateForChannel(ch, val);
+    }
+    setChannelMessages(next);
   };
 
   const insertVariable = (v: string) => {
-    setMessage((prev) => prev + " " + v);
+    setChannelMessages((prev) => ({
+      ...prev,
+      [activeChannel]: (prev[activeChannel] || "") + " " + v,
+    }));
   };
 
   const handleSend = () => {
@@ -77,28 +158,32 @@ export function RFQCampaignBuilder() {
       title: t("rfqCampaign.sentTitle"),
       description: t("rfqCampaign.sentDesc", { count: selectedSuppliers.length }),
     });
-    // Reset
     setStep(1);
     setSelectedSuppliers([]);
-    setMessage(TEMPLATES[0].body);
+    setTemplate("quick");
+    setChannelMessages({ email: getTemplateForChannel("email", "quick") });
     setChannels(["email"]);
+    setActiveChannel("email");
     setConfirmed(false);
   };
 
+  // Reorder: 1-Suppliers, 2-Channels, 3-Messages, 4-Review
   const steps = [
     { num: 1, label: t("rfqCampaign.step1"), icon: Users },
-    { num: 2, label: t("rfqCampaign.step2"), icon: MessageSquare },
-    { num: 3, label: t("rfqCampaign.step3"), icon: Send },
+    { num: 2, label: t("rfqCampaign.step3"), icon: Send },
+    { num: 3, label: t("rfqCampaign.step2"), icon: MessageSquare },
     { num: 4, label: t("rfqCampaign.step4"), icon: Check },
   ];
 
   const canNext = () => {
     if (step === 1) return selectedSuppliers.length > 0;
-    if (step === 2) return message.trim().length > 0;
-    if (step === 3) return channels.length > 0;
+    if (step === 2) return channels.length > 0;
+    if (step === 3) return Object.values(channelMessages).some((m) => m.trim().length > 0);
     if (step === 4) return confirmed;
     return false;
   };
+
+  const currentMsg = channelMessages[activeChannel] || "";
 
   return (
     <div className="space-y-6">
@@ -159,32 +244,6 @@ export function RFQCampaignBuilder() {
         {step === 2 && (
           <Card>
             <CardHeader>
-              <CardTitle>{t("rfqCampaign.customizeMessage")}</CardTitle>
-              <CardDescription>{t("rfqCampaign.customizeMessageDesc")}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Select value={template} onValueChange={handleTemplateChange}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="quick">{t("rfqCampaign.templateQuick")}</SelectItem>
-                  <SelectItem value="bulk">{t("rfqCampaign.templateBulk")}</SelectItem>
-                  <SelectItem value="custom">{t("rfqCampaign.templateCustom")}</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex flex-wrap gap-2">
-                {VARIABLES.map((v) => (
-                  <Button key={v} variant="outline" size="sm" onClick={() => insertVariable(v)}>{v}</Button>
-                ))}
-              </div>
-              <Textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={8} className="font-mono text-sm" />
-              <p className="text-sm text-muted-foreground">{message.length} {t("common.characters")}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 3 && (
-          <Card>
-            <CardHeader>
               <CardTitle>{t("rfqCampaign.selectChannels")}</CardTitle>
               <CardDescription>{t("rfqCampaign.selectChannelsDesc")}</CardDescription>
             </CardHeader>
@@ -222,6 +281,56 @@ export function RFQCampaignBuilder() {
           </Card>
         )}
 
+        {step === 3 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("rfqCampaign.customizeMessage")}</CardTitle>
+              <CardDescription>Each channel has an auto-adapted message. Switch tabs to customize per channel.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Select value={template} onValueChange={handleTemplateChange}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="quick">{t("rfqCampaign.templateQuick")}</SelectItem>
+                  <SelectItem value="bulk">{t("rfqCampaign.templateBulk")}</SelectItem>
+                  <SelectItem value="custom">{t("rfqCampaign.templateCustom")}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Channel tabs */}
+              <div className="flex flex-wrap gap-1.5 border-b pb-2">
+                {channels.map((ch) => (
+                  <Button
+                    key={ch}
+                    variant={activeChannel === ch ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setActiveChannel(ch)}
+                    className="text-xs"
+                  >
+                    {CHANNEL_LABELS[ch] || ch}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {VARIABLES.map((v) => (
+                  <Button key={v} variant="outline" size="sm" onClick={() => insertVariable(v)}>{v}</Button>
+                ))}
+              </div>
+              <Textarea
+                value={currentMsg}
+                onChange={(e) => setChannelMessages((prev) => ({ ...prev, [activeChannel]: e.target.value }))}
+                rows={8}
+                className="font-mono text-sm"
+              />
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">{currentMsg.length} {t("common.characters")}</p>
+                <Badge variant="outline" className="text-xs">{CHANNEL_LABELS[activeChannel]}</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {step === 4 && (
           <Card>
             <CardHeader>
@@ -239,13 +348,18 @@ export function RFQCampaignBuilder() {
                   <p className="text-sm text-muted-foreground">{t("rfqCampaign.channels")}</p>
                 </div>
                 <div className="bg-muted rounded-lg p-4 text-center">
-                  <p className="text-2xl font-bold text-primary">{message.length}</p>
-                  <p className="text-sm text-muted-foreground">{t("common.characters")}</p>
+                  <p className="text-2xl font-bold text-primary">{Object.keys(channelMessages).length}</p>
+                  <p className="text-sm text-muted-foreground">Messages</p>
                 </div>
               </div>
-              <div className="bg-muted rounded-lg p-4">
-                <p className="text-sm font-medium mb-2">{t("rfqCampaign.messagePreview")}</p>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{message.slice(0, 200)}...</p>
+              {/* Per-channel preview */}
+              <div className="space-y-3 max-h-48 overflow-y-auto">
+                {channels.map((ch) => (
+                  <div key={ch} className="bg-muted rounded-lg p-3">
+                    <p className="text-xs font-semibold text-primary mb-1">{CHANNEL_LABELS[ch]}</p>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{(channelMessages[ch] || "").slice(0, 150)}{(channelMessages[ch] || "").length > 150 ? "..." : ""}</p>
+                  </div>
+                ))}
               </div>
               <div className="flex items-center gap-2" onClick={() => setConfirmed(!confirmed)}>
                 <Checkbox checked={confirmed} onCheckedChange={(v) => setConfirmed(!!v)} />
