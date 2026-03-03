@@ -5,10 +5,14 @@ import { useTranslation } from "react-i18next";
 
 export type ArchitectureType = "modular" | "integrated" | "platform" | "configurable";
 
+const P = "pages.productArchitecture";
+
 interface ArchOption {
   type: ArchitectureType;
   labelKey: string;
   descKey: string;
+  labelFallback: string;
+  descFallback: string;
   icon: React.ReactNode;
   impacts: { complexity: string; suppliers: string; risk: string; inventory: string };
 }
@@ -16,39 +20,39 @@ interface ArchOption {
 const OPTIONS: ArchOption[] = [
   {
     type: "modular",
-    labelKey: "productArchitecture.modular",
-    descKey: "productArchitecture.modularDesc",
+    labelKey: `${P}.modular`, labelFallback: "Modular",
+    descKey: `${P}.modularDesc`, descFallback: "Swappable modules",
     icon: <Boxes className="h-5 w-5" />,
     impacts: { complexity: "Medium", suppliers: "Many", risk: "Low", inventory: "Standard" },
   },
   {
     type: "integrated",
-    labelKey: "productArchitecture.integrated",
-    descKey: "productArchitecture.integratedDesc",
+    labelKey: `${P}.integrated`, labelFallback: "Integrated",
+    descKey: `${P}.integratedDesc`, descFallback: "Tight integration",
     icon: <Cpu className="h-5 w-5" />,
     impacts: { complexity: "High", suppliers: "Few", risk: "High", inventory: "Complex" },
   },
   {
     type: "platform",
-    labelKey: "productArchitecture.platform",
-    descKey: "productArchitecture.platformDesc",
+    labelKey: `${P}.platform`, labelFallback: "Platform",
+    descKey: `${P}.platformDesc`, descFallback: "Shared sub-assemblies",
     icon: <Layers className="h-5 w-5" />,
     impacts: { complexity: "Medium", suppliers: "Moderate", risk: "Medium", inventory: "Shared" },
   },
   {
     type: "configurable",
-    labelKey: "productArchitecture.configurable",
-    descKey: "productArchitecture.configurableDesc",
+    labelKey: `${P}.configurable`, labelFallback: "Configurable",
+    descKey: `${P}.configurableDesc`, descFallback: "Option-driven variants",
     icon: <SlidersHorizontal className="h-5 w-5" />,
     impacts: { complexity: "High", suppliers: "Many", risk: "Medium", inventory: "Variable" },
   },
 ];
 
 const IMPACT_KEYS: Record<string, string> = {
-  complexity: "productArchitecture.complexity",
-  suppliers: "productArchitecture.suppliers",
-  risk: "productArchitecture.risk",
-  inventory: "productArchitecture.inventory",
+  complexity: `${P}.complexity`,
+  suppliers: `${P}.suppliers`,
+  risk: `${P}.risk`,
+  inventory: `${P}.inventory`,
 };
 
 interface ProductArchitectureSelectorProps {
@@ -62,9 +66,9 @@ export function ProductArchitectureSelector({ value, onChange }: ProductArchitec
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">{t("productArchitecture.title", "Product Architecture")}</CardTitle>
+        <CardTitle className="text-base">{t(`${P}.title`, "Product Architecture")}</CardTitle>
         <p className="text-xs text-muted-foreground">
-          {t("productArchitecture.subtitle", "Classify your product to optimize sourcing strategy")}
+          {t(`${P}.subtitle`, "Classify your product to optimize sourcing")}
         </p>
       </CardHeader>
       <CardContent>
@@ -82,8 +86,8 @@ export function ProductArchitectureSelector({ value, onChange }: ProductArchitec
               <div className={`p-2 rounded-md ${value === opt.type ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                 {opt.icon}
               </div>
-              <span className="text-sm font-medium text-foreground">{t(opt.labelKey)}</span>
-              <span className="text-[11px] text-muted-foreground leading-tight">{t(opt.descKey)}</span>
+              <span className="text-sm font-medium text-foreground">{t(opt.labelKey, opt.labelFallback)}</span>
+              <span className="text-[11px] text-muted-foreground leading-tight">{t(opt.descKey, opt.descFallback)}</span>
             </button>
           ))}
         </div>
