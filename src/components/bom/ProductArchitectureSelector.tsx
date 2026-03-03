@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Boxes, Cpu, Layers, SlidersHorizontal } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type ArchitectureType = "modular" | "integrated" | "platform" | "configurable";
 
 interface ArchOption {
   type: ArchitectureType;
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
   icon: React.ReactNode;
   impacts: { complexity: string; suppliers: string; risk: string; inventory: string };
 }
@@ -16,33 +16,40 @@ interface ArchOption {
 const OPTIONS: ArchOption[] = [
   {
     type: "modular",
-    label: "Modular",
-    description: "Replaceable modules, easier supplier swaps",
+    labelKey: "productArchitecture.modular",
+    descKey: "productArchitecture.modularDesc",
     icon: <Boxes className="h-5 w-5" />,
     impacts: { complexity: "Medium", suppliers: "Many", risk: "Low", inventory: "Standard" },
   },
   {
     type: "integrated",
-    label: "Integrated",
-    description: "Tight mechanical/electrical integration",
+    labelKey: "productArchitecture.integrated",
+    descKey: "productArchitecture.integratedDesc",
     icon: <Cpu className="h-5 w-5" />,
     impacts: { complexity: "High", suppliers: "Few", risk: "High", inventory: "Complex" },
   },
   {
     type: "platform",
-    label: "Platform-based",
-    description: "Shared sub-assemblies across SKUs",
+    labelKey: "productArchitecture.platform",
+    descKey: "productArchitecture.platformDesc",
     icon: <Layers className="h-5 w-5" />,
     impacts: { complexity: "Medium", suppliers: "Moderate", risk: "Medium", inventory: "Shared" },
   },
   {
     type: "configurable",
-    label: "Configurable",
-    description: "Variants driven by options",
+    labelKey: "productArchitecture.configurable",
+    descKey: "productArchitecture.configurableDesc",
     icon: <SlidersHorizontal className="h-5 w-5" />,
     impacts: { complexity: "High", suppliers: "Many", risk: "Medium", inventory: "Variable" },
   },
 ];
+
+const IMPACT_KEYS: Record<string, string> = {
+  complexity: "productArchitecture.complexity",
+  suppliers: "productArchitecture.suppliers",
+  risk: "productArchitecture.risk",
+  inventory: "productArchitecture.inventory",
+};
 
 interface ProductArchitectureSelectorProps {
   value: ArchitectureType | null;
@@ -50,12 +57,14 @@ interface ProductArchitectureSelectorProps {
 }
 
 export function ProductArchitectureSelector({ value, onChange }: ProductArchitectureSelectorProps) {
+  const { t } = useTranslation();
+
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Product Architecture</CardTitle>
+        <CardTitle className="text-base">{t("productArchitecture.title", "Product Architecture")}</CardTitle>
         <p className="text-xs text-muted-foreground">
-          Classify your product to optimize sourcing strategy
+          {t("productArchitecture.subtitle", "Classify your product to optimize sourcing strategy")}
         </p>
       </CardHeader>
       <CardContent>
@@ -73,8 +82,8 @@ export function ProductArchitectureSelector({ value, onChange }: ProductArchitec
               <div className={`p-2 rounded-md ${value === opt.type ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                 {opt.icon}
               </div>
-              <span className="text-sm font-medium text-foreground">{opt.label}</span>
-              <span className="text-[11px] text-muted-foreground leading-tight">{opt.description}</span>
+              <span className="text-sm font-medium text-foreground">{t(opt.labelKey)}</span>
+              <span className="text-[11px] text-muted-foreground leading-tight">{t(opt.descKey)}</span>
             </button>
           ))}
         </div>
@@ -82,7 +91,7 @@ export function ProductArchitectureSelector({ value, onChange }: ProductArchitec
           <div className="mt-4 flex flex-wrap gap-2">
             {Object.entries(OPTIONS.find((o) => o.type === value)!.impacts).map(([k, v]) => (
               <Badge key={k} variant="secondary" className="text-[10px]">
-                {k}: {v}
+                {t(IMPACT_KEYS[k], k)}: {v}
               </Badge>
             ))}
           </div>
