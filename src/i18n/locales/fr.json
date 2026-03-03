@@ -1948,6 +1948,22 @@
       "processing": "Traitement...",
       "complete": "Terminé"
     },
+    "productArchitecture": {
+      "title": "Architecture produit",
+      "subtitle": "Classifiez votre produit pour optimiser la stratégie d'approvisionnement",
+      "modular": "Modulaire",
+      "modularDesc": "Modules remplaçables, changements de fournisseurs facilités",
+      "integrated": "Intégré",
+      "integratedDesc": "Intégration mécanique/électrique étroite",
+      "platform": "Basé sur plateforme",
+      "platformDesc": "Sous-ensembles partagés entre les références",
+      "configurable": "Configurable",
+      "configurableDesc": "Variantes pilotées par des options",
+      "complexity": "Complexité",
+      "suppliers": "Fournisseurs",
+      "risk": "Risque",
+      "inventory": "Inventaire"
+    },
     "supplierModals": {
       "notesAndTags": "Notes et étiquettes",
       "addNotesAndTags": "Ajoutez des notes et étiquettes pour organiser ce fournisseur",

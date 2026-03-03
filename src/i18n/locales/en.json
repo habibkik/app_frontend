@@ -1959,6 +1959,22 @@
       "processing": "Processing...",
       "complete": "Complete"
     },
+    "productArchitecture": {
+      "title": "Product Architecture",
+      "subtitle": "Classify your product to optimize sourcing strategy",
+      "modular": "Modular",
+      "modularDesc": "Replaceable modules, easier supplier swaps",
+      "integrated": "Integrated",
+      "integratedDesc": "Tight mechanical/electrical integration",
+      "platform": "Platform-based",
+      "platformDesc": "Shared sub-assemblies across SKUs",
+      "configurable": "Configurable",
+      "configurableDesc": "Variants driven by options",
+      "complexity": "Complexity",
+      "suppliers": "Suppliers",
+      "risk": "Risk",
+      "inventory": "Inventory"
+    },
     "supplierModals": {
       "notesAndTags": "Notes & Tags",
       "addNotesAndTags": "Add notes and tags to organize this supplier",

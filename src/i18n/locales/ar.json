@@ -1948,6 +1948,22 @@
       "processing": "جارٍ المعالجة...",
       "complete": "اكتمل"
     },
+    "productArchitecture": {
+      "title": "هيكل المنتج",
+      "subtitle": "صنّف منتجك لتحسين استراتيجية التوريد",
+      "modular": "وحدوي",
+      "modularDesc": "وحدات قابلة للاستبدال، تبديل الموردين أسهل",
+      "integrated": "متكامل",
+      "integratedDesc": "تكامل ميكانيكي/كهربائي محكم",
+      "platform": "قائم على منصة",
+      "platformDesc": "تجميعات فرعية مشتركة بين المنتجات",
+      "configurable": "قابل للتكوين",
+      "configurableDesc": "متغيرات مدفوعة بالخيارات",
+      "complexity": "التعقيد",
+      "suppliers": "الموردون",
+      "risk": "المخاطر",
+      "inventory": "المخزون"
+    },
     "supplierModals": {
       "notesAndTags": "ملاحظات وعلامات",
       "addNotesAndTags": "أضف ملاحظات وعلامات لتنظيم هذا المورد",
