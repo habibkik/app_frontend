@@ -48,9 +48,6 @@ import OutreachHub from "@/pages/dashboard/OutreachHub";
 import ShouldCost from "@/pages/dashboard/ShouldCost";
 import NegotiationIntelligence from "@/pages/dashboard/NegotiationIntelligence";
 import SupplierComparison from "@/pages/dashboard/SupplierComparison";
-import IndustryPlaybook from "@/pages/dashboard/IndustryPlaybook";
-import KraljicMatrix from "@/pages/dashboard/KraljicMatrix";
-import NegotiationPlaybook from "@/pages/dashboard/NegotiationPlaybook";
 import ContractChecklist from "@/pages/dashboard/ContractChecklist";
 import NotFound from "@/pages/NotFound";
 
@@ -82,9 +79,6 @@ export function Router() {
       <Route path="/dashboard/should-cost" element={<ProtectedRoute><ShouldCost /></ProtectedRoute>} />
       <Route path="/dashboard/negotiation" element={<ProtectedRoute><NegotiationIntelligence /></ProtectedRoute>} />
       <Route path="/dashboard/compare" element={<ProtectedRoute><SupplierComparison /></ProtectedRoute>} />
-      <Route path="/dashboard/industry-playbook" element={<ProtectedRoute><IndustryPlaybook /></ProtectedRoute>} />
-      <Route path="/dashboard/kraljic" element={<ProtectedRoute><KraljicMatrix /></ProtectedRoute>} />
-      <Route path="/dashboard/negotiation-playbook" element={<ProtectedRoute><NegotiationPlaybook /></ProtectedRoute>} />
       <Route path="/dashboard/contract-checklist" element={<ProtectedRoute><ContractChecklist /></ProtectedRoute>} />
       
       {/* Producer mode pages */}
