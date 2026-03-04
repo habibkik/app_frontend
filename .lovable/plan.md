@@ -1,91 +1,70 @@
 
 
-## Plan: AI-Powered Daily Workflow with User Validation
+## Plan: Marketing Seller Mode — Single-Page Marketplace Publisher
 
-### Concept
+### Overview
 
-Transform the static checklist into an **AI-driven workflow engine**. For each task, the user clicks "Run with AI" — the AI analyzes current outreach data and generates an actionable report/recommendation. The user reviews the AI output and clicks "Approve & Complete" to mark it done, or "Reject" to dismiss. No task is marked complete without explicit user validation.
+Create a single-page module at `/dashboard/marketplace` with a sticky horizontal tab bar (6 tabs) using shadcn Tabs + Framer Motion transitions. All content lives on one page with no route changes.
 
-### Architecture
+### Database Migration
 
-```text
-User clicks "▶ Run" on task
-        ↓
-Frontend calls edge function: POST /workflow-ai-task
-  { taskId: "m1", context: { campaigns, metrics } }
-        ↓
-Edge function → Lovable AI (Gemini Flash)
-  System prompt per task type → structured analysis
-        ↓
-Returns { summary, recommendations[], actions[] }
-        ↓
-UI shows AI result in expandable card
-        ↓
-User clicks "✅ Approve" or "✗ Dismiss"
-        ↓
-Task marked complete (localStorage persists)
-```
+Create 4 new tables + 1 storage bucket:
+
+1. **`marketplace_listings`** — Enhanced product listings with marketplace-specific fields: `id`, `user_id`, `title`, `description`, `price`, `compare_at_price`, `currency`, `category`, `subcategory`, `condition` (new/used/refurbished), `images_json` (JSONB array), `video_url`, `variants_json` (JSONB), `sku`, `barcode`, `stock_quantity`, `low_stock_threshold`, `shipping_weight`, `shipping_dimensions`, `free_shipping`, `shipping_cost`, `tags` (text[]), `location`, `schedule_at`, `status` (draft/active/archived), `created_at`, `updated_at`. RLS: user-scoped CRUD.
+
+2. **`marketplace_connections`** — Platform connections: `id`, `user_id`, `platform_name`, `platform_type` (global/local), `connection_status` (connected/disconnected/error), `credentials_json` (JSONB), `platform_config_json` (JSONB), `last_sync_at`, `listings_count`, `created_at`, `updated_at`. RLS: user-scoped CRUD.
+
+3. **`marketplace_published`** — Published listings junction: `id`, `user_id`, `listing_id` (FK→marketplace_listings), `platform_name`, `external_id`, `external_url`, `status` (draft/published/pending/rejected/expired/paused), `views`, `inquiries`, `clicks`, `revenue`, `published_at`, `expires_at`, `platform_overrides_json` (JSONB), `created_at`. RLS: user-scoped CRUD.
+
+4. **`marketplace_messages`** — Unified inbox: `id`, `user_id`, `listing_id` (FK→marketplace_listings), `platform_name`, `customer_name`, `customer_avatar`, `message_text`, `is_read`, `is_starred`, `is_archived`, `label`, `created_at`. RLS: user-scoped CRUD.
+
+5. **`marketplace_automation_rules`** — Automation rules: `id`, `user_id`, `rule_type`, `config_json` (JSONB), `is_active`, `created_at`, `updated_at`. RLS: user-scoped CRUD.
+
+6. **Storage bucket**: `marketplace-media` (public) for product images/videos.
+
+### AI Edge Function
+
+**`supabase/functions/marketplace-ai/index.ts`** — Multi-task AI endpoint using `google/gemini-3-flash-preview` via Lovable AI gateway:
+- `optimize-title` — Platform-optimized title rewrite
+- `rewrite-description` — Tone-adjusted description (Professional/Casual/Luxury/Bargain)
+- `suggest-tags` — SEO tags and platform hashtags
+- `suggest-price` — Market-based price recommendation
+- `translate` — Listing translation with cultural adaptations
+- `enhance-image-prompt` — Image enhancement suggestions (placeholder for future real processing)
 
 ### Files to Create
 
-**1. `supabase/functions/workflow-ai-task/index.ts`**
-- Edge function that receives a `taskId` and context data (campaign stats, supplier counts, channel performance)
-- Maps each task ID to a specific AI prompt:
-  - `m1` (Check inbox) → Summarize pending replies, prioritize by lead score
-  - `m2` (Respond to warm leads) → Draft suggested responses for top warm leads
-  - `m3` (Review analytics) → Generate analytics summary with anomalies flagged
-  - `d1` (Launch sequences) → Recommend which suppliers to target today and which channels
-  - `d2` (Add leads) → Suggest lead sources and segment recommendations
-  - `d3` (Social engagement) → Generate engagement actions (which posts to like/comment)
-  - `a1` (A/B test) → Suggest template variants based on performance data
-  - `a2` (Clean contacts) → Identify candidates for cleanup with rationale
-  - `a3` (Update pipeline) → Suggest pipeline stage changes
-  - `w1-w3` (Weekly) → Weekly summary, channel optimization suggestions, meeting agenda
-- Uses `LOVABLE_API_KEY` with `google/gemini-3-flash-preview`
-- Returns structured JSON: `{ summary: string, recommendations: string[], suggestedActions: { label: string, detail: string }[] }`
-- Handles 429/402 errors gracefully
+**Core page:**
+- `src/features/marketplace/pages/MarketplaceSellerPage.tsx` — Main SPA page with sticky Tabs bar, Framer Motion `AnimatePresence` for tab transitions, Zustand store for shared state (active tab, selected product for publishing)
 
-**2. Rewrite `src/components/outreach/DailyWorkflowChecklist.tsx`**
+**Tab components (one per tab):**
+- `src/features/marketplace/components/TabProductListing.tsx` — Product form (title, description, price, compare-at, category, condition, images upload to `marketplace-media` bucket with drag-reorder, video upload, variants manager, SKU, stock, shipping, tags chip input, location, schedule picker) + product list table/grid below with search/filter/view toggle
+- `src/features/marketplace/components/TabConnections.tsx` — Platform cards grid (global: Facebook, Instagram, TikTok, WooCommerce, Shopify; local: country-auto-detected from CurrencyContext) + Publish Product sub-section (product selector, platform checkboxes with preview modals, per-platform overrides, schedule, publish button with progress)
+- `src/features/marketplace/components/TabDashboard.tsx` — Stats cards row, bar/line charts (recharts), listings status table, unified inbox accordion
+- `src/features/marketplace/components/TabBulkAutomation.tsx` — Multi-select product list with bulk actions dropdown + automation rule toggle cards (6 rules)
+- `src/features/marketplace/components/TabAITools.tsx` — Grid of 5 AI tool cards (Description Generator, Price Suggester, Image Enhancer, Hashtag Generator, Translator) each expanding into a working form that calls the edge function
+- `src/features/marketplace/components/TabSettings.tsx` — Seller profile form, platform preferences matrix, subscription/quota display with plan comparison table, data/privacy section
 
-New UI per task item:
-- **Idle state**: Task name + description + "▶ Run AI" button (replaces simple checkbox)
-- **Loading state**: Skeleton/spinner with "AI analyzing..." text
-- **Result state**: Expandable card showing:
-  - AI summary paragraph
-  - Bullet list of recommendations
-  - Suggested actions as small action chips
-  - Two buttons: "✅ Approve & Complete" (marks done) and "✗ Dismiss" (closes result, task stays pending)
-- **Completed state**: Green check, strikethrough, shows "Approved" badge with timestamp
-- Users can still manually check off tasks without AI (small "Skip" link)
-- Progress bar, streak counter, and time remaining persist as-is
-- AI results stored in component state (not persisted — fresh each day)
+**Supporting:**
+- `src/features/marketplace/components/LocalPlatformData.ts` — Country→platform mapping (17 countries) with URLs, logos, API availability flags
+- `src/features/marketplace/components/PlatformCard.tsx` — Reusable connection card with status badge, health dot, connect/disconnect
+- `src/features/marketplace/components/ListingPreviewModal.tsx` — Platform-specific listing preview mockup
+- `src/features/marketplace/components/CopyPasteMode.tsx` — For local platforms without API: formatted text + copy buttons + open URL
+- `src/features/marketplace/store/marketplaceStore.ts` — Zustand store for active tab, selected listing, connection state
+- `src/features/marketplace/index.ts` — Barrel export
 
 ### Files to Edit
 
-**3. `src/pages/dashboard/OutreachHub.tsx`**
-- Pass campaign data to `DailyWorkflowChecklist` as props so AI has context to analyze
-- Add props: `campaigns`, `rules` from the outreach store
+1. **`src/features/dashboard/config/navigation.ts`** — Add "Marketplace" item to seller Marketing nav group: `{ title: "Marketplace", url: "/dashboard/marketplace", icon: Store }`
+2. **`src/app/Router.tsx`** — Add route: `/dashboard/marketplace` → `MarketplaceSellerPage`
 
-**4. `supabase/config.toml`** — won't edit directly (auto-managed), but the edge function needs `verify_jwt = false`
+### Implementation Notes
 
-### Data Flow
-
-The checklist component will build a context object from props:
-```typescript
-const aiContext = {
-  totalCampaigns: campaigns.length,
-  draftCount: campaigns.filter(c => c.status === "draft").length,
-  sentCount: campaigns.filter(c => c.status === "sent" || c.status === "approved").length,
-  responsesReceived: campaigns.filter(c => c.response_received).length,
-  channelBreakdown: { email: X, linkedin: Y, ... },
-  topSuppliers: [...first 5 supplier names],
-};
-```
-
-This context is sent to the edge function along with the task ID, giving the AI real data to analyze.
-
-### Implementation Order
-1. Create edge function `workflow-ai-task`
-2. Rewrite `DailyWorkflowChecklist.tsx` with AI integration + validation UI
-3. Update `OutreachHub.tsx` to pass campaign data as props
+- The existing `products` table will be referenced but not modified; `marketplace_listings` is a separate enhanced listing layer
+- Images uploaded to `marketplace-media` bucket with path `{user_id}/{listing_id}/{filename}`
+- Local platform detection uses `CurrencyContext` currency code to infer country, with manual country override in Connections tab
+- Tab badges: computed from state (unread messages count on Dashboard, error connections on Connections)
+- Mobile: tabs use `overflow-x-auto` with icon-only display on small screens
+- All destructive actions use `AlertDialog` confirmation
+- Empty states with descriptive text and CTA buttons pointing to relevant actions
 
