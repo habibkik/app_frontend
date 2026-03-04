@@ -25,6 +25,7 @@ import {
   GitCompareArrows,
   BookOpen,
   ClipboardCheck,
+  Store,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
@@ -151,6 +152,7 @@ const sellerNavigation: NavGroup[] = [
       { title: "Content Studio", url: "/dashboard/content-studio", icon: Palette },
       { title: "Social Publisher", url: "/dashboard/publisher", icon: Send },
       { title: "Website Builder", url: "/dashboard/website", icon: Globe },
+      { title: "Marketplace", url: "/dashboard/marketplace", icon: Store },
     ],
   },
   {

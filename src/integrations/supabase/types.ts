@@ -398,6 +398,283 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_automation_rules: {
+        Row: {
+          config_json: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          rule_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config_json?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rule_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config_json?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          rule_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketplace_connections: {
+        Row: {
+          connection_status: string
+          created_at: string
+          credentials_json: Json
+          id: string
+          last_sync_at: string | null
+          listings_count: number
+          platform_config_json: Json
+          platform_name: string
+          platform_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connection_status?: string
+          created_at?: string
+          credentials_json?: Json
+          id?: string
+          last_sync_at?: string | null
+          listings_count?: number
+          platform_config_json?: Json
+          platform_name: string
+          platform_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connection_status?: string
+          created_at?: string
+          credentials_json?: Json
+          id?: string
+          last_sync_at?: string | null
+          listings_count?: number
+          platform_config_json?: Json
+          platform_name?: string
+          platform_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketplace_listings: {
+        Row: {
+          barcode: string | null
+          category: string | null
+          compare_at_price: number | null
+          condition: string
+          created_at: string
+          currency: string
+          description: string | null
+          free_shipping: boolean
+          id: string
+          images_json: Json
+          location: string | null
+          low_stock_threshold: number
+          price: number
+          schedule_at: string | null
+          shipping_cost: number | null
+          shipping_dimensions: string | null
+          shipping_weight: number | null
+          sku: string | null
+          status: string
+          stock_quantity: number
+          subcategory: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          variants_json: Json
+          video_url: string | null
+        }
+        Insert: {
+          barcode?: string | null
+          category?: string | null
+          compare_at_price?: number | null
+          condition?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          free_shipping?: boolean
+          id?: string
+          images_json?: Json
+          location?: string | null
+          low_stock_threshold?: number
+          price?: number
+          schedule_at?: string | null
+          shipping_cost?: number | null
+          shipping_dimensions?: string | null
+          shipping_weight?: number | null
+          sku?: string | null
+          status?: string
+          stock_quantity?: number
+          subcategory?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          variants_json?: Json
+          video_url?: string | null
+        }
+        Update: {
+          barcode?: string | null
+          category?: string | null
+          compare_at_price?: number | null
+          condition?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          free_shipping?: boolean
+          id?: string
+          images_json?: Json
+          location?: string | null
+          low_stock_threshold?: number
+          price?: number
+          schedule_at?: string | null
+          shipping_cost?: number | null
+          shipping_dimensions?: string | null
+          shipping_weight?: number | null
+          sku?: string | null
+          status?: string
+          stock_quantity?: number
+          subcategory?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          variants_json?: Json
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      marketplace_messages: {
+        Row: {
+          created_at: string
+          customer_avatar: string | null
+          customer_name: string | null
+          id: string
+          is_archived: boolean
+          is_read: boolean
+          is_starred: boolean
+          label: string | null
+          listing_id: string | null
+          message_text: string
+          platform_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_avatar?: string | null
+          customer_name?: string | null
+          id?: string
+          is_archived?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          label?: string | null
+          listing_id?: string | null
+          message_text: string
+          platform_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_avatar?: string | null
+          customer_name?: string | null
+          id?: string
+          is_archived?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          label?: string | null
+          listing_id?: string | null
+          message_text?: string
+          platform_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_messages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_published: {
+        Row: {
+          clicks: number
+          created_at: string
+          expires_at: string | null
+          external_id: string | null
+          external_url: string | null
+          id: string
+          inquiries: number
+          listing_id: string
+          platform_name: string
+          platform_overrides_json: Json
+          published_at: string | null
+          revenue: number
+          status: string
+          user_id: string
+          views: number
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          expires_at?: string | null
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          inquiries?: number
+          listing_id: string
+          platform_name: string
+          platform_overrides_json?: Json
+          published_at?: string | null
+          revenue?: number
+          status?: string
+          user_id: string
+          views?: number
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          expires_at?: string | null
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          inquiries?: number
+          listing_id?: string
+          platform_name?: string
+          platform_overrides_json?: Json
+          published_at?: string | null
+          revenue?: number
+          status?: string
+          user_id?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_published_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       monitor_configs: {
         Row: {
           created_at: string
