@@ -101,14 +101,16 @@ export function ProductImageUploader({ images, onChange, listingId, maxImages = 
     setOverIdx(null);
   };
 
+  const [importingId, setImportingId] = useState<string | null>(null);
+
   // Import from Content Studio
-  const importStudioImage = async (imageUrl: string, label: string) => {
+  const importStudioImage = async (imageUrl: string, label: string, studioId: string) => {
     if (images.length >= maxImages) { toast.error(`Max ${maxImages} images`); return; }
 
     const newId = crypto.randomUUID();
     const filename = `studio-${label.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.png`;
 
-    // Try uploading to storage, fall back to using the URL directly
+    setImportingId(studioId);
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
@@ -128,10 +130,10 @@ export function ProductImageUploader({ images, onChange, listingId, maxImages = 
           onChange([...images, { id: newId, url: urlData.publicUrl, name: filename }]);
           toast.success(`"${label}" imported`);
           setUploading(false);
+          setImportingId(null);
           setStudioOpen(false);
           return;
         }
-        // If storage upload failed, fall through to direct URL approach
         console.warn("Storage upload failed, using direct URL:", error.message);
       } catch (e) {
         console.warn("Storage upload failed, using direct URL:", e);
@@ -139,9 +141,9 @@ export function ProductImageUploader({ images, onChange, listingId, maxImages = 
       setUploading(false);
     }
 
-    // Fallback: use the image URL directly (works for data URLs and remote URLs)
     onChange([...images, { id: newId, url: imageUrl, name: filename }]);
     toast.success(`"${label}" imported`);
+    setImportingId(null);
     setStudioOpen(false);
   };
 
@@ -167,11 +169,18 @@ export function ProductImageUploader({ images, onChange, listingId, maxImages = 
                     {availableStudioImages.map((img) => (
                       <button
                         key={img.id}
-                        onClick={() => img.imageUrl && importStudioImage(img.imageUrl, img.label)}
-                        className="group relative aspect-square rounded-lg overflow-hidden border border-border hover:ring-2 hover:ring-primary transition-all"
-                        disabled={uploading}
+                        onClick={() => img.imageUrl && importStudioImage(img.imageUrl, img.label, img.id)}
+                        className={`group relative aspect-square rounded-lg overflow-hidden border transition-all ${
+                          importingId === img.id ? "ring-2 ring-primary border-primary" : "border-border hover:ring-2 hover:ring-primary"
+                        }`}
+                        disabled={!!importingId}
                       >
-                        <img src={img.imageUrl!} alt={img.label} className="w-full h-full object-cover" />
+                        <img src={img.imageUrl!} alt={img.label} className={`w-full h-full object-cover transition-opacity ${importingId === img.id ? "opacity-40" : ""}`} />
+                        {importingId === img.id && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                          </div>
+                        )}
                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
                           <p className="text-[10px] text-white font-medium truncate">{img.label}</p>
                           {img.section && (
