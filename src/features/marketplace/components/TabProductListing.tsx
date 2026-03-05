@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Image as ImageIcon, Video } from "lucide-react";
+import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Video } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { ProductImageUploader } from "./ProductImageUploader";
 import { toast } from "sonner";
 import { useMarketplaceStore } from "../store/marketplaceStore";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -59,6 +60,7 @@ export function TabProductListing() {
   const [schedulePublish, setSchedulePublish] = useState(false);
   const [scheduleAt, setScheduleAt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [productImages, setProductImages] = useState<{ id: string; url: string; name: string; isLowRes?: boolean }[]>([]);
 
   const { data: listings, isLoading } = useQuery({
     queryKey: ["marketplace-listings"],
@@ -90,6 +92,7 @@ export function TabProductListing() {
         free_shipping: freeShipping,
         shipping_cost: parseFloat(shippingCost) || null,
         location, tags,
+        images_json: JSON.parse(JSON.stringify(productImages)),
         variants_json: JSON.parse(JSON.stringify(variants)),
         schedule_at: schedulePublish && scheduleAt ? scheduleAt : null,
         status,
@@ -129,6 +132,7 @@ export function TabProductListing() {
     setLowStockThreshold("5"); setShippingWeight(""); setShippingDimensions("");
     setFreeShipping(false); setShippingCost(""); setLocation("");
     setTags([]); setTagInput(""); setVariants([]); setSchedulePublish(false); setScheduleAt("");
+    setProductImages([]);
   };
 
   const handleAddTag = () => {
@@ -231,13 +235,11 @@ export function TabProductListing() {
             </div>
 
             {/* Media placeholder */}
-            <div className="space-y-2">
-              <Label>Product Images</Label>
-              <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
-                <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Drag & drop images here or click to upload (up to 10)</p>
-              </div>
-            </div>
+            <ProductImageUploader
+              images={productImages}
+              onChange={setProductImages}
+              maxImages={10}
+            />
 
             <div className="space-y-2">
               <Label>Product Video</Label>
