@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Video, Download, PackageOpen } from "lucide-react";
+import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Video, Download, PackageOpen, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductImageUploader } from "./ProductImageUploader";
 import { toast } from "sonner";
@@ -39,6 +39,7 @@ export function TabProductListing() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [importedFrom, setImportedFrom] = useState<string | null>(null);
 
   // Content Studio sources
@@ -176,16 +177,22 @@ export function TabProductListing() {
         status,
       };
 
-      const { data, error } = await supabase.from("marketplace_listings").insert([payload]).select().single();
-      if (error) throw error;
-      return data;
+      if (editingId) {
+        const { data, error } = await supabase.from("marketplace_listings").update(payload).eq("id", editingId).select().single();
+        if (error) throw error;
+        return data;
+      } else {
+        const { data, error } = await supabase.from("marketplace_listings").insert([payload]).select().single();
+        if (error) throw error;
+        return data;
+      }
     },
     onSuccess: (data, status) => {
       queryClient.invalidateQueries({ queryKey: ["marketplace-listings"] });
-      toast.success(status === "draft" ? "Saved as draft" : "Listing created");
+      toast.success(editingId ? "Listing updated" : (status === "draft" ? "Saved as draft" : "Listing created"));
       resetForm();
       setShowForm(false);
-      if (status === "active") {
+      if (status === "active" && !editingId) {
         setSelectedListingId(data.id);
         setActiveTab("connections");
       }
@@ -212,6 +219,32 @@ export function TabProductListing() {
     setTags([]); setTagInput(""); setVariants([]); setSchedulePublish(false); setScheduleAt("");
     setProductImages([]);
     setImportedFrom(null);
+    setEditingId(null);
+  };
+
+  const loadListing = (l: any) => {
+    setEditingId(l.id);
+    setTitle(l.title || "");
+    setDescription(l.description || "");
+    setPrice(l.price?.toString() || "");
+    setCompareAtPrice(l.compare_at_price?.toString() || "");
+    setCategory(l.category || "");
+    setCondition(l.condition || "new");
+    setSku(l.sku || "");
+    setStockQty(l.stock_quantity?.toString() || "0");
+    setLowStockThreshold(l.low_stock_threshold?.toString() || "5");
+    setShippingWeight(l.shipping_weight?.toString() || "");
+    setShippingDimensions(l.shipping_dimensions || "");
+    setFreeShipping(l.free_shipping || false);
+    setShippingCost(l.shipping_cost?.toString() || "");
+    setLocation(l.location || "");
+    setTags(l.tags || []);
+    setVariants(Array.isArray(l.variants_json) ? l.variants_json : []);
+    setProductImages(Array.isArray(l.images_json) ? l.images_json : []);
+    setSchedulePublish(!!l.schedule_at);
+    setScheduleAt(l.schedule_at || "");
+    setImportedFrom(null);
+    setShowForm(true);
   };
 
   const handleAddTag = () => {
@@ -255,7 +288,7 @@ export function TabProductListing() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">New Product Listing</CardTitle>
+            <CardTitle className="text-lg">{editingId ? "Edit Listing" : "New Product Listing"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Import from Content Studio */}
@@ -458,10 +491,10 @@ export function TabProductListing() {
             <div className="flex gap-3 pt-2">
               <Button variant="outline" onClick={() => { resetForm(); setShowForm(false); }}>Cancel</Button>
               <Button variant="secondary" onClick={() => saveMutation.mutate("draft")} disabled={saveMutation.isPending}>
-                <Save className="w-4 h-4 mr-1" /> Save as Draft
+                <Save className="w-4 h-4 mr-1" /> {editingId ? "Update Draft" : "Save as Draft"}
               </Button>
               <Button onClick={() => saveMutation.mutate("active")} disabled={saveMutation.isPending || !title}>
-                Continue to Publishing <ArrowRight className="w-4 h-4 ml-1" />
+                {editingId ? "Save Changes" : "Continue to Publishing"} <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
           </CardContent>
@@ -523,6 +556,9 @@ export function TabProductListing() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => loadListing(l)}>
+                          <Pencil className="w-3.5 h-3.5 mr-1" /> Edit
+                        </Button>
                         <Button size="sm" variant="ghost" onClick={() => { setSelectedListingId(l.id); setActiveTab("connections"); }}>
                           Publish
                         </Button>
