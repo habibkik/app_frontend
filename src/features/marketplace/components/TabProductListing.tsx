@@ -10,12 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Video } from "lucide-react";
+import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Video, Download, PackageOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductImageUploader } from "./ProductImageUploader";
 import { toast } from "sonner";
 import { useMarketplaceStore } from "../store/marketplaceStore";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useContentStudioStore } from "@/stores/contentStudioStore";
 
 const CATEGORIES = ["Electronics", "Fashion", "Home & Garden", "Auto", "Sports", "Books", "Toys", "Health", "Food", "Services", "Other"];
 const CONDITIONS = [
@@ -38,6 +39,23 @@ export function TabProductListing() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [importedFrom, setImportedFrom] = useState<string | null>(null);
+
+  // Content Studio sources
+  const { savedItems: studioItems, proImages: storeProImages } = useContentStudioStore();
+
+  const { data: contentTemplates } = useQuery({
+    queryKey: ["content-templates-for-import"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("content_templates")
+        .select("id, product_name, content_json, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Form state
   const [title, setTitle] = useState("");
@@ -61,6 +79,66 @@ export function TabProductListing() {
   const [scheduleAt, setScheduleAt] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [productImages, setProductImages] = useState<{ id: string; url: string; name: string; isLowRes?: boolean }[]>([]);
+
+  // Build unified import options
+  const importOptions: { id: string; label: string; source: "studio" | "db"; date: string }[] = [
+    ...studioItems.map((item) => ({
+      id: `studio-${item.id}`,
+      label: item.productName,
+      source: "studio" as const,
+      date: item.generatedAt,
+    })),
+    ...(contentTemplates || []).map((t: any) => ({
+      id: `db-${t.id}`,
+      label: t.product_name,
+      source: "db" as const,
+      date: t.created_at,
+    })),
+  ];
+
+  const handleContentStudioImport = (optionId: string) => {
+    if (!optionId) return;
+
+    if (optionId.startsWith("studio-")) {
+      const realId = optionId.replace("studio-", "");
+      const item = studioItems.find((i) => i.id === realId);
+      if (!item) return;
+
+      setTitle(item.productName);
+      setDescription(item.adCopy?.long || "");
+      // Extract hashtags from social captions
+      const allHashtags = item.socialCaptions?.flatMap((sc) => sc.hashtags || []) || [];
+      setTags([...new Set(allHashtags)]);
+      // Pull pro images from store
+      const studioImgs = storeProImages
+        .filter((img) => img.imageUrl)
+        .map((img) => ({ id: img.id, url: img.imageUrl!, name: img.label }));
+      if (studioImgs.length) setProductImages(studioImgs);
+
+      setImportedFrom(item.productName);
+      toast.success("Product data imported from Content Studio");
+    } else if (optionId.startsWith("db-")) {
+      const realId = optionId.replace("db-", "");
+      const template = contentTemplates?.find((t: any) => t.id === realId);
+      if (!template) return;
+
+      const cj = template.content_json as any;
+      setTitle(template.product_name);
+      setDescription(cj?.descriptions?.long || cj?.adCopy?.long || "");
+      // Extract hashtags
+      const igTags: string[] = cj?.socialMedia?.instagram?.hashtags || [];
+      const ttTags: string[] = cj?.socialMedia?.tiktok?.hashtags || [];
+      setTags([...new Set([...igTags, ...ttTags])]);
+
+      setImportedFrom(template.product_name);
+      toast.success("Product data imported from Content Studio");
+    }
+  };
+
+  const clearImport = () => {
+    setImportedFrom(null);
+    resetForm();
+  };
 
   const { data: listings, isLoading } = useQuery({
     queryKey: ["marketplace-listings"],
@@ -133,6 +211,7 @@ export function TabProductListing() {
     setFreeShipping(false); setShippingCost(""); setLocation("");
     setTags([]); setTagInput(""); setVariants([]); setSchedulePublish(false); setScheduleAt("");
     setProductImages([]);
+    setImportedFrom(null);
   };
 
   const handleAddTag = () => {
@@ -179,6 +258,41 @@ export function TabProductListing() {
             <CardTitle className="text-lg">New Product Listing</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Import from Content Studio */}
+            {importOptions.length > 0 && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Download className="w-4 h-4" /> Import from Content Studio
+                </Label>
+                <Select onValueChange={handleContentStudioImport}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a Content Studio product to auto-fill..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {importOptions.map((opt) => (
+                      <SelectItem key={opt.id} value={opt.id}>
+                        {opt.label} — {new Date(opt.date).toLocaleDateString()}{" "}
+                        <span className="text-muted-foreground text-xs">({opt.source === "studio" ? "Session" : "Saved"})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Imported banner */}
+            {importedFrom && (
+              <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3">
+                <PackageOpen className="w-5 h-5 text-primary shrink-0" />
+                <span className="text-sm flex-1">
+                  Imported from <strong>{importedFrom}</strong>
+                </span>
+                <Button variant="ghost" size="sm" onClick={clearImport}>
+                  <X className="w-4 h-4" /> Clear
+                </Button>
+              </div>
+            )}
+
             {/* Title */}
             <div className="space-y-2">
               <Label>Product Title</Label>
