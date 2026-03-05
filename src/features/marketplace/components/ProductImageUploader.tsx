@@ -105,30 +105,43 @@ export function ProductImageUploader({ images, onChange, listingId, maxImages = 
   const importStudioImage = async (imageUrl: string, label: string) => {
     if (images.length >= maxImages) { toast.error(`Max ${maxImages} images`); return; }
 
+    const newId = crypto.randomUUID();
+    const filename = `studio-${label.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.png`;
+
+    // Try uploading to storage, fall back to using the URL directly
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
 
-    setUploading(true);
-    try {
-      // Fetch the data URL and upload to storage
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const filename = `studio-${label.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.png`;
-      const path = `${user.id}/${listingId || "draft"}/${filename}`;
+    if (user) {
+      setUploading(true);
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const path = `${user.id}/${listingId || "draft"}/${filename}`;
 
-      const { error } = await supabase.storage.from("marketplace-media").upload(path, blob, {
-        cacheControl: "3600",
-        contentType: blob.type || "image/png",
-      });
-      if (error) throw error;
+        const { error } = await supabase.storage.from("marketplace-media").upload(path, blob, {
+          cacheControl: "3600",
+          contentType: blob.type || "image/png",
+        });
 
-      const { data: urlData } = supabase.storage.from("marketplace-media").getPublicUrl(path);
-      onChange([...images, { id: crypto.randomUUID(), url: urlData.publicUrl, name: filename }]);
-      toast.success(`"${label}" imported`);
-    } catch {
-      toast.error("Failed to import image");
+        if (!error) {
+          const { data: urlData } = supabase.storage.from("marketplace-media").getPublicUrl(path);
+          onChange([...images, { id: newId, url: urlData.publicUrl, name: filename }]);
+          toast.success(`"${label}" imported`);
+          setUploading(false);
+          setStudioOpen(false);
+          return;
+        }
+        // If storage upload failed, fall through to direct URL approach
+        console.warn("Storage upload failed, using direct URL:", error.message);
+      } catch (e) {
+        console.warn("Storage upload failed, using direct URL:", e);
+      }
+      setUploading(false);
     }
-    setUploading(false);
+
+    // Fallback: use the image URL directly (works for data URLs and remote URLs)
+    onChange([...images, { id: newId, url: imageUrl, name: filename }]);
+    toast.success(`"${label}" imported`);
     setStudioOpen(false);
   };
 
