@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Video, Download, PackageOpen, Pencil } from "lucide-react";
+import { Plus, Trash2, Save, ArrowRight, Search, LayoutGrid, List, Sparkles, X, Video, Download, PackageOpen, Pencil, Globe } from "lucide-react";
+import { useAnalysisStore } from "@/stores/analysisStore";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductImageUploader } from "./ProductImageUploader";
 import { toast } from "sonner";
@@ -41,6 +42,21 @@ export function TabProductListing() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [importedFrom, setImportedFrom] = useState<string | null>(null);
+  const [selectedMIProduct, setSelectedMIProduct] = useState<string>("custom");
+
+  // Market Intelligence history
+  const analysisHistory = useAnalysisStore((s) => s.history);
+  const sellerResults = useAnalysisStore((s) => s.sellerResults);
+
+  // Unique MI products (deduplicated by productName)
+  const miProducts = useMemo(() => {
+    const seen = new Set<string>();
+    return analysisHistory.filter((item) => {
+      if (seen.has(item.productName)) return false;
+      seen.add(item.productName);
+      return true;
+    });
+  }, [analysisHistory]);
 
   // Content Studio sources
   const { savedItems: studioItems, proImages: storeProImages } = useContentStudioStore();
@@ -138,7 +154,58 @@ export function TabProductListing() {
 
   const clearImport = () => {
     setImportedFrom(null);
+    setSelectedMIProduct("custom");
     resetForm();
+  };
+
+  // Handle Market Intelligence product selection
+  const handleProductSelect = (value: string) => {
+    setSelectedMIProduct(value);
+
+    if (value === "custom") {
+      // Clear title so user can type manually
+      setTitle("");
+      return;
+    }
+
+    const miItem = miProducts.find((p) => p.id === value);
+    if (!miItem) return;
+
+    // Set title and category from MI
+    setTitle(miItem.productName);
+    if (miItem.productCategory) {
+      const matchedCat = CATEGORIES.find(
+        (c) => c.toLowerCase() === miItem.productCategory.toLowerCase()
+      );
+      if (matchedCat) setCategory(matchedCat);
+    }
+
+    // Fill pricing from seller results if product name matches
+    if (sellerResults && sellerResults.productIdentification.name.toLowerCase() === miItem.productName.toLowerCase()) {
+      if (sellerResults.pricingRecommendation?.suggested) {
+        setPrice(sellerResults.pricingRecommendation.suggested.toString());
+      }
+      if (sellerResults.marketPriceRange?.max) {
+        setCompareAtPrice(sellerResults.marketPriceRange.max.toString());
+      }
+    }
+
+    // Auto-import from Content Studio if a matching template exists
+    const matchingStudioItem = studioItems.find(
+      (i) => i.productName.toLowerCase() === miItem.productName.toLowerCase()
+    );
+    const matchingDbTemplate = contentTemplates?.find(
+      (t: any) => t.product_name.toLowerCase() === miItem.productName.toLowerCase()
+    );
+
+    if (matchingStudioItem) {
+      handleContentStudioImport(`studio-${matchingStudioItem.id}`);
+    } else if (matchingDbTemplate) {
+      handleContentStudioImport(`db-${matchingDbTemplate.id}`);
+    } else {
+      setImportedFrom(miItem.productName);
+      toast.success("Product imported from Market Intelligence");
+    }
   };
 
   const { data: listings, isLoading } = useQuery({
@@ -219,6 +286,7 @@ export function TabProductListing() {
     setTags([]); setTagInput(""); setVariants([]); setSchedulePublish(false); setScheduleAt("");
     setProductImages([]);
     setImportedFrom(null);
+    setSelectedMIProduct("custom");
     setEditingId(null);
   };
 
@@ -326,11 +394,30 @@ export function TabProductListing() {
               </div>
             )}
 
-            {/* Title */}
+            {/* Product Title — MI Dropdown + Manual Input */}
             <div className="space-y-2">
-              <Label>Product Title</Label>
+              <Label className="flex items-center gap-2">
+                <Globe className="w-4 h-4" /> Product Title
+              </Label>
+              <Select value={selectedMIProduct} onValueChange={handleProductSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a product or enter manually..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="custom">✏️ Custom Product (Manual Entry)</SelectItem>
+                  {miProducts.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.productName} — {p.productCategory}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <div className="flex gap-2">
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Enter product title" />
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder={selectedMIProduct === "custom" ? "Enter product title manually" : "Edit product title..."}
+                />
                 <Button variant="outline" size="sm" onClick={handleAiOptimize} disabled={aiLoading}>
                   <Sparkles className="w-4 h-4 mr-1" /> {aiLoading ? "..." : "AI"}
                 </Button>
