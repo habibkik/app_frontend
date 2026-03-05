@@ -1,34 +1,35 @@
 
 
-## Plan: Content Studio Data Import Dropdown for Product Listing
+## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
 
-### What
+### What Changes
 
-Add a "Import from Content Studio" dropdown at the top of the New Product Listing form. When the user selects a Content Studio item (from `savedItems` in `useContentStudioStore` or from `content_templates` in the database), it auto-fills the form fields: title (from `productName`), description (from `adCopy.long` or `descriptions.long`), tags (from social hashtags), and images (from `proImages` with URLs).
+Replace the plain "Product Title" text input with a **combo dropdown** that lists:
+1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
+2. A **"Custom Product (Manual Entry)"** blank option at the top
 
-### Implementation
+When the user selects a Market Intelligence product, the system:
+- Sets the `title` to the product name
+- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
+- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
+- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
+- Shows the "Imported from" banner
 
-**Edit `src/features/marketplace/components/TabProductListing.tsx`:**
+When "Custom Product" is selected → clears the title field so the user can type manually.
 
-1. Import `useContentStudioStore` and add a query to fetch `content_templates` from the database
-2. Add a new section at the top of the form (before the title field) with:
-   - A labeled dropdown/select: "Import from Content Studio"
-   - Options sourced from two places:
-     - **In-memory**: `useContentStudioStore().savedItems` (items generated in the current session)
-     - **Database**: `content_templates` table rows (persisted templates with `content_json` containing the full `GeneratedContent` structure)
-   - Each option shows the product name and generation date
-   - An "Import" or auto-fill on selection behavior
-3. When a Content Studio item is selected, populate:
-   - `title` ← `productName`
-   - `description` ← `content_json.descriptions.long` or `adCopy.long`
-   - `tags` ← extract unique hashtags from `socialMedia.instagram.hashtags` + `socialMedia.tiktok.hashtags`
-   - `productImages` ← pull any `proImages` that have non-null `imageUrl` from the store (mapped to the image format the uploader expects)
-4. Show a toast confirming "Product data imported from Content Studio"
-5. Add a visual indicator (a highlighted card/banner) showing which Content Studio product was imported, with a "Clear" button
+### File to Edit
 
-### Files to Edit
-- `src/features/marketplace/components/TabProductListing.tsx` — add the import dropdown, content studio query, and auto-fill logic
+**`src/features/marketplace/components/TabProductListing.tsx`**:
 
-### No database or migration changes needed
-The `content_templates` table already exists with `content_json` JSONB field containing the generated content data.
+1. Import `useAnalysisStore` and read `history` and `sellerResults`
+2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
+   - First option: `"custom"` → "Custom Product (Manual Entry)"
+   - Then each unique `history` item showing `productName — category`
+3. Add `handleProductSelect(value)` function:
+   - If `"custom"` → clear title, let user type in a text input that appears below
+   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
+4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
+5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
+
+### No database changes needed
 
