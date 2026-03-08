@@ -49,10 +49,12 @@ export function DailyReportViewer() {
     metrics: true, recommendations: true, history: false,
   });
 
+  const [noAuth, setNoAuth] = useState(false);
+
   const fetchReports = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { setNoAuth(true); setLoading(false); return; }
 
       const { data, error } = await supabase
         .from("daily_reports")
@@ -121,6 +123,20 @@ export function DailyReportViewer() {
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+
+  if (noAuth) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Sign In Required</h3>
+          <p className="text-muted-foreground text-center">
+            Please sign in to generate and view your daily intelligence reports.
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
