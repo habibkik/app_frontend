@@ -49,10 +49,12 @@ export function DailyReportViewer() {
     metrics: true, recommendations: true, history: false,
   });
 
+  const [noAuth, setNoAuth] = useState(false);
+
   const fetchReports = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { setNoAuth(true); setLoading(false); return; }
 
       const { data, error } = await supabase
         .from("daily_reports")
