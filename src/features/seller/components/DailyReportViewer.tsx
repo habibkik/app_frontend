@@ -126,6 +126,20 @@ export function DailyReportViewer() {
     );
   }
 
+  if (noAuth) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Sign In Required</h3>
+          <p className="text-muted-foreground text-center">
+            Please sign in to generate and view your daily intelligence reports.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
