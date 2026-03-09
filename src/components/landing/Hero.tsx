@@ -219,21 +219,23 @@ const Hero = () => {
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="flex gap-5">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
                       {/* Left — Product image + action */}
-                      <div className="flex flex-col items-center w-36 shrink-0">
-                        <div className="w-28 h-28 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 flex items-center justify-center overflow-hidden mb-3">
-                          <img src={config.productImg} alt={config.actionTitle} className="w-24 h-24 object-contain" />
+                      <div className="flex flex-row sm:flex-col items-center sm:w-36 shrink-0 gap-3 sm:gap-0">
+                        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 flex items-center justify-center overflow-hidden sm:mb-3 shrink-0">
+                          <img src={config.productImg} alt={config.actionTitle} className="w-16 h-16 sm:w-24 sm:h-24 object-contain" />
                         </div>
-                        <h4 className="text-sm font-bold text-[hsl(var(--foreground))] text-center leading-tight">{config.actionTitle}</h4>
-                        <p className="text-[10px] text-[hsl(var(--muted-foreground))] text-center mt-1 leading-tight">{config.actionDesc}</p>
-                        <button
-                          onClick={() => navigate("/dashboard")}
-                          className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[hsl(var(--foreground))] text-white font-medium text-xs transition-all hover:opacity-90 group"
-                        >
-                          Try Demo
-                          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-                        </button>
+                        <div className="flex flex-col sm:items-center flex-1 sm:flex-initial">
+                          <h4 className="text-sm font-bold text-[hsl(var(--foreground))] sm:text-center leading-tight">{config.actionTitle}</h4>
+                          <p className="text-[10px] text-[hsl(var(--muted-foreground))] sm:text-center mt-0.5 sm:mt-1 leading-tight">{config.actionDesc}</p>
+                          <button
+                            onClick={() => navigate("/dashboard")}
+                            className="mt-2 sm:mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[hsl(var(--foreground))] text-white font-medium text-xs transition-all hover:opacity-90 group"
+                          >
+                            Try Demo
+                            <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Right — Demo data */}
