@@ -1,35 +1,19 @@
 
 
-## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
+## Plan: Auto-rotating tabs with hover pause for case study slider
 
-### What Changes
+### What changes
+**Single file**: `src/components/landing/RoleCards.tsx`
 
-Replace the plain "Product Title" text input with a **combo dropdown** that lists:
-1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
-2. A **"Custom Product (Manual Entry)"** blank option at the top
+Add a `useEffect` interval that cycles through the 3 tabs every 5 seconds. Track hover state on the tabbed card container — when hovered, pause the rotation. When hover ends, resume.
 
-When the user selects a Market Intelligence product, the system:
-- Sets the `title` to the product name
-- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
-- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
-- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
-- Shows the "Imported from" banner
+### Implementation details
 
-When "Custom Product" is selected → clears the title field so the user can type manually.
+1. Add `useEffect` with `setInterval(5000)` that advances `active` to the next role key in the `roleKeys` array (wrapping around).
+2. Add `isHovered` state via `useState<boolean>(false)`. 
+3. Attach `onMouseEnter` / `onMouseLeave` on the main card `div` (line 85) to toggle `isHovered`.
+4. Inside the interval effect, skip advancing when `isHovered` is true. Include `isHovered` and `active` in the dependency array, clearing and re-creating the interval on each change.
+5. When user manually clicks a tab, reset the timer naturally (since `active` changes trigger effect cleanup/restart).
 
-### File to Edit
-
-**`src/features/marketplace/components/TabProductListing.tsx`**:
-
-1. Import `useAnalysisStore` and read `history` and `sellerResults`
-2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
-   - First option: `"custom"` → "Custom Product (Manual Entry)"
-   - Then each unique `history` item showing `productName — category`
-3. Add `handleProductSelect(value)` function:
-   - If `"custom"` → clear title, let user type in a text input that appears below
-   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
-4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
-5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
-
-### No database changes needed
+No new files, no CSS changes, no other components affected.
 
