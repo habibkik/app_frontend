@@ -62,6 +62,18 @@ const scrollRows: Record<string, { icon: string; label: string; value: string }[
 const RoleCards = () => {
   const { t } = useTranslation();
   const [active, setActive] = useState<string>("buyer");
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (isHovered) return;
+    const interval = setInterval(() => {
+      setActive((prev) => {
+        const idx = roleKeys.indexOf(prev as typeof roleKeys[number]);
+        return roleKeys[(idx + 1) % roleKeys.length];
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isHovered, active]);
 
   return (
     <section className="py-28 bg-column" id="roles">
