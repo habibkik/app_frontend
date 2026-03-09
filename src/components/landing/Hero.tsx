@@ -198,7 +198,7 @@ const Hero = () => {
 
             {/* Right column — Demo card */}
             <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-              <div className="bg-[hsl(var(--card))] rounded-2xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] p-8 relative overflow-hidden">
+              <div className="bg-[hsl(var(--card))] rounded-2xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] p-6 relative overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={selectedMode}
@@ -207,109 +207,105 @@ const Hero = () => {
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {/* Icon */}
-                    <div className="h-12 w-12 rounded-xl border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-4">
-                      <ModeIcon className="h-6 w-6 text-[hsl(var(--foreground))]" />
+                    <div className="flex gap-5">
+                      {/* Left — Product image + action */}
+                      <div className="flex flex-col items-center w-36 shrink-0">
+                        <div className="w-28 h-28 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 flex items-center justify-center overflow-hidden mb-3">
+                          <img src={config.productImg} alt={config.actionTitle} className="w-24 h-24 object-contain" />
+                        </div>
+                        <h4 className="text-sm font-bold text-[hsl(var(--foreground))] text-center leading-tight">{config.actionTitle}</h4>
+                        <p className="text-[10px] text-[hsl(var(--muted-foreground))] text-center mt-1 leading-tight">{config.actionDesc}</p>
+                        <button
+                          onClick={() => navigate("/dashboard")}
+                          className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[hsl(var(--foreground))] text-white font-medium text-xs transition-all hover:opacity-90 group"
+                        >
+                          Try Demo
+                          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                        </button>
+                      </div>
+
+                      {/* Right — Demo data */}
+                      <div className="flex-1 min-w-0">
+                        {selectedMode === "buyer" && (
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
+                              <span className="flex-1">Supplier</span>
+                              <span className="w-12 text-center">Match</span>
+                              <span className="w-16 text-right">Price</span>
+                            </div>
+                            {[
+                              { name: "SteelMax GmbH", flag: "🇩🇪", match: "97.2%", price: "$12.40/kg" },
+                              { name: "ZhongTai Parts", flag: "🇨🇳", match: "94.8%", price: "$8.20/kg" },
+                              { name: "Atlas Industrial", flag: "🇺🇸", match: "91.5%", price: "$15.60/kg" },
+                              { name: "Konya Metals", flag: "🇹🇷", match: "89.1%", price: "$9.80/kg" },
+                            ].map((row) => (
+                              <div key={row.name} className="flex items-center justify-between px-2 py-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
+                                <span className="flex items-center gap-1.5 flex-1 text-xs font-medium text-[hsl(var(--foreground))] truncate">
+                                  <span>{row.flag}</span> {row.name}
+                                </span>
+                                <span className="w-12 text-center text-[11px] font-semibold text-[hsl(var(--accent))]">{row.match}</span>
+                                <span className="w-16 text-right text-[11px] text-[hsl(var(--muted-foreground))]">{row.price}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {selectedMode === "producer" && (
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
+                              <span className="flex-1">Component</span>
+                              <span className="w-8 text-center">Qty</span>
+                              <span className="w-14 text-center">Unit</span>
+                              <span className="w-14 text-right">Total</span>
+                            </div>
+                            {[
+                              { name: "Steel Frame", qty: 2, unit: "$24.50", total: "$49.00" },
+                              { name: "PCB Board", qty: 1, unit: "$18.30", total: "$18.30" },
+                              { name: "LED Module", qty: 4, unit: "$3.20", total: "$12.80" },
+                              { name: "Housing", qty: 1, unit: "$31.00", total: "$31.00" },
+                            ].map((row) => (
+                              <div key={row.name} className="flex items-center justify-between px-2 py-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
+                                <span className="flex-1 text-xs font-medium text-[hsl(var(--foreground))] truncate">{row.name}</span>
+                                <span className="w-8 text-center text-[11px] text-[hsl(var(--muted-foreground))]">×{row.qty}</span>
+                                <span className="w-14 text-center text-[11px] text-[hsl(var(--muted-foreground))]">{row.unit}</span>
+                                <span className="w-14 text-right text-[11px] font-semibold text-[hsl(var(--foreground))]">{row.total}</span>
+                              </div>
+                            ))}
+                            <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-[hsl(var(--accent))]/10">
+                              <span className="text-xs font-bold text-[hsl(var(--foreground))]">Total BOM</span>
+                              <span className="text-xs font-bold text-[hsl(var(--accent))]">$111.10</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {selectedMode === "seller" && (
+                          <div className="space-y-1.5">
+                            <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
+                              <span className="flex-1">Metric</span>
+                              <span className="w-16 text-center">Value</span>
+                              <span className="w-14 text-right">Trend</span>
+                            </div>
+                            {[
+                              { metric: "Market Price", value: "$45.20", trend: "↑ +8.2%", trendColor: "text-emerald-400" },
+                              { metric: "Competitors", value: "23 found", trend: "—", trendColor: "text-[hsl(var(--muted-foreground))]" },
+                              { metric: "Demand Score", value: "87/100", trend: "↑ High", trendColor: "text-emerald-400" },
+                              { metric: "Best Channel", value: "Amazon EU", trend: "★", trendColor: "text-amber-400" },
+                            ].map((row) => (
+                              <div key={row.metric} className="flex items-center justify-between px-2 py-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
+                                <span className="flex-1 text-xs font-medium text-[hsl(var(--foreground))]">{row.metric}</span>
+                                <span className="w-16 text-center text-[11px] font-semibold text-[hsl(var(--foreground))]">{row.value}</span>
+                                <span className={cn("w-14 text-right text-[11px] font-medium", row.trendColor)}>{row.trend}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-
-                    {/* Title */}
-                    <h3 className="text-lg font-bold text-[hsl(var(--foreground))] text-center mb-0.5">
-                      {config.label}
-                    </h3>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))] text-center mb-5">
-                      {config.description}
-                    </p>
-
-                    {/* Demo Data Rows */}
-                    <div className="space-y-2 mb-6">
-                      {selectedMode === "buyer" && (
-                        <>
-                          <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 pb-1">
-                            <span className="flex-1">Supplier</span>
-                            <span className="w-14 text-center">Match</span>
-                            <span className="w-20 text-right">Price</span>
-                          </div>
-                          {[
-                            { name: "SteelMax GmbH", flag: "🇩🇪", match: "97.2%", price: "$12.40/kg" },
-                            { name: "ZhongTai Parts", flag: "🇨🇳", match: "94.8%", price: "$8.20/kg" },
-                            { name: "Atlas Industrial", flag: "🇺🇸", match: "91.5%", price: "$15.60/kg" },
-                            { name: "Konya Metals", flag: "🇹🇷", match: "89.1%", price: "$9.80/kg" },
-                          ].map((row) => (
-                            <div key={row.name} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
-                              <span className="flex items-center gap-2 flex-1 text-sm font-medium text-[hsl(var(--foreground))]">
-                                <span className="text-base">{row.flag}</span> {row.name}
-                              </span>
-                              <span className="w-14 text-center text-xs font-semibold text-[hsl(var(--accent))]">{row.match}</span>
-                              <span className="w-20 text-right text-xs text-[hsl(var(--muted-foreground))]">{row.price}</span>
-                            </div>
-                          ))}
-                        </>
-                      )}
-
-                      {selectedMode === "producer" && (
-                        <>
-                          <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 pb-1">
-                            <span className="flex-1">Component</span>
-                            <span className="w-10 text-center">Qty</span>
-                            <span className="w-16 text-center">Unit</span>
-                            <span className="w-16 text-right">Total</span>
-                          </div>
-                          {[
-                            { name: "Steel Frame", qty: 2, unit: "$24.50", total: "$49.00" },
-                            { name: "PCB Board", qty: 1, unit: "$18.30", total: "$18.30" },
-                            { name: "LED Module", qty: 4, unit: "$3.20", total: "$12.80" },
-                            { name: "Housing", qty: 1, unit: "$31.00", total: "$31.00" },
-                          ].map((row) => (
-                            <div key={row.name} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
-                              <span className="flex-1 text-sm font-medium text-[hsl(var(--foreground))]">{row.name}</span>
-                              <span className="w-10 text-center text-xs text-[hsl(var(--muted-foreground))]">×{row.qty}</span>
-                              <span className="w-16 text-center text-xs text-[hsl(var(--muted-foreground))]">{row.unit}</span>
-                              <span className="w-16 text-right text-xs font-semibold text-[hsl(var(--foreground))]">{row.total}</span>
-                            </div>
-                          ))}
-                          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[hsl(var(--accent))]/10">
-                            <span className="text-sm font-bold text-[hsl(var(--foreground))]">Total BOM Cost</span>
-                            <span className="text-sm font-bold text-[hsl(var(--accent))]">$111.10</span>
-                          </div>
-                        </>
-                      )}
-
-                      {selectedMode === "seller" && (
-                        <>
-                          <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 pb-1">
-                            <span className="flex-1">Metric</span>
-                            <span className="w-20 text-center">Value</span>
-                            <span className="w-16 text-right">Trend</span>
-                          </div>
-                          {[
-                            { metric: "Market Price", value: "$45.20", trend: "↑ +8.2%", trendColor: "text-emerald-400" },
-                            { metric: "Competitors", value: "23 found", trend: "—", trendColor: "text-[hsl(var(--muted-foreground))]" },
-                            { metric: "Demand Score", value: "87/100", trend: "↑ High", trendColor: "text-emerald-400" },
-                            { metric: "Best Channel", value: "Amazon EU", trend: "★", trendColor: "text-amber-400" },
-                          ].map((row) => (
-                            <div key={row.metric} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
-                              <span className="flex-1 text-sm font-medium text-[hsl(var(--foreground))]">{row.metric}</span>
-                              <span className="w-20 text-center text-xs font-semibold text-[hsl(var(--foreground))]">{row.value}</span>
-                              <span className={cn("w-16 text-right text-xs font-medium", row.trendColor)}>{row.trend}</span>
-                            </div>
-                          ))}
-                        </>
-                      )}
-                    </div>
-
-                    {/* Single CTA */}
-                    <button
-                      onClick={() => navigate("/dashboard")}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[hsl(var(--foreground))] text-white font-medium text-sm transition-all hover:opacity-90 group"
-                    >
-                      Try {config.label} Demo
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                    </button>
                   </motion.div>
                 </AnimatePresence>
 
-                {/* "One Image. Infinite Insights." footer */}
-                <div className="mt-6 pt-4 border-t border-[hsl(var(--border))]">
+                {/* Footer */}
+                <div className="mt-5 pt-4 border-t border-[hsl(var(--border))]">
                   <p className="text-center text-sm font-semibold text-[hsl(var(--foreground))] tracking-wide">
                     One Image. <span className="text-[hsl(var(--accent))]">Infinite Insights.</span>
                   </p>
