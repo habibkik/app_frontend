@@ -1,35 +1,72 @@
 
 
-## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
+## Plan: Show Demo Data in Hero Right Card per Mode
 
-### What Changes
+### What changes
+**Single file**: `src/components/landing/Hero.tsx`
 
-Replace the plain "Product Title" text input with a **combo dropdown** that lists:
-1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
-2. A **"Custom Product (Manual Entry)"** blank option at the top
+Replace the current right-side card content (icon + title + description + feature chips + 3 demo buttons) with a **two-part layout**:
 
-When the user selects a Market Intelligence product, the system:
-- Sets the `title` to the product name
-- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
-- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
-- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
-- Shows the "Imported from" banner
+**Top half** — Mode-specific demo data preview (changes per selected mode via AnimatePresence crossfade):
+- **Buyer mode**: Show 4 mock supplier match rows (company name, country flag, match %, price) in a mini table/list
+- **Producer mode**: Show a mini BOM summary (4 components with name, qty, unit cost, total)  
+- **Seller mode**: Show 4 market insight rows (metric name + value + trend arrow)
 
-When "Custom Product" is selected → clears the title field so the user can type manually.
+Each row: subtle border, small padding, icon/flag left, label center, value right — compact and clean.
 
-### File to Edit
+**Bottom half** — Single CTA button: "Try {mode} Demo →" that navigates to `/dashboard`. Keep the "One Image. Infinite Insights." footer with stats below.
 
-**`src/features/marketplace/components/TabProductListing.tsx`**:
+### Demo Data (hardcoded)
 
-1. Import `useAnalysisStore` and read `history` and `sellerResults`
-2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
-   - First option: `"custom"` → "Custom Product (Manual Entry)"
-   - Then each unique `history` item showing `productName — category`
-3. Add `handleProductSelect(value)` function:
-   - If `"custom"` → clear title, let user type in a text input that appears below
-   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
-4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
-5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
+**Buyer:**
+| Supplier | Country | Match | Price |
+|----------|---------|-------|-------|
+| SteelMax GmbH | 🇩🇪 | 97.2% | $12.40/kg |
+| ZhongTai Parts | 🇨🇳 | 94.8% | $8.20/kg |
+| Atlas Industrial | 🇺🇸 | 91.5% | $15.60/kg |
+| Konya Metals | 🇹🇷 | 89.1% | $9.80/kg |
 
-### No database changes needed
+**Producer:**
+| Component | Qty | Unit Cost | Total |
+|-----------|-----|-----------|-------|
+| Steel Frame | 2 | $24.50 | $49.00 |
+| PCB Board | 1 | $18.30 | $18.30 |
+| LED Module | 4 | $3.20 | $12.80 |
+| Housing | 1 | $31.00 | $31.00 |
+
+**Seller:**
+| Metric | Value | Trend |
+|--------|-------|-------|
+| Market Price | $45.20 | ↑ +8.2% |
+| Competitors | 23 found | — |
+| Demand Score | 87/100 | ↑ High |
+| Best Channel | Amazon EU | ★ |
+
+### Layout Structure
+```text
+┌─────────────────────────────┐
+│  [Mode Icon]                │
+│  Mode Title                 │
+│  Subtitle                   │
+│                             │
+│  ┌─ Demo Data Rows ──────┐ │
+│  │ Row 1                  │ │
+│  │ Row 2                  │ │
+│  │ Row 3                  │ │
+│  │ Row 4                  │ │
+│  └────────────────────────┘ │
+│                             │
+│  [  Try Buyer Demo →      ] │
+│                             │
+│  ─────────────────────────  │
+│  One Image. Infinite Insights│
+│                             │
+│  $2.5B+ | 50K+ | 99.2% |<2s│
+└─────────────────────────────┘
+```
+
+### Files Changed
+| File | Change |
+|------|--------|
+| `src/components/landing/Hero.tsx` | Replace feature chips + 3 demo buttons with mode-specific demo data rows + single CTA |
 
