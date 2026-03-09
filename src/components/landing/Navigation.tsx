@@ -44,8 +44,8 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-column">
-      <div className="container mx-auto px-6">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-column backdrop-blur-sm">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <motion.a
@@ -53,12 +53,12 @@ const Navigation = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex items-center gap-3"
+            className="flex items-center gap-2 sm:gap-3"
           >
-            <div className="w-9 h-9 rounded-lg bg-column-navy flex items-center justify-center">
-              <span className="text-lg font-bold text-white">T</span>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-column-navy flex items-center justify-center">
+              <span className="text-base sm:text-lg font-bold text-white">T</span>
             </div>
-            <span className="text-xl font-bold text-column-navy tracking-tight">
+            <span className="text-lg sm:text-xl font-bold text-column-navy tracking-tight">
               TradePlatform
             </span>
           </motion.a>
@@ -120,30 +120,36 @@ const Navigation = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden"
+              className="md:hidden overflow-hidden border-t border-[hsl(0_0%_0%/0.06)]"
             >
-              <div className="py-6 space-y-4">
+              <div className="py-4 space-y-1">
                 {navLinks.map((link) => (
                   <button
                     key={link.href}
                     onClick={() => handleNavClick(link.href)}
-                    className="block py-2 text-base font-medium text-column-navy/70 hover:text-column-navy transition-colors text-left w-full"
+                    className="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-column-navy/80 hover:text-column-navy hover:bg-[hsl(0_0%_100%/0.6)] active:bg-[hsl(0_0%_100%/0.8)] transition-colors"
                   >
                     {link.label}
                   </button>
                 ))}
-                <div className="pt-4 space-y-3">
-                  <div className="flex justify-start pb-2">
+                <div className="pt-3 mt-2 border-t border-[hsl(0_0%_0%/0.06)] space-y-2">
+                  <div className="flex justify-start px-3 pb-1">
                     <LanguageSelector variant="outline" showLabel />
                   </div>
-                  <Link to="/login" className="block py-2 text-base font-medium text-column-navy/70 hover:text-column-navy">
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="block px-3 py-2.5 rounded-lg text-sm font-medium text-column-navy/80 hover:text-column-navy hover:bg-[hsl(0_0%_100%/0.6)] transition-colors"
+                  >
                     {t("landingNav.signIn")}
                   </Link>
-                  <HeroButton variant="columnNavFilled" size="default" className="w-full" asChild>
-                    <Link to="/signup" className="flex items-center gap-1">
-                      {t("landingNav.getStarted")} <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </HeroButton>
+                  <div className="px-3">
+                    <HeroButton variant="columnNavFilled" size="default" className="w-full" asChild>
+                      <Link to="/signup" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-1">
+                        {t("landingNav.getStarted")} <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </HeroButton>
+                  </div>
                 </div>
               </div>
             </motion.div>
