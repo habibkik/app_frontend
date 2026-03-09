@@ -1,35 +1,34 @@
 
 
-## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
+## Plan: Restyle Hero to Match Column.com Reference Image
 
-### What Changes
+The reference image shows Column.com's hero with a **light white/off-white background** instead of the current dark gradient, with a dense dot-matrix world map pattern, dark navy text, and a floating white card overlaid on the map.
 
-Replace the plain "Product Title" text input with a **combo dropdown** that lists:
-1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
-2. A **"Custom Product (Manual Entry)"** blank option at the top
+### Changes
 
-When the user selects a Market Intelligence product, the system:
-- Sets the `title` to the product name
-- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
-- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
-- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
-- Shows the "Imported from" banner
+| File | Change |
+|------|--------|
+| `src/components/landing/Hero.tsx` | Switch from dark bg to light bg, restyle all text colors, dramatically increase world map dot density to match Column.com's dense dot-matrix style |
+| `src/index.css` | Update `--gradient-hero` or add a light hero variant |
 
-When "Custom Product" is selected → clears the title field so the user can type manually.
+### Hero Restyling Details
 
-### File to Edit
+**Background**: Change from `bg-gradient-hero` (dark navy gradient) to light off-white/warm gray (`#F7F7F6` or similar) — matching the Column.com screenshot.
 
-**`src/features/marketplace/components/TabProductListing.tsx`**:
+**World Map Dots**: Replace the current sparse dots with a much denser dot-matrix grid pattern like Column.com uses — hundreds of small circles arranged in a grid where land masses appear as filled dots and ocean is empty. Use a muted teal/gray color at ~15-20% opacity (currently 7%). The dots should be smaller (r=1.2-1.5) but far more numerous, creating that distinctive pixelated map look.
 
-1. Import `useAnalysisStore` and read `history` and `sellerResults`
-2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
-   - First option: `"custom"` → "Custom Product (Manual Entry)"
-   - Then each unique `history` item showing `productName — category`
-3. Add `handleProductSelect(value)` function:
-   - If `"custom"` → clear title, let user type in a text input that appears below
-   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
-4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
-5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
+**Text Colors**:
+- H1: Change from `text-white` to `text-column-navy` (dark navy, like the reference)
+- Teal highlight span stays `text-column-teal`
+- Subtitle: Change from `text-white/60` to `text-column-body` (gray)
+- Badge pill: Dark-themed outlined pill instead of light
+- Mode tabs: Navy text instead of white
+- Trust pills: Navy/gray borders and text instead of white
 
-### No database changes needed
+**Upload Card**: Already white — keep as-is, it will naturally stand out against the light bg.
+
+**Overall feel**: Clean, bright, professional — the map serves as a subtle textured background behind the content, exactly like Column.com.
+
+### Dot-Matrix Map Approach
+Generate a grid-based dot pattern (every ~12px) covering the viewBox, with dots only placed where land masses exist. This creates the characteristic Column.com pixelated globe look. Use roughly 500-800 dots total across all continents for proper density.
 
