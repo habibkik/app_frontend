@@ -139,7 +139,7 @@ const Navigation = () => {
                   <Link
                     to="/login"
                     onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2.5 rounded-lg text-sm font-medium text-column-navy/80 hover:text-column-navy hover:bg-[hsl(0_0%_100%/0.6)] transition-colors"
+                    className="block px-3 py-2.5 rounded-lg text-sm font-medium text-black hover:text-black hover:bg-[hsl(0_0%_0%/0.06)] transition-colors"
                   >
                     {t("landingNav.signIn")}
                   </Link>
