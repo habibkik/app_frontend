@@ -134,56 +134,56 @@ const Hero = () => {
         </svg>
       </div>
 
-      <div className="relative container mx-auto px-6 pt-28 pb-16">
+      <div className="relative container mx-auto px-4 sm:px-6 pt-24 sm:pt-28 pb-12 sm:pb-16">
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left column */}
             <div>
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-4 sm:mb-6">
                 <span className="column-pill-light">
                   <Sparkles className="w-3 h-3" />
                   {t("hero.badge")}
                 </span>
               </motion.div>
 
-              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-2 tracking-tight">
+              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-2 tracking-tight">
                 {t("hero.title1")}{" "}
                 <span className="text-[hsl(var(--accent))]">{t("hero.title2")}</span>
               </motion.h1>
 
-              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="text-lg md:text-xl text-white/60 max-w-xl mb-8">
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="text-base sm:text-lg md:text-xl text-white/60 max-w-xl mb-6 sm:mb-8">
                 {t("hero.subtitle")}
               </motion.p>
 
               {/* Mode tabs */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="flex flex-wrap gap-2 mb-6">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="flex flex-wrap gap-2 mb-4 sm:mb-6">
                 {(Object.keys(modeConfig) as AnalysisMode[]).map((mode) => {
                   const cfg = modeConfig[mode]; const Icon = cfg.icon; const isActive = selectedMode === mode;
                   return (
-                    <button key={mode} onClick={() => setSelectedMode(mode)} className={cn("flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200", isActive ? "bg-white/10 border border-white/20" : "hover:bg-white/5 border border-transparent")}>
+                    <button key={mode} onClick={() => setSelectedMode(mode)} className={cn("flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-200", isActive ? "bg-white/10 border border-white/20" : "hover:bg-white/5 border border-transparent")}>
                       <Icon className={cn("w-4 h-4", isActive ? cfg.color : "text-white/50")} />
-                      <span className={cn("text-sm font-medium", isActive ? "text-white" : "text-white/50")}>{cfg.label}</span>
+                      <span className={cn("text-xs sm:text-sm font-medium", isActive ? "text-white" : "text-white/50")}>{cfg.label}</span>
                     </button>
                   );
                 })}
               </motion.div>
 
               {/* Trust pills */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="flex flex-wrap gap-3 mb-10">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }} className="flex flex-wrap gap-2 sm:gap-3 mb-8 sm:mb-10">
                 {[t("hero.pills.noSignup"), t("hero.pills.instant"), t("hero.pills.free")].map((text) => (
-                  <span key={text} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 text-xs text-white/60">
+                  <span key={text} className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-white/15 text-[10px] sm:text-xs text-white/60">
                     <Check className="w-3 h-3 text-[hsl(var(--accent))]" /> {text}
                   </span>
                 ))}
               </motion.div>
 
-              {/* Inline Stats */}
+              {/* Inline Stats - hidden on mobile */}
               <motion.div
                 ref={statsRef}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45 }}
-                className="flex items-center gap-6 flex-wrap"
+                className="hidden sm:flex items-center gap-6 flex-wrap"
               >
                 {stats.map((stat, i) => (
                   <div key={stat.label} className="flex items-center gap-6">
@@ -194,11 +194,23 @@ const Hero = () => {
                   </div>
                 ))}
               </motion.div>
+
+              {/* Mobile Stats - 2x2 grid */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="grid grid-cols-2 gap-3 sm:hidden"
+              >
+                {stats.map((stat) => (
+                  <AnimatedStat key={stat.label} value={stat.value} label={stat.label} inView={statsVisible} />
+                ))}
+              </motion.div>
             </div>
 
             {/* Right column — Demo card */}
             <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-              <div className="bg-[hsl(var(--card))] rounded-2xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] p-6 relative overflow-hidden">
+              <div className="bg-[hsl(var(--card))] rounded-2xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] p-4 sm:p-6 relative overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={selectedMode}
@@ -207,21 +219,23 @@ const Hero = () => {
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="flex gap-5">
+                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
                       {/* Left — Product image + action */}
-                      <div className="flex flex-col items-center w-36 shrink-0">
-                        <div className="w-28 h-28 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 flex items-center justify-center overflow-hidden mb-3">
-                          <img src={config.productImg} alt={config.actionTitle} className="w-24 h-24 object-contain" />
+                      <div className="flex flex-row sm:flex-col items-center sm:w-36 shrink-0 gap-3 sm:gap-0">
+                        <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 flex items-center justify-center overflow-hidden sm:mb-3 shrink-0">
+                          <img src={config.productImg} alt={config.actionTitle} className="w-16 h-16 sm:w-24 sm:h-24 object-contain" />
                         </div>
-                        <h4 className="text-sm font-bold text-[hsl(var(--foreground))] text-center leading-tight">{config.actionTitle}</h4>
-                        <p className="text-[10px] text-[hsl(var(--muted-foreground))] text-center mt-1 leading-tight">{config.actionDesc}</p>
-                        <button
-                          onClick={() => navigate("/dashboard")}
-                          className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[hsl(var(--foreground))] text-white font-medium text-xs transition-all hover:opacity-90 group"
-                        >
-                          Try Demo
-                          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-                        </button>
+                        <div className="flex flex-col sm:items-center flex-1 sm:flex-initial">
+                          <h4 className="text-sm font-bold text-[hsl(var(--foreground))] sm:text-center leading-tight">{config.actionTitle}</h4>
+                          <p className="text-[10px] text-[hsl(var(--muted-foreground))] sm:text-center mt-0.5 sm:mt-1 leading-tight">{config.actionDesc}</p>
+                          <button
+                            onClick={() => navigate("/dashboard")}
+                            className="mt-2 sm:mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[hsl(var(--foreground))] text-white font-medium text-xs transition-all hover:opacity-90 group"
+                          >
+                            Try Demo
+                            <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Right — Demo data */}
