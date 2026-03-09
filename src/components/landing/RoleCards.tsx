@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -62,6 +62,18 @@ const scrollRows: Record<string, { icon: string; label: string; value: string }[
 const RoleCards = () => {
   const { t } = useTranslation();
   const [active, setActive] = useState<string>("buyer");
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (isHovered) return;
+    const interval = setInterval(() => {
+      setActive((prev) => {
+        const idx = roleKeys.indexOf(prev as typeof roleKeys[number]);
+        return roleKeys[(idx + 1) % roleKeys.length];
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isHovered, active]);
 
   return (
     <section className="py-28 bg-column" id="roles">
@@ -88,6 +100,8 @@ const RoleCards = () => {
             borderRadius: 16,
             boxShadow: "0 4px 40px rgba(0,0,0,0.08)",
           }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
           {/* Tab bar */}
           <div className="flex items-center gap-2 p-4 border-b border-border">
