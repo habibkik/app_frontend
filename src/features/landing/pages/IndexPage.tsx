@@ -1,5 +1,6 @@
 import Navigation from "@/components/landing/Navigation";
 import Hero from "@/components/landing/Hero";
+import StatsBar from "@/components/landing/StatsBar";
 import Features from "@/components/landing/Features";
 import RoleCards from "@/components/landing/RoleCards";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -10,9 +11,10 @@ import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
 
 export default function IndexPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-column">
       <Navigation />
       <Hero />
+      <StatsBar />
       <InteractiveDemo />
       <Features />
       <RoleCards />
