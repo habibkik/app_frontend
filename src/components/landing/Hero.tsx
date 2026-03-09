@@ -4,6 +4,9 @@ import { ArrowRight, Sparkles, Search, Package, TrendingUp, Check, Play } from "
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import demoBuyerImg from "@/assets/demo-product-buyer.png";
+import demoProducerImg from "@/assets/demo-product-producer.png";
+import demoSellerImg from "@/assets/demo-product-seller.png";
 
 type AnalysisMode = "buyer" | "producer" | "seller";
 
