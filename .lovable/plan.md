@@ -1,54 +1,35 @@
 
 
-## Plan: Restyle Hero Section + Merge Stats Bar Inline
+## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
 
-### Changes Summary
+### What Changes
 
-**1. Merge StatsBar into Hero** — Remove the standalone `<StatsBar />` component from the page. Move the 4 stats (Trade Volume, Suppliers, Accuracy, Analysis Time) directly into the Hero section, placed at the bottom of the left column after the trust pills. Stats render inline with animated count-up, separated by subtle dividers.
+Replace the plain "Product Title" text input with a **combo dropdown** that lists:
+1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
+2. A **"Custom Product (Manual Entry)"** blank option at the top
 
-**2. Replace Upload Card with Demo Triggers** — Remove the drag-and-drop upload card on the right side. Replace with a cleaner card that shows 3 demo mode buttons (one per role: Buyer, Producer, Seller). Each button triggers a simulated demo experience with mode-specific mock results appearing in the card. No file upload UI in the hero.
+When the user selects a Market Intelligence product, the system:
+- Sets the `title` to the product name
+- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
+- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
+- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
+- Shows the "Imported from" banner
 
-**3. Visual Polish** — Match the reference screenshot aesthetic more closely:
-- Tighter spacing, bolder heading sizes
-- Stats row: teal numbers, small gray labels, vertical `|` dividers
-- Demo card: white bg, larger border-radius, subtle shadow, centered icon + title + subtitle + 3 demo buttons
-- Mode tabs stay as-is but the right card changes contextually
+When "Custom Product" is selected → clears the title field so the user can type manually.
 
-### Files Changed
+### File to Edit
 
-| File | Change |
-|------|--------|
-| `src/components/landing/Hero.tsx` | Remove upload/drag logic. Add demo-trigger card on right. Add inline stats row at bottom of left column with animated count-up. |
-| `src/components/landing/StatsBar.tsx` | Keep file but export the `useCountUp` and `AnimatedStat` for reuse. Component itself no longer rendered. |
-| `src/pages/Index.tsx` | Remove `<StatsBar />` from layout |
-| `src/features/landing/pages/IndexPage.tsx` | Remove `<StatsBar />` from layout |
+**`src/features/marketplace/components/TabProductListing.tsx`**:
 
-### Hero Layout (Desktop)
+1. Import `useAnalysisStore` and read `history` and `sellerResults`
+2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
+   - First option: `"custom"` → "Custom Product (Manual Entry)"
+   - Then each unique `history` item showing `productName — category`
+3. Add `handleProductSelect(value)` function:
+   - If `"custom"` → clear title, let user type in a text input that appears below
+   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
+4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
+5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
 
-```text
-┌──────────────────────────────────────────────────────────┐
-│ [pill] AI-POWERED TRADE INTELLIGENCE                     │
-│                                                          │
-│  Left Column                    Right Column             │
-│  ┌─────────────────────┐       ┌────────────────────┐    │
-│  │ One Image.           │       │   [mode icon]      │    │
-│  │ Infinite Insights.   │       │                    │    │
-│  │                      │       │  Demo title text   │    │
-│  │ Subtitle text...     │       │  Subtitle text     │    │
-│  │                      │       │                    │    │
-│  │ [Buyer][BOM][Seller] │       │ [▶ Buyer Demo]     │    │
-│  │                      │       │ [▶ Producer Demo]  │    │
-│  │ ✓ No signup ✓ Instant│       │ [▶ Seller Demo]    │    │
-│  │                      │       │                    │    │
-│  │ $2.5B+ | 50K+ |     │       └────────────────────┘    │
-│  │ 99.2%  | <2s  |     │                                 │
-│  └─────────────────────┘                                 │
-└──────────────────────────────────────────────────────────┘
-```
-
-### Demo Card Behavior
-- Shows 3 buttons: "Try Buyer Demo →", "Try Producer Demo →", "Try Seller Demo →"
-- Clicking any navigates to `/dashboard` (or scrolls to the interactive demo section)
-- Active mode tab highlights the corresponding demo button
-- No file upload, no drag-and-drop — clean and professional
+### No database changes needed
 
