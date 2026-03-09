@@ -98,6 +98,8 @@ const RoleCards = () => {
         {/* Tabbed card */}
         <div
           className="bg-column-card max-w-5xl mx-auto overflow-hidden"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
           style={{
             borderRadius: 16,
             boxShadow: "0 4px 40px rgba(0,0,0,0.08)",
