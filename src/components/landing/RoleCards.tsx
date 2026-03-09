@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -62,6 +62,20 @@ const scrollRows: Record<string, { icon: string; label: string; value: string }[
 const RoleCards = () => {
   const { t } = useTranslation();
   const [active, setActive] = useState<string>("buyer");
+  const [isPaused, setIsPaused] = useState(false);
+
+  const rotateTab = useCallback(() => {
+    setActive((prev) => {
+      const idx = roleKeys.indexOf(prev as typeof roleKeys[number]);
+      return roleKeys[(idx + 1) % roleKeys.length];
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const id = setInterval(rotateTab, 5000);
+    return () => clearInterval(id);
+  }, [isPaused, rotateTab]);
 
   return (
     <section className="py-28 bg-column" id="roles">
@@ -84,6 +98,8 @@ const RoleCards = () => {
         {/* Tabbed card */}
         <div
           className="bg-column-card max-w-5xl mx-auto overflow-hidden"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
           style={{
             borderRadius: 16,
             boxShadow: "0 4px 40px rgba(0,0,0,0.08)",
