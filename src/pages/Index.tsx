@@ -15,7 +15,7 @@ const Index = () => {
     <div className="min-h-screen bg-column">
       <Navigation />
       <Hero />
-      <StatsBar />
+      
       <LogoMarquee />
       <InteractiveDemo />
       <Features />
