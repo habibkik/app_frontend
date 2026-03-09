@@ -16,6 +16,7 @@ export default function IndexPage() {
       <Navigation />
       <Hero />
       <StatsBar />
+      <LogoMarquee />
       <InteractiveDemo />
       <Features />
       <RoleCards />

@@ -16,6 +16,7 @@ const Index = () => {
       <Navigation />
       <Hero />
       <StatsBar />
+      <LogoMarquee />
       <InteractiveDemo />
       <Features />
       <RoleCards />
