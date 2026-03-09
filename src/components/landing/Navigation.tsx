@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, ChevronRight } from "lucide-react";
 import { HeroButton } from "@/components/ui/hero-button";
 import { LanguageSelector } from "@/components/LanguageSelector";
 
@@ -44,9 +44,9 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-dark">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-column">
       <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <motion.a
             href="/"
@@ -55,10 +55,10 @@ const Navigation = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center gap-3"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <span className="text-xl font-bold text-primary-foreground">T</span>
+            <div className="w-9 h-9 rounded-lg bg-column-navy flex items-center justify-center">
+              <span className="text-lg font-bold text-white">T</span>
             </div>
-            <span className="text-xl font-bold text-primary-foreground">
+            <span className="text-xl font-bold text-column-navy tracking-tight">
               TradePlatform
             </span>
           </motion.a>
@@ -74,13 +74,12 @@ const Navigation = () => {
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className={`text-sm font-medium transition-colors ${
-                  link.highlight 
-                    ? "text-primary-foreground flex items-center gap-1" 
-                    : "text-primary-foreground/70 hover:text-primary-foreground"
+                className={`text-sm font-medium transition-colors duration-200 ${
+                  link.highlight
+                    ? "column-pill-nav px-3 py-1.5 rounded-full border border-column-card text-column-navy hover:bg-white/60"
+                    : "text-column-navy/70 hover:text-column-navy"
                 }`}
               >
-                {link.highlight && <Sparkles className="h-3.5 w-3.5" />}
                 {link.label}
               </button>
             ))}
@@ -94,18 +93,20 @@ const Navigation = () => {
             className="hidden md:flex items-center gap-4"
           >
             <LanguageSelector variant="ghost" />
-            <HeroButton variant="ghost" size="sm" asChild>
-              <Link to="/login">{t("landingNav.signIn")}</Link>
-            </HeroButton>
-            <HeroButton variant="primary" size="sm" asChild>
-              <Link to="/signup">{t("landingNav.getStarted")}</Link>
+            <Link to="/login" className="text-sm font-medium text-column-navy/70 hover:text-column-navy transition-colors duration-200">
+              {t("landingNav.signIn")}
+            </Link>
+            <HeroButton variant="columnNavFilled" size="sm" asChild>
+              <Link to="/signup" className="flex items-center gap-1">
+                {t("landingNav.getStarted")} <ChevronRight className="w-4 h-4" />
+              </Link>
             </HeroButton>
           </motion.div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-primary-foreground"
+            className="md:hidden p-2 text-column-navy"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -126,13 +127,8 @@ const Navigation = () => {
                   <button
                     key={link.href}
                     onClick={() => handleNavClick(link.href)}
-                    className={`block py-2 text-base font-medium transition-colors text-left w-full ${
-                      link.highlight 
-                        ? "text-primary-foreground flex items-center gap-1" 
-                        : "text-primary-foreground/70 hover:text-primary-foreground"
-                    }`}
+                    className="block py-2 text-base font-medium text-column-navy/70 hover:text-column-navy transition-colors text-left w-full"
                   >
-                    {link.highlight && <Sparkles className="h-4 w-4" />}
                     {link.label}
                   </button>
                 ))}
@@ -140,11 +136,13 @@ const Navigation = () => {
                   <div className="flex justify-start pb-2">
                     <LanguageSelector variant="outline" showLabel />
                   </div>
-                  <HeroButton variant="ghost" size="default" className="w-full" asChild>
-                    <Link to="/login">{t("landingNav.signIn")}</Link>
-                  </HeroButton>
-                  <HeroButton variant="primary" size="default" className="w-full" asChild>
-                    <Link to="/signup">{t("landingNav.getStarted")}</Link>
+                  <Link to="/login" className="block py-2 text-base font-medium text-column-navy/70 hover:text-column-navy">
+                    {t("landingNav.signIn")}
+                  </Link>
+                  <HeroButton variant="columnNavFilled" size="default" className="w-full" asChild>
+                    <Link to="/signup" className="flex items-center gap-1">
+                      {t("landingNav.getStarted")} <ChevronRight className="w-4 h-4" />
+                    </Link>
                   </HeroButton>
                 </div>
               </div>

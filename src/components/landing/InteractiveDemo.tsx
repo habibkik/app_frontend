@@ -25,7 +25,6 @@ import {
   Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
@@ -175,7 +174,6 @@ export function InteractiveDemo() {
       if (error) throw new Error(error.message);
 
       if (data?.success && data?.data) {
-        // Add mock data for new features if not present
         const enrichedData = {
           ...data.data,
           substituteSuppliers: data.data.substituteSuppliers || [
@@ -206,23 +204,24 @@ export function InteractiveDemo() {
   };
 
   return (
-    <section className="py-20 bg-gradient-to-b from-muted/30 to-background" id="demo">
+    <section className="py-28 bg-column" id="demo">
       <div className="container mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            <Bot className="h-3 w-3 mr-1" />
+          <span className="column-pill mb-4">
+            <Bot className="h-3 w-3" />
             Try It Now - No Signup Required
-          </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-column-navy mb-4 tracking-tight mt-4">
             See AI in Action
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Upload any product image and watch our AI instantly find suppliers, 
+          <p className="text-xl text-column-body max-w-2xl mx-auto">
+            Upload any product image and watch our AI instantly find suppliers,
             compare prices, and suggest alternatives.
           </p>
         </motion.div>
@@ -235,19 +234,21 @@ export function InteractiveDemo() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg text-foreground mb-4 flex items-center gap-2">
-                    <Upload className="h-5 w-5 text-primary" />
+              <div className="column-card h-full">
+                <div className="p-6">
+                  <h3 className="font-semibold text-lg text-column-navy mb-4 flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center">
+                      <Upload className="h-4 w-4 text-column-navy" />
+                    </div>
                     Upload Product Image
                   </h3>
 
                   {!imagePreview ? (
                     <div
-                      className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-300 cursor-pointer ${
+                      className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-200 cursor-pointer ${
                         dragActive
-                          ? "border-primary bg-primary/5 scale-[1.02]"
-                          : "border-border hover:border-primary/50 hover:bg-muted/30"
+                          ? "border-column-teal bg-column-teal/5 scale-[1.02]"
+                          : "border-gray-200 hover:border-gray-300"
                       }`}
                       onDragEnter={handleDrag}
                       onDragLeave={handleDrag}
@@ -263,16 +264,16 @@ export function InteractiveDemo() {
                         className="hidden"
                       />
                       <div className="text-center">
-                        <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                          <ImageIcon className="h-8 w-8 text-primary" />
+                        <div className="h-16 w-16 rounded-xl border border-gray-200 flex items-center justify-center mx-auto mb-4">
+                          <ImageIcon className="h-8 w-8 text-column-navy" />
                         </div>
-                        <p className="text-foreground font-medium mb-2">
+                        <p className="text-column-navy font-medium mb-2">
                           Drop your product image here
                         </p>
-                        <p className="text-sm text-muted-foreground mb-4">
+                        <p className="text-sm text-column-muted mb-4">
                           or click to browse (JPG, PNG up to 5MB)
                         </p>
-                        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center justify-center gap-4 text-xs text-column-muted">
                           <span className="flex items-center gap-1">
                             <Camera className="h-3.5 w-3.5" />
                             Camera
@@ -286,16 +287,16 @@ export function InteractiveDemo() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <div className="relative rounded-2xl overflow-hidden bg-muted aspect-video">
+                      <div className="relative rounded-xl overflow-hidden bg-gray-50 aspect-video">
                         <img
                           src={imagePreview}
                           alt="Product preview"
                           className="w-full h-full object-contain"
                         />
                         {isAnalyzing && (
-                          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center">
-                            <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
-                            <p className="text-sm font-medium text-foreground">{analysisStep}</p>
+                          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                            <Loader2 className="h-10 w-10 animate-spin text-column-teal mb-3" />
+                            <p className="text-sm font-medium text-column-navy">{analysisStep}</p>
                             <div className="w-40 mt-2">
                               <Progress value={analysisProgress} className="h-2" />
                             </div>
@@ -304,16 +305,16 @@ export function InteractiveDemo() {
                         {!isAnalyzing && (
                           <button
                             onClick={clearImage}
-                            className="absolute top-3 right-3 p-2 rounded-full bg-background/80 hover:bg-background border border-border transition-colors"
+                            className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white border border-gray-200 transition-colors"
                           >
-                            <X className="h-4 w-4 text-muted-foreground" />
+                            <X className="h-4 w-4 text-column-body" />
                           </button>
                         )}
                       </div>
                       <Button
                         onClick={handleAnalyze}
                         disabled={isAnalyzing}
-                        className="w-full gap-2"
+                        className="w-full gap-2 bg-column-teal hover:brightness-110 text-white"
                         size="lg"
                       >
                         {isAnalyzing ? (
@@ -330,8 +331,8 @@ export function InteractiveDemo() {
                       </Button>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </motion.div>
 
             {/* Results Section */}
@@ -340,10 +341,12 @@ export function InteractiveDemo() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg text-foreground mb-4 flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
+              <div className="column-card h-full">
+                <div className="p-6">
+                  <h3 className="font-semibold text-lg text-column-navy mb-4 flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-column-navy" />
+                    </div>
                     AI Analysis Results
                   </h3>
 
@@ -356,13 +359,13 @@ export function InteractiveDemo() {
                         exit={{ opacity: 0 }}
                         className="flex flex-col items-center justify-center py-12 text-center"
                       >
-                        <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
-                          <Bot className="h-8 w-8 text-muted-foreground" />
+                        <div className="h-16 w-16 rounded-xl border border-gray-200 flex items-center justify-center mb-4">
+                          <Bot className="h-8 w-8 text-column-muted" />
                         </div>
-                        <p className="text-muted-foreground mb-2">
+                        <p className="text-column-body mb-2">
                           Upload an image to see AI analysis
                         </p>
-                        <p className="text-sm text-muted-foreground/70">
+                        <p className="text-sm text-column-muted">
                           Suppliers, pricing, and alternatives in seconds
                         </p>
                       </motion.div>
@@ -375,26 +378,26 @@ export function InteractiveDemo() {
                         className="space-y-4"
                       >
                         {/* Product Identified */}
-                        <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                        <div className="p-4 rounded-xl bg-column-teal/5 border border-column-teal/20">
                           <div className="flex items-center gap-2 mb-2">
-                            <CheckCircle2 className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-medium text-foreground">Product Identified</span>
+                            <CheckCircle2 className="h-4 w-4 text-column-teal" />
+                            <span className="text-sm font-medium text-column-navy">Product Identified</span>
                             <Badge variant="secondary" className="ml-auto text-xs">
                               {result.confidence}% match
                             </Badge>
                           </div>
-                          <p className="font-semibold text-foreground">{result.product.name}</p>
-                          <p className="text-sm text-muted-foreground">{result.product.category}</p>
+                          <p className="font-semibold text-column-navy">{result.product.name}</p>
+                          <p className="text-sm text-column-body">{result.product.category}</p>
                         </div>
 
                         {/* Price Range */}
-                        <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                          <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                            <DollarSign className="h-4 w-4 text-emerald-600" />
+                        <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                          <div className="h-9 w-9 rounded-lg border border-gray-200 flex items-center justify-center">
+                            <DollarSign className="h-4 w-4 text-column-navy" />
                           </div>
                           <div>
-                            <p className="text-xs text-muted-foreground">Market Price</p>
-                            <p className="font-semibold text-foreground">
+                            <p className="text-xs text-column-muted">Market Price</p>
+                            <p className="font-semibold text-column-navy">
                               ${result.estimatedPrice.min} - ${result.estimatedPrice.max}/unit
                             </p>
                           </div>
@@ -403,31 +406,31 @@ export function InteractiveDemo() {
                         {/* Top Suppliers */}
                         <div>
                           <div className="flex items-center gap-2 mb-2">
-                            <ShieldCheck className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-medium text-foreground">
+                            <ShieldCheck className="h-4 w-4 text-column-navy" />
+                            <span className="text-sm font-medium text-column-navy">
                               Top Suppliers ({result.suppliers?.length || 0} found)
                             </span>
                           </div>
                           <div className="space-y-2">
-                            {result.suppliers?.slice(0, 2).map((supplier, idx) => (
+                            {result.suppliers?.slice(0, 2).map((supplier) => (
                               <div
                                 key={supplier.id}
-                                className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                                className="flex items-center justify-between p-3 rounded-lg bg-gray-50"
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                    <span className="text-xs font-bold text-primary">
+                                  <div className="h-8 w-8 rounded-lg border border-gray-200 flex items-center justify-center">
+                                    <span className="text-xs font-bold text-column-navy">
                                       {supplier.name.charAt(0)}
                                     </span>
                                   </div>
                                   <div>
-                                    <p className="text-sm font-medium text-foreground flex items-center gap-1">
+                                    <p className="text-sm font-medium text-column-navy flex items-center gap-1">
                                       {supplier.name}
                                       {supplier.verified && (
-                                        <CheckCircle2 className="h-3 w-3 text-primary" />
+                                        <CheckCircle2 className="h-3 w-3 text-column-teal" />
                                       )}
                                     </p>
-                                    <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                    <p className="text-xs text-column-muted flex items-center gap-2">
                                       <MapPin className="h-3 w-3" />
                                       {supplier.location}
                                       <Clock className="h-3 w-3 ml-1" />
@@ -445,17 +448,17 @@ export function InteractiveDemo() {
 
                         {/* Substitutes Preview */}
                         {result.substitutes && result.substitutes.length > 0 && (
-                          <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200/50">
                             <Repeat2 className="h-4 w-4 text-amber-600" />
                             <div>
-                              <p className="text-sm font-medium text-foreground">
+                              <p className="text-sm font-medium text-column-navy">
                                 {result.substitutes.length} Alternatives Found
                               </p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-column-muted">
                                 {result.substitutes[0]?.priceAdvantage} potential savings
                               </p>
                             </div>
-                            <TrendingDown className="h-4 w-4 text-primary ml-auto" />
+                            <TrendingDown className="h-4 w-4 text-column-navy ml-auto" />
                           </div>
                         )}
 
@@ -463,8 +466,8 @@ export function InteractiveDemo() {
                         {result.substituteSuppliers && result.substituteSuppliers.length > 0 && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <Package className="h-4 w-4 text-primary" />
-                              <span className="text-sm font-medium text-foreground">
+                              <Package className="h-4 w-4 text-column-navy" />
+                              <span className="text-sm font-medium text-column-navy">
                                 Substitute Suppliers
                               </span>
                             </div>
@@ -472,13 +475,13 @@ export function InteractiveDemo() {
                               {result.substituteSuppliers.slice(0, 2).map((sub, idx) => (
                                 <div
                                   key={idx}
-                                  className="flex items-center justify-between p-2 rounded-lg bg-muted/50 text-sm"
+                                  className="flex items-center justify-between p-2 rounded-lg bg-gray-50 text-sm"
                                 >
                                   <div>
-                                    <span className="text-foreground font-medium">{sub.name}</span>
-                                    <p className="text-xs text-muted-foreground">{sub.product}</p>
+                                    <span className="text-column-navy font-medium">{sub.name}</span>
+                                    <p className="text-xs text-column-muted">{sub.product}</p>
                                   </div>
-                                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
+                                  <Badge variant="secondary" className="text-xs bg-column-teal/10 text-column-teal">
                                     {sub.savings} savings
                                   </Badge>
                                 </div>
@@ -489,13 +492,13 @@ export function InteractiveDemo() {
 
                         {/* Delivery Estimates */}
                         {result.deliveryEstimates && result.deliveryEstimates.length > 0 && (
-                          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
-                            <Truck className="h-4 w-4 text-primary" />
+                          <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                            <Truck className="h-4 w-4 text-column-navy" />
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-foreground">
+                              <p className="text-sm font-medium text-column-navy">
                                 Delivery Estimates
                               </p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-column-muted">
                                 From ${result.deliveryEstimates[0]?.cost} • {result.deliveryEstimates[0]?.days}
                               </p>
                             </div>
@@ -503,20 +506,20 @@ export function InteractiveDemo() {
                         )}
 
                         {/* CTA */}
-                        <Button asChild className="w-full gap-2" size="lg">
+                        <Button asChild className="w-full gap-2 bg-column-navy hover:brightness-125 text-white" size="lg">
                           <Link to="/signup">
                             Get Full Access
                             <ArrowRight className="h-4 w-4" />
                           </Link>
                         </Button>
-                        <p className="text-xs text-center text-muted-foreground">
+                        <p className="text-xs text-center text-column-muted">
                           Free 14-day trial • No credit card required
                         </p>
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
