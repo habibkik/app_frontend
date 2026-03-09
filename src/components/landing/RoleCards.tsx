@@ -100,6 +100,8 @@ const RoleCards = () => {
             borderRadius: 16,
             boxShadow: "0 4px 40px rgba(0,0,0,0.08)",
           }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
           {/* Tab bar */}
           <div className="flex items-center gap-2 p-4 border-b border-border">
