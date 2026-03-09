@@ -284,6 +284,35 @@
     text-transform: uppercase;
   }
 
+  /* Marquee animation */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    gap: 60px;
+    animation: marquee 30s linear infinite;
+  }
+
+  /* Scroll up animation */
+  @keyframes scrollUp {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+  .scroll-track {
+    animation: scrollUp 8s linear infinite;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track,
+    .scroll-track {
+      animation: none;
+    }
+  }
+
   /* RTL-aware spacing utilities */
   .rtl .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
     --tw-space-x-reverse: 1;

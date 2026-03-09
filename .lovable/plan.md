@@ -1,57 +1,35 @@
 
 
-## Plan: Logo Marquee + Tabbed Case Study Slider
+## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
 
-### 1. New Component: `LogoMarquee.tsx`
-Create `src/components/landing/LogoMarquee.tsx` — infinite horizontal scrolling logo strip.
+### What Changes
 
-- 7 company names as text (not images): TechCorp Industries, Rodriguez Manufacturing, Global Retail Co, Brex, Mercury, Ramp, Best Egg
-- Two duplicate rows in a flex container with `animation: marquee 30s linear infinite`
-- CSS mask gradient for edge fading
-- Hover pauses animation
-- `prefers-reduced-motion` disables animation
-- Background: `bg-column`, no borders
+Replace the plain "Product Title" text input with a **combo dropdown** that lists:
+1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
+2. A **"Custom Product (Manual Entry)"** blank option at the top
 
-### 2. Replace `RoleCards.tsx` with Tabbed Slider
-Rewrite `src/components/landing/RoleCards.tsx` to a tabbed case study card.
+When the user selects a Market Intelligence product, the system:
+- Sets the `title` to the product name
+- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
+- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
+- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
+- Shows the "Imported from" banner
 
-**Structure:**
-- Keep same section badge, title, subtitle from i18n (`roleCards.*`)
-- Large white card (16px radius, deep shadow)
-- Top tab bar: 3 tabs using React state, active = navy pill, inactive = gray text
-- Tab switching triggers crossfade (opacity + translateY via framer-motion `AnimatePresence`)
+When "Custom Product" is selected → clears the title field so the user can type manually.
 
-**Left column per tab:**
-- Small gray uppercase label (`roleCards.{key}.subtitle`)
-- Bold title (`roleCards.{key}.title`)
-- Feature list with emoji icons (mapped per role)
-- Large decorative `"` quote + description text
-- Outlined navy CTA button with arrow (`roleCards.{key}.button`)
+### File to Edit
 
-**Right column per tab:**
-- 6 transaction-style rows per role (hardcoded French text as specified)
-- Rows duplicated for seamless infinite upward scroll via CSS `scrollUp` keyframe (8s)
-- Container: ~320px height, overflow hidden, vertical fade mask
-- Row styling: white bg, 8px radius, border, icon + label + value layout
-- Tab switch resets scroll animation via React key prop
-- `prefers-reduced-motion` support
+**`src/features/marketplace/components/TabProductListing.tsx`**:
 
-### 3. Update CSS (`src/index.css`)
-Add keyframes:
-```css
-@keyframes marquee { 0% { translateX(0) } 100% { translateX(-50%) } }
-@keyframes scrollUp { 0% { translateY(0) } 100% { translateY(-50%) } }
-```
+1. Import `useAnalysisStore` and read `history` and `sellerResults`
+2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
+   - First option: `"custom"` → "Custom Product (Manual Entry)"
+   - Then each unique `history` item showing `productName — category`
+3. Add `handleProductSelect(value)` function:
+   - If `"custom"` → clear title, let user type in a text input that appears below
+   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
+4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
+5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
 
-### 4. Update Page Layouts
-Insert `<LogoMarquee />` between `<StatsBar />` and `<InteractiveDemo />` in both `src/pages/Index.tsx` and `src/features/landing/pages/IndexPage.tsx`.
-
-### Files Changed
-| File | Change |
-|------|--------|
-| `src/components/landing/LogoMarquee.tsx` | New — infinite logo marquee |
-| `src/components/landing/RoleCards.tsx` | Rewrite — tabbed case study slider |
-| `src/index.css` | Add marquee + scrollUp keyframes |
-| `src/pages/Index.tsx` | Add LogoMarquee import |
-| `src/features/landing/pages/IndexPage.tsx` | Add LogoMarquee import |
+### No database changes needed
 

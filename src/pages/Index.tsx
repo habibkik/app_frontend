@@ -1,6 +1,7 @@
 import Navigation from "@/components/landing/Navigation";
 import Hero from "@/components/landing/Hero";
 import StatsBar from "@/components/landing/StatsBar";
+import LogoMarquee from "@/components/landing/LogoMarquee";
 import Features from "@/components/landing/Features";
 import RoleCards from "@/components/landing/RoleCards";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -15,6 +16,7 @@ const Index = () => {
       <Navigation />
       <Hero />
       <StatsBar />
+      <LogoMarquee />
       <InteractiveDemo />
       <Features />
       <RoleCards />
