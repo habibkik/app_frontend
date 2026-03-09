@@ -127,7 +127,7 @@ const Navigation = () => {
                   <button
                     key={link.href}
                     onClick={() => handleNavClick(link.href)}
-                    className="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-column-navy/80 hover:text-column-navy hover:bg-[hsl(0_0%_100%/0.6)] active:bg-[hsl(0_0%_100%/0.8)] transition-colors"
+                    className="block w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-black hover:text-black hover:bg-[hsl(0_0%_0%/0.06)] active:bg-[hsl(0_0%_0%/0.1)] transition-colors"
                   >
                     {link.label}
                   </button>
@@ -139,7 +139,7 @@ const Navigation = () => {
                   <Link
                     to="/login"
                     onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2.5 rounded-lg text-sm font-medium text-column-navy/80 hover:text-column-navy hover:bg-[hsl(0_0%_100%/0.6)] transition-colors"
+                    className="block px-3 py-2.5 rounded-lg text-sm font-medium text-black hover:text-black hover:bg-[hsl(0_0%_0%/0.06)] transition-colors"
                   >
                     {t("landingNav.signIn")}
                   </Link>
