@@ -210,7 +210,7 @@ const Hero = () => {
 
             {/* Right column — Demo card */}
             <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-              <div className="bg-[hsl(var(--card))] rounded-2xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] p-6 relative overflow-hidden">
+              <div className="bg-[hsl(var(--card))] rounded-2xl shadow-[0_4px_40px_rgba(0,0,0,0.08)] p-4 sm:p-6 relative overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={selectedMode}
