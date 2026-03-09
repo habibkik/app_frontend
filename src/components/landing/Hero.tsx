@@ -202,61 +202,108 @@ const Hero = () => {
                     transition={{ duration: 0.3 }}
                   >
                     {/* Icon */}
-                    <div className="h-14 w-14 rounded-xl border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-5">
-                      <ModeIcon className="h-7 w-7 text-[hsl(var(--foreground))]" />
+                    <div className="h-12 w-12 rounded-xl border border-[hsl(var(--border))] flex items-center justify-center mx-auto mb-4">
+                      <ModeIcon className="h-6 w-6 text-[hsl(var(--foreground))]" />
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xl font-bold text-[hsl(var(--foreground))] text-center mb-1">
+                    <h3 className="text-lg font-bold text-[hsl(var(--foreground))] text-center mb-0.5">
                       {config.label}
                     </h3>
-                    <p className="text-sm text-[hsl(var(--muted-foreground))] text-center mb-6">
+                    <p className="text-xs text-[hsl(var(--muted-foreground))] text-center mb-5">
                       {config.description}
                     </p>
 
-                    {/* Feature chips */}
-                    <div className="flex flex-wrap gap-2 justify-center mb-8">
-                      {config.features.map((f) => (
-                        <span key={f} className="px-3 py-1 rounded-full bg-[hsl(var(--muted))] text-xs font-medium text-[hsl(var(--foreground))]">
-                          {f}
-                        </span>
-                      ))}
+                    {/* Demo Data Rows */}
+                    <div className="space-y-2 mb-6">
+                      {selectedMode === "buyer" && (
+                        <>
+                          <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 pb-1">
+                            <span className="flex-1">Supplier</span>
+                            <span className="w-14 text-center">Match</span>
+                            <span className="w-20 text-right">Price</span>
+                          </div>
+                          {[
+                            { name: "SteelMax GmbH", flag: "🇩🇪", match: "97.2%", price: "$12.40/kg" },
+                            { name: "ZhongTai Parts", flag: "🇨🇳", match: "94.8%", price: "$8.20/kg" },
+                            { name: "Atlas Industrial", flag: "🇺🇸", match: "91.5%", price: "$15.60/kg" },
+                            { name: "Konya Metals", flag: "🇹🇷", match: "89.1%", price: "$9.80/kg" },
+                          ].map((row) => (
+                            <div key={row.name} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
+                              <span className="flex items-center gap-2 flex-1 text-sm font-medium text-[hsl(var(--foreground))]">
+                                <span className="text-base">{row.flag}</span> {row.name}
+                              </span>
+                              <span className="w-14 text-center text-xs font-semibold text-[hsl(var(--accent))]">{row.match}</span>
+                              <span className="w-20 text-right text-xs text-[hsl(var(--muted-foreground))]">{row.price}</span>
+                            </div>
+                          ))}
+                        </>
+                      )}
+
+                      {selectedMode === "producer" && (
+                        <>
+                          <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 pb-1">
+                            <span className="flex-1">Component</span>
+                            <span className="w-10 text-center">Qty</span>
+                            <span className="w-16 text-center">Unit</span>
+                            <span className="w-16 text-right">Total</span>
+                          </div>
+                          {[
+                            { name: "Steel Frame", qty: 2, unit: "$24.50", total: "$49.00" },
+                            { name: "PCB Board", qty: 1, unit: "$18.30", total: "$18.30" },
+                            { name: "LED Module", qty: 4, unit: "$3.20", total: "$12.80" },
+                            { name: "Housing", qty: 1, unit: "$31.00", total: "$31.00" },
+                          ].map((row) => (
+                            <div key={row.name} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
+                              <span className="flex-1 text-sm font-medium text-[hsl(var(--foreground))]">{row.name}</span>
+                              <span className="w-10 text-center text-xs text-[hsl(var(--muted-foreground))]">×{row.qty}</span>
+                              <span className="w-16 text-center text-xs text-[hsl(var(--muted-foreground))]">{row.unit}</span>
+                              <span className="w-16 text-right text-xs font-semibold text-[hsl(var(--foreground))]">{row.total}</span>
+                            </div>
+                          ))}
+                          <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-[hsl(var(--accent))]/10">
+                            <span className="text-sm font-bold text-[hsl(var(--foreground))]">Total BOM Cost</span>
+                            <span className="text-sm font-bold text-[hsl(var(--accent))]">$111.10</span>
+                          </div>
+                        </>
+                      )}
+
+                      {selectedMode === "seller" && (
+                        <>
+                          <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-3 pb-1">
+                            <span className="flex-1">Metric</span>
+                            <span className="w-20 text-center">Value</span>
+                            <span className="w-16 text-right">Trend</span>
+                          </div>
+                          {[
+                            { metric: "Market Price", value: "$45.20", trend: "↑ +8.2%", trendColor: "text-emerald-400" },
+                            { metric: "Competitors", value: "23 found", trend: "—", trendColor: "text-[hsl(var(--muted-foreground))]" },
+                            { metric: "Demand Score", value: "87/100", trend: "↑ High", trendColor: "text-emerald-400" },
+                            { metric: "Best Channel", value: "Amazon EU", trend: "★", trendColor: "text-amber-400" },
+                          ].map((row) => (
+                            <div key={row.metric} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
+                              <span className="flex-1 text-sm font-medium text-[hsl(var(--foreground))]">{row.metric}</span>
+                              <span className="w-20 text-center text-xs font-semibold text-[hsl(var(--foreground))]">{row.value}</span>
+                              <span className={cn("w-16 text-right text-xs font-medium", row.trendColor)}>{row.trend}</span>
+                            </div>
+                          ))}
+                        </>
+                      )}
                     </div>
 
-                    {/* Demo buttons */}
-                    <div className="space-y-3">
-                      {(Object.keys(modeConfig) as AnalysisMode[]).map((mode) => {
-                        const cfg = modeConfig[mode];
-                        const Icon = cfg.icon;
-                        const isActive = selectedMode === mode;
-                        return (
-                          <button
-                            key={mode}
-                            onClick={() => {
-                              setSelectedMode(mode);
-                              navigate("/dashboard");
-                            }}
-                            className={cn(
-                              "w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 group",
-                              isActive
-                                ? "bg-[hsl(var(--foreground))] border-transparent text-white"
-                                : "border-[hsl(var(--border))] hover:border-[hsl(var(--foreground))]/30 text-[hsl(var(--foreground))]"
-                            )}
-                          >
-                            <Icon className={cn("w-4 h-4", isActive ? "text-[hsl(var(--accent))]" : "text-[hsl(var(--muted-foreground))]")} />
-                            <span className="text-sm font-medium flex-1 text-left">
-                              {cfg.label} Demo
-                            </span>
-                            <ArrowRight className={cn("w-4 h-4 transition-transform group-hover:translate-x-0.5", isActive ? "text-white/70" : "text-[hsl(var(--muted-foreground))]")} />
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Single CTA */}
+                    <button
+                      onClick={() => navigate("/dashboard")}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[hsl(var(--foreground))] text-white font-medium text-sm transition-all hover:opacity-90 group"
+                    >
+                      Try {config.label} Demo
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                    </button>
                   </motion.div>
                 </AnimatePresence>
 
                 {/* "One Image. Infinite Insights." footer */}
-                <div className="mt-8 pt-5 border-t border-[hsl(var(--border))]">
+                <div className="mt-6 pt-4 border-t border-[hsl(var(--border))]">
                   <p className="text-center text-sm font-semibold text-[hsl(var(--foreground))] tracking-wide">
                     One Image. <span className="text-[hsl(var(--accent))]">Infinite Insights.</span>
                   </p>
