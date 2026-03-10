@@ -25,6 +25,12 @@ import type {
   ProblemAgitationBlockConfig,
   SolutionBlockConfig,
   OfferPricingBlockConfig,
+  FeaturesGridBlockConfig,
+  PricingTableBlockConfig,
+  ImageGalleryBlockConfig,
+  VideoEmbedBlockConfig,
+  CountdownTimerBlockConfig,
+  NewsletterBlockConfig,
 } from "./types";
 
 export const BlockConfigurator: React.FC = () => {
@@ -62,8 +68,13 @@ export const BlockConfigurator: React.FC = () => {
       {block.type === "problem-agitation" && <ProblemAgitationForm config={block.config as ProblemAgitationBlockConfig} update={update} />}
       {block.type === "solution" && <SolutionForm config={block.config as SolutionBlockConfig} update={update} />}
       {block.type === "offer-pricing" && <OfferPricingForm config={block.config as OfferPricingBlockConfig} update={update} />}
+      {block.type === "features-grid" && <FeaturesGridForm config={block.config as FeaturesGridBlockConfig} update={update} />}
+      {block.type === "pricing-table" && <PricingTableForm config={block.config as PricingTableBlockConfig} update={update} />}
+      {block.type === "image-gallery" && <ImageGalleryForm config={block.config as ImageGalleryBlockConfig} update={update} />}
+      {block.type === "video-embed" && <VideoEmbedForm config={block.config as VideoEmbedBlockConfig} update={update} />}
+      {block.type === "countdown-timer" && <CountdownTimerForm config={block.config as CountdownTimerBlockConfig} update={update} />}
+      {block.type === "newsletter" && <NewsletterForm config={block.config as NewsletterBlockConfig} update={update} />}
 
-      {/* AI Actions */}
       <AIBlockActions blockType={block.type} config={block.config} onUpdate={update} />
     </div>
   );
@@ -345,8 +356,6 @@ function HeadingOnly({ config, update }: { config: { heading: string; background
   );
 }
 
-// --- New block forms ---
-
 function ProblemAgitationForm({ config, update }: { config: ProblemAgitationBlockConfig; update: (c: any) => void }) {
   const updatePain = (idx: number, field: string, value: string) => {
     const painPoints = [...config.painPoints];
@@ -438,6 +447,199 @@ function OfferPricingForm({ config, update }: { config: OfferPricingBlockConfig;
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
       <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+    </>
+  );
+}
+
+// --- New Block Forms ---
+
+function FeaturesGridForm({ config, update }: { config: FeaturesGridBlockConfig; update: (c: any) => void }) {
+  const updateItem = (idx: number, field: string, value: string) => {
+    const items = [...config.items];
+    items[idx] = { ...items[idx], [field]: value };
+    update({ items });
+  };
+  const addItem = () => update({ items: [...config.items, { icon: "✨", title: "", description: "" }] });
+  const removeItem = (idx: number) => update({ items: config.items.filter((_: any, i: number) => i !== idx) });
+
+  return (
+    <>
+      <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Columns">
+        <Select value={String(config.columns)} onValueChange={(v) => update({ columns: Number(v) })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="2">2 Columns</SelectItem>
+            <SelectItem value="3">3 Columns</SelectItem>
+            <SelectItem value="4">4 Columns</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
+      {config.items.map((item: any, idx: number) => (
+        <div key={idx} className="space-y-1 border rounded-md p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium">#{idx + 1}</span>
+            <button onClick={() => removeItem(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
+          </div>
+          <div className="flex gap-1.5">
+            <Input value={item.icon} onChange={(e) => updateItem(idx, "icon", e.target.value)} className="text-xs h-7 w-12" placeholder="🚀" />
+            <Input value={item.title} onChange={(e) => updateItem(idx, "title", e.target.value)} placeholder="Feature Title" className="text-xs h-7 flex-1" />
+          </div>
+          <Input value={item.description} onChange={(e) => updateItem(idx, "description", e.target.value)} placeholder="Description" className="text-xs h-7" />
+        </div>
+      ))}
+      <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Feature</Button>
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+    </>
+  );
+}
+
+function PricingTableForm({ config, update }: { config: PricingTableBlockConfig; update: (c: any) => void }) {
+  const updatePlan = (idx: number, field: string, value: any) => {
+    const plans = [...config.plans];
+    plans[idx] = { ...plans[idx], [field]: value };
+    update({ plans });
+  };
+  const updatePlanFeature = (planIdx: number, featureIdx: number, value: string) => {
+    const plans = [...config.plans];
+    const features = [...plans[planIdx].features];
+    features[featureIdx] = value;
+    plans[planIdx] = { ...plans[planIdx], features };
+    update({ plans });
+  };
+  const addPlanFeature = (planIdx: number) => {
+    const plans = [...config.plans];
+    plans[planIdx] = { ...plans[planIdx], features: [...plans[planIdx].features, ""] };
+    update({ plans });
+  };
+  const removePlanFeature = (planIdx: number, featureIdx: number) => {
+    const plans = [...config.plans];
+    plans[planIdx] = { ...plans[planIdx], features: plans[planIdx].features.filter((_: any, i: number) => i !== featureIdx) };
+    update({ plans });
+  };
+  const addPlan = () => update({ plans: [...config.plans, { name: "New Plan", price: "$0", period: "/month", features: ["Feature 1"], highlighted: false, ctaText: "Choose" }] });
+  const removePlan = (idx: number) => update({ plans: config.plans.filter((_: any, i: number) => i !== idx) });
+
+  return (
+    <>
+      <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      {config.plans.map((plan: any, idx: number) => (
+        <div key={idx} className="space-y-1.5 border rounded-md p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold">{plan.name || `Plan ${idx + 1}`}</span>
+            <button onClick={() => removePlan(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
+          </div>
+          <Input value={plan.name} onChange={(e) => updatePlan(idx, "name", e.target.value)} placeholder="Plan Name" className="text-xs h-7" />
+          <div className="flex gap-1.5">
+            <Input value={plan.price} onChange={(e) => updatePlan(idx, "price", e.target.value)} placeholder="$29" className="text-xs h-7 w-20" />
+            <Input value={plan.period} onChange={(e) => updatePlan(idx, "period", e.target.value)} placeholder="/month" className="text-xs h-7 flex-1" />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-[10px]">Highlighted</Label>
+            <Switch checked={plan.highlighted} onCheckedChange={(v) => updatePlan(idx, "highlighted", v)} className="scale-[0.6]" />
+          </div>
+          <Input value={plan.ctaText} onChange={(e) => updatePlan(idx, "ctaText", e.target.value)} placeholder="CTA Text" className="text-xs h-7" />
+          <Label className="text-[10px] text-muted-foreground">Features:</Label>
+          {plan.features.map((f: string, fi: number) => (
+            <div key={fi} className="flex gap-1">
+              <Input value={f} onChange={(e) => updatePlanFeature(idx, fi, e.target.value)} className="text-xs h-6 flex-1" />
+              <button onClick={() => removePlanFeature(idx, fi)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-2.5 w-2.5" /></button>
+            </div>
+          ))}
+          <Button size="sm" variant="ghost" onClick={() => addPlanFeature(idx)} className="w-full text-[10px] h-5 px-1"><Plus className="h-2.5 w-2.5 mr-0.5" />Feature</Button>
+        </div>
+      ))}
+      <Button size="sm" variant="outline" onClick={addPlan} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Plan</Button>
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+    </>
+  );
+}
+
+function ImageGalleryForm({ config, update }: { config: ImageGalleryBlockConfig; update: (c: any) => void }) {
+  const updateImage = (idx: number, field: string, value: string) => {
+    const images = [...config.images];
+    images[idx] = { ...images[idx], [field]: value };
+    update({ images });
+  };
+  const addImage = () => update({ images: [...config.images, { url: "", caption: "" }] });
+  const removeImage = (idx: number) => update({ images: config.images.filter((_: any, i: number) => i !== idx) });
+
+  return (
+    <>
+      <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Columns">
+        <Select value={String(config.columns)} onValueChange={(v) => update({ columns: Number(v) })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="2">2 Columns</SelectItem>
+            <SelectItem value="3">3 Columns</SelectItem>
+            <SelectItem value="4">4 Columns</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
+      {config.images.map((img: any, idx: number) => (
+        <div key={idx} className="space-y-1 border rounded-md p-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium">Image #{idx + 1}</span>
+            <button onClick={() => removeImage(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-3 w-3" /></button>
+          </div>
+          <Input value={img.url} onChange={(e) => updateImage(idx, "url", e.target.value)} placeholder="Image URL" className="text-xs h-7" />
+          <Input value={img.caption} onChange={(e) => updateImage(idx, "caption", e.target.value)} placeholder="Caption (optional)" className="text-xs h-7" />
+          <ProImagePicker currentValue={img.url} onSelect={(url) => updateImage(idx, "url", url)} />
+        </div>
+      ))}
+      <Button size="sm" variant="outline" onClick={addImage} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Image</Button>
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+    </>
+  );
+}
+
+function VideoEmbedForm({ config, update }: { config: VideoEmbedBlockConfig; update: (c: any) => void }) {
+  return (
+    <>
+      <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Provider">
+        <Select value={config.provider} onValueChange={(v: any) => update({ provider: v })}>
+          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="youtube">YouTube</SelectItem>
+            <SelectItem value="vimeo">Vimeo</SelectItem>
+            <SelectItem value="custom">Custom URL</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
+      <Field label="Video URL"><Input value={config.videoUrl} onChange={(e) => update({ videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=..." className="text-xs h-8" /></Field>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Autoplay (muted)</Label>
+        <Switch checked={config.autoplay} onCheckedChange={(v) => update({ autoplay: v })} className="scale-75" />
+      </div>
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+    </>
+  );
+}
+
+function CountdownTimerForm({ config, update }: { config: CountdownTimerBlockConfig; update: (c: any) => void }) {
+  return (
+    <>
+      <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Target Date"><Input type="date" value={config.targetDate} onChange={(e) => update({ targetDate: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="CTA Link"><Input value={config.ctaUrl} onChange={(e) => update({ ctaUrl: e.target.value })} placeholder="#contact" className="text-xs h-8" /></Field>
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+    </>
+  );
+}
+
+function NewsletterForm({ config, update }: { config: NewsletterBlockConfig; update: (c: any) => void }) {
+  return (
+    <>
+      <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Button Text"><Input value={config.buttonText} onChange={(e) => update({ buttonText: e.target.value })} className="text-xs h-8" /></Field>
+      <Field label="Placeholder Text"><Input value={config.placeholderText} onChange={(e) => update({ placeholderText: e.target.value })} className="text-xs h-8" /></Field>
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
     </>
   );

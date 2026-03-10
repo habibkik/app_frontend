@@ -12,7 +12,13 @@ export type BlockType =
   | "market-stats"
   | "problem-agitation"
   | "solution"
-  | "offer-pricing";
+  | "offer-pricing"
+  | "features-grid"
+  | "pricing-table"
+  | "image-gallery"
+  | "video-embed"
+  | "countdown-timer"
+  | "newsletter";
 
 export interface HeroBlockConfig {
   title: string;
@@ -104,6 +110,61 @@ export interface OfferPricingBlockConfig {
   overlayOpacity?: number;
 }
 
+// --- New Block Configs ---
+
+export interface FeaturesGridBlockConfig {
+  heading: string;
+  subtitle: string;
+  items: { icon: string; title: string; description: string }[];
+  columns: 2 | 3 | 4;
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface PricingTableBlockConfig {
+  heading: string;
+  plans: { name: string; price: string; period: string; features: string[]; highlighted: boolean; ctaText: string }[];
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface ImageGalleryBlockConfig {
+  heading: string;
+  images: { url: string; caption: string }[];
+  columns: 2 | 3 | 4;
+  style: "grid" | "masonry";
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface VideoEmbedBlockConfig {
+  heading: string;
+  videoUrl: string;
+  provider: "youtube" | "vimeo" | "custom";
+  autoplay: boolean;
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface CountdownTimerBlockConfig {
+  heading: string;
+  subtitle: string;
+  targetDate: string;
+  ctaText: string;
+  ctaUrl: string;
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface NewsletterBlockConfig {
+  heading: string;
+  subtitle: string;
+  buttonText: string;
+  placeholderText: string;
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
 export type BlockConfig =
   | HeroBlockConfig
   | ProductCatalogBlockConfig
@@ -116,7 +177,13 @@ export type BlockConfig =
   | MarketStatsBlockConfig
   | ProblemAgitationBlockConfig
   | SolutionBlockConfig
-  | OfferPricingBlockConfig;
+  | OfferPricingBlockConfig
+  | FeaturesGridBlockConfig
+  | PricingTableBlockConfig
+  | ImageGalleryBlockConfig
+  | VideoEmbedBlockConfig
+  | CountdownTimerBlockConfig
+  | NewsletterBlockConfig;
 
 export interface SiteBlock {
   id: string;
@@ -129,6 +196,11 @@ export interface SiteConfig {
   name: string;
   tagline: string;
   logoUrl: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
+  ogImage?: string;
+  favicon?: string;
 }
 
 export interface ProductData {

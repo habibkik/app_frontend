@@ -193,6 +193,68 @@ const PREMIUM_THEME: LandingPageTheme = {
   heroStyle: "split",
 };
 
+// ─── SaaS Landing Template ───────────────────────────────────────
+const SAAS_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Ship Faster, Scale Smarter", subtitle: "The all-in-one platform that helps teams build, deploy, and grow their products. No DevOps required.", ctaText: "Start Free Trial", backgroundImageUrl: "" }),
+  block("features-grid", { heading: "Everything You Need", subtitle: "Powerful features to accelerate your workflow", items: [{ icon: "⚡", title: "Lightning Fast", description: "Deploy in seconds with our global CDN." }, { icon: "🔐", title: "Enterprise Security", description: "SOC2 compliant with end-to-end encryption." }, { icon: "📊", title: "Real-time Analytics", description: "Monitor performance with live dashboards." }, { icon: "🔄", title: "CI/CD Built-in", description: "Automatic deployments on every push." }, { icon: "🌍", title: "Global Edge", description: "50+ regions worldwide for low latency." }, { icon: "🤝", title: "Team Collaboration", description: "Built-in tools for seamless teamwork." }], columns: 3 }),
+  block("pricing-table", { heading: "Simple, Transparent Pricing", plans: [{ name: "Starter", price: "$0", period: "/month", features: ["3 Projects", "1 GB Storage", "Community Support"], highlighted: false, ctaText: "Start Free" }, { name: "Pro", price: "$49", period: "/month", features: ["Unlimited Projects", "100 GB Storage", "Priority Support", "Custom Domains", "Analytics"], highlighted: true, ctaText: "Go Pro" }, { name: "Enterprise", price: "Custom", period: "", features: ["Everything in Pro", "SSO / SAML", "SLA Guarantee", "Dedicated Support", "On-premise Option"], highlighted: false, ctaText: "Contact Sales" }] }),
+  block("testimonials", { items: [{ quote: "We cut our deployment time by 90%. Absolute game changer for our engineering team.", author: "CTO, TechCorp" }, { quote: "The analytics alone are worth 10x the price. Our conversion rates went through the roof.", author: "VP Growth, StartupXYZ" }] }),
+  block("newsletter", { heading: "Stay in the Loop", subtitle: "Get product updates and engineering tips delivered weekly.", buttonText: "Subscribe", placeholderText: "you@company.com" }),
+];
+
+const SAAS_THEME: LandingPageTheme = {
+  primaryColor: "#6366f1", secondaryColor: "#1e1b4b", accentColor: "#818cf8", textColor: "#1e1b4b", bgColor: "#fafafe",
+  headingFont: "'Inter', system-ui, sans-serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "modern", borderRadius: "medium", heroStyle: "centered",
+};
+
+// ─── Portfolio Template ──────────────────────────────────────────
+const PORTFOLIO_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Creative Studio", subtitle: "Award-winning design, branding, and digital experiences that make brands unforgettable.", ctaText: "View Our Work", backgroundImageUrl: "" }),
+  block("image-gallery", { heading: "Selected Work", images: [{ url: "", caption: "Brand Identity — Luxe Co." }, { url: "", caption: "Web Design — FinTech App" }, { url: "", caption: "Packaging — Organic Blends" }, { url: "", caption: "Campaign — Summer '24" }], columns: 2, style: "grid" }),
+  block("about", { content: "We're a boutique creative studio specializing in brand strategy, visual identity, and digital product design. With over a decade of experience, we've helped 200+ brands tell their story with clarity and conviction.", imageUrl: "" }),
+  block("testimonials", { items: [{ quote: "They transformed our brand from forgettable to iconic. The ROI has been incredible.", author: "Founder, Luxe Co." }] }),
+  block("contact", { heading: "Let's Create Together", showPhone: true, showAddress: true }),
+];
+
+const PORTFOLIO_THEME: LandingPageTheme = {
+  primaryColor: "#0f0f0f", secondaryColor: "#0f0f0f", accentColor: "#e5e5e5", textColor: "#0f0f0f", bgColor: "#f5f5f0",
+  headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "minimal", borderRadius: "none", heroStyle: "centered",
+};
+
+// ─── Restaurant Template ─────────────────────────────────────────
+const RESTAURANT_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "A Culinary Journey", subtitle: "Farm-to-table dining in the heart of the city. Seasonal ingredients, timeless flavors.", ctaText: "Reserve a Table", backgroundImageUrl: "" }),
+  block("features-grid", { heading: "Why Dine With Us", subtitle: "", items: [{ icon: "🌿", title: "Farm Fresh", description: "Locally sourced seasonal ingredients." }, { icon: "👨‍🍳", title: "Award-Winning Chef", description: "Michelin-starred culinary team." }, { icon: "🍷", title: "Wine Pairing", description: "Curated selection of 200+ wines." }], columns: 3 }),
+  block("image-gallery", { heading: "From Our Kitchen", images: [{ url: "", caption: "Signature Dish" }, { url: "", caption: "Private Dining" }, { url: "", caption: "Our Garden" }], columns: 3, style: "grid" }),
+  block("testimonials", { items: [{ quote: "Best dining experience in the city. The tasting menu is a masterpiece.", author: "Food & Wine Magazine" }] }),
+  block("faq", { items: [{ question: "Do you take reservations?", answer: "Yes! Book online or call us at (555) 123-4567." }, { question: "Is there parking available?", answer: "Complimentary valet parking is available Friday through Sunday." }] }),
+  block("contact", { heading: "Make a Reservation", showPhone: true, showAddress: true }),
+];
+
+const RESTAURANT_THEME: LandingPageTheme = {
+  primaryColor: "#8B4513", secondaryColor: "#2c1810", accentColor: "#d4a574", textColor: "#2c1810", bgColor: "#faf8f5",
+  headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Lora', Georgia, serif",
+  layout: "classic", borderRadius: "small", heroStyle: "centered",
+};
+
+// ─── Fashion Template ────────────────────────────────────────────
+const FASHION_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "NEW COLLECTION", subtitle: "Timeless elegance meets modern design. Discover pieces crafted for the discerning individual.", ctaText: "Shop Collection", backgroundImageUrl: "" }),
+  block("product-catalog", { columns: 3, showPrice: true, showDescription: false, categoryFilter: "" }),
+  block("video-embed", { heading: "Behind the Scenes", videoUrl: "", provider: "youtube", autoplay: false }),
+  block("countdown-timer", { heading: "Flash Sale Ends Soon", subtitle: "Up to 40% off selected items", targetDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], ctaText: "Shop Sale", ctaUrl: "#order" }),
+  block("testimonials", { items: [{ quote: "The quality is unmatched. These are investment pieces you'll wear for decades.", author: "Vogue Editor" }, { quote: "Finally, a brand that understands both style and sustainability.", author: "Elle Magazine" }] }),
+  block("newsletter", { heading: "Join the Inner Circle", subtitle: "Early access to new collections, exclusive offers, and style inspiration.", buttonText: "Join Now", placeholderText: "Your email" }),
+];
+
+const FASHION_THEME: LandingPageTheme = {
+  primaryColor: "#1a1a1a", secondaryColor: "#0a0a0a", accentColor: "#c4a35a", textColor: "#1a1a1a", bgColor: "#ffffff",
+  headingFont: "'Montserrat', system-ui, sans-serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "bold", borderRadius: "none", heroStyle: "centered",
+};
+
 // ─── All Templates ───────────────────────────────────────────────
 export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
   {
@@ -234,6 +296,46 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     siteConfig: { name: "Premium Store", tagline: "Engineered for Every Step", logoUrl: "" },
     blocks: PREMIUM_BLOCKS,
     theme: PREMIUM_THEME,
+  },
+  {
+    id: "saas-landing",
+    name: "SaaS Landing",
+    description: "Modern SaaS product page with features grid, pricing table, and newsletter signup.",
+    thumbnail: "💻",
+    category: "SaaS",
+    siteConfig: { name: "LaunchPad", tagline: "Ship Faster, Scale Smarter", logoUrl: "" },
+    blocks: SAAS_BLOCKS,
+    theme: SAAS_THEME,
+  },
+  {
+    id: "portfolio",
+    name: "Creative Portfolio",
+    description: "Elegant portfolio with image gallery, editorial typography, and minimal aesthetic.",
+    thumbnail: "🎨",
+    category: "Portfolio",
+    siteConfig: { name: "Studio", tagline: "Creative Studio", logoUrl: "" },
+    blocks: PORTFOLIO_BLOCKS,
+    theme: PORTFOLIO_THEME,
+  },
+  {
+    id: "restaurant",
+    name: "Restaurant",
+    description: "Warm, inviting restaurant page with gallery, menu highlights, and reservation form.",
+    thumbnail: "🍽️",
+    category: "Restaurant",
+    siteConfig: { name: "La Maison", tagline: "A Culinary Journey", logoUrl: "" },
+    blocks: RESTAURANT_BLOCKS,
+    theme: RESTAURANT_THEME,
+  },
+  {
+    id: "fashion",
+    name: "Fashion Brand",
+    description: "High-end fashion store with countdown timer, video embed, and newsletter capture.",
+    thumbnail: "👗",
+    category: "Fashion",
+    siteConfig: { name: "Atelier", tagline: "Timeless Elegance", logoUrl: "" },
+    blocks: FASHION_BLOCKS,
+    theme: FASHION_THEME,
   },
   {
     id: "blank",
