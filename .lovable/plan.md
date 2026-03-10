@@ -1,35 +1,35 @@
 
 
-## Plan: Scroll Preview Modal to Clicked Template Position
+## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
 
-**Problem**: When clicking a template card, the preview modal always scrolls to the top. The user wants the modal to appear contextually aligned with the clicked template's position.
+### What Changes
 
-**Approach**: Since the preview is a centered popup modal (not inline), the best UX is to remove the `useScrollToTop` behavior so the modal simply opens centered on screen showing the hero image at top — which is already the natural state. 
+Replace the plain "Product Title" text input with a **combo dropdown** that lists:
+1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
+2. A **"Custom Product (Manual Entry)"** blank option at the top
 
-However, re-reading the request: the user wants the preview to appear **at the same position as the clicked template card**, not as a top-anchored dialog.
+When the user selects a Market Intelligence product, the system:
+- Sets the `title` to the product name
+- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
+- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
+- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
+- Shows the "Imported from" banner
 
-**Solution**: Replace the fixed centered modal with an **inline expansion** that expands the clicked card in-place, or alternatively, scroll the page so the modal visually aligns near where the user clicked.
+When "Custom Product" is selected → clears the title field so the user can type manually.
 
-The cleanest approach: **Keep the popup modal but remove the forced scroll-to-top**, and instead pass the click event's Y position to position the modal content naturally. Since it's a fixed overlay with `max-h-[85vh]` and centered, the content already starts at the hero image which is the most useful view.
+### File to Edit
 
-**Actually**, the simplest fix: just remove the `useScrollToTop` hook call. The modal's scrollable container will naturally start at top (showing the preview image), which is correct. The issue described is likely that the *page behind* scrolls to top. Let me check the code more carefully.
+**`src/features/marketplace/components/TabProductListing.tsx`**:
 
-Looking at the current code — `useScrollToTop` scrolls the modal's inner `scrollRef` to top, which is fine. The real request seems to be: don't scroll the background page, and have the modal appear near where they clicked.
+1. Import `useAnalysisStore` and read `history` and `sellerResults`
+2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
+   - First option: `"custom"` → "Custom Product (Manual Entry)"
+   - Then each unique `history` item showing `productName — category`
+3. Add `handleProductSelect(value)` function:
+   - If `"custom"` → clear title, let user type in a text input that appears below
+   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
+4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
+5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
 
-**Implementation**:
-1. Remove `useScrollToTop` (modal content naturally starts at top anyway)
-2. Track which template card was clicked and its DOM position
-3. Use `framer-motion` `layoutId` to animate the card expanding into the modal from its original position — giving the illusion the preview opens "in place"
-
-**Simpler alternative**: Use `framer-motion`'s `layoutId` on the template card image and the modal image so it animates from the card's position to the modal, creating a smooth spatial connection.
-
-### Changes
-
-**File: `src/features/seller/components/website-builder/TemplatePicker.tsx`**
-
-1. Add `layoutId={template.id}` to the card's image container and the modal's hero image — `framer-motion` will automatically animate between the two positions
-2. Remove the `useScrollToTop` hook (no longer needed)
-3. The modal animation `initial` changes from `scale: 0.9, y: 40` to just opacity fade, letting `layoutId` handle the spatial transition
-
-This gives the effect of the preview "growing out" from the clicked card's position rather than appearing from the top.
+### No database changes needed
 
