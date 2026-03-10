@@ -102,6 +102,7 @@ export function Router() {
       <Route path="/dashboard/website" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
       <Route path="/dashboard/demand-signals" element={<ProtectedRoute><DemandSignals /></ProtectedRoute>} />
       <Route path="/dashboard/marketplace" element={<ProtectedRoute><MarketplaceSellerPage /></ProtectedRoute>} />
+      <Route path="/dashboard/orders-stock" element={<ProtectedRoute><OrdersStockPage /></ProtectedRoute>} />
       
       {/* Shared pages */}
       <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
