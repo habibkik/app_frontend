@@ -36,8 +36,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
               transition={{ delay: index * 0.05 }}
             >
               <Card
-                className="cursor-pointer group hover:border-primary/60 transition-all duration-300 hover:shadow-xl overflow-hidden"
-                onClick={() => setPreview(template)}
+                className="group hover:border-primary/60 transition-all duration-300 hover:shadow-xl overflow-hidden"
               >
                 <motion.div
                   layoutId={`template-image-${template.id}`}
@@ -50,12 +49,30 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
                     loading="lazy"
                   />
                 </motion.div>
-                <CardContent className="p-4 space-y-2">
+                <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-sm text-foreground">{template.name}</h3>
                     <Badge variant="secondary" className="text-[10px]">{template.category}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs h-8"
+                      onClick={() => setPreview(template)}
+                    >
+                      Preview
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="flex-1 text-xs h-8 gap-1.5"
+                      onClick={() => onSelect(template)}
+                    >
+                      <Check className="h-3 w-3" />
+                      Choose
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
