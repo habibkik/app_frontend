@@ -133,8 +133,6 @@ export const ContentStudio = () => {
   const store = useContentStudioStore();
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("pro-images");
   const [userId, setUserId] = useState<string>("");
-  const [landingTheme, setLandingTheme] = useState<LandingPageTheme>(DEFAULT_LANDING_THEME);
-  const [sectionOrder, setSectionOrder] = useState<LandingPageSection[]>(DEFAULT_SECTION_ORDER);
 
   const hasIntelligence = !!sellerResults;
   const productName = sellerResults?.productIdentification?.name || "Product";
