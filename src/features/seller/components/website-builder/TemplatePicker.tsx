@@ -36,7 +36,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
               transition={{ delay: index * 0.05 }}
             >
               <Card
-                className="group hover:border-primary/60 transition-all duration-300 hover:shadow-xl overflow-hidden"
+                className="group hover:border-primary/60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
               >
                 <motion.div
                   layoutId={`template-image-${template.id}`}
@@ -55,18 +55,18 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
                     <Badge variant="secondary" className="text-[10px]">{template.category}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
-                  <div className="flex items-center gap-2 pt-1">
+                  <div className="flex items-center gap-2 pt-1 opacity-70 group-hover:opacity-100 transition-opacity duration-300">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex-1 text-xs h-8"
+                      className="flex-1 text-xs h-8 group-hover:border-primary/50 group-hover:text-primary transition-colors duration-300"
                       onClick={() => setPreview(template)}
                     >
                       Preview
                     </Button>
                     <Button
                       size="sm"
-                      className="flex-1 text-xs h-8 gap-1.5"
+                      className="flex-1 text-xs h-8 gap-1.5 group-hover:shadow-md transition-shadow duration-300"
                       onClick={() => onSelect(template)}
                     >
                       <Check className="h-3 w-3" />
