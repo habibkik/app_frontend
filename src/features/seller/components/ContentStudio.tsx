@@ -379,20 +379,14 @@ export const ContentStudio = () => {
       store.setSocialPosts(posts);
       updateStep(1, "done");
 
-      // Step 3: Landing Page
+      // Step 3: Email Campaigns
       updateStep(2, "running");
-      const lp = buildLandingPageHtml(productName, sellerResults, availableImages, posts, landingTheme, sectionOrder);
-      store.setLandingPage(lp);
-      updateStep(2, "done");
-
-      // Step 4: Email Campaigns
-      updateStep(3, "running");
       const emails = generateEmailCampaigns();
       store.setEmailCampaigns(emails);
-      updateStep(3, "done");
+      updateStep(2, "done");
 
-      // Step 5: Content Scoring
-      updateStep(4, "running");
+      // Step 4: Content Scoring
+      updateStep(3, "running");
       const score = calculateContentScore(posts, emails, sellerResults);
       store.setContentScore(score);
       updateStep(4, "done");
