@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush,
-  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download,
+  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download, Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import JSZip from "jszip";
@@ -37,6 +38,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [socialStats, setSocialStats] = useState({ postCount: 0, totalEngagement: 0 });
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [showCustomizer, setShowCustomizer] = useState(false);
+  const [showSeoPanel, setShowSeoPanel] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -239,8 +241,11 @@ export const WebsiteBuilder: React.FC = () => {
         <Button size="sm" variant={previewMode === "mobile" ? "default" : "outline"} onClick={() => setPreviewMode("mobile")} className="h-7 text-xs">
           <Smartphone className="h-3 w-3 mr-1" /> Mobile
         </Button>
-        <Button size="sm" variant={showCustomizer ? "default" : "outline"} onClick={() => setShowCustomizer(!showCustomizer)} className="h-7 text-xs">
+        <Button size="sm" variant={showCustomizer ? "default" : "outline"} onClick={() => { setShowCustomizer(!showCustomizer); if (!showCustomizer) setShowSeoPanel(false); }} className="h-7 text-xs">
           <Paintbrush className="h-3 w-3 mr-1" /> Theme
+        </Button>
+        <Button size="sm" variant={showSeoPanel ? "default" : "outline"} onClick={() => { setShowSeoPanel(!showSeoPanel); if (!showSeoPanel) setShowCustomizer(false); }} className="h-7 text-xs">
+          <Search className="h-3 w-3 mr-1" /> SEO
         </Button>
         <Button size="sm" variant="outline" onClick={() => setShowTemplateDialog(true)} className="h-7 text-xs">
           <LayoutTemplate className="h-3 w-3 mr-1" /> Templates
@@ -277,6 +282,53 @@ export const WebsiteBuilder: React.FC = () => {
       {showCustomizer && (
         <div className="px-4 py-3 border-b bg-muted/30">
           <LandingPageCustomizer theme={store.theme} onChange={store.setTheme} />
+        </div>
+      )}
+
+      {showSeoPanel && (
+        <div className="px-4 py-3 border-b bg-muted/30">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Meta Title <span className="text-muted-foreground">({(store.siteConfig.metaTitle || store.siteConfig.name || "").length}/60)</span></Label>
+                <Input value={store.siteConfig.metaTitle || ""} onChange={(e) => store.setSiteConfig({ metaTitle: e.target.value })} placeholder={store.siteConfig.name || "Page title for search engines"} maxLength={60} className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Meta Description <span className="text-muted-foreground">({(store.siteConfig.metaDescription || "").length}/160)</span></Label>
+                <Textarea value={store.siteConfig.metaDescription || ""} onChange={(e) => store.setSiteConfig({ metaDescription: e.target.value })} placeholder="Brief description for search results…" maxLength={160} className="text-xs min-h-[60px] resize-none" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Keywords <span className="text-muted-foreground">(comma-separated)</span></Label>
+                <Input value={store.siteConfig.metaKeywords || ""} onChange={(e) => store.setSiteConfig({ metaKeywords: e.target.value })} placeholder="e-bike, electric, store" className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">OG Image URL</Label>
+                <Input value={store.siteConfig.ogImage || ""} onChange={(e) => store.setSiteConfig({ ogImage: e.target.value })} placeholder="https://example.com/og-image.jpg" className="h-8 text-xs" />
+                {store.siteConfig.ogImage && (
+                  <img src={store.siteConfig.ogImage} alt="OG preview" className="h-16 w-28 object-cover rounded border mt-1" onError={(e) => (e.currentTarget.style.display = "none")} />
+                )}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Favicon URL</Label>
+                <Input value={store.siteConfig.favicon || ""} onChange={(e) => store.setSiteConfig({ favicon: e.target.value })} placeholder="https://example.com/favicon.ico" className="h-8 text-xs" />
+                {store.siteConfig.favicon && (
+                  <img src={store.siteConfig.favicon} alt="Favicon preview" className="h-6 w-6 object-contain rounded border mt-1" onError={(e) => (e.currentTarget.style.display = "none")} />
+                )}
+              </div>
+              <div className="p-2 rounded bg-card border text-xs text-muted-foreground space-y-1 mt-2">
+                <p className="font-medium text-foreground">SEO Tips</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  <li>Title under 60 chars with primary keyword</li>
+                  <li>Description under 160 chars, compelling CTA</li>
+                  <li>OG image: 1200×630px for social shares</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
