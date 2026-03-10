@@ -60,11 +60,11 @@ const EVOLU_BLOCKS: SiteBlock[] = [
     title: "Future of E-Bike",
     subtitle: "Experience the next generation of urban mobility. Precision-engineered motor, extended-range battery, and intelligent smart controls — all in one breathtaking design.",
     ctaText: "Explore Bike",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoEvoluHero,
   }),
   block("about", {
     content: "Every component is precision-crafted for maximum energy efficiency. Our proprietary power management system adapts to your riding style in real-time. Where bold industrial design meets aerodynamic performance — every curve serves a purpose.",
-    imageUrl: "",
+    imageUrl: demoEvoluAbout,
   }),
   block("testimonials", {
     items: [
