@@ -393,6 +393,8 @@ export const ContentStudio = () => {
           if (error) throw error;
           if (data?.error) throw new Error(data.error);
           store.updateProImage(type, { imageUrl: data.imageUrl, isGenerating: false });
+          const updatedImg = useContentStudioStore.getState().proImages.find((i) => i.id === type);
+          if (updatedImg) saveProImageToDB(updatedImg);
         } catch (err: any) {
           store.updateProImage(type, { isGenerating: false, error: err.message || "Failed" });
         }
