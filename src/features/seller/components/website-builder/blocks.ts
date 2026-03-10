@@ -13,6 +13,12 @@ import type {
   ProblemAgitationBlockConfig,
   SolutionBlockConfig,
   OfferPricingBlockConfig,
+  FeaturesGridBlockConfig,
+  PricingTableBlockConfig,
+  ImageGalleryBlockConfig,
+  VideoEmbedBlockConfig,
+  CountdownTimerBlockConfig,
+  NewsletterBlockConfig,
 } from "./types";
 import {
   LayoutTemplate,
@@ -27,21 +33,33 @@ import {
   AlertTriangle,
   Lightbulb,
   DollarSign,
+  Grid3X3,
+  CreditCard,
+  Image,
+  Video,
+  Timer,
+  Newspaper,
 } from "lucide-react";
 
-export const BLOCK_META: Record<BlockType, { label: string; description: string; icon: typeof LayoutTemplate }> = {
-  hero: { label: "Hero Banner", description: "Title, subtitle & CTA", icon: LayoutTemplate },
-  "product-catalog": { label: "Product Catalog", description: "Grid of your products", icon: ShoppingBag },
-  about: { label: "About", description: "Tell your story", icon: FileText },
-  testimonials: { label: "Testimonials", description: "Social proof quotes", icon: Quote },
-  faq: { label: "FAQ", description: "Common questions", icon: HelpCircle },
-  contact: { label: "Contact Form", description: "Let visitors reach you", icon: Mail },
-  "order-form": { label: "Order Form", description: "Accept orders directly", icon: ClipboardList },
-  "social-proof": { label: "Social Proof", description: "Engagement stats", icon: Users },
-  "market-stats": { label: "Market Stats", description: "Market intelligence data", icon: BarChart3 },
-  "problem-agitation": { label: "Problem Agitation", description: "Expose pain points", icon: AlertTriangle },
-  solution: { label: "Solution", description: "Present your product as hero", icon: Lightbulb },
-  "offer-pricing": { label: "Offer & Pricing", description: "Value stack & CTA", icon: DollarSign },
+export const BLOCK_META: Record<BlockType, { label: string; description: string; icon: typeof LayoutTemplate; category: string }> = {
+  hero: { label: "Hero Banner", description: "Title, subtitle & CTA", icon: LayoutTemplate, category: "Hero" },
+  "product-catalog": { label: "Product Catalog", description: "Grid of your products", icon: ShoppingBag, category: "E-commerce" },
+  about: { label: "About", description: "Tell your story", icon: FileText, category: "Text & Media" },
+  testimonials: { label: "Testimonials", description: "Social proof quotes", icon: Quote, category: "Text & Media" },
+  faq: { label: "FAQ", description: "Common questions", icon: HelpCircle, category: "Text & Media" },
+  contact: { label: "Contact Form", description: "Let visitors reach you", icon: Mail, category: "Forms" },
+  "order-form": { label: "Order Form", description: "Accept orders directly", icon: ClipboardList, category: "E-commerce" },
+  "social-proof": { label: "Social Proof", description: "Engagement stats", icon: Users, category: "Text & Media" },
+  "market-stats": { label: "Market Stats", description: "Market intelligence data", icon: BarChart3, category: "Advanced" },
+  "problem-agitation": { label: "Problem Agitation", description: "Expose pain points", icon: AlertTriangle, category: "Advanced" },
+  solution: { label: "Solution", description: "Present your product as hero", icon: Lightbulb, category: "Advanced" },
+  "offer-pricing": { label: "Offer & Pricing", description: "Value stack & CTA", icon: DollarSign, category: "E-commerce" },
+  "features-grid": { label: "Features Grid", description: "Highlight key features", icon: Grid3X3, category: "Text & Media" },
+  "pricing-table": { label: "Pricing Table", description: "Compare plans/tiers", icon: CreditCard, category: "E-commerce" },
+  "image-gallery": { label: "Image Gallery", description: "Photo grid/masonry", icon: Image, category: "Text & Media" },
+  "video-embed": { label: "Video Embed", description: "YouTube/Vimeo embed", icon: Video, category: "Text & Media" },
+  "countdown-timer": { label: "Countdown Timer", description: "Urgency countdown", icon: Timer, category: "Advanced" },
+  newsletter: { label: "Newsletter Signup", description: "Email capture form", icon: Newspaper, category: "Forms" },
 };
 
 export function createDefaultBlock(type: BlockType): SiteBlock {
@@ -59,6 +77,12 @@ export function createDefaultBlock(type: BlockType): SiteBlock {
     "problem-agitation": { heading: "The Problem", intro: "You're not alone in facing these challenges.", painPoints: [{ icon: "😤", title: "Pain Point 1", description: "Description of the frustration." }, { icon: "😩", title: "Pain Point 2", description: "Another common problem." }, { icon: "😠", title: "Pain Point 3", description: "The final straw." }], reinforcement: "It doesn't have to be this way." } as ProblemAgitationBlockConfig,
     solution: { heading: "The Solution", intro: "Introducing a better way.", differentiationPoints: ["Unique advantage #1", "Unique advantage #2", "Unique advantage #3"], credibilityText: "Backed by industry-leading technology.", imageUrl: "" } as SolutionBlockConfig,
     "offer-pricing": { heading: "Special Offer", valueItems: ["Core product", "Bonus feature #1", "Bonus feature #2"], anchorPrice: "$299", actualPrice: "$199", scarcityText: "", ctaText: "Get Started Now" } as OfferPricingBlockConfig,
+    "features-grid": { heading: "Why Choose Us", subtitle: "Everything you need to succeed", items: [{ icon: "🚀", title: "Fast Performance", description: "Lightning-fast loading speeds." }, { icon: "🔒", title: "Secure", description: "Enterprise-grade security." }, { icon: "📱", title: "Mobile-First", description: "Looks great on any device." }, { icon: "💬", title: "24/7 Support", description: "Always here to help." }], columns: 3 } as FeaturesGridBlockConfig,
+    "pricing-table": { heading: "Choose Your Plan", plans: [{ name: "Starter", price: "$29", period: "/month", features: ["5 Products", "Basic Analytics", "Email Support"], highlighted: false, ctaText: "Get Started" }, { name: "Pro", price: "$79", period: "/month", features: ["Unlimited Products", "Advanced Analytics", "Priority Support", "API Access"], highlighted: true, ctaText: "Go Pro" }, { name: "Enterprise", price: "$199", period: "/month", features: ["Everything in Pro", "Custom Integrations", "Dedicated Account Manager", "SLA Guarantee"], highlighted: false, ctaText: "Contact Sales" }] } as PricingTableBlockConfig,
+    "image-gallery": { heading: "Gallery", images: [{ url: "", caption: "Image 1" }, { url: "", caption: "Image 2" }, { url: "", caption: "Image 3" }], columns: 3, style: "grid" } as ImageGalleryBlockConfig,
+    "video-embed": { heading: "See It in Action", videoUrl: "", provider: "youtube", autoplay: false } as VideoEmbedBlockConfig,
+    "countdown-timer": { heading: "Launch Coming Soon", subtitle: "Don't miss the early-bird pricing!", targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], ctaText: "Notify Me", ctaUrl: "#contact" } as CountdownTimerBlockConfig,
+    newsletter: { heading: "Stay Updated", subtitle: "Get the latest news and exclusive offers delivered to your inbox.", buttonText: "Subscribe", placeholderText: "Enter your email address" } as NewsletterBlockConfig,
   };
   return { id, type, enabled: true, config: configs[type] };
 }
