@@ -48,7 +48,7 @@ const TABS: { id: ContentStudioTab; label: string; icon: React.ElementType }[] =
   { id: "social-image", label: "Social (Image)", icon: Share2 },
   { id: "video", label: "Video", icon: Video },
   { id: "social-video", label: "Social (Video)", icon: Video },
-  { id: "landing-page", label: "Landing Page", icon: Globe },
+  
   { id: "email", label: "Email Campaign", icon: Mail },
   { id: "score", label: "Score & Optimize", icon: Target },
 ];
