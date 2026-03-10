@@ -80,18 +80,21 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
           ))}
         </div>
 
-        <AnimatePresence>
-          {preview && (
-            <TemplatePreviewModal
-              template={preview}
-              onClose={() => setPreview(null)}
-              onSelect={() => {
-                onSelect(preview);
-                setPreview(null);
-              }}
-            />
-          )}
-        </AnimatePresence>
+        {createPortal(
+          <AnimatePresence>
+            {preview && (
+              <TemplatePreviewModal
+                template={preview}
+                onClose={() => setPreview(null)}
+                onSelect={() => {
+                  onSelect(preview);
+                  setPreview(null);
+                }}
+              />
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
       </div>
     </LayoutGroup>
   );
