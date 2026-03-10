@@ -168,7 +168,7 @@ const PREMIUM_BLOCKS: SiteBlock[] = [
     title: "Engineered for Every Step",
     subtitle: "Premium comfort meets bold design. Experience next-level performance that moves with you — from first mile to finish line.",
     ctaText: "Add to Cart",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoPremiumHero,
   }),
   block("social-proof", { heading: "Trusted By Industry Leaders" }),
   block("solution", {
@@ -180,7 +180,7 @@ const PREMIUM_BLOCKS: SiteBlock[] = [
       "Hands-free — Magnetic quick-lock closure system, no laces needed",
     ],
     credibilityText: "Rated #1 by 12,000+ verified buyers. Featured in GQ, Wired, and Runner's World.",
-    imageUrl: "",
+    imageUrl: demoPremiumHero,
   }),
   block("product-catalog", { columns: 3, showPrice: true, showDescription: true, categoryFilter: "" }),
   block("problem-agitation", {
