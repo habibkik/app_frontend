@@ -285,26 +285,9 @@ export const ContentStudio = () => {
     };
 
     const demoProImages = store.proImages; // already set below
-    const demoLandingPage = buildLandingPageHtml(
-      "ProSound X1",
-      {
-        productIdentification: { name: "ProSound X1", category: "Premium Audio", confidence: 0.95, attributes: { "Battery": "40 hours", "Drivers": "50mm Studio-Grade", "ANC": "Hybrid Active", "Weight": "280g" } },
-        competitors: [{ name: "BeatsPro", price: 349, currency: "USD", platform: "Amazon", strengths: ["Brand recognition"], weaknesses: ["Overpriced"] }],
-        marketPriceRange: { min: 99, max: 349, average: 199, currency: "USD" },
-        pricingRecommendation: { suggested: 149, strategy: "penetration", confidence: 0.85 },
-        demandIndicators: { trend: "rising", volume: "high", seasonality: "stable" },
-      } as any,
-      [], // will be rebuilt after pro images are set
-      demoPosts,
-      DEFAULT_LANDING_THEME,
-      DEFAULT_SECTION_ORDER
-    );
-
-    // No longer setting old images — pro images are the primary source
     store.setSocialPosts(demoPosts);
     store.setEmailCampaigns(demoEmails);
     store.setContentScore(demoScore);
-    store.setLandingPage(demoLandingPage);
 
     // Demo pro images
     const demoProImg = (id: string, label: string, section: string, url: string): GeneratedImage => ({
