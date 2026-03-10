@@ -16,6 +16,27 @@ import imgAgency from "@/assets/templates/agency.jpg";
 import imgWellness from "@/assets/templates/wellness.jpg";
 import imgBlank from "@/assets/templates/blank.jpg";
 
+// Demo content images
+import demoEvoluHero from "@/assets/demo/evolu-hero.jpg";
+import demoEvoluAbout from "@/assets/demo/evolu-about.jpg";
+import demoMinimalistHero from "@/assets/demo/minimalist-hero.jpg";
+import demoBoldHero from "@/assets/demo/bold-hero.jpg";
+import demoPremiumHero from "@/assets/demo/premium-hero.jpg";
+import demoSaasHero from "@/assets/demo/saas-hero.jpg";
+import demoPortfolioWork1 from "@/assets/demo/portfolio-work1.jpg";
+import demoPortfolioWork2 from "@/assets/demo/portfolio-work2.jpg";
+import demoPortfolioWork3 from "@/assets/demo/portfolio-work3.jpg";
+import demoPortfolioWork4 from "@/assets/demo/portfolio-work4.jpg";
+import demoRestaurantHero from "@/assets/demo/restaurant-hero.jpg";
+import demoRestaurantDish from "@/assets/demo/restaurant-dish.jpg";
+import demoFashionHero from "@/assets/demo/fashion-hero.jpg";
+import demoRealEstateHero from "@/assets/demo/realestate-hero.jpg";
+import demoRealEstateProperty from "@/assets/demo/realestate-property1.jpg";
+import demoFitnessHero from "@/assets/demo/fitness-hero.jpg";
+import demoAgencyHero from "@/assets/demo/agency-hero.jpg";
+import demoWellnessHero from "@/assets/demo/wellness-hero.jpg";
+import demoWellnessGarden from "@/assets/demo/wellness-garden.jpg";
+
 export interface WebsiteTemplate {
   id: string;
   name: string;
