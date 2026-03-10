@@ -81,6 +81,14 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
   );
 };
 
+/* Helper to scroll container to top when modal opens */
+const useScrollToTop = (ref: React.RefObject<HTMLDivElement | null>) => {
+  React.useEffect(() => {
+    ref.current?.scrollTo({ top: 0, behavior: "instant" });
+  }, [ref]);
+  );
+};
+
 /* ─── Preview Modal ───────────────────────────────────────────── */
 
 interface PreviewModalProps {
