@@ -136,7 +136,7 @@ const BOLD_BLOCKS: SiteBlock[] = [
     title: "Make a Statement",
     subtitle: "Bold products for bold people. Stand out from the crowd with our exclusive collection.",
     ctaText: "Shop Now →",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoBoldHero,
   }),
   block("product-catalog", { columns: 2, showPrice: true, showDescription: true, categoryFilter: "" }),
   block("testimonials", {
