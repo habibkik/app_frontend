@@ -331,7 +331,6 @@ export const ContentStudio = () => {
     const steps: GenerationStep[] = [
       { label: "Generating pro photography", status: "pending" },
       { label: "Creating social posts", status: "pending" },
-      { label: "Building landing page", status: "pending" },
       { label: "Creating email campaigns", status: "pending" },
       { label: "Scoring content", status: "pending" },
     ];
