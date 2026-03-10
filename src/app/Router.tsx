@@ -48,6 +48,7 @@ import OutreachHub from "@/pages/dashboard/OutreachHub";
 import ShouldCost from "@/pages/dashboard/ShouldCost";
 import NegotiationIntelligence from "@/pages/dashboard/NegotiationIntelligence";
 import SupplierComparison from "@/pages/dashboard/SupplierComparison";
+import OrdersStockPage from "@/pages/dashboard/OrdersStock";
 import NotFound from "@/pages/NotFound";
 import { MarketplaceSellerPage } from "@/features/marketplace";
 
