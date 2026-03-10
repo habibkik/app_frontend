@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
   const [preview, setPreview] = useState<WebsiteTemplate | null>(null);
 
   return (
-    <LayoutGroup>
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,17 +38,14 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
               <Card
                 className="group hover:border-primary/60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
               >
-                <motion.div
-                  layoutId={`template-image-${template.id}`}
-                  className="h-44 relative overflow-hidden bg-muted/40"
-                >
+                <div className="h-44 relative overflow-hidden bg-muted/40">
                   <img
                     src={template.previewImage}
                     alt={`${template.name} template preview`}
                     className="w-full h-full object-cover object-top"
                     loading="lazy"
                   />
-                </motion.div>
+                </div>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-sm text-foreground">{template.name}</h3>
@@ -96,8 +92,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
           document.body
         )}
       </div>
-    </LayoutGroup>
-  );
+    );
 };
 
 /* ─── Preview Modal ───────────────────────────────────────────── */
@@ -161,11 +156,8 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
         </button>
 
         <div className="flex-1 overflow-y-auto">
-          {/* Hero preview image — shared layout animation from card */}
-          <motion.div
-            layoutId={`template-image-${template.id}`}
-            className="relative w-full aspect-[16/9] bg-muted overflow-hidden"
-          >
+          {/* Hero preview image */}
+          <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
             <img
               src={template.previewImage}
               alt={`${template.name} preview`}
@@ -177,7 +169,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
               <h2 className="text-2xl font-bold text-white">{template.name}</h2>
               <p className="text-sm text-white/80 mt-1 max-w-xl">{template.description}</p>
             </div>
-          </motion.div>
+          </div>
 
           {/* Details grid */}
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
