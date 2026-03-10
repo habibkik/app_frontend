@@ -245,11 +245,25 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
         </div>
 
         {/* Footer actions */}
-        <div className="border-t border-border p-4 flex items-center justify-between bg-muted/30">
-          <Button variant="ghost" size="sm" onClick={onClose}>
+        <div className="relative z-20 border-t border-border p-4 flex items-center justify-between bg-muted/30">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+          >
             Back to Templates
           </Button>
-          <Button size="sm" onClick={onSelect} className="gap-2">
+          <Button
+            size="sm"
+            className="gap-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          >
             <Check className="h-4 w-4" />
             Use This Template
           </Button>
