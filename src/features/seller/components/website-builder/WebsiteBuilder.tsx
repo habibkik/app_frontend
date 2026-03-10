@@ -48,6 +48,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
 
   useEffect(() => {
     const init = async () => {
