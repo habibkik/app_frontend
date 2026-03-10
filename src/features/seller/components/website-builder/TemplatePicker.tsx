@@ -156,11 +156,8 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
         </button>
 
         <div className="flex-1 overflow-y-auto">
-          {/* Hero preview image — shared layout animation from card */}
-          <motion.div
-            layoutId={`template-image-${template.id}`}
-            className="relative w-full aspect-[16/9] bg-muted overflow-hidden"
-          >
+          {/* Hero preview image */}
+          <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
             <img
               src={template.previewImage}
               alt={`${template.name} preview`}
@@ -172,7 +169,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
               <h2 className="text-2xl font-bold text-white">{template.name}</h2>
               <p className="text-sm text-white/80 mt-1 max-w-xl">{template.description}</p>
             </div>
-          </motion.div>
+          </div>
 
           {/* Details grid */}
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
