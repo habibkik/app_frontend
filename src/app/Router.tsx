@@ -48,6 +48,7 @@ import OutreachHub from "@/pages/dashboard/OutreachHub";
 import ShouldCost from "@/pages/dashboard/ShouldCost";
 import NegotiationIntelligence from "@/pages/dashboard/NegotiationIntelligence";
 import SupplierComparison from "@/pages/dashboard/SupplierComparison";
+import OrdersStockPage from "@/pages/dashboard/OrdersStock";
 import NotFound from "@/pages/NotFound";
 import { MarketplaceSellerPage } from "@/features/marketplace";
 
@@ -101,6 +102,7 @@ export function Router() {
       <Route path="/dashboard/website" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
       <Route path="/dashboard/demand-signals" element={<ProtectedRoute><DemandSignals /></ProtectedRoute>} />
       <Route path="/dashboard/marketplace" element={<ProtectedRoute><MarketplaceSellerPage /></ProtectedRoute>} />
+      <Route path="/dashboard/orders-stock" element={<ProtectedRoute><OrdersStockPage /></ProtectedRoute>} />
       
       {/* Shared pages */}
       <Route path="/dashboard/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />

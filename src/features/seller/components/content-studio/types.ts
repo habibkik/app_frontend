@@ -146,13 +146,26 @@ export interface LandingPageTheme {
   accentColor: string;
   textColor: string;
   bgColor: string;
+  // Gradient
+  gradientEnabled?: boolean;
+  gradientStart?: string;
+  gradientEnd?: string;
+  gradientAngle?: number;
   // Typography
   headingFont: string;
   bodyFont: string;
+  headingSize?: number;
+  bodySize?: number;
   // Layout
   layout: "classic" | "modern" | "minimal" | "bold";
   borderRadius: "none" | "small" | "medium" | "large";
   heroStyle: "centered" | "left-aligned" | "split";
+  // Spacing & Effects
+  sectionPadding?: number;
+  contentMaxWidth?: number;
+  cardShadow?: "none" | "small" | "medium" | "large";
+  buttonStyle?: "filled" | "outline" | "pill" | "gradient";
+  hoverEffect?: "none" | "lift" | "glow" | "scale";
 }
 
 export const DEFAULT_LANDING_THEME: LandingPageTheme = {
@@ -161,11 +174,22 @@ export const DEFAULT_LANDING_THEME: LandingPageTheme = {
   accentColor: "#16213e",
   textColor: "#1a1a2e",
   bgColor: "#ffffff",
+  gradientEnabled: false,
+  gradientStart: "#2563eb",
+  gradientEnd: "#16213e",
+  gradientAngle: 135,
   headingFont: "Inter, system-ui, sans-serif",
   bodyFont: "Inter, system-ui, sans-serif",
+  headingSize: 40,
+  bodySize: 16,
   layout: "classic",
   borderRadius: "medium",
   heroStyle: "centered",
+  sectionPadding: 60,
+  contentMaxWidth: 1100,
+  cardShadow: "medium",
+  buttonStyle: "filled",
+  hoverEffect: "lift",
 };
 
 export const THEME_PRESETS: { name: string; theme: Partial<LandingPageTheme> }[] = [
@@ -175,6 +199,8 @@ export const THEME_PRESETS: { name: string; theme: Partial<LandingPageTheme> }[]
   { name: "Royal Purple", theme: { primaryColor: "#7c3aed", secondaryColor: "#1e1b4b", accentColor: "#8b5cf6" } },
   { name: "Slate Minimal", theme: { primaryColor: "#475569", secondaryColor: "#0f172a", accentColor: "#64748b", layout: "minimal" as const } },
   { name: "Bold Red", theme: { primaryColor: "#dc2626", secondaryColor: "#18181b", accentColor: "#ef4444", layout: "bold" as const } },
+  { name: "Gradient Neon", theme: { primaryColor: "#8b5cf6", secondaryColor: "#0f172a", accentColor: "#06b6d4", gradientEnabled: true, gradientStart: "#8b5cf6", gradientEnd: "#06b6d4", gradientAngle: 135 } },
+  { name: "Warm Gold", theme: { primaryColor: "#d97706", secondaryColor: "#1c1917", accentColor: "#f59e0b", buttonStyle: "pill" as const, cardShadow: "large" as const } },
 ];
 
 export const FONT_OPTIONS = [
@@ -186,4 +212,8 @@ export const FONT_OPTIONS = [
   { label: "Roboto Slab", value: "'Roboto Slab', Georgia, serif" },
   { label: "Montserrat", value: "'Montserrat', system-ui, sans-serif" },
   { label: "Lora", value: "'Lora', Georgia, serif" },
+  { label: "Poppins", value: "'Poppins', system-ui, sans-serif" },
+  { label: "Raleway", value: "'Raleway', system-ui, sans-serif" },
+  { label: "Oswald", value: "'Oswald', system-ui, sans-serif" },
+  { label: "Merriweather", value: "'Merriweather', Georgia, serif" },
 ];
