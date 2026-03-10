@@ -38,17 +38,14 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
               <Card
                 className="group hover:border-primary/60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
               >
-                <div
-                  className="h-44 relative overflow-hidden bg-muted/40"
-                >
-                >
+                <div className="h-44 relative overflow-hidden bg-muted/40">
                   <img
                     src={template.previewImage}
                     alt={`${template.name} template preview`}
                     className="w-full h-full object-cover object-top"
                     loading="lazy"
                   />
-                </motion.div>
+                </div>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold text-sm text-foreground">{template.name}</h3>
