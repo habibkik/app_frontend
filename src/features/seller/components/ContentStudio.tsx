@@ -8,7 +8,7 @@ import {
   Camera,
   Share2,
   Video,
-  Globe,
+  
   Mail,
   Target,
   AlertCircle,
@@ -32,17 +32,13 @@ import type {
   SocialImagePost,
   EmailCampaign,
   ContentScore,
-  LandingPageData,
   GenerationStep,
-  LandingPageTheme,
-  LandingPageSection,
 } from "./content-studio/types";
-import { DEFAULT_LANDING_THEME, DEFAULT_SECTION_ORDER } from "./content-studio/types";
 // ImageGenerationTab removed — replaced by ProImageGenerationTab
 import { SocialImagePostsTab } from "./content-studio/SocialImagePostsTab";
 import { VideoTab } from "./content-studio/VideoTab";
 import { SocialVideoPostsTab } from "./content-studio/SocialVideoPostsTab";
-import { LandingPageTab } from "./content-studio/LandingPageTab";
+
 import { EmailCampaignTab } from "./content-studio/EmailCampaignTab";
 import { ContentScoreTab } from "./content-studio/ContentScoreTab";
 import { ProImageGenerationTab } from "./content-studio/ProImageGenerationTab";
@@ -52,7 +48,7 @@ const TABS: { id: ContentStudioTab; label: string; icon: React.ElementType }[] =
   { id: "social-image", label: "Social (Image)", icon: Share2 },
   { id: "video", label: "Video", icon: Video },
   { id: "social-video", label: "Social (Video)", icon: Video },
-  { id: "landing-page", label: "Landing Page", icon: Globe },
+  
   { id: "email", label: "Email Campaign", icon: Mail },
   { id: "score", label: "Score & Optimize", icon: Target },
 ];
@@ -129,127 +125,6 @@ function calculateContentScore(
   };
 }
 
-// ─── Landing Page HTML Builder ──────────────────────────────
-function buildLandingPageHtml(
-  productName: string,
-  sellerResults: MarketAnalysisResult | null,
-  images: GeneratedImage[],
-  socialPosts: SocialImagePost[],
-  theme: LandingPageTheme = DEFAULT_LANDING_THEME,
-  sectionOrder: LandingPageSection[] = DEFAULT_SECTION_ORDER
-): LandingPageData {
-  const heroImg = images.find((i) => i.id === "studio-hero")?.imageUrl || images.find((i) => i.id === "landing")?.imageUrl || images.find((i) => i.imageUrl)?.imageUrl || "";
-  const productImg = images.find((i) => i.id === "packshot-front")?.imageUrl || images.find((i) => i.id === "ecommerce")?.imageUrl || "";
-  const pricing = sellerResults?.pricingRecommendation;
-  const competitors = sellerResults?.competitors || [];
-  const demand = sellerResults?.demandIndicators;
-
-  const benefits = [
-    "Premium quality trusted by professionals",
-    "Fast and reliable shipping worldwide",
-    `Competitive pricing — market range $${sellerResults?.marketPriceRange?.min || "N/A"}-$${sellerResults?.marketPriceRange?.max || "N/A"}`,
-    demand?.trend === "rising" ? "Growing market demand — order while supplies last" : "Stable market demand — proven reliability",
-    "Full warranty and dedicated support",
-  ];
-
-  const features = sellerResults?.productIdentification?.attributes
-    ? Object.entries(sellerResults.productIdentification.attributes).map(([k, v]) => `${k}: ${v}`)
-    : ["High performance", "Durable construction", "Easy maintenance"];
-
-  const socialProof = competitors.map(
-    (c) => `Outperforms ${c.name} in key metrics with ${c.strengths?.[0] || "quality"}`
-  );
-
-  const faq = [
-    { question: `What makes ${productName} different?`, answer: `Our ${productName} is engineered with premium materials and backed by comprehensive quality assurance. Unlike competitors, we focus on long-term reliability and performance.` },
-    { question: "What is the delivery time?", answer: "Standard delivery is 5-7 business days. Express shipping is available for 2-3 day delivery." },
-    { question: "Do you offer bulk pricing?", answer: "Yes! Contact us for volume discounts on orders of 10+ units." },
-    { question: "What warranty is included?", answer: "Every purchase includes a comprehensive warranty covering manufacturing defects and performance issues." },
-  ];
-
-  const ctaText = pricing ? `Order Now — Starting at $${pricing.suggested}` : "Order Now";
-
-  const radius = theme.borderRadius === "none" ? "0" : theme.borderRadius === "small" ? "4px" : theme.borderRadius === "large" ? "16px" : "8px";
-  const heroAlign = theme.heroStyle === "left-aligned" ? "left" : "center";
-  const isModern = theme.layout === "modern";
-  const isMinimal = theme.layout === "minimal";
-  const isBold = theme.layout === "bold";
-
-  // Google Fonts import for non-system fonts
-  const fontFamilies = new Set([theme.headingFont, theme.bodyFont]);
-  const googleFonts = [...fontFamilies]
-    .filter((f) => !f.includes("system-ui") && !f.includes("Georgia") && !f.includes("Times"))
-    .map((f) => {
-      const name = f.split(",")[0].replace(/'/g, "").trim();
-      return name.replace(/\s/g, "+");
-    });
-  const fontImport = googleFonts.length > 0
-    ? `<link href="https://fonts.googleapis.com/css2?${googleFonts.map((f) => `family=${f}:wght@400;600;700;800`).join("&")}&display=swap" rel="stylesheet">`
-    : "";
-
-  const heroSplitGrid = theme.heroStyle === "split"
-    ? `display:grid;grid-template-columns:1fr 1fr;gap:40px;text-align:left;align-items:center`
-    : "";
-
-  const html = `<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${productName}</title>
-<meta name="description" content="${productName} — premium quality, competitive pricing, fast delivery.">
-${fontImport}
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:${theme.bodyFont};color:${theme.textColor};line-height:1.6;background:${theme.bgColor}}
-h1,h2,h3{font-family:${theme.headingFont}}
-.hero{background:linear-gradient(135deg,${theme.secondaryColor} 0%,${theme.accentColor} 100%);color:#fff;padding:${isBold ? "100px" : "80px"} 24px;text-align:${heroAlign};${heroSplitGrid}}
-.hero h1{font-size:clamp(${isBold ? "2.5rem" : "2rem"},5vw,${isBold ? "4rem" : "3.5rem"});margin-bottom:16px;font-weight:800;${isModern ? "letter-spacing:-0.02em" : ""}}
-.hero p{font-size:${isMinimal ? "1rem" : "1.1rem"};opacity:0.9;max-width:600px;${heroAlign === "center" ? "margin:0 auto 32px" : "margin:0 0 32px"}}
-.hero img{max-width:100%;max-height:400px;border-radius:${radius};margin-bottom:${theme.heroStyle === "split" ? "0" : "32px"};box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.cta-btn{display:inline-block;background:${theme.primaryColor};color:#fff;padding:${isBold ? "18px 44px" : "16px 40px"};border-radius:${radius};text-decoration:none;font-weight:700;font-size:${isBold ? "1.2rem" : "1.1rem"};transition:transform 0.2s,box-shadow 0.2s;font-family:${theme.headingFont}}
-.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px ${theme.primaryColor}44}
-section{padding:${isMinimal ? "48px" : "60px"} 24px;max-width:1000px;margin:0 auto}
-h2{font-size:${isBold ? "2.2rem" : "2rem"};margin-bottom:24px;text-align:center;${isModern ? "letter-spacing:-0.01em" : ""}}
-.benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;list-style:none}
-.benefits li{padding:20px;background:${theme.bgColor === "#ffffff" ? "#f8fafc" : theme.bgColor};border-radius:${radius};border-left:4px solid ${theme.primaryColor};${isModern ? `box-shadow:0 2px 12px ${theme.primaryColor}11` : ""}}
-.features{columns:2;gap:16px;list-style:none}
-.features li{padding:8px 0;break-inside:avoid}
-.features li:before{content:"✓ ";color:${theme.primaryColor};font-weight:bold}
-.social-proof{background:${theme.primaryColor}08;padding:40px 24px;text-align:center}
-.social-proof blockquote{font-style:italic;max-width:600px;margin:16px auto;padding:16px;background:${theme.bgColor};border-radius:${radius};box-shadow:0 2px 8px rgba(0,0,0,0.06)}
-.faq details{margin-bottom:12px;padding:16px;background:${theme.bgColor === "#ffffff" ? "#f8fafc" : theme.bgColor};border-radius:${radius}}
-.faq summary{font-weight:600;cursor:pointer;padding:4px 0}
-.faq p{margin-top:8px;color:${theme.textColor}99}
-.order-section{background:${theme.secondaryColor};color:#fff;padding:60px 24px;text-align:center}
-.order-section .cta-btn{font-size:1.2rem;padding:20px 48px}
-footer{text-align:center;padding:24px;color:${theme.textColor}66;font-size:0.85rem}
-@media(max-width:600px){.features{columns:1}.hero{padding:48px 16px;${theme.heroStyle === "split" ? "grid-template-columns:1fr" : ""}}}
-</style></head><body>
-<div class="hero">
-${theme.heroStyle === "split" ? `<div>
-<h1>${productName}</h1>
-<p>${sellerResults?.productIdentification?.category || "Premium quality product"} — engineered for excellence</p>
-<a href="#order" class="cta-btn">${ctaText}</a>
-</div>
-<div>${heroImg ? `<img src="${heroImg}" alt="${productName}"/>` : ""}</div>` : `
-${heroImg ? `<img src="${heroImg}" alt="${productName}"/>` : ""}
-<h1>${productName}</h1>
-<p>${sellerResults?.productIdentification?.category || "Premium quality product"} — engineered for excellence</p>
-<a href="#order" class="cta-btn">${ctaText}</a>`}
-</div>
-${sectionOrder.map((section) => {
-  switch (section) {
-    case "benefits": return `<section><h2>Benefits</h2><ul class="benefits">${benefits.map((b) => `<li>${b}</li>`).join("")}</ul></section>`;
-    case "features": return `<section><h2>Features</h2><ul class="features">${features.map((f) => `<li>${f}</li>`).join("")}</ul></section>`;
-    case "social-proof": return socialProof.length > 0 ? `<div class="social-proof"><h2>Why Customers Choose Us</h2>${socialProof.map((s) => `<blockquote>${s}</blockquote>`).join("")}</div>` : "";
-    case "faq": return `<section class="faq"><h2>FAQ</h2>${faq.map((f) => `<details><summary>${f.question}</summary><p>${f.answer}</p></details>`).join("")}</section>`;
-    case "cta": return `<div class="order-section" id="order"><h2>Ready to Get Started?</h2><p style="margin:16px 0;opacity:0.8">Join thousands of satisfied customers.</p><a href="#" class="cta-btn">${ctaText}</a></div>`;
-    default: return "";
-  }
-}).join("\n")}
-<footer>&copy; ${new Date().getFullYear()} ${productName}. All rights reserved.</footer>
-</body></html>`;
-
-  return { html, sectionOrder, sections: { hero: productName, benefits, features, socialProof, faq, ctaText } };
-}
 
 // ─── Main Component ────────────────────────────────────────
 export const ContentStudio = () => {
@@ -258,8 +133,6 @@ export const ContentStudio = () => {
   const store = useContentStudioStore();
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("pro-images");
   const [userId, setUserId] = useState<string>("");
-  const [landingTheme, setLandingTheme] = useState<LandingPageTheme>(DEFAULT_LANDING_THEME);
-  const [sectionOrder, setSectionOrder] = useState<LandingPageSection[]>(DEFAULT_SECTION_ORDER);
 
   const hasIntelligence = !!sellerResults;
   const productName = sellerResults?.productIdentification?.name || "Product";
@@ -412,26 +285,9 @@ export const ContentStudio = () => {
     };
 
     const demoProImages = store.proImages; // already set below
-    const demoLandingPage = buildLandingPageHtml(
-      "ProSound X1",
-      {
-        productIdentification: { name: "ProSound X1", category: "Premium Audio", confidence: 0.95, attributes: { "Battery": "40 hours", "Drivers": "50mm Studio-Grade", "ANC": "Hybrid Active", "Weight": "280g" } },
-        competitors: [{ name: "BeatsPro", price: 349, currency: "USD", platform: "Amazon", strengths: ["Brand recognition"], weaknesses: ["Overpriced"] }],
-        marketPriceRange: { min: 99, max: 349, average: 199, currency: "USD" },
-        pricingRecommendation: { suggested: 149, strategy: "penetration", confidence: 0.85 },
-        demandIndicators: { trend: "rising", volume: "high", seasonality: "stable" },
-      } as any,
-      [], // will be rebuilt after pro images are set
-      demoPosts,
-      DEFAULT_LANDING_THEME,
-      DEFAULT_SECTION_ORDER
-    );
-
-    // No longer setting old images — pro images are the primary source
     store.setSocialPosts(demoPosts);
     store.setEmailCampaigns(demoEmails);
     store.setContentScore(demoScore);
-    store.setLandingPage(demoLandingPage);
 
     // Demo pro images
     const demoProImg = (id: string, label: string, section: string, url: string): GeneratedImage => ({
@@ -475,7 +331,6 @@ export const ContentStudio = () => {
     const steps: GenerationStep[] = [
       { label: "Generating pro photography", status: "pending" },
       { label: "Creating social posts", status: "pending" },
-      { label: "Building landing page", status: "pending" },
       { label: "Creating email campaigns", status: "pending" },
       { label: "Scoring content", status: "pending" },
     ];
@@ -524,23 +379,17 @@ export const ContentStudio = () => {
       store.setSocialPosts(posts);
       updateStep(1, "done");
 
-      // Step 3: Landing Page
+      // Step 3: Email Campaigns
       updateStep(2, "running");
-      const lp = buildLandingPageHtml(productName, sellerResults, availableImages, posts, landingTheme, sectionOrder);
-      store.setLandingPage(lp);
-      updateStep(2, "done");
-
-      // Step 4: Email Campaigns
-      updateStep(3, "running");
       const emails = generateEmailCampaigns();
       store.setEmailCampaigns(emails);
-      updateStep(3, "done");
+      updateStep(2, "done");
 
-      // Step 5: Content Scoring
-      updateStep(4, "running");
+      // Step 4: Content Scoring
+      updateStep(3, "running");
       const score = calculateContentScore(posts, emails, sellerResults);
       store.setContentScore(score);
-      updateStep(4, "done");
+      updateStep(3, "done");
 
       toast.success("Marketing kit generated successfully!");
     } catch (err) {
@@ -559,7 +408,7 @@ export const ContentStudio = () => {
       images: store.proImages.filter((i) => i.imageUrl).map((i) => ({ label: i.label, type: i.id, section: i.section })),
       socialPosts: store.socialPosts,
       emailCampaigns: store.emailCampaigns,
-      landingPageHtml: store.landingPage?.html || null,
+      
       contentScore: store.contentScore,
     };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
@@ -706,26 +555,6 @@ export const ContentStudio = () => {
         </TabsContent>
         <TabsContent value="social-video">
           <SocialVideoPostsTab />
-        </TabsContent>
-        <TabsContent value="landing-page">
-          <LandingPageTab
-            landingPage={store.landingPage}
-            images={store.proImages}
-            productName={productName}
-            userId={userId}
-            theme={landingTheme}
-            sectionOrder={sectionOrder}
-            onThemeChange={(newTheme) => {
-              setLandingTheme(newTheme);
-              const lp = buildLandingPageHtml(productName, sellerResults, store.proImages, store.socialPosts, newTheme, sectionOrder);
-              store.setLandingPage(lp);
-            }}
-            onSectionOrderChange={(newOrder) => {
-              setSectionOrder(newOrder);
-              const lp = buildLandingPageHtml(productName, sellerResults, store.proImages, store.socialPosts, landingTheme, newOrder);
-              store.setLandingPage(lp);
-            }}
-          />
         </TabsContent>
         <TabsContent value="email">
           <EmailCampaignTab campaigns={store.emailCampaigns} images={store.proImages} />
