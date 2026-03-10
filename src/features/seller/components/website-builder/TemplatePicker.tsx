@@ -136,7 +136,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-md p-6"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-md p-6 pointer-events-auto"
       onClick={onClose}
     >
       <motion.div
@@ -245,11 +245,13 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
         </div>
 
         {/* Footer actions */}
-        <div className="relative z-20 border-t border-border p-4 flex items-center justify-between bg-muted/30">
+        <div className="shrink-0 border-t border-border p-4 flex items-center justify-between bg-muted/30 relative z-50 pointer-events-auto">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
-            onClick={(e) => {
+            className="pointer-events-auto"
+            onPointerDown={(e) => {
               e.stopPropagation();
               onClose();
             }}
@@ -257,9 +259,10 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
             Back to Templates
           </Button>
           <Button
+            type="button"
             size="sm"
-            className="gap-2"
-            onClick={(e) => {
+            className="gap-2 pointer-events-auto"
+            onPointerDown={(e) => {
               e.stopPropagation();
               onSelect();
             }}
