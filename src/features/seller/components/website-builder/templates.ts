@@ -294,9 +294,9 @@ const FASHION_THEME: LandingPageTheme = {
 
 // ─── New Premium Templates: Real Estate ──────────────────────────
 const REAL_ESTATE_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "Find Your Dream Home", subtitle: "Luxury properties in the most sought-after locations. Expert guidance from search to settlement.", ctaText: "Browse Properties", backgroundImageUrl: "" }),
+  block("hero", { title: "Find Your Dream Home", subtitle: "Luxury properties in the most sought-after locations. Expert guidance from search to settlement.", ctaText: "Browse Properties", backgroundImageUrl: demoRealEstateHero }),
   block("features-grid", { heading: "Why Choose Us", subtitle: "Decades of excellence in premium real estate", items: [{ icon: "🏠", title: "Premium Listings", description: "Handpicked luxury properties in top locations." }, { icon: "🤝", title: "Personal Agent", description: "Dedicated advisor for your entire journey." }, { icon: "📈", title: "Market Insights", description: "Data-driven pricing and investment analysis." }, { icon: "🔐", title: "Secure Deals", description: "End-to-end legal and financial support." }], columns: 4 }),
-  block("image-gallery", { heading: "Featured Properties", images: [{ url: "", caption: "Modern Villa — $2.4M" }, { url: "", caption: "Penthouse Suite — $1.8M" }, { url: "", caption: "Waterfront Estate — $5.2M" }, { url: "", caption: "Urban Loft — $890K" }], columns: 2, style: "grid" }),
+  block("image-gallery", { heading: "Featured Properties", images: [{ url: demoRealEstateHero, caption: "Modern Villa — $2.4M" }, { url: demoRealEstateProperty, caption: "Penthouse Suite — $1.8M" }, { url: demoRealEstateHero, caption: "Waterfront Estate — $5.2M" }, { url: demoRealEstateProperty, caption: "Urban Loft — $890K" }], columns: 2, style: "grid" }),
   block("testimonials", { items: [{ quote: "They found us the perfect family home in under two weeks. Exceptional service from start to finish.", author: "The Martinez Family" }, { quote: "The market analysis saved us $200K on our purchase. Worth every penny of their commission.", author: "Robert K., Investor" }] }),
   block("contact", { heading: "Schedule a Viewing", showPhone: true, showAddress: true }),
 ];
