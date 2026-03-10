@@ -636,6 +636,8 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     blocks: EVENTS_BLOCKS,
     theme: EVENTS_THEME,
   },
+  {
+    id: "blank",
     name: "Blank Canvas",
     description: "Start from scratch with the default blocks and your own design.",
     thumbnail: "✨",
