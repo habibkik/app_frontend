@@ -60,13 +60,19 @@ export const BlockPalette: React.FC = () => {
         })}
       </div>
 
-      {/* Add blocks */}
-      {availableTypes.length > 0 && (
-        <>
-          <div className="border-t pt-2">
-            <p className="text-xs text-muted-foreground mb-1.5">Add Section</p>
-            <div className="space-y-1">
-              {availableTypes.map((type) => {
+      {/* Add blocks by category */}
+      {availableTypes.length > 0 && (() => {
+        const categories: Record<string, BlockType[]> = {};
+        availableTypes.forEach((type) => {
+          const cat = BLOCK_META[type].category || "Other";
+          if (!categories[cat]) categories[cat] = [];
+          categories[cat].push(type);
+        });
+        return Object.entries(categories).map(([cat, types]) => (
+          <div key={cat} className="border-t pt-2">
+            <p className="text-[10px] font-semibold text-muted-foreground mb-1 uppercase tracking-wider">{cat}</p>
+            <div className="space-y-0.5">
+              {types.map((type) => {
                 const meta = BLOCK_META[type];
                 const Icon = meta.icon;
                 return (
@@ -79,15 +85,14 @@ export const BlockPalette: React.FC = () => {
                     <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
                       <span className="font-medium block truncate">{meta.label}</span>
-                      <span className="text-muted-foreground block truncate">{meta.description}</span>
                     </div>
                   </button>
                 );
               })}
             </div>
           </div>
-        </>
-      )}
+        ));
+      })()}
     </div>
   );
 };
