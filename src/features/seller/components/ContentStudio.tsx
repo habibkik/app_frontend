@@ -408,7 +408,7 @@ export const ContentStudio = () => {
       images: store.proImages.filter((i) => i.imageUrl).map((i) => ({ label: i.label, type: i.id, section: i.section })),
       socialPosts: store.socialPosts,
       emailCampaigns: store.emailCampaigns,
-      landingPageHtml: store.landingPage?.html || null,
+      
       contentScore: store.contentScore,
     };
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
