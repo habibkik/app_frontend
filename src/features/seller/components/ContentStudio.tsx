@@ -346,6 +346,7 @@ export const ContentStudio = () => {
       store.setReferenceImageUrl("https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80");
     }
 
+    saveAllProImages();
     toast.success("Demo data loaded! Explore all tabs to see the generated content.");
   };
 
