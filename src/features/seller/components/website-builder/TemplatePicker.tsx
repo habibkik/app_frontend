@@ -86,7 +86,6 @@ const useScrollToTop = (ref: React.RefObject<HTMLDivElement | null>) => {
   React.useEffect(() => {
     ref.current?.scrollTo({ top: 0, behavior: "instant" });
   }, [ref]);
-  );
 };
 
 /* ─── Preview Modal ───────────────────────────────────────────── */
