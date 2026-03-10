@@ -15,6 +15,12 @@ import type {
   ProblemAgitationBlockConfig,
   SolutionBlockConfig,
   OfferPricingBlockConfig,
+  FeaturesGridBlockConfig,
+  PricingTableBlockConfig,
+  ImageGalleryBlockConfig,
+  VideoEmbedBlockConfig,
+  CountdownTimerBlockConfig,
+  NewsletterBlockConfig,
 } from "./types";
 
 interface GenerateOptions {
@@ -38,7 +44,6 @@ function bgStyle(fallback: string, imageUrl?: string): string {
   return `background:${fallback};`;
 }
 
-/** Wraps section content with a semi-transparent overlay when a background image is set */
 function wrapWithOverlay(innerHtml: string, imageUrl?: string, opacity?: number): string {
   if (!imageUrl) return innerHtml;
   const op = typeof opacity === "number" ? opacity : 0.5;
@@ -260,6 +265,166 @@ function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageThem
 </section>`;
 }
 
+// --- New Block Renderers ---
+
+function renderFeaturesGrid(cfg: FeaturesGridBlockConfig, theme: LandingPageTheme) {
+  const cards = cfg.items.map((item) => `
+    <div style="text-align:center;padding:24px;border:1px solid #e5e7eb;border-radius:${borderRadiusValue(theme.borderRadius)};background:#fff;">
+      <div style="font-size:2.5rem;margin-bottom:12px;">${item.icon}</div>
+      <h4 style="font-family:${theme.headingFont};margin:0 0 8px;color:${theme.textColor};font-size:1rem;">${item.title}</h4>
+      <p style="margin:0;color:#6b7280;font-size:.9rem;line-height:1.5;">${item.description}</p>
+    </div>`).join("");
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const inner = `
+  <div style="max-width:1000px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
+    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 40px;font-size:1.05rem;">${cfg.subtitle}</p>
+    <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:24px;">${cards}</div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderPricingTable(cfg: PricingTableBlockConfig, theme: LandingPageTheme) {
+  const plans = cfg.plans.map((plan) => {
+    const features = plan.features.map((f) => `<li style="padding:8px 0;border-bottom:1px solid #f3f4f6;color:#374151;font-size:.9rem;">✓ ${f}</li>`).join("");
+    const border = plan.highlighted ? `border:2px solid ${theme.primaryColor};` : "border:1px solid #e5e7eb;";
+    const badge = plan.highlighted ? `<div style="background:${theme.primaryColor};color:#fff;text-align:center;padding:4px;font-size:.75rem;font-weight:600;">MOST POPULAR</div>` : "";
+    return `
+    <div style="${border}border-radius:${borderRadiusValue(theme.borderRadius)};overflow:hidden;background:#fff;">
+      ${badge}
+      <div style="padding:32px 24px;text-align:center;">
+        <h3 style="font-family:${theme.headingFont};margin:0 0 16px;color:${theme.textColor};">${plan.name}</h3>
+        <p style="font-size:2.5rem;font-weight:800;color:${theme.primaryColor};margin:0;">${plan.price}<span style="font-size:.9rem;font-weight:400;color:#9ca3af;">${plan.period}</span></p>
+        <ul style="list-style:none;padding:0;margin:24px 0;text-align:left;">${features}</ul>
+        <a href="#order" style="display:block;padding:14px;background:${plan.highlighted ? theme.primaryColor : "transparent"};color:${plan.highlighted ? "#fff" : theme.primaryColor};border:2px solid ${theme.primaryColor};border-radius:${borderRadiusValue(theme.borderRadius)};text-decoration:none;font-weight:600;text-align:center;">${plan.ctaText}</a>
+      </div>
+    </div>`;
+  }).join("");
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const inner = `
+  <div style="max-width:1000px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 40px;color:${textColor};">${cfg.heading}</h2>
+    <div style="display:grid;grid-template-columns:repeat(${cfg.plans.length},1fr);gap:24px;">${plans}</div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderImageGallery(cfg: ImageGalleryBlockConfig, theme: LandingPageTheme) {
+  const imgs = cfg.images.filter((i) => i.url).map((img) => `
+    <div style="border-radius:${borderRadiusValue(theme.borderRadius)};overflow:hidden;border:1px solid #e5e7eb;">
+      <img src="${img.url}" alt="${img.caption}" style="width:100%;height:250px;object-fit:cover;display:block;">
+      ${img.caption ? `<p style="padding:8px 12px;margin:0;font-size:.85rem;color:#6b7280;background:#fff;">${img.caption}</p>` : ""}
+    </div>`).join("");
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const inner = `
+  <div style="max-width:1100px;margin:0 auto;">
+    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
+    <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:16px;">${imgs}</div>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderVideoEmbed(cfg: VideoEmbedBlockConfig, theme: LandingPageTheme) {
+  let embedHtml = "";
+  if (cfg.videoUrl) {
+    if (cfg.provider === "youtube") {
+      const videoId = cfg.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?#]+)/)?.[1] || cfg.videoUrl;
+      embedHtml = `<iframe src="https://www.youtube.com/embed/${videoId}${cfg.autoplay ? "?autoplay=1&mute=1" : ""}" style="width:100%;aspect-ratio:16/9;border:none;border-radius:${borderRadiusValue(theme.borderRadius)};" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+    } else if (cfg.provider === "vimeo") {
+      const vimeoId = cfg.videoUrl.match(/vimeo\.com\/(\d+)/)?.[1] || cfg.videoUrl;
+      embedHtml = `<iframe src="https://player.vimeo.com/video/${vimeoId}${cfg.autoplay ? "?autoplay=1&muted=1" : ""}" style="width:100%;aspect-ratio:16/9;border:none;border-radius:${borderRadiusValue(theme.borderRadius)};" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
+    } else {
+      embedHtml = `<video src="${cfg.videoUrl}" ${cfg.autoplay ? "autoplay muted" : ""} controls style="width:100%;border-radius:${borderRadiusValue(theme.borderRadius)};"></video>`;
+    }
+  } else {
+    embedHtml = `<div style="width:100%;aspect-ratio:16/9;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border-radius:${borderRadiusValue(theme.borderRadius)};color:#9ca3af;">Add a video URL</div>`;
+  }
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const inner = `
+  <div style="max-width:800px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${textColor};">${cfg.heading}</h2>
+    ${embedHtml}
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPageTheme) {
+  const textColor = cfg.backgroundImageUrl ? "#fff" : "#fff";
+  const inner = `
+  <div style="max-width:600px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
+    <p style="color:rgba(255,255,255,.8);margin:0 0 24px;font-size:1.05rem;">${cfg.subtitle}</p>
+    <div id="countdown-display" style="display:flex;justify-content:center;gap:16px;margin-bottom:24px;">
+      <div style="background:rgba(255,255,255,.15);padding:16px 20px;border-radius:${borderRadiusValue(theme.borderRadius)};min-width:70px;">
+        <span class="cd-days" style="font-size:2rem;font-weight:800;color:#fff;">00</span>
+        <p style="margin:4px 0 0;font-size:.75rem;color:rgba(255,255,255,.7);">Days</p>
+      </div>
+      <div style="background:rgba(255,255,255,.15);padding:16px 20px;border-radius:${borderRadiusValue(theme.borderRadius)};min-width:70px;">
+        <span class="cd-hours" style="font-size:2rem;font-weight:800;color:#fff;">00</span>
+        <p style="margin:4px 0 0;font-size:.75rem;color:rgba(255,255,255,.7);">Hours</p>
+      </div>
+      <div style="background:rgba(255,255,255,.15);padding:16px 20px;border-radius:${borderRadiusValue(theme.borderRadius)};min-width:70px;">
+        <span class="cd-mins" style="font-size:2rem;font-weight:800;color:#fff;">00</span>
+        <p style="margin:4px 0 0;font-size:.75rem;color:rgba(255,255,255,.7);">Minutes</p>
+      </div>
+      <div style="background:rgba(255,255,255,.15);padding:16px 20px;border-radius:${borderRadiusValue(theme.borderRadius)};min-width:70px;">
+        <span class="cd-secs" style="font-size:2rem;font-weight:800;color:#fff;">00</span>
+        <p style="margin:4px 0 0;font-size:.75rem;color:rgba(255,255,255,.7);">Seconds</p>
+      </div>
+    </div>
+    <a href="${cfg.ctaUrl || "#"}" style="display:inline-block;padding:14px 32px;background:#fff;color:${theme.primaryColor};border-radius:${borderRadiusValue(theme.borderRadius)};text-decoration:none;font-weight:600;">${cfg.ctaText}</a>
+  </div>
+  <script>
+  (function(){
+    var target = new Date("${cfg.targetDate}T00:00:00").getTime();
+    function upd(){
+      var now = Date.now();
+      var diff = Math.max(0, target - now);
+      var d = Math.floor(diff/86400000);
+      var h = Math.floor((diff%86400000)/3600000);
+      var m = Math.floor((diff%3600000)/60000);
+      var s = Math.floor((diff%60000)/1000);
+      var el = document.getElementById("countdown-display");
+      if(el){
+        el.querySelector(".cd-days").textContent = String(d).padStart(2,"0");
+        el.querySelector(".cd-hours").textContent = String(h).padStart(2,"0");
+        el.querySelector(".cd-mins").textContent = String(m).padStart(2,"0");
+        el.querySelector(".cd-secs").textContent = String(s).padStart(2,"0");
+      }
+    }
+    upd();
+    setInterval(upd,1000);
+  })();
+  </script>`;
+  return `<section style="padding:60px 20px;${bgStyle(theme.primaryColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderNewsletter(cfg: NewsletterBlockConfig, theme: LandingPageTheme) {
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const inner = `
+  <div style="max-width:500px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
+    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 24px;font-size:.95rem;">${cfg.subtitle}</p>
+    <form style="display:flex;gap:8px;">
+      <input type="email" placeholder="${cfg.placeholderText}" style="flex:1;padding:14px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;">
+      <button type="submit" style="padding:14px 24px;background:${theme.primaryColor};color:#fff;border:none;border-radius:${borderRadiusValue(theme.borderRadius)};font-weight:600;cursor:pointer;white-space:nowrap;">${cfg.buttonText}</button>
+    </form>
+  </div>`;
+  return `<section style="padding:60px 20px;${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
 export function generateStorefrontHtml(options: GenerateOptions): string {
   const { siteConfig, blocks, theme, products, marketData, socialStats } = options;
   const enabledBlocks = blocks.filter((b) => b.enabled);
@@ -278,19 +443,45 @@ export function generateStorefrontHtml(options: GenerateOptions): string {
       case "problem-agitation": return renderProblemAgitation(block.config as ProblemAgitationBlockConfig, theme);
       case "solution": return renderSolution(block.config as SolutionBlockConfig, theme);
       case "offer-pricing": return renderOfferPricing(block.config as OfferPricingBlockConfig, theme);
+      case "features-grid": return renderFeaturesGrid(block.config as FeaturesGridBlockConfig, theme);
+      case "pricing-table": return renderPricingTable(block.config as PricingTableBlockConfig, theme);
+      case "image-gallery": return renderImageGallery(block.config as ImageGalleryBlockConfig, theme);
+      case "video-embed": return renderVideoEmbed(block.config as VideoEmbedBlockConfig, theme);
+      case "countdown-timer": return renderCountdownTimer(block.config as CountdownTimerBlockConfig, theme);
+      case "newsletter": return renderNewsletter(block.config as NewsletterBlockConfig, theme);
       default: return "";
     }
   }).join("\n");
+
+  const metaTitle = siteConfig.metaTitle || siteConfig.name;
+  const metaDesc = siteConfig.metaDescription || siteConfig.tagline;
+  const metaKw = siteConfig.metaKeywords ? `<meta name="keywords" content="${siteConfig.metaKeywords}">` : "";
+  const ogImage = siteConfig.ogImage ? `<meta property="og:image" content="${siteConfig.ogImage}">` : "";
+  const favicon = siteConfig.favicon ? `<link rel="icon" href="${siteConfig.favicon}">` : "";
+
+  // Collect Google Fonts from theme
+  const fontFamilies = new Set<string>();
+  [theme.headingFont, theme.bodyFont].forEach((f) => {
+    const match = f.match(/'([^']+)'/);
+    if (match && !["Inter", "Georgia", "Times New Roman"].includes(match[1])) fontFamilies.add(match[1]);
+  });
+  const googleFontsLink = fontFamilies.size > 0
+    ? `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?${[...fontFamilies].map((f) => `family=${f.replace(/ /g, "+")}:wght@400;600;700;800`).join("&")}&display=swap" rel="stylesheet">`
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <meta name="description" content="${siteConfig.tagline}">
-  <meta property="og:title" content="${siteConfig.name}">
-  <meta property="og:description" content="${siteConfig.tagline}">
-  <title>${siteConfig.name}</title>
+  <title>${metaTitle}</title>
+  <meta name="description" content="${metaDesc}">
+  ${metaKw}
+  <meta property="og:title" content="${metaTitle}">
+  <meta property="og:description" content="${metaDesc}">
+  ${ogImage}
+  ${favicon}
+  ${googleFontsLink}
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:${theme.bodyFont};color:${theme.textColor};background:${theme.bgColor};-webkit-font-smoothing:antialiased;}
@@ -298,6 +489,7 @@ export function generateStorefrontHtml(options: GenerateOptions): string {
     @media(max-width:768px){
       section div[style*="grid-template-columns"]{grid-template-columns:1fr!important;}
       section div[style*="display:flex"][style*="gap:48px"]{flex-direction:column;gap:24px!important;}
+      section div[style*="display:flex"][style*="gap:16px"]{flex-direction:column;gap:12px!important;}
       h1{font-size:1.8rem!important;}
     }
   </style>
