@@ -21,7 +21,12 @@ export interface WebsiteTemplate {
   name: string;
   description: string;
   thumbnail: string;
+  previewImage: string;
   category: string;
+  siteConfig: SiteConfig;
+  blocks: SiteBlock[];
+  theme: LandingPageTheme;
+}
   siteConfig: SiteConfig;
   blocks: SiteBlock[];
   theme: LandingPageTheme;
