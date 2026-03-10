@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.component-sourcing]
 verify_jwt = false
+
+[functions.generate-seo]
+verify_jwt = false

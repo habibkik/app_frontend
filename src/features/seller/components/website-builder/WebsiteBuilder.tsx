@@ -48,6 +48,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -287,6 +288,31 @@ export const WebsiteBuilder: React.FC = () => {
 
       {showSeoPanel && (
         <div className="px-4 py-3 border-b bg-muted/30">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-sm font-semibold">SEO Settings</h3>
+            <Button size="sm" variant="outline" className="h-7 text-xs ml-auto bg-primary/5 border-primary/30 hover:bg-primary/10" disabled={isGeneratingSeo} onClick={async () => {
+              setIsGeneratingSeo(true);
+              try {
+                const { data, error } = await supabase.functions.invoke("generate-seo", {
+                  body: { siteName: store.siteConfig.name, tagline: store.siteConfig.tagline, blocks: store.blocks.filter(b => b.enabled).map(b => ({ type: b.type, enabled: b.enabled, config: b.config })) },
+                });
+                if (error) throw error;
+                if (data?.error) throw new Error(data.error);
+                store.setSiteConfig({
+                  metaTitle: data.metaTitle || store.siteConfig.metaTitle,
+                  metaDescription: data.metaDescription || store.siteConfig.metaDescription,
+                  metaKeywords: data.metaKeywords || store.siteConfig.metaKeywords,
+                });
+                toast.success("SEO fields auto-filled by AI!");
+              } catch (err: any) {
+                toast.error(err.message || "Failed to generate SEO metadata");
+              } finally {
+                setIsGeneratingSeo(false);
+              }
+            }}>
+              {isGeneratingSeo ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />} AI Auto-Fill
+            </Button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl">
             <div className="space-y-3">
               <div className="space-y-1">
