@@ -262,9 +262,9 @@ const PORTFOLIO_THEME: LandingPageTheme = {
 
 // ─── Restaurant Template ─────────────────────────────────────────
 const RESTAURANT_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "A Culinary Journey", subtitle: "Farm-to-table dining in the heart of the city. Seasonal ingredients, timeless flavors.", ctaText: "Reserve a Table", backgroundImageUrl: "" }),
+  block("hero", { title: "A Culinary Journey", subtitle: "Farm-to-table dining in the heart of the city. Seasonal ingredients, timeless flavors.", ctaText: "Reserve a Table", backgroundImageUrl: demoRestaurantHero }),
   block("features-grid", { heading: "Why Dine With Us", subtitle: "", items: [{ icon: "🌿", title: "Farm Fresh", description: "Locally sourced seasonal ingredients." }, { icon: "👨‍🍳", title: "Award-Winning Chef", description: "Michelin-starred culinary team." }, { icon: "🍷", title: "Wine Pairing", description: "Curated selection of 200+ wines." }], columns: 3 }),
-  block("image-gallery", { heading: "From Our Kitchen", images: [{ url: "", caption: "Signature Dish" }, { url: "", caption: "Private Dining" }, { url: "", caption: "Our Garden" }], columns: 3, style: "grid" }),
+  block("image-gallery", { heading: "From Our Kitchen", images: [{ url: demoRestaurantDish, caption: "Signature Dish" }, { url: demoRestaurantHero, caption: "Private Dining" }, { url: demoRestaurantDish, caption: "Our Garden" }], columns: 3, style: "grid" }),
   block("testimonials", { items: [{ quote: "Best dining experience in the city. The tasting menu is a masterpiece.", author: "Food & Wine Magazine" }] }),
   block("faq", { items: [{ question: "Do you take reservations?", answer: "Yes! Book online or call us at (555) 123-4567." }, { question: "Is there parking available?", answer: "Complimentary valet parking is available Friday through Sunday." }] }),
   block("contact", { heading: "Make a Reservation", showPhone: true, showAddress: true }),
