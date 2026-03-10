@@ -20,7 +20,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { BlockPalette } from "./BlockPalette";
 import { BlockConfigurator } from "./BlockConfigurator";
 import { generateStorefrontHtml } from "./generateStorefrontHtml";
-import { LandingPageCustomizer } from "../content-studio/LandingPageCustomizer";
+import { ThemeCustomizer } from "./ThemeCustomizer";
 import { TemplatePicker } from "./TemplatePicker";
 import { AILandingGenerator } from "./AILandingGenerator";
 import type { WebsiteTemplate } from "./templates";
