@@ -26,6 +26,7 @@ import {
   BookOpen,
   ClipboardCheck,
   Store,
+  ShoppingCart,
   LucideIcon,
 } from "lucide-react";
 import type { DashboardMode } from "@/features/dashboard";
