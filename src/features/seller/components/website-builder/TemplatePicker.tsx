@@ -136,7 +136,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="relative bg-background rounded-2xl shadow-2xl border border-border w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="relative bg-background rounded-2xl shadow-2xl border border-border w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
