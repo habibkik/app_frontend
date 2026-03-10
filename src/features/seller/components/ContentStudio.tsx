@@ -256,34 +256,39 @@ export const ContentStudio = () => {
     store.setEmailCampaigns(emails);
     store.setContentScore(calculateContentScore(posts, emails, sellerResults));
 
-    // Demo pro images using contextual unsplash photos
-    const demoProImg = (id: string, label: string, section: string, url: string): GeneratedImage => ({
-      id, label, prompt: "Demo", imageUrl: url, isGenerating: false, section,
-    });
-    const productUrl = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80";
-    store.setProImages([
-      demoProImg("packshot-front", "Front View", "packshot", productUrl),
-      demoProImg("packshot-side", "Side View", "packshot", productUrl),
-      demoProImg("packshot-back", "Back View", "packshot", productUrl),
-      demoProImg("packshot-45deg", "45° Perspective", "packshot", productUrl),
-      demoProImg("packshot-top", "Top View", "packshot", productUrl),
-      demoProImg("ugc-outdoor", "Outdoor", "ugc", "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80"),
-      demoProImg("ugc-home", "At Home", "ugc", "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80"),
-      demoProImg("ugc-social", "Social Selfie", "ugc", "https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=400&q=80"),
-      demoProImg("ugc-unboxing", "Unboxing", "ugc", "https://images.unsplash.com/photo-1612478752710-4cbe1e5ac6fe?w=400&q=80"),
-      demoProImg("ugc-action", "In Action", "ugc", "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&q=80"),
-      demoProImg("usage-morning", "Morning Routine", "usage", "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80"),
-      demoProImg("usage-work", "At Work", "usage", "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=400&q=80"),
-      demoProImg("usage-commute", "Commute", "usage", "https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?w=400&q=80"),
-      demoProImg("usage-leisure", "Leisure", "usage", "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80"),
-      demoProImg("usage-evening", "Evening", "usage", "https://images.unsplash.com/photo-1545127398-14699f92334b?w=400&q=80"),
-      demoProImg("studio-hero", "Hero Shot", "studio", "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&q=80"),
-      demoProImg("studio-detail", "Detail Macro", "studio", "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=400&q=80"),
-      demoProImg("studio-lifestyle", "Styled Lifestyle", "studio", "https://images.unsplash.com/photo-1548921441-89c8bd2c3637?w=400&q=80"),
-      demoProImg("studio-dramatic", "Dramatic Lighting", "studio", "https://images.unsplash.com/photo-1608156639585-b3a776571bef?w=400&q=80"),
-      demoProImg("studio-flat", "Flat Lay", "studio", "https://images.unsplash.com/photo-1558756520-22cfe5d382ca?w=400&q=80"),
-    ]);
-    store.setReferenceImageUrl(productUrl);
+    // Preserve already-generated pro images; only fill missing slots with Unsplash fallbacks
+    const fallbackUrls: Record<string, string> = {
+      "packshot-front": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
+      "packshot-side": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
+      "packshot-back": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
+      "packshot-45deg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
+      "packshot-top": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
+      "ugc-outdoor": "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80",
+      "ugc-home": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80",
+      "ugc-social": "https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=400&q=80",
+      "ugc-unboxing": "https://images.unsplash.com/photo-1612478752710-4cbe1e5ac6fe?w=400&q=80",
+      "ugc-action": "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&q=80",
+      "usage-morning": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80",
+      "usage-work": "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=400&q=80",
+      "usage-commute": "https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?w=400&q=80",
+      "usage-leisure": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80",
+      "usage-evening": "https://images.unsplash.com/photo-1545127398-14699f92334b?w=400&q=80",
+      "studio-hero": "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&q=80",
+      "studio-detail": "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=400&q=80",
+      "studio-lifestyle": "https://images.unsplash.com/photo-1548921441-89c8bd2c3637?w=400&q=80",
+      "studio-dramatic": "https://images.unsplash.com/photo-1608156639585-b3a776571bef?w=400&q=80",
+      "studio-flat": "https://images.unsplash.com/photo-1558756520-22cfe5d382ca?w=400&q=80",
+    };
+    const mergedProImages = store.proImages.map((img) => ({
+      ...img,
+      imageUrl: img.imageUrl || fallbackUrls[img.id] || null,
+    }));
+    store.setProImages(mergedProImages);
+
+    // Keep existing reference image or use fallback
+    if (!store.referenceImageUrl) {
+      store.setReferenceImageUrl("https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80");
+    }
 
     toast.success("Demo data loaded! Explore all tabs to see the generated content.");
   };
