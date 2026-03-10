@@ -241,8 +241,11 @@ export const WebsiteBuilder: React.FC = () => {
         <Button size="sm" variant={previewMode === "mobile" ? "default" : "outline"} onClick={() => setPreviewMode("mobile")} className="h-7 text-xs">
           <Smartphone className="h-3 w-3 mr-1" /> Mobile
         </Button>
-        <Button size="sm" variant={showCustomizer ? "default" : "outline"} onClick={() => setShowCustomizer(!showCustomizer)} className="h-7 text-xs">
+        <Button size="sm" variant={showCustomizer ? "default" : "outline"} onClick={() => { setShowCustomizer(!showCustomizer); if (!showCustomizer) setShowSeoPanel(false); }} className="h-7 text-xs">
           <Paintbrush className="h-3 w-3 mr-1" /> Theme
+        </Button>
+        <Button size="sm" variant={showSeoPanel ? "default" : "outline"} onClick={() => { setShowSeoPanel(!showSeoPanel); if (!showSeoPanel) setShowCustomizer(false); }} className="h-7 text-xs">
+          <Search className="h-3 w-3 mr-1" /> SEO
         </Button>
         <Button size="sm" variant="outline" onClick={() => setShowTemplateDialog(true)} className="h-7 text-xs">
           <LayoutTemplate className="h-3 w-3 mr-1" /> Templates
