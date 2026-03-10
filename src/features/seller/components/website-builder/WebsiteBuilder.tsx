@@ -282,7 +282,7 @@ export const WebsiteBuilder: React.FC = () => {
 
       {showCustomizer && (
         <div className="px-4 py-3 border-b bg-muted/30">
-          <LandingPageCustomizer theme={store.theme} onChange={store.setTheme} />
+          <ThemeCustomizer theme={store.theme} onChange={store.setTheme} />
         </div>
       )}
 
