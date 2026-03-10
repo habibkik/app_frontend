@@ -285,6 +285,53 @@ export const WebsiteBuilder: React.FC = () => {
         </div>
       )}
 
+      {showSeoPanel && (
+        <div className="px-4 py-3 border-b bg-muted/30">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Meta Title <span className="text-muted-foreground">({(store.siteConfig.metaTitle || store.siteConfig.name || "").length}/60)</span></Label>
+                <Input value={store.siteConfig.metaTitle || ""} onChange={(e) => store.setSiteConfig({ metaTitle: e.target.value })} placeholder={store.siteConfig.name || "Page title for search engines"} maxLength={60} className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Meta Description <span className="text-muted-foreground">({(store.siteConfig.metaDescription || "").length}/160)</span></Label>
+                <Textarea value={store.siteConfig.metaDescription || ""} onChange={(e) => store.setSiteConfig({ metaDescription: e.target.value })} placeholder="Brief description for search results…" maxLength={160} className="text-xs min-h-[60px] resize-none" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Keywords <span className="text-muted-foreground">(comma-separated)</span></Label>
+                <Input value={store.siteConfig.metaKeywords || ""} onChange={(e) => store.setSiteConfig({ metaKeywords: e.target.value })} placeholder="e-bike, electric, store" className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">OG Image URL</Label>
+                <Input value={store.siteConfig.ogImage || ""} onChange={(e) => store.setSiteConfig({ ogImage: e.target.value })} placeholder="https://example.com/og-image.jpg" className="h-8 text-xs" />
+                {store.siteConfig.ogImage && (
+                  <img src={store.siteConfig.ogImage} alt="OG preview" className="h-16 w-28 object-cover rounded border mt-1" onError={(e) => (e.currentTarget.style.display = "none")} />
+                )}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-medium">Favicon URL</Label>
+                <Input value={store.siteConfig.favicon || ""} onChange={(e) => store.setSiteConfig({ favicon: e.target.value })} placeholder="https://example.com/favicon.ico" className="h-8 text-xs" />
+                {store.siteConfig.favicon && (
+                  <img src={store.siteConfig.favicon} alt="Favicon preview" className="h-6 w-6 object-contain rounded border mt-1" onError={(e) => (e.currentTarget.style.display = "none")} />
+                )}
+              </div>
+              <div className="p-2 rounded bg-card border text-xs text-muted-foreground space-y-1 mt-2">
+                <p className="font-medium text-foreground">SEO Tips</p>
+                <ul className="list-disc list-inside space-y-0.5">
+                  <li>Title under 60 chars with primary keyword</li>
+                  <li>Description under 160 chars, compelling CTA</li>
+                  <li>OG image: 1200×630px for social shares</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {publishedUrl && (
         <div className="flex items-center gap-3 px-4 py-2 border-b bg-primary/5">
           <LinkIcon className="h-4 w-4 text-primary shrink-0" />
