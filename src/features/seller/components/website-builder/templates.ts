@@ -248,8 +248,8 @@ const SAAS_THEME: LandingPageTheme = {
 // ─── Portfolio Template ──────────────────────────────────────────
 const PORTFOLIO_BLOCKS: SiteBlock[] = [
   block("hero", { title: "Creative Studio", subtitle: "Award-winning design, branding, and digital experiences that make brands unforgettable.", ctaText: "View Our Work", backgroundImageUrl: "" }),
-  block("image-gallery", { heading: "Selected Work", images: [{ url: "", caption: "Brand Identity — Luxe Co." }, { url: "", caption: "Web Design — FinTech App" }, { url: "", caption: "Packaging — Organic Blends" }, { url: "", caption: "Campaign — Summer '24" }], columns: 2, style: "grid" }),
-  block("about", { content: "We're a boutique creative studio specializing in brand strategy, visual identity, and digital product design. With over a decade of experience, we've helped 200+ brands tell their story with clarity and conviction.", imageUrl: "" }),
+  block("image-gallery", { heading: "Selected Work", images: [{ url: demoPortfolioWork1, caption: "Brand Identity — Luxe Co." }, { url: demoPortfolioWork2, caption: "Web Design — FinTech App" }, { url: demoPortfolioWork3, caption: "Packaging — Organic Blends" }, { url: demoPortfolioWork4, caption: "Campaign — Summer '24" }], columns: 2, style: "grid" }),
+  block("about", { content: "We're a boutique creative studio specializing in brand strategy, visual identity, and digital product design. With over a decade of experience, we've helped 200+ brands tell their story with clarity and conviction.", imageUrl: demoPortfolioWork1 }),
   block("testimonials", { items: [{ quote: "They transformed our brand from forgettable to iconic. The ROI has been incredible.", author: "Founder, Luxe Co." }] }),
   block("contact", { heading: "Let's Create Together", showPhone: true, showAddress: true }),
 ];
