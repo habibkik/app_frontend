@@ -39,6 +39,7 @@ interface Props {
   productName: string;
   productCategory: string;
   competitors: string[];
+  onImageGenerated?: (img: GeneratedImage) => void;
 }
 
 export const ProImageGenerationTab: React.FC<Props> = ({
