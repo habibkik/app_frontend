@@ -38,7 +38,7 @@ import type {
 import { SocialImagePostsTab } from "./content-studio/SocialImagePostsTab";
 import { VideoTab } from "./content-studio/VideoTab";
 import { SocialVideoPostsTab } from "./content-studio/SocialVideoPostsTab";
-import { LandingPageTab } from "./content-studio/LandingPageTab";
+
 import { EmailCampaignTab } from "./content-studio/EmailCampaignTab";
 import { ContentScoreTab } from "./content-studio/ContentScoreTab";
 import { ProImageGenerationTab } from "./content-studio/ProImageGenerationTab";
