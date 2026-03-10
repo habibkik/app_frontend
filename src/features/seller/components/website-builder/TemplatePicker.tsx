@@ -15,7 +15,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
   const [preview, setPreview] = useState<WebsiteTemplate | null>(null);
 
   return (
-    <LayoutGroup>
+    (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
