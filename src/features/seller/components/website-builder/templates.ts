@@ -107,12 +107,12 @@ const MINIMALIST_BLOCKS: SiteBlock[] = [
     title: "Clean. Simple. Yours.",
     subtitle: "Discover thoughtfully curated products designed for modern living.",
     ctaText: "Browse Collection",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoMinimalistHero,
   }),
   block("product-catalog", { columns: 3, showPrice: true, showDescription: true, categoryFilter: "" }),
   block("about", {
     content: "We believe in the beauty of simplicity. Every product in our collection is carefully selected for quality, function, and timeless design.",
-    imageUrl: "",
+    imageUrl: demoMinimalistHero,
   }),
   block("contact", { heading: "Say Hello", showPhone: false, showAddress: true }),
 ];
