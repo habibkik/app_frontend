@@ -556,26 +556,6 @@ export const ContentStudio = () => {
         <TabsContent value="social-video">
           <SocialVideoPostsTab />
         </TabsContent>
-        <TabsContent value="landing-page">
-          <LandingPageTab
-            landingPage={store.landingPage}
-            images={store.proImages}
-            productName={productName}
-            userId={userId}
-            theme={landingTheme}
-            sectionOrder={sectionOrder}
-            onThemeChange={(newTheme) => {
-              setLandingTheme(newTheme);
-              const lp = buildLandingPageHtml(productName, sellerResults, store.proImages, store.socialPosts, newTheme, sectionOrder);
-              store.setLandingPage(lp);
-            }}
-            onSectionOrderChange={(newOrder) => {
-              setSectionOrder(newOrder);
-              const lp = buildLandingPageHtml(productName, sellerResults, store.proImages, store.socialPosts, landingTheme, newOrder);
-              store.setLandingPage(lp);
-            }}
-          />
-        </TabsContent>
         <TabsContent value="email">
           <EmailCampaignTab campaigns={store.emailCampaigns} images={store.proImages} />
         </TabsContent>
