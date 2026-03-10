@@ -32,12 +32,8 @@ import type {
   SocialImagePost,
   EmailCampaign,
   ContentScore,
-  LandingPageData,
   GenerationStep,
-  LandingPageTheme,
-  LandingPageSection,
 } from "./content-studio/types";
-import { DEFAULT_LANDING_THEME, DEFAULT_SECTION_ORDER } from "./content-studio/types";
 // ImageGenerationTab removed — replaced by ProImageGenerationTab
 import { SocialImagePostsTab } from "./content-studio/SocialImagePostsTab";
 import { VideoTab } from "./content-studio/VideoTab";
