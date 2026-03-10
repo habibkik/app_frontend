@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,78 +14,69 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
   const [preview, setPreview] = useState<WebsiteTemplate | null>(null);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-10"
-      >
-        <h2 className="text-2xl font-bold text-foreground mb-2">Choose a Template</h2>
-        <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          Pick a starting point for your website. You can fully customize it after.
-        </p>
-      </motion.div>
+    <LayoutGroup>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-10"
+        >
+          <h2 className="text-2xl font-bold text-foreground mb-2">Choose a Template</h2>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto">
+            Pick a starting point for your website. You can fully customize it after.
+          </p>
+        </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full">
-        {WEBSITE_TEMPLATES.map((template, index) => (
-          <motion.div
-            key={template.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card
-              className="cursor-pointer group hover:border-primary/60 transition-all duration-300 hover:shadow-xl overflow-hidden"
-              onClick={() => setPreview(template)}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full">
+          {WEBSITE_TEMPLATES.map((template, index) => (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
             >
-              <div className="h-44 relative overflow-hidden bg-muted/40">
-                <img
-                  src={template.previewImage}
-                  alt={`${template.name} template preview`}
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <span className="bg-background/90 text-foreground text-xs font-medium px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
-                    Preview
-                  </span>
-                </div>
-              </div>
-              <CardContent className="p-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm text-foreground">{template.name}</h3>
-                  <Badge variant="secondary" className="text-[10px]">{template.category}</Badge>
-                </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+              <Card
+                className="cursor-pointer group hover:border-primary/60 transition-all duration-300 hover:shadow-xl overflow-hidden"
+                onClick={() => setPreview(template)}
+              >
+                <motion.div
+                  layoutId={`template-image-${template.id}`}
+                  className="h-44 relative overflow-hidden bg-muted/40"
+                >
+                  <img
+                    src={template.previewImage}
+                    alt={`${template.name} template preview`}
+                    className="w-full h-full object-cover object-top"
+                    loading="lazy"
+                  />
+                </motion.div>
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm text-foreground">{template.name}</h3>
+                    <Badge variant="secondary" className="text-[10px]">{template.category}</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <AnimatePresence>
+          {preview && (
+            <TemplatePreviewModal
+              template={preview}
+              onClose={() => setPreview(null)}
+              onSelect={() => {
+                onSelect(preview);
+                setPreview(null);
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
-
-      {/* Full-screen preview modal */}
-      <AnimatePresence>
-        {preview && (
-          <TemplatePreviewModal
-            template={preview}
-            onClose={() => setPreview(null)}
-            onSelect={() => {
-              onSelect(preview);
-              setPreview(null);
-            }}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+    </LayoutGroup>
   );
-};
-
-/* Helper to scroll container to top when modal opens */
-const useScrollToTop = (ref: React.RefObject<HTMLDivElement | null>) => {
-  React.useEffect(() => {
-    ref.current?.scrollTo({ top: 0, behavior: "instant" });
-  }, [ref]);
 };
 
 /* ─── Preview Modal ───────────────────────────────────────────── */
@@ -106,9 +97,6 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
   onClose,
   onSelect,
 }) => {
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-  useScrollToTop(scrollRef);
-
   const enabledBlocks = template.blocks.filter((b) => b.enabled);
   const themeColors = [
     { label: "Primary", color: template.theme.primaryColor },
@@ -127,10 +115,10 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 40 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 40 }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25 }}
         className="relative bg-background rounded-2xl shadow-2xl border border-border w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -142,9 +130,12 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
           <X className="h-4 w-4 text-foreground" />
         </button>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
-          {/* Hero preview image */}
-          <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
+          {/* Hero preview image — shared layout animation from card */}
+          <motion.div
+            layoutId={`template-image-${template.id}`}
+            className="relative w-full aspect-[16/9] bg-muted overflow-hidden"
+          >
             <img
               src={template.previewImage}
               alt={`${template.name} preview`}
@@ -156,7 +147,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
               <h2 className="text-2xl font-bold text-white">{template.name}</h2>
               <p className="text-sm text-white/80 mt-1 max-w-xl">{template.description}</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Details grid */}
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
