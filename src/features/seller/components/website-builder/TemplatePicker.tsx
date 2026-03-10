@@ -36,7 +36,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
               transition={{ delay: index * 0.05 }}
             >
               <Card
-                className="group hover:border-primary/60 transition-all duration-300 hover:shadow-xl overflow-hidden"
+                className="group hover:border-primary/60 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden"
               >
                 <motion.div
                   layoutId={`template-image-${template.id}`}
