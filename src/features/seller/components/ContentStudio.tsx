@@ -249,9 +249,7 @@ export const ContentStudio = () => {
 
   // ── Load Demo Data ──
   const handleLoadDemoData = () => {
-    // Use the dynamic generators so demo data matches the current product context
-    store.setSocialPosts(generateSocialPosts());
-    store.setEmailCampaigns(generateEmailCampaigns());
+    // Use dynamic generators so demo reflects the current product context
     const posts = generateSocialPosts();
     const emails = generateEmailCampaigns();
     store.setSocialPosts(posts);
