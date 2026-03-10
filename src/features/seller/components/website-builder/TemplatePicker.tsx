@@ -106,6 +106,9 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
   onClose,
   onSelect,
 }) => {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  useScrollToTop(scrollRef);
+
   const enabledBlocks = template.blocks.filter((b) => b.enabled);
   const themeColors = [
     { label: "Primary", color: template.theme.primaryColor },
@@ -120,7 +123,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 backdrop-blur-sm overflow-y-auto p-4"
       onClick={onClose}
     >
       <motion.div
@@ -128,7 +131,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="relative bg-background rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="relative bg-background rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col my-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -139,7 +142,7 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
           <X className="h-4 w-4 text-foreground" />
         </button>
 
-        <div className="flex-1 overflow-y-auto">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto">
           {/* Hero preview image */}
           <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
             <img
