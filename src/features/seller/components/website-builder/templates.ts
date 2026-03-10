@@ -340,9 +340,9 @@ const AGENCY_THEME: LandingPageTheme = {
 
 // ─── New Premium Templates: Wellness ─────────────────────────────
 const WELLNESS_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "Restore. Renew. Revive.", subtitle: "A sanctuary of calm in the heart of the city. Holistic treatments designed to nurture body, mind, and spirit.", ctaText: "Book a Session", backgroundImageUrl: "" }),
+  block("hero", { title: "Restore. Renew. Revive.", subtitle: "A sanctuary of calm in the heart of the city. Holistic treatments designed to nurture body, mind, and spirit.", ctaText: "Book a Session", backgroundImageUrl: demoWellnessHero }),
   block("features-grid", { heading: "Our Treatments", subtitle: "Curated wellness experiences", items: [{ icon: "💆", title: "Massage Therapy", description: "Deep tissue, hot stone, and Swedish techniques." }, { icon: "🧖", title: "Facial Treatments", description: "Anti-aging, hydrating, and brightening facials." }, { icon: "🌿", title: "Aromatherapy", description: "Essential oil blends for relaxation and healing." }, { icon: "🧘", title: "Meditation", description: "Guided sessions for stress relief and clarity." }], columns: 4 }),
-  block("image-gallery", { heading: "Our Space", images: [{ url: "", caption: "Treatment Rooms" }, { url: "", caption: "Relaxation Lounge" }, { url: "", caption: "Zen Garden" }], columns: 3, style: "grid" }),
+  block("image-gallery", { heading: "Our Space", images: [{ url: demoWellnessHero, caption: "Treatment Rooms" }, { url: demoWellnessGarden, caption: "Relaxation Lounge" }, { url: demoWellnessGarden, caption: "Zen Garden" }], columns: 3, style: "grid" }),
   block("testimonials", { items: [{ quote: "The most peaceful place I've ever been. I leave every session feeling completely renewed.", author: "Sarah L." }, { quote: "Their aromatherapy massage is life-changing. I've been coming weekly for a year.", author: "Emma W." }] }),
   block("newsletter", { heading: "Wellness Tips & Offers", subtitle: "Join our community for exclusive deals and self-care inspiration.", buttonText: "Subscribe", placeholderText: "Your email" }),
   block("contact", { heading: "Book Your Experience", showPhone: true, showAddress: true }),
