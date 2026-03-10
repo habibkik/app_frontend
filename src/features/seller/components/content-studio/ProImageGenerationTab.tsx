@@ -46,6 +46,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   productName,
   productCategory,
   competitors,
+  onImageGenerated,
 }) => {
   const store = useContentStudioStore();
   const currentImage = useAnalysisStore((s) => s.currentImage);
