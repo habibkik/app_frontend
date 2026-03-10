@@ -344,6 +344,45 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_pro_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_key: string
+          image_url: string
+          label: string
+          product_name: string
+          prompt: string
+          section: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_key: string
+          image_url: string
+          label: string
+          product_name?: string
+          prompt?: string
+          section: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_key?: string
+          image_url?: string
+          label?: string
+          product_name?: string
+          prompt?: string
+          section?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       gtm_plans: {
         Row: {
           created_at: string
