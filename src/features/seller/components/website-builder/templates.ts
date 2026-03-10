@@ -1,11 +1,27 @@
 import type { SiteBlock, SiteConfig } from "./types";
 import type { LandingPageTheme } from "../content-studio/types";
 
+// Template preview images
+import imgEvolu from "@/assets/templates/evolu-ebike.jpg";
+import imgMinimalist from "@/assets/templates/minimalist-store.jpg";
+import imgBold from "@/assets/templates/bold-showcase.jpg";
+import imgPremium from "@/assets/templates/premium-conversion.jpg";
+import imgSaas from "@/assets/templates/saas-landing.jpg";
+import imgPortfolio from "@/assets/templates/portfolio.jpg";
+import imgRestaurant from "@/assets/templates/restaurant.jpg";
+import imgFashion from "@/assets/templates/fashion.jpg";
+import imgRealEstate from "@/assets/templates/real-estate.jpg";
+import imgFitness from "@/assets/templates/fitness.jpg";
+import imgAgency from "@/assets/templates/agency.jpg";
+import imgWellness from "@/assets/templates/wellness.jpg";
+import imgBlank from "@/assets/templates/blank.jpg";
+
 export interface WebsiteTemplate {
   id: string;
   name: string;
   description: string;
   thumbnail: string;
+  previewImage: string;
   category: string;
   siteConfig: SiteConfig;
   blocks: SiteBlock[];
@@ -255,6 +271,68 @@ const FASHION_THEME: LandingPageTheme = {
   layout: "bold", borderRadius: "none", heroStyle: "centered",
 };
 
+// ─── New Premium Templates: Real Estate ──────────────────────────
+const REAL_ESTATE_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Find Your Dream Home", subtitle: "Luxury properties in the most sought-after locations. Expert guidance from search to settlement.", ctaText: "Browse Properties", backgroundImageUrl: "" }),
+  block("features-grid", { heading: "Why Choose Us", subtitle: "Decades of excellence in premium real estate", items: [{ icon: "🏠", title: "Premium Listings", description: "Handpicked luxury properties in top locations." }, { icon: "🤝", title: "Personal Agent", description: "Dedicated advisor for your entire journey." }, { icon: "📈", title: "Market Insights", description: "Data-driven pricing and investment analysis." }, { icon: "🔐", title: "Secure Deals", description: "End-to-end legal and financial support." }], columns: 4 }),
+  block("image-gallery", { heading: "Featured Properties", images: [{ url: "", caption: "Modern Villa — $2.4M" }, { url: "", caption: "Penthouse Suite — $1.8M" }, { url: "", caption: "Waterfront Estate — $5.2M" }, { url: "", caption: "Urban Loft — $890K" }], columns: 2, style: "grid" }),
+  block("testimonials", { items: [{ quote: "They found us the perfect family home in under two weeks. Exceptional service from start to finish.", author: "The Martinez Family" }, { quote: "The market analysis saved us $200K on our purchase. Worth every penny of their commission.", author: "Robert K., Investor" }] }),
+  block("contact", { heading: "Schedule a Viewing", showPhone: true, showAddress: true }),
+];
+
+const REAL_ESTATE_THEME: LandingPageTheme = {
+  primaryColor: "#c8a45a", secondaryColor: "#0a1628", accentColor: "#c8a45a", textColor: "#0a1628", bgColor: "#f8f6f1",
+  headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "classic", borderRadius: "small", heroStyle: "split",
+};
+
+// ─── New Premium Templates: Fitness ──────────────────────────────
+const FITNESS_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "UNLEASH YOUR POTENTIAL", subtitle: "Elite training facilities, world-class coaches, and a community that pushes you beyond limits.", ctaText: "Start Free Trial", backgroundImageUrl: "" }),
+  block("features-grid", { heading: "What We Offer", subtitle: "Everything you need to transform", items: [{ icon: "💪", title: "Strength Training", description: "Olympic platforms, free weights, and machines." }, { icon: "🏃", title: "HIIT Classes", description: "High-intensity group sessions daily." }, { icon: "🧘", title: "Recovery Zone", description: "Sauna, cold plunge, and stretching area." }, { icon: "🥗", title: "Nutrition Plans", description: "Personalized meal plans by certified dietitians." }], columns: 4 }),
+  block("pricing-table", { heading: "Membership Plans", plans: [{ name: "Basic", price: "$29", period: "/month", features: ["Gym Access", "Locker Room", "1 Guest Pass/mo"], highlighted: false, ctaText: "Join Basic" }, { name: "Pro", price: "$59", period: "/month", features: ["Unlimited Classes", "Personal Trainer Intro", "Nutrition Consult", "Recovery Zone"], highlighted: true, ctaText: "Go Pro" }, { name: "Elite", price: "$99", period: "/month", features: ["Everything in Pro", "Monthly Body Scan", "Priority Booking", "VIP Lounge Access"], highlighted: false, ctaText: "Go Elite" }] }),
+  block("testimonials", { items: [{ quote: "Lost 30 lbs in 4 months. The coaches here genuinely care about your progress.", author: "Mike T." }, { quote: "Best gym I've ever been to. The community keeps me coming back every single day.", author: "Jessica R." }] }),
+  block("contact", { heading: "Visit Us Today", showPhone: true, showAddress: true }),
+];
+
+const FITNESS_THEME: LandingPageTheme = {
+  primaryColor: "#e53e3e", secondaryColor: "#0a0a0a", accentColor: "#e53e3e", textColor: "#ffffff", bgColor: "#111111",
+  headingFont: "'Space Grotesk', system-ui, sans-serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "bold", borderRadius: "medium", heroStyle: "centered",
+};
+
+// ─── New Premium Templates: Agency ───────────────────────────────
+const AGENCY_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "We Build Digital Products That Matter", subtitle: "Strategy, design, and engineering — all under one roof. From startups to Fortune 500, we deliver results.", ctaText: "Get a Free Quote", backgroundImageUrl: "" }),
+  block("social-proof", { heading: "Trusted by Industry Leaders" }),
+  block("features-grid", { heading: "Our Services", subtitle: "End-to-end digital solutions", items: [{ icon: "🎯", title: "Strategy", description: "Market research, positioning, and growth roadmaps." }, { icon: "🎨", title: "Design", description: "UI/UX, branding, and design systems." }, { icon: "⚙️", title: "Engineering", description: "Web apps, mobile apps, and cloud infrastructure." }, { icon: "📊", title: "Analytics", description: "Performance tracking and optimization." }], columns: 4 }),
+  block("testimonials", { items: [{ quote: "They took our vague idea and turned it into a product with 50K users in 6 months.", author: "CEO, TechStartup" }, { quote: "The most professional agency we've worked with. Clear communication, on-time delivery.", author: "VP Product, Enterprise Co." }] }),
+  block("faq", { items: [{ question: "What's your typical project timeline?", answer: "Most projects run 8-16 weeks depending on scope. We'll give you a detailed timeline after our discovery call." }, { question: "Do you work with startups?", answer: "Absolutely. About 40% of our clients are early-stage startups. We offer flexible engagement models." }] }),
+  block("contact", { heading: "Let's Talk", showPhone: true, showAddress: true }),
+];
+
+const AGENCY_THEME: LandingPageTheme = {
+  primaryColor: "#2563eb", secondaryColor: "#0f172a", accentColor: "#3b82f6", textColor: "#0f172a", bgColor: "#f8fafc",
+  headingFont: "'Inter', system-ui, sans-serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "modern", borderRadius: "medium", heroStyle: "centered",
+};
+
+// ─── New Premium Templates: Wellness ─────────────────────────────
+const WELLNESS_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Restore. Renew. Revive.", subtitle: "A sanctuary of calm in the heart of the city. Holistic treatments designed to nurture body, mind, and spirit.", ctaText: "Book a Session", backgroundImageUrl: "" }),
+  block("features-grid", { heading: "Our Treatments", subtitle: "Curated wellness experiences", items: [{ icon: "💆", title: "Massage Therapy", description: "Deep tissue, hot stone, and Swedish techniques." }, { icon: "🧖", title: "Facial Treatments", description: "Anti-aging, hydrating, and brightening facials." }, { icon: "🌿", title: "Aromatherapy", description: "Essential oil blends for relaxation and healing." }, { icon: "🧘", title: "Meditation", description: "Guided sessions for stress relief and clarity." }], columns: 4 }),
+  block("image-gallery", { heading: "Our Space", images: [{ url: "", caption: "Treatment Rooms" }, { url: "", caption: "Relaxation Lounge" }, { url: "", caption: "Zen Garden" }], columns: 3, style: "grid" }),
+  block("testimonials", { items: [{ quote: "The most peaceful place I've ever been. I leave every session feeling completely renewed.", author: "Sarah L." }, { quote: "Their aromatherapy massage is life-changing. I've been coming weekly for a year.", author: "Emma W." }] }),
+  block("newsletter", { heading: "Wellness Tips & Offers", subtitle: "Join our community for exclusive deals and self-care inspiration.", buttonText: "Subscribe", placeholderText: "Your email" }),
+  block("contact", { heading: "Book Your Experience", showPhone: true, showAddress: true }),
+];
+
+const WELLNESS_THEME: LandingPageTheme = {
+  primaryColor: "#5b8c5a", secondaryColor: "#2d4a2d", accentColor: "#8fbc8f", textColor: "#2d4a2d", bgColor: "#f5f9f4",
+  headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Lora', Georgia, serif",
+  layout: "classic", borderRadius: "large", heroStyle: "split",
+};
+
 // ─── All Templates ───────────────────────────────────────────────
 export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
   {
@@ -262,6 +340,7 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "Evolu – E-Bike",
     description: "Premium futuristic electric bike landing page with neon lime accent, dark/light alternating sections, and bold editorial layout.",
     thumbnail: "🚲",
+    previewImage: imgEvolu,
     category: "Product Launch",
     siteConfig: { name: "Evolu", tagline: "Future of E-Bike", logoUrl: "" },
     blocks: EVOLU_BLOCKS,
@@ -272,6 +351,7 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "Minimalist Store",
     description: "Clean, elegant storefront with focus on products. Minimal design with refined typography and subtle accents.",
     thumbnail: "🪴",
+    previewImage: imgMinimalist,
     category: "E-commerce",
     siteConfig: { name: "My Store", tagline: "Clean. Simple. Yours.", logoUrl: "" },
     blocks: MINIMALIST_BLOCKS,
@@ -282,6 +362,7 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "Bold Showcase",
     description: "High-impact product showcase with bold CTA, social proof, testimonials, and integrated order form.",
     thumbnail: "🔥",
+    previewImage: imgBold,
     category: "Showcase",
     siteConfig: { name: "Bold Store", tagline: "Make a Statement", logoUrl: "" },
     blocks: BOLD_BLOCKS,
@@ -292,6 +373,7 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "Premium Conversion",
     description: "Nike-inspired high-conversion product landing with coral accent, split hero, social proof, benefits strip, and value-stack pricing.",
     thumbnail: "🔶",
+    previewImage: imgPremium,
     category: "Conversion",
     siteConfig: { name: "Premium Store", tagline: "Engineered for Every Step", logoUrl: "" },
     blocks: PREMIUM_BLOCKS,
@@ -302,6 +384,7 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "SaaS Landing",
     description: "Modern SaaS product page with features grid, pricing table, and newsletter signup.",
     thumbnail: "💻",
+    previewImage: imgSaas,
     category: "SaaS",
     siteConfig: { name: "LaunchPad", tagline: "Ship Faster, Scale Smarter", logoUrl: "" },
     blocks: SAAS_BLOCKS,
@@ -312,6 +395,7 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "Creative Portfolio",
     description: "Elegant portfolio with image gallery, editorial typography, and minimal aesthetic.",
     thumbnail: "🎨",
+    previewImage: imgPortfolio,
     category: "Portfolio",
     siteConfig: { name: "Studio", tagline: "Creative Studio", logoUrl: "" },
     blocks: PORTFOLIO_BLOCKS,
@@ -322,6 +406,7 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "Restaurant",
     description: "Warm, inviting restaurant page with gallery, menu highlights, and reservation form.",
     thumbnail: "🍽️",
+    previewImage: imgRestaurant,
     category: "Restaurant",
     siteConfig: { name: "La Maison", tagline: "A Culinary Journey", logoUrl: "" },
     blocks: RESTAURANT_BLOCKS,
@@ -332,16 +417,62 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     name: "Fashion Brand",
     description: "High-end fashion store with countdown timer, video embed, and newsletter capture.",
     thumbnail: "👗",
+    previewImage: imgFashion,
     category: "Fashion",
     siteConfig: { name: "Atelier", tagline: "Timeless Elegance", logoUrl: "" },
     blocks: FASHION_BLOCKS,
     theme: FASHION_THEME,
   },
   {
+    id: "real-estate",
+    name: "Real Estate",
+    description: "Luxury property showcase with gold accents, property gallery, agent contact, and elegant serif typography.",
+    thumbnail: "🏠",
+    previewImage: imgRealEstate,
+    category: "Real Estate",
+    siteConfig: { name: "Prestige Homes", tagline: "Find Your Dream Home", logoUrl: "" },
+    blocks: REAL_ESTATE_BLOCKS,
+    theme: REAL_ESTATE_THEME,
+  },
+  {
+    id: "fitness",
+    name: "Fitness & Gym",
+    description: "Dark, high-energy gym page with bold red accents, membership pricing, and class schedules.",
+    thumbnail: "💪",
+    previewImage: imgFitness,
+    category: "Fitness",
+    siteConfig: { name: "Iron Forge", tagline: "Unleash Your Potential", logoUrl: "" },
+    blocks: FITNESS_BLOCKS,
+    theme: FITNESS_THEME,
+  },
+  {
+    id: "agency",
+    name: "Digital Agency",
+    description: "Professional blue-toned agency site with services grid, case studies, team section, and contact form.",
+    thumbnail: "🚀",
+    previewImage: imgAgency,
+    category: "Agency",
+    siteConfig: { name: "Nexus Digital", tagline: "We Build Digital Products That Matter", logoUrl: "" },
+    blocks: AGENCY_BLOCKS,
+    theme: AGENCY_THEME,
+  },
+  {
+    id: "wellness",
+    name: "Wellness & Spa",
+    description: "Serene, nature-inspired spa page with soft greens, treatment gallery, and booking form.",
+    thumbnail: "🌿",
+    previewImage: imgWellness,
+    category: "Wellness",
+    siteConfig: { name: "Serenity Spa", tagline: "Restore. Renew. Revive.", logoUrl: "" },
+    blocks: WELLNESS_BLOCKS,
+    theme: WELLNESS_THEME,
+  },
+  {
     id: "blank",
     name: "Blank Canvas",
     description: "Start from scratch with the default blocks and your own design.",
     thumbnail: "✨",
+    previewImage: imgBlank,
     category: "Starter",
     siteConfig: { name: "My Store", tagline: "Quality products, competitive prices", logoUrl: "" },
     blocks: [],
