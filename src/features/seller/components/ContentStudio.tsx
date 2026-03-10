@@ -8,7 +8,7 @@ import {
   Camera,
   Share2,
   Video,
-  Globe,
+  
   Mail,
   Target,
   AlertCircle,
