@@ -355,6 +355,24 @@ export const WebsiteBuilder: React.FC = () => {
               </div>
             </div>
           </div>
+          {/* Google Search Preview */}
+          <div className="mt-4 max-w-xl">
+            <Label className="text-xs font-medium text-muted-foreground mb-1 block">Google Search Preview</Label>
+            <div className="p-3 rounded-lg border bg-white dark:bg-card">
+              <div className="flex items-center gap-2 mb-1">
+                {store.siteConfig.favicon && (
+                  <img src={store.siteConfig.favicon} alt="" className="h-4 w-4 rounded-sm object-contain" onError={(e) => (e.currentTarget.style.display = "none")} />
+                )}
+                <span className="text-xs text-muted-foreground truncate">{store.slug ? `example.com › store-${store.slug}` : "example.com › your-page"}</span>
+              </div>
+              <p className="text-base font-medium text-[#1a0dab] dark:text-primary leading-tight truncate cursor-pointer hover:underline">
+                {store.siteConfig.metaTitle || store.siteConfig.name || "Page Title"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
+                {store.siteConfig.metaDescription || store.siteConfig.tagline || "Add a meta description to control how your page appears in search results."}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
