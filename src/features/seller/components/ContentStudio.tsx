@@ -252,7 +252,11 @@ export const ContentStudio = () => {
     // Use the dynamic generators so demo data matches the current product context
     store.setSocialPosts(generateSocialPosts());
     store.setEmailCampaigns(generateEmailCampaigns());
-    store.setContentScore(computeContentScore(sellerResults));
+    const posts = generateSocialPosts();
+    const emails = generateEmailCampaigns();
+    store.setSocialPosts(posts);
+    store.setEmailCampaigns(emails);
+    store.setContentScore(calculateContentScore(posts, emails, sellerResults));
 
     // Demo pro images using contextual unsplash photos
     const demoProImg = (id: string, label: string, section: string, url: string): GeneratedImage => ({
