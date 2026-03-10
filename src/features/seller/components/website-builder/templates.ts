@@ -27,10 +27,6 @@ export interface WebsiteTemplate {
   blocks: SiteBlock[];
   theme: LandingPageTheme;
 }
-  siteConfig: SiteConfig;
-  blocks: SiteBlock[];
-  theme: LandingPageTheme;
-}
 
 // ─── Helper to create blocks with custom config ──────────────────
 function block(type: SiteBlock["type"], config: any): SiteBlock {
