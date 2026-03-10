@@ -324,7 +324,7 @@ const FITNESS_THEME: LandingPageTheme = {
 
 // ─── New Premium Templates: Agency ───────────────────────────────
 const AGENCY_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "We Build Digital Products That Matter", subtitle: "Strategy, design, and engineering — all under one roof. From startups to Fortune 500, we deliver results.", ctaText: "Get a Free Quote", backgroundImageUrl: "" }),
+  block("hero", { title: "We Build Digital Products That Matter", subtitle: "Strategy, design, and engineering — all under one roof. From startups to Fortune 500, we deliver results.", ctaText: "Get a Free Quote", backgroundImageUrl: demoAgencyHero }),
   block("social-proof", { heading: "Trusted by Industry Leaders" }),
   block("features-grid", { heading: "Our Services", subtitle: "End-to-end digital solutions", items: [{ icon: "🎯", title: "Strategy", description: "Market research, positioning, and growth roadmaps." }, { icon: "🎨", title: "Design", description: "UI/UX, branding, and design systems." }, { icon: "⚙️", title: "Engineering", description: "Web apps, mobile apps, and cloud infrastructure." }, { icon: "📊", title: "Analytics", description: "Performance tracking and optimization." }], columns: 4 }),
   block("testimonials", { items: [{ quote: "They took our vague idea and turned it into a product with 50K users in 6 months.", author: "CEO, TechStartup" }, { quote: "The most professional agency we've worked with. Clear communication, on-time delivery.", author: "VP Product, Enterprise Co." }] }),
