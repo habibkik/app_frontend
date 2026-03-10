@@ -576,6 +576,7 @@ export const ContentStudio = () => {
             productName={productName}
             productCategory={productCategory}
             competitors={competitors.map((c) => c.name)}
+            onImageGenerated={saveProImageToDB}
           />
         </TabsContent>
         <TabsContent value="social-image">
