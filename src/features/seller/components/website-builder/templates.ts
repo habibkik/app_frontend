@@ -36,6 +36,18 @@ import demoFitnessHero from "@/assets/demo/fitness-hero.jpg";
 import demoAgencyHero from "@/assets/demo/agency-hero.jpg";
 import demoWellnessHero from "@/assets/demo/wellness-hero.jpg";
 import demoWellnessGarden from "@/assets/demo/wellness-garden.jpg";
+import demoTechHero from "@/assets/demo/techstartup-hero.jpg";
+import demoBeautyHero from "@/assets/demo/beauty-hero.jpg";
+import demoEducationHero from "@/assets/demo/education-hero.jpg";
+import demoCoffeeHero from "@/assets/demo/coffee-hero.jpg";
+import demoEventsHero from "@/assets/demo/events-hero.jpg";
+
+// New template preview images
+import imgTechStartup from "@/assets/templates/techstartup.jpg";
+import imgBeauty from "@/assets/templates/beauty.jpg";
+import imgEducation from "@/assets/templates/education.jpg";
+import imgCoffee from "@/assets/templates/coffee.jpg";
+import imgEvents from "@/assets/templates/events.jpg";
 
 export interface WebsiteTemplate {
   id: string;
