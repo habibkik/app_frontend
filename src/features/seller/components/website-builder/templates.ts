@@ -16,6 +16,27 @@ import imgAgency from "@/assets/templates/agency.jpg";
 import imgWellness from "@/assets/templates/wellness.jpg";
 import imgBlank from "@/assets/templates/blank.jpg";
 
+// Demo content images
+import demoEvoluHero from "@/assets/demo/evolu-hero.jpg";
+import demoEvoluAbout from "@/assets/demo/evolu-about.jpg";
+import demoMinimalistHero from "@/assets/demo/minimalist-hero.jpg";
+import demoBoldHero from "@/assets/demo/bold-hero.jpg";
+import demoPremiumHero from "@/assets/demo/premium-hero.jpg";
+import demoSaasHero from "@/assets/demo/saas-hero.jpg";
+import demoPortfolioWork1 from "@/assets/demo/portfolio-work1.jpg";
+import demoPortfolioWork2 from "@/assets/demo/portfolio-work2.jpg";
+import demoPortfolioWork3 from "@/assets/demo/portfolio-work3.jpg";
+import demoPortfolioWork4 from "@/assets/demo/portfolio-work4.jpg";
+import demoRestaurantHero from "@/assets/demo/restaurant-hero.jpg";
+import demoRestaurantDish from "@/assets/demo/restaurant-dish.jpg";
+import demoFashionHero from "@/assets/demo/fashion-hero.jpg";
+import demoRealEstateHero from "@/assets/demo/realestate-hero.jpg";
+import demoRealEstateProperty from "@/assets/demo/realestate-property1.jpg";
+import demoFitnessHero from "@/assets/demo/fitness-hero.jpg";
+import demoAgencyHero from "@/assets/demo/agency-hero.jpg";
+import demoWellnessHero from "@/assets/demo/wellness-hero.jpg";
+import demoWellnessGarden from "@/assets/demo/wellness-garden.jpg";
+
 export interface WebsiteTemplate {
   id: string;
   name: string;
@@ -39,11 +60,11 @@ const EVOLU_BLOCKS: SiteBlock[] = [
     title: "Future of E-Bike",
     subtitle: "Experience the next generation of urban mobility. Precision-engineered motor, extended-range battery, and intelligent smart controls — all in one breathtaking design.",
     ctaText: "Explore Bike",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoEvoluHero,
   }),
   block("about", {
     content: "Every component is precision-crafted for maximum energy efficiency. Our proprietary power management system adapts to your riding style in real-time. Where bold industrial design meets aerodynamic performance — every curve serves a purpose.",
-    imageUrl: "",
+    imageUrl: demoEvoluAbout,
   }),
   block("testimonials", {
     items: [
@@ -86,12 +107,12 @@ const MINIMALIST_BLOCKS: SiteBlock[] = [
     title: "Clean. Simple. Yours.",
     subtitle: "Discover thoughtfully curated products designed for modern living.",
     ctaText: "Browse Collection",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoMinimalistHero,
   }),
   block("product-catalog", { columns: 3, showPrice: true, showDescription: true, categoryFilter: "" }),
   block("about", {
     content: "We believe in the beauty of simplicity. Every product in our collection is carefully selected for quality, function, and timeless design.",
-    imageUrl: "",
+    imageUrl: demoMinimalistHero,
   }),
   block("contact", { heading: "Say Hello", showPhone: false, showAddress: true }),
 ];
@@ -115,7 +136,7 @@ const BOLD_BLOCKS: SiteBlock[] = [
     title: "Make a Statement",
     subtitle: "Bold products for bold people. Stand out from the crowd with our exclusive collection.",
     ctaText: "Shop Now →",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoBoldHero,
   }),
   block("product-catalog", { columns: 2, showPrice: true, showDescription: true, categoryFilter: "" }),
   block("testimonials", {
@@ -147,7 +168,7 @@ const PREMIUM_BLOCKS: SiteBlock[] = [
     title: "Engineered for Every Step",
     subtitle: "Premium comfort meets bold design. Experience next-level performance that moves with you — from first mile to finish line.",
     ctaText: "Add to Cart",
-    backgroundImageUrl: "",
+    backgroundImageUrl: demoPremiumHero,
   }),
   block("social-proof", { heading: "Trusted By Industry Leaders" }),
   block("solution", {
@@ -159,7 +180,7 @@ const PREMIUM_BLOCKS: SiteBlock[] = [
       "Hands-free — Magnetic quick-lock closure system, no laces needed",
     ],
     credibilityText: "Rated #1 by 12,000+ verified buyers. Featured in GQ, Wired, and Runner's World.",
-    imageUrl: "",
+    imageUrl: demoPremiumHero,
   }),
   block("product-catalog", { columns: 3, showPrice: true, showDescription: true, categoryFilter: "" }),
   block("problem-agitation", {
@@ -211,7 +232,7 @@ const PREMIUM_THEME: LandingPageTheme = {
 
 // ─── SaaS Landing Template ───────────────────────────────────────
 const SAAS_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "Ship Faster, Scale Smarter", subtitle: "The all-in-one platform that helps teams build, deploy, and grow their products. No DevOps required.", ctaText: "Start Free Trial", backgroundImageUrl: "" }),
+  block("hero", { title: "Ship Faster, Scale Smarter", subtitle: "The all-in-one platform that helps teams build, deploy, and grow their products. No DevOps required.", ctaText: "Start Free Trial", backgroundImageUrl: demoSaasHero }),
   block("features-grid", { heading: "Everything You Need", subtitle: "Powerful features to accelerate your workflow", items: [{ icon: "⚡", title: "Lightning Fast", description: "Deploy in seconds with our global CDN." }, { icon: "🔐", title: "Enterprise Security", description: "SOC2 compliant with end-to-end encryption." }, { icon: "📊", title: "Real-time Analytics", description: "Monitor performance with live dashboards." }, { icon: "🔄", title: "CI/CD Built-in", description: "Automatic deployments on every push." }, { icon: "🌍", title: "Global Edge", description: "50+ regions worldwide for low latency." }, { icon: "🤝", title: "Team Collaboration", description: "Built-in tools for seamless teamwork." }], columns: 3 }),
   block("pricing-table", { heading: "Simple, Transparent Pricing", plans: [{ name: "Starter", price: "$0", period: "/month", features: ["3 Projects", "1 GB Storage", "Community Support"], highlighted: false, ctaText: "Start Free" }, { name: "Pro", price: "$49", period: "/month", features: ["Unlimited Projects", "100 GB Storage", "Priority Support", "Custom Domains", "Analytics"], highlighted: true, ctaText: "Go Pro" }, { name: "Enterprise", price: "Custom", period: "", features: ["Everything in Pro", "SSO / SAML", "SLA Guarantee", "Dedicated Support", "On-premise Option"], highlighted: false, ctaText: "Contact Sales" }] }),
   block("testimonials", { items: [{ quote: "We cut our deployment time by 90%. Absolute game changer for our engineering team.", author: "CTO, TechCorp" }, { quote: "The analytics alone are worth 10x the price. Our conversion rates went through the roof.", author: "VP Growth, StartupXYZ" }] }),
@@ -227,8 +248,8 @@ const SAAS_THEME: LandingPageTheme = {
 // ─── Portfolio Template ──────────────────────────────────────────
 const PORTFOLIO_BLOCKS: SiteBlock[] = [
   block("hero", { title: "Creative Studio", subtitle: "Award-winning design, branding, and digital experiences that make brands unforgettable.", ctaText: "View Our Work", backgroundImageUrl: "" }),
-  block("image-gallery", { heading: "Selected Work", images: [{ url: "", caption: "Brand Identity — Luxe Co." }, { url: "", caption: "Web Design — FinTech App" }, { url: "", caption: "Packaging — Organic Blends" }, { url: "", caption: "Campaign — Summer '24" }], columns: 2, style: "grid" }),
-  block("about", { content: "We're a boutique creative studio specializing in brand strategy, visual identity, and digital product design. With over a decade of experience, we've helped 200+ brands tell their story with clarity and conviction.", imageUrl: "" }),
+  block("image-gallery", { heading: "Selected Work", images: [{ url: demoPortfolioWork1, caption: "Brand Identity — Luxe Co." }, { url: demoPortfolioWork2, caption: "Web Design — FinTech App" }, { url: demoPortfolioWork3, caption: "Packaging — Organic Blends" }, { url: demoPortfolioWork4, caption: "Campaign — Summer '24" }], columns: 2, style: "grid" }),
+  block("about", { content: "We're a boutique creative studio specializing in brand strategy, visual identity, and digital product design. With over a decade of experience, we've helped 200+ brands tell their story with clarity and conviction.", imageUrl: demoPortfolioWork1 }),
   block("testimonials", { items: [{ quote: "They transformed our brand from forgettable to iconic. The ROI has been incredible.", author: "Founder, Luxe Co." }] }),
   block("contact", { heading: "Let's Create Together", showPhone: true, showAddress: true }),
 ];
@@ -241,9 +262,9 @@ const PORTFOLIO_THEME: LandingPageTheme = {
 
 // ─── Restaurant Template ─────────────────────────────────────────
 const RESTAURANT_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "A Culinary Journey", subtitle: "Farm-to-table dining in the heart of the city. Seasonal ingredients, timeless flavors.", ctaText: "Reserve a Table", backgroundImageUrl: "" }),
+  block("hero", { title: "A Culinary Journey", subtitle: "Farm-to-table dining in the heart of the city. Seasonal ingredients, timeless flavors.", ctaText: "Reserve a Table", backgroundImageUrl: demoRestaurantHero }),
   block("features-grid", { heading: "Why Dine With Us", subtitle: "", items: [{ icon: "🌿", title: "Farm Fresh", description: "Locally sourced seasonal ingredients." }, { icon: "👨‍🍳", title: "Award-Winning Chef", description: "Michelin-starred culinary team." }, { icon: "🍷", title: "Wine Pairing", description: "Curated selection of 200+ wines." }], columns: 3 }),
-  block("image-gallery", { heading: "From Our Kitchen", images: [{ url: "", caption: "Signature Dish" }, { url: "", caption: "Private Dining" }, { url: "", caption: "Our Garden" }], columns: 3, style: "grid" }),
+  block("image-gallery", { heading: "From Our Kitchen", images: [{ url: demoRestaurantDish, caption: "Signature Dish" }, { url: demoRestaurantHero, caption: "Private Dining" }, { url: demoRestaurantDish, caption: "Our Garden" }], columns: 3, style: "grid" }),
   block("testimonials", { items: [{ quote: "Best dining experience in the city. The tasting menu is a masterpiece.", author: "Food & Wine Magazine" }] }),
   block("faq", { items: [{ question: "Do you take reservations?", answer: "Yes! Book online or call us at (555) 123-4567." }, { question: "Is there parking available?", answer: "Complimentary valet parking is available Friday through Sunday." }] }),
   block("contact", { heading: "Make a Reservation", showPhone: true, showAddress: true }),
@@ -257,7 +278,7 @@ const RESTAURANT_THEME: LandingPageTheme = {
 
 // ─── Fashion Template ────────────────────────────────────────────
 const FASHION_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "NEW COLLECTION", subtitle: "Timeless elegance meets modern design. Discover pieces crafted for the discerning individual.", ctaText: "Shop Collection", backgroundImageUrl: "" }),
+  block("hero", { title: "NEW COLLECTION", subtitle: "Timeless elegance meets modern design. Discover pieces crafted for the discerning individual.", ctaText: "Shop Collection", backgroundImageUrl: demoFashionHero }),
   block("product-catalog", { columns: 3, showPrice: true, showDescription: false, categoryFilter: "" }),
   block("video-embed", { heading: "Behind the Scenes", videoUrl: "", provider: "youtube", autoplay: false }),
   block("countdown-timer", { heading: "Flash Sale Ends Soon", subtitle: "Up to 40% off selected items", targetDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], ctaText: "Shop Sale", ctaUrl: "#order" }),
@@ -273,9 +294,9 @@ const FASHION_THEME: LandingPageTheme = {
 
 // ─── New Premium Templates: Real Estate ──────────────────────────
 const REAL_ESTATE_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "Find Your Dream Home", subtitle: "Luxury properties in the most sought-after locations. Expert guidance from search to settlement.", ctaText: "Browse Properties", backgroundImageUrl: "" }),
+  block("hero", { title: "Find Your Dream Home", subtitle: "Luxury properties in the most sought-after locations. Expert guidance from search to settlement.", ctaText: "Browse Properties", backgroundImageUrl: demoRealEstateHero }),
   block("features-grid", { heading: "Why Choose Us", subtitle: "Decades of excellence in premium real estate", items: [{ icon: "🏠", title: "Premium Listings", description: "Handpicked luxury properties in top locations." }, { icon: "🤝", title: "Personal Agent", description: "Dedicated advisor for your entire journey." }, { icon: "📈", title: "Market Insights", description: "Data-driven pricing and investment analysis." }, { icon: "🔐", title: "Secure Deals", description: "End-to-end legal and financial support." }], columns: 4 }),
-  block("image-gallery", { heading: "Featured Properties", images: [{ url: "", caption: "Modern Villa — $2.4M" }, { url: "", caption: "Penthouse Suite — $1.8M" }, { url: "", caption: "Waterfront Estate — $5.2M" }, { url: "", caption: "Urban Loft — $890K" }], columns: 2, style: "grid" }),
+  block("image-gallery", { heading: "Featured Properties", images: [{ url: demoRealEstateHero, caption: "Modern Villa — $2.4M" }, { url: demoRealEstateProperty, caption: "Penthouse Suite — $1.8M" }, { url: demoRealEstateHero, caption: "Waterfront Estate — $5.2M" }, { url: demoRealEstateProperty, caption: "Urban Loft — $890K" }], columns: 2, style: "grid" }),
   block("testimonials", { items: [{ quote: "They found us the perfect family home in under two weeks. Exceptional service from start to finish.", author: "The Martinez Family" }, { quote: "The market analysis saved us $200K on our purchase. Worth every penny of their commission.", author: "Robert K., Investor" }] }),
   block("contact", { heading: "Schedule a Viewing", showPhone: true, showAddress: true }),
 ];
@@ -288,7 +309,7 @@ const REAL_ESTATE_THEME: LandingPageTheme = {
 
 // ─── New Premium Templates: Fitness ──────────────────────────────
 const FITNESS_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "UNLEASH YOUR POTENTIAL", subtitle: "Elite training facilities, world-class coaches, and a community that pushes you beyond limits.", ctaText: "Start Free Trial", backgroundImageUrl: "" }),
+  block("hero", { title: "UNLEASH YOUR POTENTIAL", subtitle: "Elite training facilities, world-class coaches, and a community that pushes you beyond limits.", ctaText: "Start Free Trial", backgroundImageUrl: demoFitnessHero }),
   block("features-grid", { heading: "What We Offer", subtitle: "Everything you need to transform", items: [{ icon: "💪", title: "Strength Training", description: "Olympic platforms, free weights, and machines." }, { icon: "🏃", title: "HIIT Classes", description: "High-intensity group sessions daily." }, { icon: "🧘", title: "Recovery Zone", description: "Sauna, cold plunge, and stretching area." }, { icon: "🥗", title: "Nutrition Plans", description: "Personalized meal plans by certified dietitians." }], columns: 4 }),
   block("pricing-table", { heading: "Membership Plans", plans: [{ name: "Basic", price: "$29", period: "/month", features: ["Gym Access", "Locker Room", "1 Guest Pass/mo"], highlighted: false, ctaText: "Join Basic" }, { name: "Pro", price: "$59", period: "/month", features: ["Unlimited Classes", "Personal Trainer Intro", "Nutrition Consult", "Recovery Zone"], highlighted: true, ctaText: "Go Pro" }, { name: "Elite", price: "$99", period: "/month", features: ["Everything in Pro", "Monthly Body Scan", "Priority Booking", "VIP Lounge Access"], highlighted: false, ctaText: "Go Elite" }] }),
   block("testimonials", { items: [{ quote: "Lost 30 lbs in 4 months. The coaches here genuinely care about your progress.", author: "Mike T." }, { quote: "Best gym I've ever been to. The community keeps me coming back every single day.", author: "Jessica R." }] }),
@@ -303,7 +324,7 @@ const FITNESS_THEME: LandingPageTheme = {
 
 // ─── New Premium Templates: Agency ───────────────────────────────
 const AGENCY_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "We Build Digital Products That Matter", subtitle: "Strategy, design, and engineering — all under one roof. From startups to Fortune 500, we deliver results.", ctaText: "Get a Free Quote", backgroundImageUrl: "" }),
+  block("hero", { title: "We Build Digital Products That Matter", subtitle: "Strategy, design, and engineering — all under one roof. From startups to Fortune 500, we deliver results.", ctaText: "Get a Free Quote", backgroundImageUrl: demoAgencyHero }),
   block("social-proof", { heading: "Trusted by Industry Leaders" }),
   block("features-grid", { heading: "Our Services", subtitle: "End-to-end digital solutions", items: [{ icon: "🎯", title: "Strategy", description: "Market research, positioning, and growth roadmaps." }, { icon: "🎨", title: "Design", description: "UI/UX, branding, and design systems." }, { icon: "⚙️", title: "Engineering", description: "Web apps, mobile apps, and cloud infrastructure." }, { icon: "📊", title: "Analytics", description: "Performance tracking and optimization." }], columns: 4 }),
   block("testimonials", { items: [{ quote: "They took our vague idea and turned it into a product with 50K users in 6 months.", author: "CEO, TechStartup" }, { quote: "The most professional agency we've worked with. Clear communication, on-time delivery.", author: "VP Product, Enterprise Co." }] }),
@@ -319,9 +340,9 @@ const AGENCY_THEME: LandingPageTheme = {
 
 // ─── New Premium Templates: Wellness ─────────────────────────────
 const WELLNESS_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "Restore. Renew. Revive.", subtitle: "A sanctuary of calm in the heart of the city. Holistic treatments designed to nurture body, mind, and spirit.", ctaText: "Book a Session", backgroundImageUrl: "" }),
+  block("hero", { title: "Restore. Renew. Revive.", subtitle: "A sanctuary of calm in the heart of the city. Holistic treatments designed to nurture body, mind, and spirit.", ctaText: "Book a Session", backgroundImageUrl: demoWellnessHero }),
   block("features-grid", { heading: "Our Treatments", subtitle: "Curated wellness experiences", items: [{ icon: "💆", title: "Massage Therapy", description: "Deep tissue, hot stone, and Swedish techniques." }, { icon: "🧖", title: "Facial Treatments", description: "Anti-aging, hydrating, and brightening facials." }, { icon: "🌿", title: "Aromatherapy", description: "Essential oil blends for relaxation and healing." }, { icon: "🧘", title: "Meditation", description: "Guided sessions for stress relief and clarity." }], columns: 4 }),
-  block("image-gallery", { heading: "Our Space", images: [{ url: "", caption: "Treatment Rooms" }, { url: "", caption: "Relaxation Lounge" }, { url: "", caption: "Zen Garden" }], columns: 3, style: "grid" }),
+  block("image-gallery", { heading: "Our Space", images: [{ url: demoWellnessHero, caption: "Treatment Rooms" }, { url: demoWellnessGarden, caption: "Relaxation Lounge" }, { url: demoWellnessGarden, caption: "Zen Garden" }], columns: 3, style: "grid" }),
   block("testimonials", { items: [{ quote: "The most peaceful place I've ever been. I leave every session feeling completely renewed.", author: "Sarah L." }, { quote: "Their aromatherapy massage is life-changing. I've been coming weekly for a year.", author: "Emma W." }] }),
   block("newsletter", { heading: "Wellness Tips & Offers", subtitle: "Join our community for exclusive deals and self-care inspiration.", buttonText: "Subscribe", placeholderText: "Your email" }),
   block("contact", { heading: "Book Your Experience", showPhone: true, showAddress: true }),
