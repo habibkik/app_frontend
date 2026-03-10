@@ -135,7 +135,7 @@ export type ContentStudioTab =
   | "social-image"
   | "video"
   | "social-video"
-  | "landing-page"
+  
   | "email"
   | "score";
 
