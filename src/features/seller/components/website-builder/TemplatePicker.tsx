@@ -119,6 +119,15 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
   onSelect,
 }) => {
   const enabledBlocks = template.blocks.filter((b) => b.enabled);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
   const themeColors = [
     { label: "Primary", color: template.theme.primaryColor },
     { label: "Secondary", color: template.theme.secondaryColor },
