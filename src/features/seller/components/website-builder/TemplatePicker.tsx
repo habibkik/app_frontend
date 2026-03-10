@@ -96,9 +96,7 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
           document.body
         )}
       </div>
-    </LayoutGroup>
-  );
-};
+    );
 
 /* ─── Preview Modal ───────────────────────────────────────────── */
 
