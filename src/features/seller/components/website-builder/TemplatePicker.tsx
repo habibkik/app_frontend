@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,18 +80,21 @@ export const TemplatePicker: React.FC<TemplatePickerProps> = ({ onSelect }) => {
           ))}
         </div>
 
-        <AnimatePresence>
-          {preview && (
-            <TemplatePreviewModal
-              template={preview}
-              onClose={() => setPreview(null)}
-              onSelect={() => {
-                onSelect(preview);
-                setPreview(null);
-              }}
-            />
-          )}
-        </AnimatePresence>
+        {createPortal(
+          <AnimatePresence>
+            {preview && (
+              <TemplatePreviewModal
+                template={preview}
+                onClose={() => setPreview(null)}
+                onSelect={() => {
+                  onSelect(preview);
+                  setPreview(null);
+                }}
+              />
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
       </div>
     </LayoutGroup>
   );
@@ -115,6 +119,15 @@ const TemplatePreviewModal: React.FC<PreviewModalProps> = ({
   onSelect,
 }) => {
   const enabledBlocks = template.blocks.filter((b) => b.enabled);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
   const themeColors = [
     { label: "Primary", color: template.theme.primaryColor },
     { label: "Secondary", color: template.theme.secondaryColor },
