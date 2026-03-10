@@ -38,6 +38,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [socialStats, setSocialStats] = useState({ postCount: 0, totalEngagement: 0 });
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
   const [showCustomizer, setShowCustomizer] = useState(false);
+  const [showSeoPanel, setShowSeoPanel] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
