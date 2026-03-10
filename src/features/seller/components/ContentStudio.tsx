@@ -182,7 +182,7 @@ export const ContentStudio = () => {
         .eq("user_id", userId)
         .eq("product_name", productName);
       if (error || !data || data.length === 0) return;
-      const saved = data as { image_key: string; label: string; section: string; prompt: string; image_url: string }[];
+      const saved = data as unknown as { image_key: string; label: string; section: string; prompt: string; image_url: string }[];
       const current = store.proImages;
       const merged = current.map((img) => {
         const match = saved.find((s) => s.image_key === img.id);
