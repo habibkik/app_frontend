@@ -389,7 +389,7 @@ export const ContentStudio = () => {
       updateStep(3, "running");
       const score = calculateContentScore(posts, emails, sellerResults);
       store.setContentScore(score);
-      updateStep(4, "done");
+      updateStep(3, "done");
 
       toast.success("Marketing kit generated successfully!");
     } catch (err) {
