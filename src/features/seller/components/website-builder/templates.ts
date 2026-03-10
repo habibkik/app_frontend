@@ -1,6 +1,21 @@
 import type { SiteBlock, SiteConfig } from "./types";
 import type { LandingPageTheme } from "../content-studio/types";
 
+// Template preview images
+import imgEvolu from "@/assets/templates/evolu-ebike.jpg";
+import imgMinimalist from "@/assets/templates/minimalist-store.jpg";
+import imgBold from "@/assets/templates/bold-showcase.jpg";
+import imgPremium from "@/assets/templates/premium-conversion.jpg";
+import imgSaas from "@/assets/templates/saas-landing.jpg";
+import imgPortfolio from "@/assets/templates/portfolio.jpg";
+import imgRestaurant from "@/assets/templates/restaurant.jpg";
+import imgFashion from "@/assets/templates/fashion.jpg";
+import imgRealEstate from "@/assets/templates/real-estate.jpg";
+import imgFitness from "@/assets/templates/fitness.jpg";
+import imgAgency from "@/assets/templates/agency.jpg";
+import imgWellness from "@/assets/templates/wellness.jpg";
+import imgBlank from "@/assets/templates/blank.jpg";
+
 export interface WebsiteTemplate {
   id: string;
   name: string;
