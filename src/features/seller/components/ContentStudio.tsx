@@ -145,6 +145,62 @@ export const ContentStudio = () => {
     });
   }, []);
 
+  // ── Persist pro images to DB ──
+  const saveProImageToDB = useCallback(
+    async (img: GeneratedImage) => {
+      if (!userId || !img.imageUrl) return;
+      const { error } = await supabase.from("generated_pro_images" as any).upsert(
+        {
+          user_id: userId,
+          image_key: img.id,
+          label: img.label,
+          section: img.section || "",
+          prompt: img.prompt || "",
+          image_url: img.imageUrl,
+          product_name: productName,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,image_key,product_name" }
+      );
+      if (error) console.error("Failed to save pro image:", error);
+    },
+    [userId, productName]
+  );
+
+  const saveAllProImages = useCallback(async () => {
+    const images = useContentStudioStore.getState().proImages.filter((i) => i.imageUrl);
+    await Promise.all(images.map(saveProImageToDB));
+  }, [saveProImageToDB]);
+
+  // ── Load persisted pro images on mount ──
+  useEffect(() => {
+    if (!userId || !productName || productName === "Product") return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("generated_pro_images" as any)
+        .select("*")
+        .eq("user_id", userId)
+        .eq("product_name", productName);
+      if (error || !data || data.length === 0) return;
+      const saved = data as unknown as { image_key: string; label: string; section: string; prompt: string; image_url: string }[];
+      const current = store.proImages;
+      const merged = current.map((img) => {
+        const match = saved.find((s) => s.image_key === img.id);
+        if (match && !img.imageUrl) {
+          return { ...img, imageUrl: match.image_url, prompt: match.prompt || img.prompt };
+        }
+        return img;
+      });
+      store.setProImages(merged);
+      // Also restore reference image if available
+      const heroImg = saved.find((s) => s.image_key === "packshot-front");
+      if (heroImg && !store.referenceImageUrl) {
+        store.setReferenceImageUrl(heroImg.image_url);
+      }
+      console.log(`Loaded ${saved.length} persisted pro images for "${productName}"`);
+    })();
+  }, [userId, productName]);
+
   // ── Generate a single image ──
   const generateImage = useCallback(
     async (imageType: string) => {
@@ -290,6 +346,7 @@ export const ContentStudio = () => {
       store.setReferenceImageUrl("https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80");
     }
 
+    saveAllProImages();
     toast.success("Demo data loaded! Explore all tabs to see the generated content.");
   };
 
@@ -337,6 +394,8 @@ export const ContentStudio = () => {
           if (error) throw error;
           if (data?.error) throw new Error(data.error);
           store.updateProImage(type, { imageUrl: data.imageUrl, isGenerating: false });
+          const updatedImg = useContentStudioStore.getState().proImages.find((i) => i.id === type);
+          if (updatedImg) saveProImageToDB(updatedImg);
         } catch (err: any) {
           store.updateProImage(type, { isGenerating: false, error: err.message || "Failed" });
         }
@@ -517,6 +576,7 @@ export const ContentStudio = () => {
             productName={productName}
             productCategory={productCategory}
             competitors={competitors.map((c) => c.name)}
+            onImageGenerated={saveProImageToDB}
           />
         </TabsContent>
         <TabsContent value="social-image">

@@ -39,12 +39,14 @@ interface Props {
   productName: string;
   productCategory: string;
   competitors: string[];
+  onImageGenerated?: (img: GeneratedImage) => void;
 }
 
 export const ProImageGenerationTab: React.FC<Props> = ({
   productName,
   productCategory,
   competitors,
+  onImageGenerated,
 }) => {
   const store = useContentStudioStore();
   const currentImage = useAnalysisStore((s) => s.currentImage);
@@ -133,6 +135,8 @@ export const ProImageGenerationTab: React.FC<Props> = ({
           imageUrl: data.imageUrl,
           isGenerating: false,
         });
+        const updated = useContentStudioStore.getState().proImages.find((i) => i.id === imageType);
+        if (updated && onImageGenerated) onImageGenerated(updated);
       } catch (err: any) {
         console.error(`Pro image error (${imageType}):`, err);
         store.updateProImage(imageType, {
