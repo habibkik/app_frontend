@@ -278,7 +278,7 @@ const RESTAURANT_THEME: LandingPageTheme = {
 
 // ─── Fashion Template ────────────────────────────────────────────
 const FASHION_BLOCKS: SiteBlock[] = [
-  block("hero", { title: "NEW COLLECTION", subtitle: "Timeless elegance meets modern design. Discover pieces crafted for the discerning individual.", ctaText: "Shop Collection", backgroundImageUrl: "" }),
+  block("hero", { title: "NEW COLLECTION", subtitle: "Timeless elegance meets modern design. Discover pieces crafted for the discerning individual.", ctaText: "Shop Collection", backgroundImageUrl: demoFashionHero }),
   block("product-catalog", { columns: 3, showPrice: true, showDescription: false, categoryFilter: "" }),
   block("video-embed", { heading: "Behind the Scenes", videoUrl: "", provider: "youtube", autoplay: false }),
   block("countdown-timer", { heading: "Flash Sale Ends Soon", subtitle: "Up to 40% off selected items", targetDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], ctaText: "Shop Sale", ctaUrl: "#order" }),
