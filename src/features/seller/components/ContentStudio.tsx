@@ -314,26 +314,30 @@ export const ContentStudio = () => {
 
     // Preserve already-generated pro images; only fill missing slots with Unsplash fallbacks
     const fallbackUrls: Record<string, string> = {
-      "packshot-front": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
-      "packshot-side": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
-      "packshot-back": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
-      "packshot-45deg": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
-      "packshot-top": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80",
-      "ugc-outdoor": "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80",
-      "ugc-home": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80",
-      "ugc-social": "https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=400&q=80",
-      "ugc-unboxing": "https://images.unsplash.com/photo-1612478752710-4cbe1e5ac6fe?w=400&q=80",
-      "ugc-action": "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&q=80",
-      "usage-morning": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80",
-      "usage-work": "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=400&q=80",
-      "usage-commute": "https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?w=400&q=80",
-      "usage-leisure": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80",
-      "usage-evening": "https://images.unsplash.com/photo-1545127398-14699f92334b?w=400&q=80",
+      // Packshot – clean product studio shots
+      "packshot-front": "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80",
+      "packshot-side": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400&q=80",
+      "packshot-back": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80",
+      "packshot-45deg": "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?w=400&q=80",
+      "packshot-top": "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400&q=80",
+      // UGC – authentic lifestyle moments
+      "ugc-outdoor": "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400&q=80",
+      "ugc-home": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80",
+      "ugc-social": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&q=80",
+      "ugc-unboxing": "https://images.unsplash.com/photo-1585298723682-7115561c51b7?w=400&q=80",
+      "ugc-action": "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&q=80",
+      // Usage – real-life contextual scenes
+      "usage-morning": "https://images.unsplash.com/photo-1590658268037-6bf12f032f55?w=400&q=80",
+      "usage-work": "https://images.unsplash.com/photo-1613040809024-b4ef7ba99bc3?w=400&q=80",
+      "usage-commute": "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=400&q=80",
+      "usage-leisure": "https://images.unsplash.com/photo-1545127398-14699f92334b?w=400&q=80",
+      "usage-evening": "https://images.unsplash.com/photo-1612478752710-4cbe1e5ac6fe?w=400&q=80",
+      // Studio – premium commercial photography
       "studio-hero": "https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=400&q=80",
-      "studio-detail": "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=400&q=80",
-      "studio-lifestyle": "https://images.unsplash.com/photo-1548921441-89c8bd2c3637?w=400&q=80",
-      "studio-dramatic": "https://images.unsplash.com/photo-1608156639585-b3a776571bef?w=400&q=80",
-      "studio-flat": "https://images.unsplash.com/photo-1558756520-22cfe5d382ca?w=400&q=80",
+      "studio-detail": "https://images.unsplash.com/photo-1608156639585-b3a776571bef?w=400&q=80",
+      "studio-lifestyle": "https://images.unsplash.com/photo-1558756520-22cfe5d382ca?w=400&q=80",
+      "studio-dramatic": "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=400&q=80",
+      "studio-flat": "https://images.unsplash.com/photo-1548921441-89c8bd2c3637?w=400&q=80",
     };
     const mergedProImages = store.proImages.map((img) => ({
       ...img,
@@ -343,7 +347,7 @@ export const ContentStudio = () => {
 
     // Keep existing reference image or use fallback
     if (!store.referenceImageUrl) {
-      store.setReferenceImageUrl("https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80");
+      store.setReferenceImageUrl("https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80");
     }
 
     saveAllProImages();
