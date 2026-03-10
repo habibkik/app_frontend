@@ -36,6 +36,18 @@ import demoFitnessHero from "@/assets/demo/fitness-hero.jpg";
 import demoAgencyHero from "@/assets/demo/agency-hero.jpg";
 import demoWellnessHero from "@/assets/demo/wellness-hero.jpg";
 import demoWellnessGarden from "@/assets/demo/wellness-garden.jpg";
+import demoTechHero from "@/assets/demo/techstartup-hero.jpg";
+import demoBeautyHero from "@/assets/demo/beauty-hero.jpg";
+import demoEducationHero from "@/assets/demo/education-hero.jpg";
+import demoCoffeeHero from "@/assets/demo/coffee-hero.jpg";
+import demoEventsHero from "@/assets/demo/events-hero.jpg";
+
+// New template preview images
+import imgTechStartup from "@/assets/templates/techstartup.jpg";
+import imgBeauty from "@/assets/templates/beauty.jpg";
+import imgEducation from "@/assets/templates/education.jpg";
+import imgCoffee from "@/assets/templates/coffee.jpg";
+import imgEvents from "@/assets/templates/events.jpg";
 
 export interface WebsiteTemplate {
   id: string;
@@ -354,6 +366,87 @@ const WELLNESS_THEME: LandingPageTheme = {
   layout: "classic", borderRadius: "large", heroStyle: "split",
 };
 
+// ─── Tech Startup Template ──────────────────────────────────────
+const TECH_STARTUP_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "The Future is Wearable", subtitle: "Meet Pulse — the AI-powered smartwatch that adapts to your life. Health monitoring, smart notifications, and 14-day battery in a design that turns heads.", ctaText: "Pre-Order Now", backgroundImageUrl: demoTechHero }),
+  block("features-grid", { heading: "Breakthrough Technology", subtitle: "Every feature engineered for tomorrow", items: [{ icon: "🧠", title: "AI Health Engine", description: "Predictive health insights powered by on-device machine learning." }, { icon: "⚡", title: "14-Day Battery", description: "Graphene-enhanced battery that lasts two full weeks." }, { icon: "💧", title: "100m Water Resistant", description: "Swim, dive, surf — it goes everywhere you do." }, { icon: "📡", title: "Satellite SOS", description: "Emergency connectivity even without cell coverage." }, { icon: "🎯", title: "Gesture Control", description: "Navigate with natural hand movements." }, { icon: "🌙", title: "Sleep Intelligence", description: "Advanced sleep staging with smart alarm." }], columns: 3 }),
+  block("solution", { heading: "Why Pulse is Different", intro: "Traditional smartwatches compromise. Pulse doesn't.", differentiationPoints: ["Battery — 14 days vs industry average of 2 days", "Health — Medical-grade sensors, not toy heart rate monitors", "Privacy — All data processed on-device, never in the cloud"], credibilityText: "Backed by $12M in funding. Featured in TechCrunch, Wired, and The Verge.", imageUrl: demoTechHero }),
+  block("offer-pricing", { heading: "Early Adopter Pricing", valueItems: ["Pulse smartwatch (retail $499)", "Premium titanium band ($79 value)", "1 year Pulse Pro subscription ($120 value)", "Priority shipping"], anchorPrice: "$698", actualPrice: "$399", scarcityText: "Only 500 units in the first batch — 73% claimed", ctaText: "Reserve Yours →" }),
+  block("testimonials", { items: [{ quote: "I was skeptical about the battery claims. Then it lasted 16 days. This changes everything.", author: "Mark K., Beta Tester" }, { quote: "The health insights caught an irregular heartbeat my doctor confirmed. This device may have saved my life.", author: "Dr. Sarah Chen" }] }),
+  block("faq", { items: [{ question: "When does Pulse ship?", answer: "First batch ships Q2 2026. Pre-orders lock in early pricing and priority fulfillment." }, { question: "Is it compatible with iPhone and Android?", answer: "Yes — full compatibility with iOS 16+ and Android 12+." }, { question: "What's the return policy?", answer: "60-day no-questions-asked returns with free shipping both ways." }] }),
+  block("newsletter", { heading: "Stay in the Loop", subtitle: "Product updates, tech insights, and exclusive early access.", buttonText: "Notify Me", placeholderText: "your@email.com" }),
+];
+
+const TECH_STARTUP_THEME: LandingPageTheme = {
+  primaryColor: "#00e5cc", secondaryColor: "#0a0a0a", accentColor: "#00e5cc", textColor: "#e0e0e0", bgColor: "#0a0a0a",
+  headingFont: "'Space Grotesk', system-ui, sans-serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "bold", borderRadius: "large", heroStyle: "centered",
+};
+
+// ─── Beauty & Skincare Template ─────────────────────────────────
+const BEAUTY_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Radiance, Redefined", subtitle: "Luxury organic skincare crafted from the world's finest botanical ingredients. Gentle on skin, powerful in results.", ctaText: "Shop the Collection", backgroundImageUrl: demoBeautyHero }),
+  block("features-grid", { heading: "The Petal Promise", subtitle: "What makes us different", items: [{ icon: "🌸", title: "100% Organic", description: "Every ingredient certified organic and sustainably sourced." }, { icon: "🐰", title: "Cruelty-Free", description: "Never tested on animals. Leaping Bunny certified." }, { icon: "♻️", title: "Zero Waste", description: "Refillable glass packaging, carbon-neutral shipping." }, { icon: "🔬", title: "Lab Proven", description: "Clinically tested formulas with published results." }], columns: 4 }),
+  block("product-catalog", { columns: 3, showPrice: true, showDescription: true, categoryFilter: "" }),
+  block("testimonials", { items: [{ quote: "My skin has never looked this good. The Midnight Repair Serum is pure magic — visible results in just one week.", author: "Emma V., Verified Buyer" }, { quote: "Finally a luxury skincare line that's truly clean. No greenwashing, just incredible ingredients and real science.", author: "Dr. Lisa Park, Dermatologist" }, { quote: "I've replaced my entire skincare routine with Petal. The glow is unreal.", author: "Mia L." }] }),
+  block("about", { content: "Born in the lavender fields of Provence, Petal Botanics combines century-old herbal wisdom with modern biotech. Every product is hand-crafted in small batches, ensuring peak potency and freshness. We believe luxury and sustainability aren't opposing forces — they're inseparable.", imageUrl: demoBeautyHero }),
+  block("newsletter", { heading: "Join the Glow Circle", subtitle: "Exclusive offers, skincare tips, and early access to new launches.", buttonText: "Subscribe", placeholderText: "Your email" }),
+];
+
+const BEAUTY_THEME: LandingPageTheme = {
+  primaryColor: "#c4837a", secondaryColor: "#3d2b2b", accentColor: "#d4a89a", textColor: "#3d2b2b", bgColor: "#fdf5f2",
+  headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Lora', Georgia, serif",
+  layout: "classic", borderRadius: "large", heroStyle: "split",
+};
+
+// ─── Online Education Template ──────────────────────────────────
+const EDUCATION_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Learn Without Limits", subtitle: "World-class courses from industry experts. Master new skills at your own pace, from anywhere in the world.", ctaText: "Explore Courses", backgroundImageUrl: demoEducationHero }),
+  block("features-grid", { heading: "Why Students Love Us", subtitle: "Everything you need to succeed", items: [{ icon: "🎓", title: "Expert Instructors", description: "Learn from practitioners at top companies." }, { icon: "📱", title: "Learn Anywhere", description: "Mobile-first platform with offline access." }, { icon: "🏆", title: "Certificates", description: "Industry-recognized credentials on completion." }, { icon: "👥", title: "Community", description: "Join 100K+ students in peer learning groups." }], columns: 4 }),
+  block("pricing-table", { heading: "Choose Your Path", plans: [{ name: "Explorer", price: "$0", period: "/month", features: ["5 Free Courses", "Community Access", "Basic Certificates"], highlighted: false, ctaText: "Start Free" }, { name: "Pro Learner", price: "$29", period: "/month", features: ["Unlimited Courses", "Priority Support", "Pro Certificates", "Offline Access", "Live Workshops"], highlighted: true, ctaText: "Go Pro" }, { name: "Teams", price: "$19", period: "/user/mo", features: ["Everything in Pro", "Team Analytics", "Admin Dashboard", "Custom Learning Paths", "SSO Integration"], highlighted: false, ctaText: "Contact Sales" }] }),
+  block("testimonials", { items: [{ quote: "I landed my dream job at Google after completing the Full-Stack track. The project-based learning is unmatched.", author: "Alex M., Software Engineer" }, { quote: "The best investment I've made in my career. The instructors are genuinely world-class.", author: "Priya S., Product Manager" }] }),
+  block("faq", { items: [{ question: "Can I get a refund?", answer: "Yes — 30-day money-back guarantee on all paid plans, no questions asked." }, { question: "Are certificates recognized by employers?", answer: "Our certificates are recognized by 500+ hiring partners including Fortune 500 companies." }, { question: "How long does each course take?", answer: "Courses range from 4-12 weeks, with 5-8 hours of content per week. Learn at your own pace." }] }),
+  block("newsletter", { heading: "Free Learning Resources", subtitle: "Weekly tutorials, career tips, and exclusive course previews.", buttonText: "Subscribe", placeholderText: "you@email.com" }),
+];
+
+const EDUCATION_THEME: LandingPageTheme = {
+  primaryColor: "#f59e0b", secondaryColor: "#1e293b", accentColor: "#fbbf24", textColor: "#1e293b", bgColor: "#fffbeb",
+  headingFont: "'Space Grotesk', system-ui, sans-serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "modern", borderRadius: "medium", heroStyle: "split",
+};
+
+// ─── Artisan Coffee Template ────────────────────────────────────
+const COFFEE_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Craft Coffee, Honest Origins", subtitle: "Single-origin beans, hand-roasted in small batches. From farm to cup, every step is intentional.", ctaText: "Shop Beans", backgroundImageUrl: demoCoffeeHero }),
+  block("about", { content: "We travel to the world's finest coffee-growing regions to build direct relationships with farmers. Every bag is roasted to order in our Brooklyn roastery, ensuring peak freshness and flavor. No mass production, no shortcuts — just exceptional coffee.", imageUrl: demoCoffeeHero }),
+  block("features-grid", { heading: "Our Process", subtitle: "From seed to sip", items: [{ icon: "🌱", title: "Direct Trade", description: "We pay 40% above fair-trade prices to our partner farms." }, { icon: "🔥", title: "Small Batch Roasted", description: "Every batch roasted to order, never sitting on shelves." }, { icon: "📦", title: "Delivered Fresh", description: "Ships within 24 hours of roasting, straight to your door." }], columns: 3 }),
+  block("product-catalog", { columns: 3, showPrice: true, showDescription: true, categoryFilter: "" }),
+  block("testimonials", { items: [{ quote: "I've tried every fancy subscription out there. This is the first one where I can genuinely taste the difference. The Ethiopian single-origin is life-changing.", author: "James R." }, { quote: "The freshness is unreal. You can smell the roast date. Going back to supermarket coffee is impossible now.", author: "Olivia K." }] }),
+  block("order-form", { heading: "Quick Order", productName: "Signature Blend" }),
+];
+
+const COFFEE_THEME: LandingPageTheme = {
+  primaryColor: "#6f4e37", secondaryColor: "#2c1a0e", accentColor: "#c4956a", textColor: "#2c1a0e", bgColor: "#faf3eb",
+  headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Lora', Georgia, serif",
+  layout: "classic", borderRadius: "small", heroStyle: "centered",
+};
+
+// ─── Luxury Events Template ─────────────────────────────────────
+const EVENTS_BLOCKS: SiteBlock[] = [
+  block("hero", { title: "Unforgettable Moments, Flawlessly Executed", subtitle: "From intimate gatherings to grand galas — we design, plan, and produce events that leave lasting impressions.", ctaText: "Plan Your Event", backgroundImageUrl: demoEventsHero }),
+  block("features-grid", { heading: "Our Services", subtitle: "Full-spectrum event excellence", items: [{ icon: "💒", title: "Weddings", description: "Bespoke wedding planning from proposal to honeymoon." }, { icon: "🏢", title: "Corporate", description: "Conferences, launches, and executive retreats." }, { icon: "🎉", title: "Social", description: "Milestone celebrations, galas, and private parties." }, { icon: "🌍", title: "Destination", description: "Worldwide event coordination and venue sourcing." }], columns: 4 }),
+  block("image-gallery", { heading: "Recent Events", images: [{ url: demoEventsHero, caption: "Annual Charity Gala" }, { url: demoEventsHero, caption: "Rooftop Wedding" }, { url: demoEventsHero, caption: "Product Launch" }, { url: demoEventsHero, caption: "Corporate Retreat" }], columns: 2, style: "grid" }),
+  block("testimonials", { items: [{ quote: "They turned our vision into something more magical than we could have imagined. Every single detail was perfect.", author: "The Andersons, Wedding" }, { quote: "Our product launch generated 3x the press coverage we expected. Their production quality is Hollywood-level.", author: "VP Marketing, LuxeTech" }] }),
+  block("social-proof", { heading: "Trusted by Leading Brands" }),
+  block("contact", { heading: "Let's Create Something Extraordinary", showPhone: true, showAddress: true }),
+];
+
+const EVENTS_THEME: LandingPageTheme = {
+  primaryColor: "#c9a84c", secondaryColor: "#1a0a2e", accentColor: "#c9a84c", textColor: "#1a0a2e", bgColor: "#faf8f3",
+  headingFont: "'Playfair Display', Georgia, serif", bodyFont: "'Inter', system-ui, sans-serif",
+  layout: "bold", borderRadius: "medium", heroStyle: "centered",
+};
+
 // ─── All Templates ───────────────────────────────────────────────
 export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
   {
@@ -487,6 +580,61 @@ export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
     siteConfig: { name: "Serenity Spa", tagline: "Restore. Renew. Revive.", logoUrl: "" },
     blocks: WELLNESS_BLOCKS,
     theme: WELLNESS_THEME,
+  },
+  {
+    id: "tech-startup",
+    name: "Tech Startup",
+    description: "Futuristic dark-mode product launch with glowing cyan accents, glassmorphism effects, and aggressive conversion funnel.",
+    thumbnail: "⚡",
+    previewImage: imgTechStartup,
+    category: "Tech",
+    siteConfig: { name: "Pulse", tagline: "The Future is Wearable", logoUrl: "" },
+    blocks: TECH_STARTUP_BLOCKS,
+    theme: TECH_STARTUP_THEME,
+  },
+  {
+    id: "beauty-skincare",
+    name: "Beauty & Skincare",
+    description: "Elegant blush-toned organic beauty brand with editorial photography, serif typography, and luxurious product showcase.",
+    thumbnail: "🌸",
+    previewImage: imgBeauty,
+    category: "Beauty",
+    siteConfig: { name: "Petal Botanics", tagline: "Radiance, Redefined", logoUrl: "" },
+    blocks: BEAUTY_BLOCKS,
+    theme: BEAUTY_THEME,
+  },
+  {
+    id: "online-education",
+    name: "Online Education",
+    description: "Warm, engaging learning platform with course catalog, pricing tiers, student testimonials, and community features.",
+    thumbnail: "🎓",
+    previewImage: imgEducation,
+    category: "Education",
+    siteConfig: { name: "SkillForge", tagline: "Learn Without Limits", logoUrl: "" },
+    blocks: EDUCATION_BLOCKS,
+    theme: EDUCATION_THEME,
+  },
+  {
+    id: "artisan-coffee",
+    name: "Artisan Coffee",
+    description: "Warm craft roastery with vintage aesthetics, rich brown palette, origin stories, and integrated ordering.",
+    thumbnail: "☕",
+    previewImage: imgCoffee,
+    category: "Food & Drink",
+    siteConfig: { name: "Origin Roasters", tagline: "Craft Coffee, Honest Origins", logoUrl: "" },
+    blocks: COFFEE_BLOCKS,
+    theme: COFFEE_THEME,
+  },
+  {
+    id: "luxury-events",
+    name: "Luxury Events",
+    description: "Glamorous deep purple and gold event planning showcase with gallery, service tiers, and contact form.",
+    thumbnail: "✨",
+    previewImage: imgEvents,
+    category: "Events",
+    siteConfig: { name: "Éclat Events", tagline: "Unforgettable Moments", logoUrl: "" },
+    blocks: EVENTS_BLOCKS,
+    theme: EVENTS_THEME,
   },
   {
     id: "blank",
