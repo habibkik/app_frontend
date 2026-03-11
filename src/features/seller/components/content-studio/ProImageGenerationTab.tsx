@@ -372,6 +372,23 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                     <Badge variant="outline" className="text-xs">
                       {generatedCount}/5
                     </Badge>
+                    {generatedCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={!!zippingSections[section.id]}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadSectionAsZip(section.id, section.title);
+                        }}
+                      >
+                        {zippingSections[section.id] ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <><Download className="h-3 w-3 mr-1" /> ZIP</>
+                        )}
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="secondary"
