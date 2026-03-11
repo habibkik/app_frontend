@@ -95,7 +95,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { productName, productDescription, category, imageType, competitors, referenceImageUrl }: ImageRequest =
+    const { productName, productDescription, category, imageType, competitors, referenceImageUrl, brandColors, brandAesthetic, brandTargetAudience, brandToneKeywords }: ImageRequest =
       await req.json();
 
     if (!productName || !imageType) {
