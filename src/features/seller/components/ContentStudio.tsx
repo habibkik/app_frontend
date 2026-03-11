@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Download,
   FileArchive,
+  Palette,
 } from "lucide-react";
 import { MarketingFlowBanner } from "./MarketingFlowBanner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
