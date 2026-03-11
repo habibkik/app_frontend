@@ -96,7 +96,7 @@ export function Router() {
       <Route path="/dashboard/market" element={<ProtectedRoute><MarketIntelligence /></ProtectedRoute>} />
       <Route path="/dashboard/competitors" element={<ProtectedRoute><Competitors /></ProtectedRoute>} />
       <Route path="/dashboard/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
-      <Route path="/dashboard/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
+      
       <Route path="/dashboard/content-studio" element={<ProtectedRoute><ContentStudioPage /></ProtectedRoute>} />
       <Route path="/dashboard/publisher" element={<ProtectedRoute><SocialPublisherPage /></ProtectedRoute>} />
       <Route path="/dashboard/website" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
