@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { BrandKitPanel, fetchBrandKit, type BrandKit } from "./content-studio/BrandKitPanel";
 import {
   Sparkles,
   Loader2,
