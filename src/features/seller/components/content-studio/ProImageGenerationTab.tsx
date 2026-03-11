@@ -11,6 +11,7 @@ import {
 import {
   Loader2,
   Download,
+  DownloadCloud,
   RefreshCw,
   ImageIcon,
   Camera,
