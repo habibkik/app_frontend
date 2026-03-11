@@ -1,35 +1,57 @@
 
 
-## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
+## AI Variation Playground
 
-### What Changes
+### What We're Building
+A "Remix" dropdown on each generated pro image with three variation options: **Change Background**, **Add Prop**, and **Expand Canvas**. Clicking an option sends the existing image back to the `generate-product-images` edge function with a specialized remix prompt, and the result replaces the current image (or could be shown side-by-side).
 
-Replace the plain "Product Title" text input with a **combo dropdown** that lists:
-1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
-2. A **"Custom Product (Manual Entry)"** blank option at the top
+### Architecture
 
-When the user selects a Market Intelligence product, the system:
-- Sets the `title` to the product name
-- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
-- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
-- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
-- Shows the "Imported from" banner
+**No new edge function needed.** The existing `generate-product-images` already supports multimodal input (image + text prompt). We add a new `remixMode` parameter that, when present, overrides the normal prompt with a remix-specific instruction.
 
-When "Custom Product" is selected → clears the title field so the user can type manually.
+### Changes
 
-### File to Edit
+#### 1. Edge Function Update (`supabase/functions/generate-product-images/index.ts`)
+- Add optional `remixMode` field to the request: `"change-background" | "add-prop" | "expand-canvas"`
+- Add optional `remixContext` field (e.g., user-specified background scene or prop)
+- When `remixMode` is set, bypass normal `IMAGE_PROMPTS` lookup and use remix-specific prompts:
+  - **Change Background**: "Keep the product exactly as shown. Replace the background with [scene]. Maintain product proportions and lighting consistency."
+  - **Add Prop**: "Keep the product exactly as shown. Add a complementary prop/accessory nearby: [prop]. Natural placement, matching lighting."
+  - **Expand Canvas**: "Expand the canvas outward, extending the scene naturally. Keep the product centered and unchanged. Fill new areas with contextually appropriate content."
+- The existing multimodal message construction (image_url + text) is reused as-is.
 
-**`src/features/marketplace/components/TabProductListing.tsx`**:
+#### 2. New Component: `RemixMenu.tsx`
+- A `DropdownMenu` triggered by a wand/sparkles icon button on each image card.
+- Three options, each opens a small dialog/popover:
+  - **Change Background** — optional text input for scene description (e.g., "beach sunset", "marble table"), or a few quick presets
+  - **Add Prop** — optional text input for prop description, or presets like "coffee cup", "flowers", "laptop"
+  - **Expand Canvas** — one-click, no extra input needed
+- Calls the edge function with `remixMode`, the current `imageUrl` as `referenceImageUrl`, and any user context.
+- Shows loading state on the image tile during generation.
 
-1. Import `useAnalysisStore` and read `history` and `sellerResults`
-2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
-   - First option: `"custom"` → "Custom Product (Manual Entry)"
-   - Then each unique `history` item showing `productName — category`
-3. Add `handleProductSelect(value)` function:
-   - If `"custom"` → clear title, let user type in a text input that appears below
-   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
-4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
-5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
+#### 3. ProImageGenerationTab Updates
+- Add a third button (Remix) alongside the existing Regenerate and Download buttons for each image tile (only enabled when image exists).
+- Import and render `RemixMenu` component.
+- Add a `remixProImage` callback similar to `generateProImage` but passes remix params.
 
-### No database changes needed
+#### 4. Store Update (`contentStudioStore.ts`)
+- No schema changes needed — `updateProImage` already handles partial updates. The remix just replaces `imageUrl` on the same image slot.
+
+### UI Layout per Image Tile
+```text
+┌─────────────────┐
+│                  │
+│   [Generated     │
+│    Image]        │
+│                  │
+├─────────────────┤
+│  Label Text      │
+│ [↻] [✨▾] [⬇]  │  ← Regenerate, Remix dropdown, Download
+└─────────────────┘
+```
+
+### Files to Create/Edit
+1. **Create** `src/features/seller/components/content-studio/RemixMenu.tsx` — dropdown with 3 options + optional context input
+2. **Edit** `supabase/functions/generate-product-images/index.ts` — add remix prompt logic
+3. **Edit** `src/features/seller/components/content-studio/ProImageGenerationTab.tsx` — integrate RemixMenu, add remix callback
 
