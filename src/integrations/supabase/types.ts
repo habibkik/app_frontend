@@ -83,6 +83,42 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_kits: {
+        Row: {
+          aesthetic: string
+          colors: Json
+          created_at: string
+          id: string
+          logo_url: string | null
+          target_audience: string
+          tone_keywords: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aesthetic?: string
+          colors?: Json
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          target_audience?: string
+          tone_keywords?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aesthetic?: string
+          colors?: Json
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          target_audience?: string
+          tone_keywords?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       competitor_alerts: {
         Row: {
           alert_type: string

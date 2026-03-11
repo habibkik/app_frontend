@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { BrandKitPanel, fetchBrandKit, type BrandKit } from "./content-studio/BrandKitPanel";
 import {
   Sparkles,
   Loader2,
@@ -14,6 +15,7 @@ import {
   AlertCircle,
   Download,
   FileArchive,
+  Palette,
 } from "lucide-react";
 import { MarketingFlowBanner } from "./MarketingFlowBanner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -44,6 +46,7 @@ import { ContentScoreTab } from "./content-studio/ContentScoreTab";
 import { ProImageGenerationTab } from "./content-studio/ProImageGenerationTab";
 
 const TABS: { id: ContentStudioTab; label: string; icon: React.ElementType }[] = [
+  { id: "brand-kit", label: "Brand Identity", icon: Palette },
   { id: "pro-images", label: "Pro Photography", icon: Camera },
   { id: "social-image", label: "Social (Image)", icon: Share2 },
   { id: "video", label: "Video", icon: Video },
@@ -133,6 +136,7 @@ export const ContentStudio = () => {
   const store = useContentStudioStore();
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("pro-images");
   const [userId, setUserId] = useState<string>("");
+  const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
 
   const hasIntelligence = !!sellerResults;
   const productName = sellerResults?.productIdentification?.name || "Product";
@@ -141,7 +145,10 @@ export const ContentStudio = () => {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUserId(data.user.id);
+      if (data.user) {
+        setUserId(data.user.id);
+        fetchBrandKit(data.user.id).then((kit) => setBrandKit(kit));
+      }
     });
   }, []);
 
@@ -574,13 +581,20 @@ export const ContentStudio = () => {
           ))}
         </TabsList>
 
-        {/* Old images tab removed */}
+        <TabsContent value="brand-kit">
+          {userId ? (
+            <BrandKitPanel userId={userId} />
+          ) : (
+            <p className="text-muted-foreground text-sm py-8 text-center">Please sign in to manage your brand kit.</p>
+          )}
+        </TabsContent>
         <TabsContent value="pro-images">
           <ProImageGenerationTab
             productName={productName}
             productCategory={productCategory}
             competitors={competitors.map((c) => c.name)}
             onImageGenerated={saveProImageToDB}
+            brandKit={brandKit}
           />
         </TabsContent>
         <TabsContent value="social-image">

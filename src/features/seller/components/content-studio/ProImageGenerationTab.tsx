@@ -27,6 +27,7 @@ import { useAnalysisStore } from "@/stores/analysisStore";
 import { useContentStudioStore } from "@/stores/contentStudioStore";
 import { PRO_IMAGE_SECTIONS } from "./types";
 import type { GeneratedImage } from "./types";
+import type { BrandKit } from "./BrandKitPanel";
 
 const downloadImage = (dataUrl: string, filename: string) => {
   const a = document.createElement("a");
@@ -42,6 +43,7 @@ interface Props {
   productCategory: string;
   competitors: string[];
   onImageGenerated?: (img: GeneratedImage) => void;
+  brandKit?: BrandKit | null;
 }
 
 export const ProImageGenerationTab: React.FC<Props> = ({
@@ -49,6 +51,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   productCategory,
   competitors,
   onImageGenerated,
+  brandKit,
 }) => {
   const store = useContentStudioStore();
   const currentImage = useAnalysisStore((s) => s.currentImage);
@@ -105,6 +108,12 @@ export const ProImageGenerationTab: React.FC<Props> = ({
               imageType,
               competitors,
               referenceImageUrl,
+              ...(brandKit ? {
+                brandColors: brandKit.colors,
+                brandAesthetic: brandKit.aesthetic,
+                brandTargetAudience: brandKit.target_audience,
+                brandToneKeywords: brandKit.tone_keywords,
+              } : {}),
             },
           }
         );
@@ -147,7 +156,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
         });
       }
     },
-    [productName, productCategory, competitors, referenceImageUrl, store]
+    [productName, productCategory, competitors, referenceImageUrl, store, brandKit]
   );
 
   const generateSection = useCallback(
