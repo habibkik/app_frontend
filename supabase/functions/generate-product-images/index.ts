@@ -109,6 +109,34 @@ serve(async (req) => {
     const promptFn = IMAGE_PROMPTS[imageType] || IMAGE_PROMPTS.social;
     let prompt = promptFn(productName, desc);
 
+    // Inject brand identity into prompt
+    const brandParts: string[] = [];
+    if (brandColors && brandColors.length > 0) {
+      brandParts.push(`Brand colors: ${brandColors.join(", ")}. Use these colors for accents, backgrounds, or styling where appropriate.`);
+    }
+    if (brandAesthetic) {
+      const aestheticMap: Record<string, string> = {
+        "minimalist": "Minimalist Scandinavian aesthetic — clean lines, white space, neutral tones, soft natural light.",
+        "dark-moody": "Dark and moody aesthetic — low-key lighting, deep shadows, dramatic contrast, rich dark tones.",
+        "bright-pop": "Bright and pop aesthetic — vibrant saturated colors, high energy, bold contrasts, playful composition.",
+        "luxury": "Luxury premium aesthetic — gold accents, rich textures, elegant compositions, sophisticated lighting.",
+        "natural-organic": "Natural organic aesthetic — earth tones, soft textures, botanical elements, warm natural light.",
+        "retro-vintage": "Retro vintage aesthetic — film grain, warm color grading, nostalgic atmosphere, analog photography feel.",
+        "tech-modern": "Tech modern aesthetic — gradient backgrounds, neon accents, futuristic feel, clean geometric shapes.",
+        "editorial": "Editorial magazine aesthetic — high-fashion styling, cinematic compositions, dramatic poses, sharp focus.",
+      };
+      brandParts.push(aestheticMap[brandAesthetic] || `Aesthetic style: ${brandAesthetic}.`);
+    }
+    if (brandTargetAudience) {
+      brandParts.push(`Target audience: ${brandTargetAudience}. Tailor visual tone and context to appeal to this demographic.`);
+    }
+    if (brandToneKeywords && brandToneKeywords.length > 0) {
+      brandParts.push(`Brand tone: ${brandToneKeywords.join(", ")}.`);
+    }
+    if (brandParts.length > 0) {
+      prompt += ` BRAND IDENTITY: ${brandParts.join(" ")}`;
+    }
+
     if (competitors && competitors.length > 0) {
       prompt += ` The product should look premium and differentiated from competitors like ${competitors.slice(0, 3).join(", ")}.`;
     }
