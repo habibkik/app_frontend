@@ -45,6 +45,7 @@ import { ContentScoreTab } from "./content-studio/ContentScoreTab";
 import { ProImageGenerationTab } from "./content-studio/ProImageGenerationTab";
 
 const TABS: { id: ContentStudioTab; label: string; icon: React.ElementType }[] = [
+  { id: "brand-kit", label: "Brand Identity", icon: Palette },
   { id: "pro-images", label: "Pro Photography", icon: Camera },
   { id: "social-image", label: "Social (Image)", icon: Share2 },
   { id: "video", label: "Video", icon: Video },
