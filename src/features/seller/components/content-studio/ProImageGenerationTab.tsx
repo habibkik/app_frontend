@@ -523,6 +523,10 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                           >
                             <RefreshCw className="h-3 w-3" />
                           </Button>
+                          <RemixMenu
+                            disabled={!img.imageUrl || img.isGenerating || isGeneratingAll}
+                            onRemix={(mode, context) => remixProImage(img.id, mode, context)}
+                          />
                           <Button
                             size="sm"
                             variant="ghost"
