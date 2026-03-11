@@ -30,7 +30,7 @@ import ProducerDashboard from "@/features/producer/pages/ProducerDashboard";
 import MarketIntelligence from "@/pages/dashboard/MarketIntelligence";
 import Competitors from "@/pages/dashboard/Competitors";
 import Pricing from "@/pages/dashboard/Pricing";
-import Campaigns from "@/pages/dashboard/Campaigns";
+
 import ContentStudioPage from "@/pages/dashboard/ContentStudio";
 import WebsiteBuilder from "@/pages/dashboard/WebsiteBuilder";
 import SocialPublisherPage from "@/pages/dashboard/SocialPublisher";
