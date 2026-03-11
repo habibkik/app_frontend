@@ -597,10 +597,10 @@ export const ContentStudio = () => {
         </TabsList>
 
         <TabsContent value="brand-kit">
-          {!authReady ? (
+          {authLoading ? (
             <div className="py-8 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-          ) : userId ? (
-            <BrandKitPanel userId={userId} />
+          ) : userId || authUser ? (
+            <BrandKitPanel userId={userId || authUser?.id || ""} />
           ) : (
             <p className="text-muted-foreground text-sm py-8 text-center">Please sign in to manage your brand kit.</p>
           )}
