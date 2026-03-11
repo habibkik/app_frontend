@@ -156,7 +156,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
         });
       }
     },
-    [productName, productCategory, competitors, referenceImageUrl, store]
+    [productName, productCategory, competitors, referenceImageUrl, store, brandKit]
   );
 
   const generateSection = useCallback(

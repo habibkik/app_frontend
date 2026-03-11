@@ -581,13 +581,20 @@ export const ContentStudio = () => {
           ))}
         </TabsList>
 
-        {/* Old images tab removed */}
+        <TabsContent value="brand-kit">
+          {userId ? (
+            <BrandKitPanel userId={userId} />
+          ) : (
+            <p className="text-muted-foreground text-sm py-8 text-center">Please sign in to manage your brand kit.</p>
+          )}
+        </TabsContent>
         <TabsContent value="pro-images">
           <ProImageGenerationTab
             productName={productName}
             productCategory={productCategory}
             competitors={competitors.map((c) => c.name)}
             onImageGenerated={saveProImageToDB}
+            brandKit={brandKit}
           />
         </TabsContent>
         <TabsContent value="social-image">
