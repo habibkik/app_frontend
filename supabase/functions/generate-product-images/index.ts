@@ -14,6 +14,10 @@ interface ImageRequest {
   competitors?: string[];
   pricingInfo?: string;
   referenceImageUrl?: string;
+  brandColors?: string[];
+  brandAesthetic?: string;
+  brandTargetAudience?: string;
+  brandToneKeywords?: string[];
 }
 
 const GLOBAL_SUFFIX = " No distortion, no hallucinated features, accurate branding. Hyper-realistic, photorealistic materials and textures, commercial product photography, high detail, sharp focus, advertising quality, 8k resolution.";
