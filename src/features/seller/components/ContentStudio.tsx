@@ -136,6 +136,7 @@ export const ContentStudio = () => {
   const store = useContentStudioStore();
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("pro-images");
   const [userId, setUserId] = useState<string>("");
+  const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
 
   const hasIntelligence = !!sellerResults;
   const productName = sellerResults?.productIdentification?.name || "Product";
