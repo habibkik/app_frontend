@@ -27,6 +27,7 @@ import { useAnalysisStore } from "@/stores/analysisStore";
 import { useContentStudioStore } from "@/stores/contentStudioStore";
 import { PRO_IMAGE_SECTIONS } from "./types";
 import type { GeneratedImage } from "./types";
+import type { BrandKit } from "./BrandKitPanel";
 
 const downloadImage = (dataUrl: string, filename: string) => {
   const a = document.createElement("a");
