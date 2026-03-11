@@ -27,7 +27,7 @@ import Feasibility from "./pages/dashboard/Feasibility";
 import GTM from "./pages/dashboard/GTM";
 import MarketIntelligence from "./pages/dashboard/MarketIntelligence";
 import Pricing from "./pages/dashboard/Pricing";
-import Campaigns from "./pages/dashboard/Campaigns";
+
 import WebsiteBuilder from "./pages/dashboard/WebsiteBuilder";
 
 const queryClient = new QueryClient();
