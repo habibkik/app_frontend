@@ -28,6 +28,7 @@ import { useContentStudioStore } from "@/stores/contentStudioStore";
 import { PRO_IMAGE_SECTIONS } from "./types";
 import type { GeneratedImage } from "./types";
 import type { BrandKit } from "./BrandKitPanel";
+import { RemixMenu, type RemixMode } from "./RemixMenu";
 
 const downloadImage = (dataUrl: string, filename: string) => {
   const a = document.createElement("a");
