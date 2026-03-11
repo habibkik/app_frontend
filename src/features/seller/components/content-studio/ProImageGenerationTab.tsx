@@ -28,6 +28,7 @@ import { useContentStudioStore } from "@/stores/contentStudioStore";
 import { PRO_IMAGE_SECTIONS } from "./types";
 import type { GeneratedImage } from "./types";
 import type { BrandKit } from "./BrandKitPanel";
+import { RemixMenu, type RemixMode } from "./RemixMenu";
 
 const downloadImage = (dataUrl: string, filename: string) => {
   const a = document.createElement("a");
@@ -157,6 +158,68 @@ export const ProImageGenerationTab: React.FC<Props> = ({
       }
     },
     [productName, productCategory, competitors, referenceImageUrl, store, brandKit]
+  );
+
+  const remixProImage = useCallback(
+    async (imageType: string, mode: RemixMode, context?: string) => {
+      const existing = store.proImages.find((i) => i.id === imageType);
+      if (!existing?.imageUrl) {
+        toast.error("Generate the image first before remixing");
+        return;
+      }
+      store.updateProImage(imageType, { isGenerating: true, error: undefined });
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "generate-product-images",
+          {
+            body: {
+              productName,
+              productDescription: productCategory,
+              category: productCategory,
+              imageType,
+              referenceImageUrl: existing.imageUrl,
+              remixMode: mode,
+              remixContext: context,
+              ...(brandKit ? {
+                brandColors: brandKit.colors,
+                brandAesthetic: brandKit.aesthetic,
+                brandTargetAudience: brandKit.target_audience,
+                brandToneKeywords: brandKit.tone_keywords,
+              } : {}),
+            },
+          }
+        );
+        if (error) {
+          let errorMsg = "Remix failed";
+          try {
+            const ctx = error.context;
+            if (ctx && typeof ctx.json === "function") {
+              const body = await ctx.json();
+              errorMsg = body?.error || errorMsg;
+            } else if (error.message) {
+              errorMsg = error.message;
+            }
+          } catch {
+            errorMsg = error.message || errorMsg;
+          }
+          throw new Error(errorMsg);
+        }
+        if (data?.error) throw new Error(data.error);
+        store.updateProImage(imageType, {
+          imageUrl: data.imageUrl,
+          isGenerating: false,
+        });
+        toast.success(`Remixed: ${mode.replace("-", " ")}`);
+      } catch (err: any) {
+        console.error(`Remix error (${imageType}):`, err);
+        store.updateProImage(imageType, {
+          isGenerating: false,
+          error: err.message || "Remix failed",
+        });
+        toast.error(err.message || "Remix failed");
+      }
+    },
+    [productName, productCategory, store, brandKit]
   );
 
   const generateSection = useCallback(
@@ -460,6 +523,10 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                           >
                             <RefreshCw className="h-3 w-3" />
                           </Button>
+                          <RemixMenu
+                            disabled={!img.imageUrl || img.isGenerating || isGeneratingAll}
+                            onRemix={(mode, context) => remixProImage(img.id, mode, context)}
+                          />
                           <Button
                             size="sm"
                             variant="ghost"

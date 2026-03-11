@@ -18,6 +18,8 @@ interface ImageRequest {
   brandAesthetic?: string;
   brandTargetAudience?: string;
   brandToneKeywords?: string[];
+  remixMode?: "change-background" | "add-prop" | "expand-canvas";
+  remixContext?: string;
 }
 
 const GLOBAL_SUFFIX = " No distortion, no hallucinated features, accurate branding. Hyper-realistic, photorealistic materials and textures, commercial product photography, high detail, sharp focus, advertising quality, 8k resolution.";
@@ -95,7 +97,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { productName, productDescription, category, imageType, competitors, referenceImageUrl, brandColors, brandAesthetic, brandTargetAudience, brandToneKeywords }: ImageRequest =
+    const { productName, productDescription, category, imageType, competitors, referenceImageUrl, brandColors, brandAesthetic, brandTargetAudience, brandToneKeywords, remixMode, remixContext }: ImageRequest =
       await req.json();
 
     if (!productName || !imageType) {
@@ -106,8 +108,20 @@ serve(async (req) => {
     }
 
     const desc = productDescription || category || "product";
-    const promptFn = IMAGE_PROMPTS[imageType] || IMAGE_PROMPTS.social;
-    let prompt = promptFn(productName, desc);
+
+    // ── Remix Mode: override prompt entirely ──
+    let prompt: string;
+    if (remixMode && referenceImageUrl) {
+      const REMIX_PROMPTS: Record<string, string> = {
+        "change-background": `Keep the product "${productName}" exactly as shown — same shape, colors, branding, proportions, and every detail. Replace ONLY the background with: ${remixContext || "a clean, modern studio environment"}. Maintain lighting consistency and natural shadows.${GLOBAL_SUFFIX}`,
+        "add-prop": `Keep the product "${productName}" exactly as shown — same shape, colors, branding, proportions, and every detail. Add a complementary prop/accessory nearby: ${remixContext || "a relevant lifestyle accessory"}. Natural placement, matching lighting and perspective.${GLOBAL_SUFFIX}`,
+        "expand-canvas": `Expand the canvas outward, extending the scene naturally around the product "${productName}". Keep the product centered and unchanged — same shape, colors, branding, proportions. Fill new areas with contextually appropriate content that matches the existing lighting and style.${GLOBAL_SUFFIX}`,
+      };
+      prompt = REMIX_PROMPTS[remixMode] || REMIX_PROMPTS["change-background"];
+    } else {
+      const promptFn = IMAGE_PROMPTS[imageType] || IMAGE_PROMPTS.social;
+      prompt = promptFn(productName, desc);
+    }
 
     // Inject brand identity into prompt
     const brandParts: string[] = [];
