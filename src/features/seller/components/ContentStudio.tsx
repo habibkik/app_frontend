@@ -136,6 +136,7 @@ export const ContentStudio = () => {
   const store = useContentStudioStore();
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("pro-images");
   const [userId, setUserId] = useState<string>("");
+  const [authReady, setAuthReady] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
 
   const hasIntelligence = !!sellerResults;
@@ -144,12 +145,22 @@ export const ContentStudio = () => {
   const competitors = sellerResults?.competitors || [];
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setUserId(data.user.id);
-        fetchBrandKit(data.user.id).then((kit) => setBrandKit(kit));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        fetchBrandKit(session.user.id).then((kit) => setBrandKit(kit));
+      }
+      setAuthReady(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const uid = session?.user?.id || "";
+      setUserId(uid);
+      if (uid) {
+        fetchBrandKit(uid).then((kit) => setBrandKit(kit));
       }
     });
+    return () => subscription.unsubscribe();
   }, []);
 
   // ── Persist pro images to DB ──
@@ -582,7 +593,9 @@ export const ContentStudio = () => {
         </TabsList>
 
         <TabsContent value="brand-kit">
-          {userId ? (
+          {!authReady ? (
+            <div className="py-8 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : userId ? (
             <BrandKitPanel userId={userId} />
           ) : (
             <p className="text-muted-foreground text-sm py-8 text-center">Please sign in to manage your brand kit.</p>
