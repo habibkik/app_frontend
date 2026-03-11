@@ -12,7 +12,7 @@ import {
   Rocket,
   TrendingUp,
   DollarSign,
-  Megaphone,
+  
   Palette,
   Globe,
   Users,
