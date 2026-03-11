@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { BrandKitPanel, fetchBrandKit, type BrandKit } from "./content-studio/BrandKitPanel";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Sparkles,
   Loader2,
@@ -132,11 +133,11 @@ function calculateContentScore(
 // ─── Main Component ────────────────────────────────────────
 export const ContentStudio = () => {
   const { t } = useTranslation();
+  const { user: authUser, isLoading: authLoading } = useAuth();
   const sellerResults = useAnalysisStore((s) => s.sellerResults);
   const store = useContentStudioStore();
   const [activeTab, setActiveTab] = useState<ContentStudioTab>("pro-images");
   const [userId, setUserId] = useState<string>("");
-  const [authReady, setAuthReady] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKit | null>(null);
 
   const hasIntelligence = !!sellerResults;
@@ -144,24 +145,27 @@ export const ContentStudio = () => {
   const productCategory = sellerResults?.productIdentification?.category || "";
   const competitors = sellerResults?.competitors || [];
 
+  // Resolve userId: prefer Supabase session, fall back to demo auth user
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
+    const resolveUser = async () => {
+      // Try Supabase session first
+      const { data: { session } } = await supabase.auth.getSession();
+      const uid = session?.user?.id || authUser?.id || "";
+      setUserId(uid);
+      if (uid && uid !== "demo-user-1" && !uid.startsWith("demo-user-")) {
+        fetchBrandKit(uid).then((kit) => setBrandKit(kit));
+      }
+    };
+    resolveUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.id) {
         setUserId(session.user.id);
         fetchBrandKit(session.user.id).then((kit) => setBrandKit(kit));
       }
-      setAuthReady(true);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      const uid = session?.user?.id || "";
-      setUserId(uid);
-      if (uid) {
-        fetchBrandKit(uid).then((kit) => setBrandKit(kit));
-      }
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [authUser]);
 
   // ── Persist pro images to DB ──
   const saveProImageToDB = useCallback(
@@ -593,10 +597,10 @@ export const ContentStudio = () => {
         </TabsList>
 
         <TabsContent value="brand-kit">
-          {!authReady ? (
+          {authLoading ? (
             <div className="py-8 flex justify-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-          ) : userId ? (
-            <BrandKitPanel userId={userId} />
+          ) : userId || authUser ? (
+            <BrandKitPanel userId={userId || authUser?.id || ""} />
           ) : (
             <p className="text-muted-foreground text-sm py-8 text-center">Please sign in to manage your brand kit.</p>
           )}
