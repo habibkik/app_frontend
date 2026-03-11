@@ -27,7 +27,7 @@ import Feasibility from "./pages/dashboard/Feasibility";
 import GTM from "./pages/dashboard/GTM";
 import MarketIntelligence from "./pages/dashboard/MarketIntelligence";
 import Pricing from "./pages/dashboard/Pricing";
-import Campaigns from "./pages/dashboard/Campaigns";
+
 import WebsiteBuilder from "./pages/dashboard/WebsiteBuilder";
 
 const queryClient = new QueryClient();
@@ -67,7 +67,7 @@ const App = () => (
               {/* Seller mode pages */}
               <Route path="/dashboard/market" element={<ProtectedRoute><MarketIntelligence /></ProtectedRoute>} />
               <Route path="/dashboard/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
-              <Route path="/dashboard/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
+              
               <Route path="/dashboard/website" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
               
               {/* Shared pages */}
