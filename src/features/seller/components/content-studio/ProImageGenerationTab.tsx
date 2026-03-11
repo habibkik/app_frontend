@@ -108,6 +108,12 @@ export const ProImageGenerationTab: React.FC<Props> = ({
               imageType,
               competitors,
               referenceImageUrl,
+              ...(brandKit ? {
+                brandColors: brandKit.colors,
+                brandAesthetic: brandKit.aesthetic,
+                brandTargetAudience: brandKit.target_audience,
+                brandToneKeywords: brandKit.tone_keywords,
+              } : {}),
             },
           }
         );
