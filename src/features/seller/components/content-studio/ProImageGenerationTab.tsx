@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import JSZip from "jszip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import {
 import {
   Loader2,
   Download,
+  DownloadCloud,
   RefreshCw,
   ImageIcon,
   Camera,
@@ -191,6 +193,40 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   const toggleSection = (id: string) =>
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const allGenerated = store.proImages.every((img) => img.imageUrl);
+  const [isZipping, setIsZipping] = useState(false);
+
+  const downloadAllAsZip = useCallback(async () => {
+    setIsZipping(true);
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder(productName || "pro-images")!;
+      await Promise.all(
+        store.proImages.map(async (img) => {
+          if (!img.imageUrl) return;
+          const res = await fetch(img.imageUrl);
+          const blob = await res.blob();
+          const ext = blob.type.includes("png") ? "png" : "jpg";
+          folder.file(`${img.section}/${img.label.replace(/\s+/g, "-").toLowerCase()}.${ext}`, blob);
+        })
+      );
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${productName || "pro-images"}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success("ZIP downloaded!");
+    } catch {
+      toast.error("Failed to create ZIP");
+    } finally {
+      setIsZipping(false);
+    }
+  }, [store.proImages, productName]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -203,20 +239,31 @@ export const ProImageGenerationTab: React.FC<Props> = ({
             20 professional images across 4 categories using your product as reference.
           </p>
         </div>
-        <Button
-          onClick={generateAllSections}
-          disabled={isGeneratingAll || !referenceImageUrl}
-        >
-          {isGeneratingAll ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...
-            </>
-          ) : (
-            <>
-              <Wand2 className="h-4 w-4 mr-2" /> Generate All 20 Images
-            </>
+        <div className="flex items-center gap-2">
+          {allGenerated && (
+            <Button variant="outline" onClick={downloadAllAsZip} disabled={isZipping}>
+              {isZipping ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Zipping...</>
+              ) : (
+                <><DownloadCloud className="h-4 w-4 mr-2" /> Download All (ZIP)</>
+              )}
+            </Button>
           )}
-        </Button>
+          <Button
+            onClick={generateAllSections}
+            disabled={isGeneratingAll || !referenceImageUrl}
+          >
+            {isGeneratingAll ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...
+              </>
+            ) : (
+              <>
+                <Wand2 className="h-4 w-4 mr-2" /> Generate All 20 Images
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Reference Image */}
