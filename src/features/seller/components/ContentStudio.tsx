@@ -145,7 +145,10 @@ export const ContentStudio = () => {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setUserId(data.user.id);
+      if (data.user) {
+        setUserId(data.user.id);
+        fetchBrandKit(data.user.id).then((kit) => setBrandKit(kit));
+      }
     });
   }, []);
 
