@@ -196,6 +196,40 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   const allGenerated = store.proImages.every((img) => img.imageUrl);
   const [isZipping, setIsZipping] = useState(false);
 
+  const [zippingSections, setZippingSections] = useState<Record<string, boolean>>({});
+
+  const downloadSectionAsZip = useCallback(async (sectionId: string, sectionTitle: string) => {
+    const imgs = store.proImages.filter((img) => img.section === sectionId && img.imageUrl);
+    if (imgs.length === 0) { toast.error("No images to download"); return; }
+    setZippingSections((prev) => ({ ...prev, [sectionId]: true }));
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder(sectionTitle.replace(/\s+/g, "-").toLowerCase())!;
+      await Promise.all(
+        imgs.map(async (img) => {
+          const res = await fetch(img.imageUrl!);
+          const blob = await res.blob();
+          const ext = blob.type.includes("png") ? "png" : "jpg";
+          folder.file(`${img.label.replace(/\s+/g, "-").toLowerCase()}.${ext}`, blob);
+        })
+      );
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${productName || "pro"}-${sectionTitle.replace(/\s+/g, "-").toLowerCase()}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success(`${sectionTitle} ZIP downloaded!`);
+    } catch {
+      toast.error("Failed to create ZIP");
+    } finally {
+      setZippingSections((prev) => ({ ...prev, [sectionId]: false }));
+    }
+  }, [store.proImages, productName]);
+
   const downloadAllAsZip = useCallback(async () => {
     setIsZipping(true);
     try {
