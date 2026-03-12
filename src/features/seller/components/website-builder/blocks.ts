@@ -98,6 +98,11 @@ export function createDefaultBlock(type: BlockType): SiteBlock {
     "video-embed": { heading: "See It in Action", videoUrl: "", provider: "youtube", autoplay: false } as VideoEmbedBlockConfig,
     "countdown-timer": { heading: "Launch Coming Soon", subtitle: "Don't miss the early-bird pricing!", targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], ctaText: "Notify Me", ctaUrl: "#contact" } as CountdownTimerBlockConfig,
     newsletter: { heading: "Stay Updated", subtitle: "Get the latest news and exclusive offers delivered to your inbox.", buttonText: "Subscribe", placeholderText: "Enter your email address" } as NewsletterBlockConfig,
+    "product-detail": { heading: "Product Details", productName: "Premium Product", price: "$99.00", compareAtPrice: "$149.00", description: "Discover our flagship product with premium quality materials and exceptional craftsmanship.", variants: [{ type: "Size", options: ["S", "M", "L", "XL"] }, { type: "Color", options: ["Black", "White", "Navy"] }], images: [] } as ProductDetailBlockConfig,
+    "shopping-cart": { heading: "Your Cart", emptyMessage: "Your cart is empty. Start shopping!", ctaText: "Proceed to Checkout" } as ShoppingCartBlockConfig,
+    "checkout-form": { heading: "Checkout", enabledPaymentMethods: ["stripe", "paypal", "cod"] } as CheckoutFormBlockConfig,
+    "customer-reviews": { heading: "Customer Reviews", reviews: [{ author: "Sarah M.", rating: 5, date: "2025-12-15", comment: "Absolutely love this product! Quality is outstanding." }, { author: "James K.", rating: 4, date: "2025-11-20", comment: "Great value for money. Fast shipping too." }, { author: "Emma L.", rating: 5, date: "2025-10-10", comment: "Best purchase I've made this year. Highly recommend!" }] } as CustomerReviewsBlockConfig,
+    "order-tracking": { heading: "Track Your Order", steps: [{ label: "Order Placed", status: "completed" }, { label: "Processing", status: "completed" }, { label: "Shipped", status: "active" }, { label: "Delivered", status: "pending" }] } as OrderTrackingBlockConfig,
   };
   return { id, type, enabled: true, config: configs[type] };
 }
