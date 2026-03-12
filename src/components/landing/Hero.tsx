@@ -243,9 +243,9 @@ const Hero = () => {
                         {selectedMode === "buyer" && (
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
-                              <span className="flex-1">Supplier</span>
-                              <span className="w-12 text-center">Match</span>
-                              <span className="w-16 text-right">Price</span>
+                              <span className="flex-1">{t("hero.card.buyerHeaders.supplier")}</span>
+                              <span className="w-12 text-center">{t("hero.card.buyerHeaders.match")}</span>
+                              <span className="w-16 text-right">{t("hero.card.buyerHeaders.price")}</span>
                             </div>
                             {[
                               { name: "SteelMax GmbH", flag: "🇩🇪", match: "97.2%", price: "$12.40/kg" },
