@@ -18,7 +18,12 @@ export type BlockType =
   | "image-gallery"
   | "video-embed"
   | "countdown-timer"
-  | "newsletter";
+  | "newsletter"
+  | "product-detail"
+  | "shopping-cart"
+  | "checkout-form"
+  | "customer-reviews"
+  | "order-tracking";
 
 export interface HeroBlockConfig {
   title: string;
