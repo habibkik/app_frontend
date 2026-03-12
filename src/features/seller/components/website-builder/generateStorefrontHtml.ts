@@ -7,6 +7,8 @@ import type {
   ProblemAgitationBlockConfig, SolutionBlockConfig, OfferPricingBlockConfig,
   FeaturesGridBlockConfig, PricingTableBlockConfig, ImageGalleryBlockConfig,
   VideoEmbedBlockConfig, CountdownTimerBlockConfig, NewsletterBlockConfig,
+  ProductDetailBlockConfig, ShoppingCartBlockConfig, CheckoutFormBlockConfig,
+  CustomerReviewsBlockConfig, OrderTrackingBlockConfig,
 } from "./types";
 
 interface GenerateOptions {
