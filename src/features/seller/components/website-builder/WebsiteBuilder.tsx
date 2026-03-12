@@ -251,6 +251,11 @@ export const WebsiteBuilder: React.FC = () => {
           <Store className={`h-3 w-3 ${store.storeMode === "ecommerce" ? "text-primary" : "text-muted-foreground"}`} />
           <span className={`text-[10px] font-medium ${store.storeMode === "ecommerce" ? "text-primary" : "text-muted-foreground"}`}>Store</span>
         </div>
+        {store.storeMode === "ecommerce" && (
+          <Button size="sm" variant="outline" onClick={() => setShowConnectStore(true)} className="h-7 text-xs">
+            <Plug className="h-3 w-3 mr-1" /> Connect Store
+          </Button>
+        )}
 
         <div className="flex-1" />
         <Button size="sm" variant={previewMode === "desktop" ? "default" : "outline"} onClick={() => setPreviewMode("desktop")} className="h-7 text-xs">
