@@ -631,6 +631,19 @@
       "suppliers": "Fournisseurs",
       "accuracy": "Précision",
       "analysisTime": "Temps d'analyse"
+    },
+    "card": {
+      "actionTitle": { "buyer": "Trouver des fournisseurs", "producer": "Générer une nomenclature", "seller": "Analyser le marché" },
+      "actionDesc": { "buyer": "Fournisseurs correspondants et devis instantanés", "producer": "Détail des coûts et analyse de faisabilité", "seller": "Prix compétitifs et insights" },
+      "tryDemo": "Essayer la démo",
+      "buyerHeaders": { "supplier": "Fournisseur", "match": "Corr.", "price": "Prix" },
+      "producerHeaders": { "component": "Composant", "qty": "Qté", "unit": "Unit.", "total": "Total" },
+      "sellerHeaders": { "metric": "Métrique", "value": "Valeur", "trend": "Tend." },
+      "totalBOM": "Total nomenclature",
+      "sellerRows": { "marketPrice": "Prix du marché", "competitors": "Concurrents", "competitorsValue": "23 trouvés", "demandScore": "Score demande", "bestChannel": "Meilleur canal" },
+      "footer": "Une image. <1>Des insights infinis.</1>",
+      "footerLine1": "Une image.",
+      "footerLine2": "Des insights infinis."
     }
   },
   "features": {

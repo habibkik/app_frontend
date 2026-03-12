@@ -631,6 +631,19 @@
       "suppliers": "Proveedores",
       "accuracy": "Precisión",
       "analysisTime": "Tiempo de análisis"
+    },
+    "card": {
+      "actionTitle": { "buyer": "Encontrar proveedores", "producer": "Generar BOM", "seller": "Analizar mercado" },
+      "actionDesc": { "buyer": "Proveedores coincidentes y cotizaciones instantáneas", "producer": "Desglose de costos y análisis de viabilidad", "seller": "Precios competitivos e insights" },
+      "tryDemo": "Probar demo",
+      "buyerHeaders": { "supplier": "Proveedor", "match": "Coinc.", "price": "Precio" },
+      "producerHeaders": { "component": "Componente", "qty": "Cant.", "unit": "Unit.", "total": "Total" },
+      "sellerHeaders": { "metric": "Métrica", "value": "Valor", "trend": "Tend." },
+      "totalBOM": "Total BOM",
+      "sellerRows": { "marketPrice": "Precio de mercado", "competitors": "Competidores", "competitorsValue": "23 encontrados", "demandScore": "Puntuación demanda", "bestChannel": "Mejor canal" },
+      "footer": "Una imagen. <1>Insights infinitos.</1>",
+      "footerLine1": "Una imagen.",
+      "footerLine2": "Insights infinitos."
     }
   },
   "features": {
