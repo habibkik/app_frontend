@@ -295,15 +295,15 @@ const Hero = () => {
                         {selectedMode === "seller" && (
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
-                              <span className="flex-1">Metric</span>
-                              <span className="w-16 text-center">Value</span>
-                              <span className="w-14 text-right">Trend</span>
+                              <span className="flex-1">{t("hero.card.sellerHeaders.metric")}</span>
+                              <span className="w-16 text-center">{t("hero.card.sellerHeaders.value")}</span>
+                              <span className="w-14 text-right">{t("hero.card.sellerHeaders.trend")}</span>
                             </div>
                             {[
-                              { metric: "Market Price", value: "$45.20", trend: "↑ +8.2%", trendColor: "text-emerald-400" },
-                              { metric: "Competitors", value: "23 found", trend: "—", trendColor: "text-[hsl(var(--muted-foreground))]" },
-                              { metric: "Demand Score", value: "87/100", trend: "↑ High", trendColor: "text-emerald-400" },
-                              { metric: "Best Channel", value: "Amazon EU", trend: "★", trendColor: "text-amber-400" },
+                              { metric: t("hero.card.sellerRows.marketPrice"), value: "$45.20", trend: "↑ +8.2%", trendColor: "text-emerald-400" },
+                              { metric: t("hero.card.sellerRows.competitors"), value: t("hero.card.sellerRows.competitorsValue"), trend: "—", trendColor: "text-[hsl(var(--muted-foreground))]" },
+                              { metric: t("hero.card.sellerRows.demandScore"), value: "87/100", trend: "↑ High", trendColor: "text-emerald-400" },
+                              { metric: t("hero.card.sellerRows.bestChannel"), value: "Amazon EU", trend: "★", trendColor: "text-amber-400" },
                             ].map((row) => (
                               <div key={row.metric} className="flex items-center justify-between px-2 py-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
                                 <span className="flex-1 text-xs font-medium text-[hsl(var(--foreground))]">{row.metric}</span>
@@ -321,7 +321,7 @@ const Hero = () => {
                 {/* Footer */}
                 <div className="mt-5 pt-4 border-t border-[hsl(var(--border))]">
                   <p className="text-center text-sm font-semibold text-[hsl(var(--foreground))] tracking-wide">
-                    One Image. <span className="text-[hsl(var(--accent))]">Infinite Insights.</span>
+                    {t("hero.card.footerLine1")} <span className="text-[hsl(var(--accent))]">{t("hero.card.footerLine2")}</span>
                   </p>
                 </div>
               </div>
