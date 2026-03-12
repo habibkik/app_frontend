@@ -51,6 +51,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
+  const [showConnectStore, setShowConnectStore] = useState(false);
 
   useEffect(() => {
     const init = async () => {
