@@ -157,7 +157,7 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
             </Button>
           )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleConnect}>
+          <Button onClick={handleConnect} className="btn-neon-green border-0">
             {isConnected ? "Update Connection" : "Connect"}
           </Button>
         </DialogFooter>
