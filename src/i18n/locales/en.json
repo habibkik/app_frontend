@@ -204,7 +204,18 @@
     "contentStudio": "Content Studio",
     "socialPublisher": "Social Publisher",
     "websiteBuilder": "Website Builder",
-    "sellerAnalytics": "Analytics"
+    "sellerAnalytics": "Analytics",
+    "outreachHub": "Outreach Hub",
+    "rfqTemplates": "RFQ Templates",
+    "compareSuppliers": "Compare Suppliers",
+    "negotiationAI": "Negotiation AI",
+    "shouldCostModel": "Should-Cost Model",
+    "dfmDfaReview": "DFM/DFA Review",
+    "demandSignals": "Demand Signals",
+    "commerceManager": "Commerce Manager",
+    "marketplace": "Marketplace",
+    "dailyReport": "Daily Report",
+    "analysis": "Analysis"
   },
   "suppliers": {
     "title": "Suppliers",

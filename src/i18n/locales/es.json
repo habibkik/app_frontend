@@ -204,7 +204,18 @@
     "contentStudio": "Estudio de contenido",
     "socialPublisher": "Editor social",
     "websiteBuilder": "Constructor de sitios",
-    "sellerAnalytics": "Análisis"
+    "sellerAnalytics": "Análisis",
+    "outreachHub": "Centro de contacto",
+    "rfqTemplates": "Plantillas de solicitud",
+    "compareSuppliers": "Comparar proveedores",
+    "negotiationAI": "IA de negociación",
+    "shouldCostModel": "Modelo de coste objetivo",
+    "dfmDfaReview": "Revisión DFM/DFA",
+    "demandSignals": "Señales de demanda",
+    "commerceManager": "Gestor comercial",
+    "marketplace": "Mercado",
+    "dailyReport": "Informe diario",
+    "analysis": "Análisis"
   },
   "suppliers": {
     "title": "Proveedores",

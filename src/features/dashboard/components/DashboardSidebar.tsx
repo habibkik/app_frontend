@@ -24,24 +24,34 @@ import { cn } from "@/lib/utils";
 const titleKeyMap: Record<string, string> = {
   "Dashboard": "sidebar.dashboard",
   "Supplier Search": "sidebar.supplierSearch",
+  "Outreach Hub": "sidebar.outreachHub",
   "My RFQs": "sidebar.myRfqs",
+  "RFQ Templates": "sidebar.rfqTemplates",
   "Conversations": "sidebar.conversations",
   "Saved Suppliers": "sidebar.savedSuppliers",
+  "Compare Suppliers": "sidebar.compareSuppliers",
+  "Negotiation AI": "sidebar.negotiationAI",
   "Heat Map": "sidebar.heatMap",
   "Analytics": "sidebar.analytics",
   "Settings": "sidebar.settings",
   "Reverse Engineering": "sidebar.reverseEngineering",
   "Component Supply": "sidebar.componentSupply",
   "Production Feasibility": "sidebar.productionFeasibility",
+  "Should-Cost Model": "sidebar.shouldCostModel",
+  "DFM/DFA Review": "sidebar.dfmDfaReview",
   "Go-To-Market": "sidebar.goToMarket",
   "Products": "sidebar.products",
   "Market Intelligence": "sidebar.marketIntelligence",
   "Competitor Tracking": "sidebar.competitorTracking",
   "Pricing Strategy": "sidebar.pricingStrategy",
+  "Demand Signals": "sidebar.demandSignals",
   "Campaigns": "sidebar.campaigns",
   "Content Studio": "sidebar.contentStudio",
   "Social Publisher": "sidebar.socialPublisher",
   "Website Builder": "sidebar.websiteBuilder",
+  "Commerce Manager": "sidebar.commerceManager",
+  "Marketplace": "sidebar.marketplace",
+  "Daily Report": "sidebar.dailyReport",
   "Seller Analytics": "sidebar.sellerAnalytics",
 };
 
@@ -55,6 +65,7 @@ const groupKeyMap: Record<string, string> = {
   "Setup": "sidebar.setup",
   "Intelligence": "sidebar.intelligence",
   "Marketing": "sidebar.marketing",
+  "Analysis": "sidebar.analysis",
 };
 
 interface DashboardSidebarProps {
