@@ -26,6 +26,7 @@ import { TemplatePicker } from "./TemplatePicker";
 import { AILandingGenerator } from "./AILandingGenerator";
 import type { WebsiteTemplate } from "./templates";
 import { DEFAULT_BLOCKS } from "./blocks";
+import { ConnectStoreModal } from "./ConnectStoreModal";
 import type { ProductData } from "./types";
 
 export const WebsiteBuilder: React.FC = () => {
