@@ -648,11 +648,17 @@ export function generateStorefrontHtml(options: GenerateOptions): string {
     body{font-family:${theme.bodyFont};color:${theme.textColor};background:${theme.bgColor};-webkit-font-smoothing:antialiased;font-size:${theme.bodySize ?? 16}px;}
     img{max-width:100%;}
     ${hoverCss(theme)}
+    .neon-btn:hover{filter:brightness(1.15);box-shadow:0 0 28px rgba(57,217,138,0.5),0 0 56px rgba(57,217,138,0.2);}
     @media(max-width:768px){
       section div[style*="grid-template-columns"]{grid-template-columns:1fr!important;}
       section div[style*="display:flex"][style*="gap:48px"]{flex-direction:column;gap:24px!important;}
       section div[style*="display:flex"][style*="gap:16px"]{flex-direction:column;gap:12px!important;}
+      section div[style*="display:flex"][style*="min-width:300px"]{flex-direction:column!important;}
+      section div[style*="grid-template-columns:2fr"]{grid-template-columns:1fr!important;}
+      section div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;}
       h1{font-size:1.8rem!important;}
+      h2{font-size:1.4rem!important;}
+      section{padding:40px 16px!important;}
     }
   </style>
 </head>
