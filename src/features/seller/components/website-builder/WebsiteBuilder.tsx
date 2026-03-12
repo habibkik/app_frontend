@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush,
-  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download, Search, Store, FileText,
+  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download, Search, Store, FileText, Plug,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
