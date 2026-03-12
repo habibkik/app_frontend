@@ -9,12 +9,14 @@ import { BLOCK_META, createDefaultBlock } from "./blocks";
 import type { BlockType, SiteBlock } from "./types";
 
 export const BlockPalette: React.FC = () => {
-  const { blocks, addBlock, removeBlock, toggleBlock, moveBlock, setSelectedBlockId, selectedBlockId } = useWebsiteBuilderStore();
+  const { blocks, addBlock, removeBlock, toggleBlock, moveBlock, setSelectedBlockId, selectedBlockId, storeMode } = useWebsiteBuilderStore();
   const dragIdx = useRef<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
+  const ECOMMERCE_ONLY: BlockType[] = ["product-detail", "shopping-cart", "checkout-form", "customer-reviews", "order-tracking"];
+
   const availableTypes = (Object.keys(BLOCK_META) as BlockType[]).filter(
-    (t) => !blocks.some((b) => b.type === t)
+    (t) => !blocks.some((b) => b.type === t) && (storeMode === "ecommerce" || !ECOMMERCE_ONLY.includes(t))
   );
 
   const handleDragStart = (idx: number) => { dragIdx.current = idx; };

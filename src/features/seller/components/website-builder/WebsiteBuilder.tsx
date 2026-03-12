@@ -236,6 +236,20 @@ export const WebsiteBuilder: React.FC = () => {
       <div className="flex items-center gap-2 px-4 py-2 border-b bg-card flex-wrap">
         <Input value={store.siteConfig.name} onChange={(e) => store.setSiteConfig({ name: e.target.value })} className="h-8 text-sm font-semibold max-w-[180px]" />
         <Input value={store.siteConfig.tagline} onChange={(e) => store.setSiteConfig({ tagline: e.target.value })} className="h-8 text-xs max-w-[220px]" placeholder="Tagline" />
+        
+        {/* Store Mode Toggle */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border bg-muted/50">
+          <FileText className={`h-3 w-3 ${store.storeMode === "standard" ? "text-primary" : "text-muted-foreground"}`} />
+          <span className={`text-[10px] font-medium ${store.storeMode === "standard" ? "text-primary" : "text-muted-foreground"}`}>Site</span>
+          <Switch
+            checked={store.storeMode === "ecommerce"}
+            onCheckedChange={(checked) => store.setStoreMode(checked ? "ecommerce" : "standard")}
+            className="scale-75"
+          />
+          <Store className={`h-3 w-3 ${store.storeMode === "ecommerce" ? "text-primary" : "text-muted-foreground"}`} />
+          <span className={`text-[10px] font-medium ${store.storeMode === "ecommerce" ? "text-primary" : "text-muted-foreground"}`}>Store</span>
+        </div>
+
         <div className="flex-1" />
         <Button size="sm" variant={previewMode === "desktop" ? "default" : "outline"} onClick={() => setPreviewMode("desktop")} className="h-7 text-xs">
           <Monitor className="h-3 w-3 mr-1" /> Desktop
