@@ -679,25 +679,52 @@
     "titleHighlight": "Global Trade",
     "subtitle": "Whether you're sourcing products, manufacturing goods, or selling to businesses, we have the tools you need to succeed.",
     "buyer": {
+      "tab": "For Buyers",
       "title": "For Buyers",
       "subtitle": "Source products globally",
       "description": "Find verified suppliers, compare quotes, and manage orders from manufacturers worldwide. Our AI helps you discover the perfect match for your requirements.",
       "features": ["AI-powered supplier matching", "Instant RFQ system", "Price comparison tools", "Order tracking"],
-      "button": "Start Sourcing"
+      "button": "Start Sourcing",
+      "scroll": [
+        {"label": "Verified supplier", "value": "+3 quotes"},
+        {"label": "Order confirmed", "value": "$2,340.00"},
+        {"label": "AI analysis complete", "value": "<2 seconds"},
+        {"label": "Match found", "value": "99.2% match"},
+        {"label": "Quote compared", "value": "-18% price"},
+        {"label": "Delivery scheduled", "value": "D+14"}
+      ]
     },
     "producer": {
+      "tab": "For Producers",
       "title": "For Producers",
       "subtitle": "Manage production & pricing",
       "description": "Streamline your production workflow, set competitive pricing, and connect directly with global buyers looking for your products.",
       "features": ["Production management", "Dynamic pricing tools", "Capacity planning", "Direct buyer access"],
-      "button": "List Products"
+      "button": "List Products",
+      "scroll": [
+        {"label": "Production planned", "value": "500 units"},
+        {"label": "Cost optimized", "value": "-12%"},
+        {"label": "Buyer connected", "value": "Paris, FR"},
+        {"label": "BOM generated", "value": "48 components"},
+        {"label": "Dynamic pricing", "value": "+8% margin"},
+        {"label": "Export validated", "value": "180 countries"}
+      ]
     },
     "seller": {
+      "tab": "For Sellers",
       "title": "For Sellers",
       "subtitle": "Expand your reach",
       "description": "List your products on our global marketplace, receive qualified leads, and grow your B2B sales with powerful analytics.",
       "features": ["Global marketplace", "Lead management", "Sales analytics", "Inventory sync"],
-      "button": "Open Store"
+      "button": "Open Store",
+      "scroll": [
+        {"label": "New order", "value": "$5,200.00"},
+        {"label": "Qualified prospect", "value": "TechCorp"},
+        {"label": "Sales this month", "value": "+34%"},
+        {"label": "Inventory synced", "value": "Auto"},
+        {"label": "Buyer message", "value": "Pending"},
+        {"label": "Review received", "value": "5 stars"}
+      ]
     }
   },
   "testimonials": {
