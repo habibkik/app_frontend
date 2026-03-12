@@ -679,25 +679,52 @@
     "titleHighlight": "commerce mondial",
     "subtitle": "Que vous recherchiez des produits, fabriquiez des biens ou vendiez aux entreprises, nous avons les outils pour réussir.",
     "buyer": {
+      "tab": "Pour les acheteurs",
       "title": "Pour les acheteurs",
       "subtitle": "Sourcez des produits mondialement",
       "description": "Trouvez des fournisseurs vérifiés, comparez les devis et gérez les commandes de fabricants du monde entier. Notre IA vous aide à trouver la correspondance parfaite.",
       "features": ["Correspondance fournisseurs par IA", "Système de devis instantané", "Outils de comparaison de prix", "Suivi des commandes"],
-      "button": "Commencer l'approvisionnement"
+      "button": "Commencer l'approvisionnement",
+      "scroll": [
+        {"label": "Fournisseur vérifié", "value": "+3 devis"},
+        {"label": "Commande confirmée", "value": "$2,340.00"},
+        {"label": "Analyse IA terminée", "value": "<2 secondes"},
+        {"label": "Correspondance trouvée", "value": "99.2% match"},
+        {"label": "Devis comparé", "value": "-18% prix"},
+        {"label": "Livraison planifiée", "value": "J+14"}
+      ]
     },
     "producer": {
+      "tab": "Pour les producteurs",
       "title": "Pour les producteurs",
       "subtitle": "Gérez production et prix",
       "description": "Simplifiez votre flux de production, fixez des prix compétitifs et connectez-vous directement avec des acheteurs mondiaux.",
       "features": ["Gestion de production", "Outils de prix dynamiques", "Planification des capacités", "Accès direct aux acheteurs"],
-      "button": "Lister les produits"
+      "button": "Lister les produits",
+      "scroll": [
+        {"label": "Production planifiée", "value": "500 unités"},
+        {"label": "Coût optimisé", "value": "-12%"},
+        {"label": "Acheteur connecté", "value": "Paris, FR"},
+        {"label": "Nomenclature générée", "value": "48 composants"},
+        {"label": "Prix dynamique", "value": "+8% marge"},
+        {"label": "Export validé", "value": "180 pays"}
+      ]
     },
     "seller": {
+      "tab": "Pour les vendeurs",
       "title": "Pour les vendeurs",
       "subtitle": "Étendez votre portée",
       "description": "Listez vos produits sur notre marketplace mondiale, recevez des prospects qualifiés et développez vos ventes B2B avec des analytiques puissantes.",
       "features": ["Marketplace mondiale", "Gestion des prospects", "Analytique des ventes", "Sync d'inventaire"],
-      "button": "Ouvrir une boutique"
+      "button": "Ouvrir une boutique",
+      "scroll": [
+        {"label": "Nouvelle commande", "value": "$5,200.00"},
+        {"label": "Prospect qualifié", "value": "TechCorp"},
+        {"label": "Ventes ce mois", "value": "+34%"},
+        {"label": "Inventaire synchronisé", "value": "Auto"},
+        {"label": "Message acheteur", "value": "En attente"},
+        {"label": "Avis reçu", "value": "5 étoiles"}
+      ]
     }
   },
   "testimonials": {
