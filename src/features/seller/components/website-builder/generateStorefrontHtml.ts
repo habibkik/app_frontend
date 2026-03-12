@@ -454,8 +454,8 @@ function renderProductDetail(cfg: ProductDetailBlockConfig, theme: LandingPageTh
       </div>
       <p style="color:#6b7280;line-height:1.6;margin:0 0 20px;font-size:.95rem;">${cfg.description}</p>
       ${variants}
-      <div style="display:flex;gap:10px;margin-top:20px;">
-        <button style="${btnStyle(theme)}cursor:pointer;flex:1;">🛒 Add to Cart</button>
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+        <button style="${neonBtnStyle(theme)}cursor:pointer;flex:1;min-width:180px;text-align:center;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">🛒 Add to Cart</button>
         <button style="padding:14px 20px;background:transparent;border:2px solid ${theme.primaryColor};color:${theme.primaryColor};border-radius:${br};cursor:pointer;font-weight:600;">♡</button>
       </div>
     </div>
