@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/features/dashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,37 +12,31 @@ type Answer = "yes" | "no" | "na";
 
 interface CheckItem {
   id: string;
-  question: string;
+  questionKey: string;
 }
 
 const DFM_ITEMS: CheckItem[] = [
-  { id: "dfm-1", question: "Can parts be molded without side actions?" },
-  { id: "dfm-2", question: "Can tolerance stack be relaxed?" },
-  { id: "dfm-3", question: "Can secondary operations be eliminated?" },
-  { id: "dfm-4", question: "Are standard materials used?" },
-  { id: "dfm-5", question: "Are standard fastener sizes used?" },
-  { id: "dfm-6", question: "Can wall thickness be uniform?" },
-  { id: "dfm-7", question: "Are draft angles sufficient for demolding?" },
-  { id: "dfm-8", question: "Can undercuts be avoided?" },
+  { id: "dfm-1", questionKey: "dfm1" },
+  { id: "dfm-2", questionKey: "dfm2" },
+  { id: "dfm-3", questionKey: "dfm3" },
+  { id: "dfm-4", questionKey: "dfm4" },
+  { id: "dfm-5", questionKey: "dfm5" },
+  { id: "dfm-6", questionKey: "dfm6" },
+  { id: "dfm-7", questionKey: "dfm7" },
+  { id: "dfm-8", questionKey: "dfm8" },
 ];
 
 const DFA_ITEMS: CheckItem[] = [
-  { id: "dfa-1", question: "Can screw count be reduced?" },
-  { id: "dfa-2", question: "Can orientation constraints be minimized?" },
-  { id: "dfa-3", question: "Can snap fits replace screws?" },
-  { id: "dfa-4", question: "Are fasteners standardized across the product?" },
-  { id: "dfa-5", question: "Can parts be self-locating during assembly?" },
-  { id: "dfa-6", question: "Is the assembly sequence linear (top-down)?" },
-  { id: "dfa-7", question: "Can the number of unique parts be reduced?" },
+  { id: "dfa-1", questionKey: "dfa1" },
+  { id: "dfa-2", questionKey: "dfa2" },
+  { id: "dfa-3", questionKey: "dfa3" },
+  { id: "dfa-4", questionKey: "dfa4" },
+  { id: "dfa-5", questionKey: "dfa5" },
+  { id: "dfa-6", questionKey: "dfa6" },
+  { id: "dfa-7", questionKey: "dfa7" },
 ];
 
-const STANDARDIZATION_OPPS = [
-  "Replace custom M2.5 screws with standard M3",
-  "Use generic USB-C connectors instead of proprietary",
-  "Standardize gasket profile to industry standard",
-  "Switch to common 0402 resistor packages",
-  "Use standard ABS grade instead of custom blend",
-];
+const STD_KEYS = ["std1", "std2", "std3", "std4", "std5"];
 
 function AnswerButton({ current, value, onClick }: { current: Answer | undefined; value: Answer; onClick: () => void }) {
   const config: Record<Answer, { icon: React.ReactNode; color: string }> = {
@@ -65,6 +60,7 @@ function calcScore(answers: Record<string, Answer>, items: CheckItem[]) {
 }
 
 export default function DFMReview() {
+  const { t } = useTranslation();
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -99,9 +95,9 @@ export default function DFMReview() {
               <AnswerButton current={answers[item.id]} value="na" onClick={() => setAnswer(item.id, "na")} />
             </div>
             <div className="flex-1 space-y-1">
-              <p className="text-sm text-foreground">{item.question}</p>
+              <p className="text-sm text-foreground">{t(`pages.dfmReview.${item.questionKey}`)}</p>
               <Textarea
-                placeholder="Notes..."
+                placeholder={t("pages.dfmReview.notes")}
                 value={notes[item.id] || ""}
                 onChange={(e) => setNotes((p) => ({ ...p, [item.id]: e.target.value }))}
                 className="min-h-[32px] h-8 text-xs resize-none"
@@ -121,30 +117,29 @@ export default function DFMReview() {
             <Wrench className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">DFM / DFA Review</h1>
-            <p className="text-muted-foreground">Design for Manufacturing & Assembly evaluation</p>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.dfmReview.title")}</h1>
+            <p className="text-muted-foreground">{t("pages.dfmReview.subtitle")}</p>
           </div>
         </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {renderSection("Design for Manufacturing (DFM)", <Wrench className="h-4 w-4 text-primary" />, DFM_ITEMS, dfmScore)}
-          {renderSection("Design for Assembly (DFA)", <Puzzle className="h-4 w-4 text-chart-2" />, DFA_ITEMS, dfaScore)}
+          {renderSection(t("pages.dfmReview.dfmTitle"), <Wrench className="h-4 w-4 text-primary" />, DFM_ITEMS, dfmScore)}
+          {renderSection(t("pages.dfmReview.dfaTitle"), <Puzzle className="h-4 w-4 text-chart-2" />, DFA_ITEMS, dfaScore)}
         </div>
 
-        {/* Standardization Opportunities */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-chart-4" />
-              Standardization Opportunities
+              {t("pages.dfmReview.standardization")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {STANDARDIZATION_OPPS.map((opp, i) => (
+              {STD_KEYS.map((key, i) => (
                 <div key={i} className="flex items-center gap-2 p-2 rounded-md bg-chart-4/5 border border-chart-4/20">
                   <Lightbulb className="h-3.5 w-3.5 text-chart-4 flex-shrink-0" />
-                  <span className="text-sm text-foreground">{opp}</span>
+                  <span className="text-sm text-foreground">{t(`pages.dfmReview.${key}`)}</span>
                 </div>
               ))}
             </div>
