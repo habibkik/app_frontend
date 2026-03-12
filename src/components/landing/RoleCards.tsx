@@ -5,58 +5,16 @@ import { useTranslation } from "react-i18next";
 
 const roleKeys = ["buyer", "producer", "seller"] as const;
 
-const tabLabels: Record<string, string> = {
-  buyer: "Pour les acheteurs",
-  producer: "Pour les producteurs",
-  seller: "Pour les vendeurs",
+const featureIcons: Record<string, string[]> = {
+  buyer: ["🔍", "💬", "📊", "📦"],
+  producer: ["⚙️", "📋", "💹", "🌍"],
+  seller: ["🛍️", "📈", "🔄", "⭐"],
 };
 
-const featureIcons: Record<string, { icon: string; label: string }[]> = {
-  buyer: [
-    { icon: "🔍", label: "Correspondance fournisseurs par IA" },
-    { icon: "💬", label: "Système de devis instantané" },
-    { icon: "📊", label: "Outils de comparaison de prix" },
-    { icon: "📦", label: "Suivi des commandes" },
-  ],
-  producer: [
-    { icon: "⚙️", label: "Planification de production" },
-    { icon: "📋", label: "Génération de nomenclature" },
-    { icon: "💹", label: "Optimisation des coûts" },
-    { icon: "🌍", label: "Conformité export" },
-  ],
-  seller: [
-    { icon: "🛍️", label: "Gestion des commandes" },
-    { icon: "📈", label: "Analyse des ventes" },
-    { icon: "🔄", label: "Synchronisation inventaire" },
-    { icon: "⭐", label: "Gestion des avis" },
-  ],
-};
-
-const scrollRows: Record<string, { icon: string; label: string; value: string }[]> = {
-  buyer: [
-    { icon: "🏭", label: "Fournisseur vérifié", value: "+3 devis" },
-    { icon: "📦", label: "Commande confirmée", value: "$2,340.00" },
-    { icon: "🔍", label: "Analyse IA terminée", value: "<2 secondes" },
-    { icon: "✅", label: "Correspondance trouvée", value: "99.2% match" },
-    { icon: "💰", label: "Devis comparé", value: "-18% prix" },
-    { icon: "🚚", label: "Livraison planifiée", value: "J+14" },
-  ],
-  producer: [
-    { icon: "⚙️", label: "Production planifiée", value: "500 unités" },
-    { icon: "📊", label: "Coût optimisé", value: "-12%" },
-    { icon: "🛒", label: "Acheteur connecté", value: "Paris, FR" },
-    { icon: "📋", label: "Nomenclature générée", value: "48 composants" },
-    { icon: "💹", label: "Prix dynamique", value: "+8% marge" },
-    { icon: "🌍", label: "Export validé", value: "180 pays" },
-  ],
-  seller: [
-    { icon: "🛍️", label: "Nouvelle commande", value: "$5,200.00" },
-    { icon: "👤", label: "Prospect qualifié", value: "TechCorp" },
-    { icon: "📈", label: "Ventes ce mois", value: "+34%" },
-    { icon: "🔄", label: "Inventaire synchronisé", value: "Auto" },
-    { icon: "💬", label: "Message acheteur", value: "En attente" },
-    { icon: "⭐", label: "Avis reçu", value: "5 étoiles" },
-  ],
+const scrollIcons: Record<string, string[]> = {
+  buyer: ["🏭", "📦", "🔍", "✅", "💰", "🚚"],
+  producer: ["⚙️", "📊", "🛒", "📋", "💹", "🌍"],
+  seller: ["🛍️", "👤", "📈", "🔄", "💬", "⭐"],
 };
 
 const RoleCards = () => {
@@ -74,6 +32,9 @@ const RoleCards = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [isHovered, active]);
+
+  const features = t(`roleCards.${active}.features`, { returnObjects: true }) as string[];
+  const scrollRows = t(`roleCards.${active}.scroll`, { returnObjects: true }) as Array<{ label: string; value: string }>;
 
   return (
     <section className="py-28 bg-column" id="roles">
@@ -115,7 +76,7 @@ const RoleCards = () => {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {tabLabels[key]}
+                {t(`roleCards.${key}.tab`)}
               </button>
             ))}
           </div>
@@ -140,10 +101,10 @@ const RoleCards = () => {
                 </h3>
 
                 <div className="space-y-3 mb-6">
-                  {featureIcons[active].map((f) => (
-                    <div key={f.label} className="flex items-center gap-3 text-sm text-column-navy">
-                      <span className="text-base">{f.icon}</span>
-                      {f.label}
+                  {Array.isArray(features) && features.map((label, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-sm text-column-navy">
+                      <span className="text-base">{featureIcons[active]?.[idx] || "•"}</span>
+                      {label}
                     </div>
                   ))}
                 </div>
@@ -180,12 +141,12 @@ const RoleCards = () => {
               >
                 <div key={active} className="scroll-track flex flex-col gap-3">
                   {[0, 1].map((set) =>
-                    scrollRows[active].map((row, i) => (
+                    Array.isArray(scrollRows) && scrollRows.map((row, i) => (
                       <div
                         key={`${set}-${i}`}
                         className="flex items-center gap-3 rounded-lg border border-border bg-background px-4 py-3"
                       >
-                        <span className="text-lg shrink-0">{row.icon}</span>
+                        <span className="text-lg shrink-0">{scrollIcons[active]?.[i] || "📌"}</span>
                         <span className="text-sm text-muted-foreground flex-1">
                           {row.label}
                         </span>
