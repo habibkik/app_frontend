@@ -267,10 +267,10 @@ const Hero = () => {
                         {selectedMode === "producer" && (
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
-                              <span className="flex-1">Component</span>
-                              <span className="w-8 text-center">Qty</span>
-                              <span className="w-14 text-center">Unit</span>
-                              <span className="w-14 text-right">Total</span>
+                              <span className="flex-1">{t("hero.card.producerHeaders.component")}</span>
+                              <span className="w-8 text-center">{t("hero.card.producerHeaders.qty")}</span>
+                              <span className="w-14 text-center">{t("hero.card.producerHeaders.unit")}</span>
+                              <span className="w-14 text-right">{t("hero.card.producerHeaders.total")}</span>
                             </div>
                             {[
                               { name: "Steel Frame", qty: 2, unit: "$24.50", total: "$49.00" },
@@ -286,7 +286,7 @@ const Hero = () => {
                               </div>
                             ))}
                             <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-[hsl(var(--accent))]/10">
-                              <span className="text-xs font-bold text-[hsl(var(--foreground))]">Total BOM</span>
+                              <span className="text-xs font-bold text-[hsl(var(--foreground))]">{t("hero.card.totalBOM")}</span>
                               <span className="text-xs font-bold text-[hsl(var(--accent))]">$111.10</span>
                             </div>
                           </div>
