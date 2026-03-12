@@ -461,6 +461,8 @@ export const WebsiteBuilder: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConnectStoreModal open={showConnectStore} onOpenChange={setShowConnectStore} />
     </div>
   );
 };
