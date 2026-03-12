@@ -20,12 +20,15 @@ interface WebsiteBuilderActions {
   setSlug: (slug: string) => void;
   setCustomHtml: (html: string | null) => void;
   setTemplateChosen: (v: boolean) => void;
+  setStoreMode: (mode: "standard" | "ecommerce") => void;
   loadFromDb: (data: { config_json: any; theme_json: any; id: string; name: string; slug: string; is_published: boolean }) => void;
   reset: () => void;
   importLandingPage: (data: { html: string; theme: any; sections: any }) => void;
 }
 
-const initialState: WebsiteEditorState = {
+const ECOMMERCE_BLOCK_TYPES = ["product-detail", "shopping-cart", "checkout-form", "customer-reviews", "order-tracking"] as const;
+
+const initialState: WebsiteEditorState & { storeMode: "standard" | "ecommerce" } = {
   siteConfig: { name: "My Store", tagline: "Quality products, competitive prices", logoUrl: "" },
   blocks: DEFAULT_BLOCKS,
   theme: DEFAULT_LANDING_THEME,
@@ -35,11 +38,12 @@ const initialState: WebsiteEditorState = {
   slug: "my-store",
   customHtml: null,
   templateChosen: false,
+  storeMode: "standard",
 };
 
-export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilderActions>()(
+export const useWebsiteBuilderStore = create<WebsiteEditorState & { storeMode: "standard" | "ecommerce" } & WebsiteBuilderActions>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
 
       setSiteConfig: (config) => set((s) => ({ siteConfig: { ...s.siteConfig, ...config } })),
@@ -67,6 +71,21 @@ export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilder
       setIsPublished: (v) => set({ isPublished: v }),
       setSlug: (slug) => set({ slug }),
       setCustomHtml: (html) => set({ customHtml: html }),
+      setStoreMode: (mode) => {
+        const state = get();
+        if (mode === "ecommerce") {
+          const existingTypes = state.blocks.map((b) => b.type);
+          const newBlocks = [...state.blocks];
+          for (const t of ECOMMERCE_BLOCK_TYPES) {
+            if (!existingTypes.includes(t)) {
+              newBlocks.push(createDefaultBlock(t));
+            }
+          }
+          set({ storeMode: mode, blocks: newBlocks });
+        } else {
+          set({ storeMode: mode });
+        }
+      },
       setTemplateChosen: (v) => set({ templateChosen: v }),
       loadFromDb: (data) => {
         const cfg = data.config_json as any;

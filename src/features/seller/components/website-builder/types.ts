@@ -18,7 +18,12 @@ export type BlockType =
   | "image-gallery"
   | "video-embed"
   | "countdown-timer"
-  | "newsletter";
+  | "newsletter"
+  | "product-detail"
+  | "shopping-cart"
+  | "checkout-form"
+  | "customer-reviews"
+  | "order-tracking";
 
 export interface HeroBlockConfig {
   title: string;
@@ -165,6 +170,47 @@ export interface NewsletterBlockConfig {
   overlayOpacity?: number;
 }
 
+export interface ProductDetailBlockConfig {
+  heading: string;
+  productName: string;
+  price: string;
+  compareAtPrice?: string;
+  description: string;
+  variants: { type: string; options: string[] }[];
+  images: string[];
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface ShoppingCartBlockConfig {
+  heading: string;
+  emptyMessage: string;
+  ctaText: string;
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface CheckoutFormBlockConfig {
+  heading: string;
+  enabledPaymentMethods: ("stripe" | "paypal" | "cod")[];
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface CustomerReviewsBlockConfig {
+  heading: string;
+  reviews: { author: string; rating: number; date: string; comment: string }[];
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
+export interface OrderTrackingBlockConfig {
+  heading: string;
+  steps: { label: string; status: "completed" | "active" | "pending" }[];
+  backgroundImageUrl?: string;
+  overlayOpacity?: number;
+}
+
 export type BlockConfig =
   | HeroBlockConfig
   | ProductCatalogBlockConfig
@@ -183,7 +229,12 @@ export type BlockConfig =
   | ImageGalleryBlockConfig
   | VideoEmbedBlockConfig
   | CountdownTimerBlockConfig
-  | NewsletterBlockConfig;
+  | NewsletterBlockConfig
+  | ProductDetailBlockConfig
+  | ShoppingCartBlockConfig
+  | CheckoutFormBlockConfig
+  | CustomerReviewsBlockConfig
+  | OrderTrackingBlockConfig;
 
 export interface SiteBlock {
   id: string;
