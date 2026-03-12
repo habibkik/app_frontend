@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush,
-  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download, Search, Store, FileText,
+  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download, Search, Store, FileText, Plug,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ import { TemplatePicker } from "./TemplatePicker";
 import { AILandingGenerator } from "./AILandingGenerator";
 import type { WebsiteTemplate } from "./templates";
 import { DEFAULT_BLOCKS } from "./blocks";
+import { ConnectStoreModal } from "./ConnectStoreModal";
 import type { ProductData } from "./types";
 
 export const WebsiteBuilder: React.FC = () => {
@@ -50,6 +51,7 @@ export const WebsiteBuilder: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
+  const [showConnectStore, setShowConnectStore] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -249,6 +251,11 @@ export const WebsiteBuilder: React.FC = () => {
           <Store className={`h-3 w-3 ${store.storeMode === "ecommerce" ? "text-primary" : "text-muted-foreground"}`} />
           <span className={`text-[10px] font-medium ${store.storeMode === "ecommerce" ? "text-primary" : "text-muted-foreground"}`}>Store</span>
         </div>
+        {store.storeMode === "ecommerce" && (
+          <Button size="sm" variant="outline" onClick={() => setShowConnectStore(true)} className="h-7 text-xs">
+            <Plug className="h-3 w-3 mr-1" /> Connect Store
+          </Button>
+        )}
 
         <div className="flex-1" />
         <Button size="sm" variant={previewMode === "desktop" ? "default" : "outline"} onClick={() => setPreviewMode("desktop")} className="h-7 text-xs">
@@ -454,6 +461,8 @@ export const WebsiteBuilder: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConnectStoreModal open={showConnectStore} onOpenChange={setShowConnectStore} />
     </div>
   );
 };

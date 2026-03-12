@@ -5,6 +5,13 @@ import { DEFAULT_LANDING_THEME } from "@/features/seller/components/content-stud
 import type { SiteBlock, SiteConfig, WebsiteEditorState } from "@/features/seller/components/website-builder/types";
 import { DEFAULT_BLOCKS, createDefaultBlock } from "@/features/seller/components/website-builder/blocks";
 
+interface StoreConnection {
+  engine: "standalone" | "woocommerce" | "shopify";
+  connected: boolean;
+  storeUrl?: string;
+  apiKey?: string;
+}
+
 interface WebsiteBuilderActions {
   setSiteConfig: (config: Partial<SiteConfig>) => void;
   setTheme: (theme: LandingPageTheme) => void;
@@ -21,6 +28,7 @@ interface WebsiteBuilderActions {
   setCustomHtml: (html: string | null) => void;
   setTemplateChosen: (v: boolean) => void;
   setStoreMode: (mode: "standard" | "ecommerce") => void;
+  setStoreConnection: (conn: StoreConnection | null) => void;
   loadFromDb: (data: { config_json: any; theme_json: any; id: string; name: string; slug: string; is_published: boolean }) => void;
   reset: () => void;
   importLandingPage: (data: { html: string; theme: any; sections: any }) => void;
@@ -28,7 +36,7 @@ interface WebsiteBuilderActions {
 
 const ECOMMERCE_BLOCK_TYPES = ["product-detail", "shopping-cart", "checkout-form", "customer-reviews", "order-tracking"] as const;
 
-const initialState: WebsiteEditorState & { storeMode: "standard" | "ecommerce" } = {
+const initialState: WebsiteEditorState & { storeMode: "standard" | "ecommerce"; storeConnection: StoreConnection | null } = {
   siteConfig: { name: "My Store", tagline: "Quality products, competitive prices", logoUrl: "" },
   blocks: DEFAULT_BLOCKS,
   theme: DEFAULT_LANDING_THEME,
@@ -39,9 +47,10 @@ const initialState: WebsiteEditorState & { storeMode: "standard" | "ecommerce" }
   customHtml: null,
   templateChosen: false,
   storeMode: "standard",
+  storeConnection: null,
 };
 
-export const useWebsiteBuilderStore = create<WebsiteEditorState & { storeMode: "standard" | "ecommerce" } & WebsiteBuilderActions>()(
+export const useWebsiteBuilderStore = create<WebsiteEditorState & { storeMode: "standard" | "ecommerce"; storeConnection: StoreConnection | null } & WebsiteBuilderActions>()(
   persist(
     (set, get) => ({
       ...initialState,
@@ -87,6 +96,7 @@ export const useWebsiteBuilderStore = create<WebsiteEditorState & { storeMode: "
         }
       },
       setTemplateChosen: (v) => set({ templateChosen: v }),
+      setStoreConnection: (conn) => set({ storeConnection: conn }),
       loadFromDb: (data) => {
         const cfg = data.config_json as any;
         set({
