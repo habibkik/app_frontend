@@ -26,7 +26,9 @@ interface WebsiteBuilderActions {
   importLandingPage: (data: { html: string; theme: any; sections: any }) => void;
 }
 
-const initialState: WebsiteEditorState = {
+const ECOMMERCE_BLOCK_TYPES = ["product-detail", "shopping-cart", "checkout-form", "customer-reviews", "order-tracking"] as const;
+
+const initialState: WebsiteEditorState & { storeMode: "standard" | "ecommerce" } = {
   siteConfig: { name: "My Store", tagline: "Quality products, competitive prices", logoUrl: "" },
   blocks: DEFAULT_BLOCKS,
   theme: DEFAULT_LANDING_THEME,
@@ -36,6 +38,7 @@ const initialState: WebsiteEditorState = {
   slug: "my-store",
   customHtml: null,
   templateChosen: false,
+  storeMode: "standard",
 };
 
 export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilderActions>()(
