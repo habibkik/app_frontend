@@ -232,7 +232,7 @@ const Hero = () => {
                             onClick={() => navigate("/dashboard")}
                             className="mt-2 sm:mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[hsl(var(--foreground))] text-white font-medium text-xs transition-all hover:opacity-90 group"
                           >
-                            Try Demo
+                            {t("hero.card.tryDemo")}
                             <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                           </button>
                         </div>
