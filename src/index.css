@@ -162,7 +162,7 @@
 
   /* RTL Support */
   html[dir="rtl"] {
-    font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+    font-family: 'Cairo', sans-serif;
   }
 
   html[dir="rtl"] body {
