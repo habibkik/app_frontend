@@ -125,6 +125,12 @@
     --input: 222 30% 22%;
     --ring: 221 83% 60%;
 
+    --neon-green: 142 76% 52%;
+    --neon-green-foreground: 0 0% 0%;
+    --neon-green-glow: 0 0 20px hsl(142 76% 52% / 0.5), 0 0 40px hsl(142 76% 52% / 0.2);
+    --input: 222 30% 22%;
+    --ring: 221 83% 60%;
+
     --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 220 20% 90%;
     --sidebar-primary: 221 83% 60%;
