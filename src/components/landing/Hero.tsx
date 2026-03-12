@@ -70,19 +70,19 @@ const Hero = () => {
       icon: Search, label: t("hero.modes.buyer"), description: t("hero.modes.buyerDesc"),
       color: "text-blue-400", demoLabel: t("hero.modes.buyerResult"),
       features: ["AI Supplier Matching", "Instant Quote System", "Price Comparison", "Order Tracking"],
-      actionTitle: "Find Suppliers", actionDesc: "Get matched suppliers & instant quotes", productImg: demoBuyerImg,
+      actionTitle: t("hero.card.actionTitle.buyer"), actionDesc: t("hero.card.actionDesc.buyer"), productImg: demoBuyerImg,
     },
     producer: {
       icon: Package, label: t("hero.modes.producer"), description: t("hero.modes.producerDesc"),
       color: "text-amber-400", demoLabel: t("hero.modes.producerResult"),
       features: ["BOM Generation", "Cost Optimization", "Feasibility Analysis", "Dynamic Pricing"],
-      actionTitle: "Generate BOM", actionDesc: "Get cost breakdown & feasibility analysis", productImg: demoProducerImg,
+      actionTitle: t("hero.card.actionTitle.producer"), actionDesc: t("hero.card.actionDesc.producer"), productImg: demoProducerImg,
     },
     seller: {
       icon: TrendingUp, label: t("hero.modes.seller"), description: t("hero.modes.sellerDesc"),
       color: "text-emerald-400", demoLabel: t("hero.modes.sellerResult"),
       features: ["Market Intelligence", "Competitor Monitor", "Demand Signals", "Content Studio"],
-      actionTitle: "Analyze Market", actionDesc: "Get competitive pricing & insights", productImg: demoSellerImg,
+      actionTitle: t("hero.card.actionTitle.seller"), actionDesc: t("hero.card.actionDesc.seller"), productImg: demoSellerImg,
     },
   };
 
