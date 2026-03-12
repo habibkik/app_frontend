@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Store, Globe, ShoppingBag, Check, Loader2, Link, Unlink } from "lucide-react";
 import { toast } from "sonner";
 import { useWebsiteBuilderStore } from "@/stores/websiteBuilderStore";
+import { cn } from "@/lib/utils";
 
 type StoreEngine = "standalone" | "woocommerce" | "shopify";
 
@@ -62,7 +64,6 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
 
   const handleSync = async () => {
     setSyncing(true);
-    // Simulated sync
     await new Promise((r) => setTimeout(r, 2000));
     toast.success("Products synced successfully (simulated)");
     setSyncing(false);
@@ -72,33 +73,35 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg glass-card">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Link className="h-4 w-4" /> Connect Store
+          <DialogTitle className="flex items-center gap-2 text-foreground">
+            <Link className="h-4 w-4 text-primary" /> Connect Store
           </DialogTitle>
           <DialogDescription>Choose how your e-commerce store is powered.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
           {ENGINE_OPTIONS.map((opt) => (
-            <button
+            <Card
               key={opt.id}
               onClick={() => setSelected(opt.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
+              className={cn(
+                "flex items-center gap-3 p-3 cursor-pointer transition-all",
                 selected === opt.id
-                  ? "border-neon-green/50 bg-neon-green/5 ring-1 ring-neon-green/20 shadow-[0_0_12px_rgba(57,217,138,0.15)]"
-                  : "border-border bg-card hover:bg-muted/50"
-              }`}
+                  ? "border-primary ring-1 ring-primary/30 shadow-glow"
+                  : "hover:bg-muted/50"
+              )}
             >
-              <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
-                selected === opt.id ? "bg-neon-green/10 text-neon-green" : "bg-muted text-muted-foreground"
-              }`}>
+              <div className={cn(
+                "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
+                selected === opt.id ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+              )}>
                 {opt.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">{opt.label}</span>
+                  <span className="text-sm font-medium text-foreground">{opt.label}</span>
                   {storeConnection?.engine === opt.id && storeConnection.connected && (
                     <Badge variant="default" className="text-[10px] h-4 px-1.5">Connected</Badge>
                   )}
@@ -106,20 +109,20 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
                 <p className="text-xs text-muted-foreground">{opt.description}</p>
               </div>
               {selected === opt.id && (
-                <Check className="h-4 w-4 text-neon-green shrink-0" />
+                <Check className="h-4 w-4 text-primary shrink-0" />
               )}
-            </button>
+            </Card>
           ))}
 
           {/* WooCommerce fields */}
           {selected === "woocommerce" && (
-            <div className="space-y-3 pt-2 border-t">
+            <div className="space-y-3 pt-2 border-t border-border">
               <div className="space-y-1.5">
-                <Label className="text-sm">Store URL</Label>
+                <Label className="text-sm text-foreground">Store URL</Label>
                 <Input value={wooUrl} onChange={(e) => setWooUrl(e.target.value)} placeholder="https://mystore.com" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm">API Key (Consumer Key)</Label>
+                <Label className="text-sm text-foreground">API Key (Consumer Key)</Label>
                 <Input value={wooKey} onChange={(e) => setWooKey(e.target.value)} placeholder="ck_xxxxxxxxxxxxxxxxxxxxxxxx" type="password" />
               </div>
               {isConnected && (
@@ -132,13 +135,13 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
 
           {/* Shopify fields */}
           {selected === "shopify" && (
-            <div className="space-y-3 pt-2 border-t">
+            <div className="space-y-3 pt-2 border-t border-border">
               <div className="space-y-1.5">
-                <Label className="text-sm">Store URL</Label>
+                <Label className="text-sm text-foreground">Store URL</Label>
                 <Input value={shopifyUrl} onChange={(e) => setShopifyUrl(e.target.value)} placeholder="mystore.myshopify.com" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-sm">Admin API Access Token</Label>
+                <Label className="text-sm text-foreground">Admin API Access Token</Label>
                 <Input value={shopifyKey} onChange={(e) => setShopifyKey(e.target.value)} placeholder="shpat_xxxxxxxxxxxxxxxx" type="password" />
               </div>
               {isConnected && (
@@ -157,7 +160,7 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
             </Button>
           )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleConnect} className="btn-neon-green border-0">
+          <Button onClick={handleConnect}>
             {isConnected ? "Update Connection" : "Connect"}
           </Button>
         </DialogFooter>
