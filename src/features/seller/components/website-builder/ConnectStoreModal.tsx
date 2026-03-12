@@ -72,7 +72,7 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg glass-card">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Link className="h-4 w-4" /> Connect Store
@@ -85,14 +85,14 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
             <button
               key={opt.id}
               onClick={() => setSelected(opt.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
+              className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                 selected === opt.id
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                  ? "border-neon-green/50 bg-neon-green/5 ring-1 ring-neon-green/20 shadow-[0_0_12px_rgba(57,217,138,0.15)]"
                   : "border-border bg-card hover:bg-muted/50"
               }`}
             >
               <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
-                selected === opt.id ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                selected === opt.id ? "bg-neon-green/10 text-neon-green" : "bg-muted text-muted-foreground"
               }`}>
                 {opt.icon}
               </div>
@@ -106,7 +106,7 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
                 <p className="text-xs text-muted-foreground">{opt.description}</p>
               </div>
               {selected === opt.id && (
-                <Check className="h-4 w-4 text-primary shrink-0" />
+                <Check className="h-4 w-4 text-neon-green shrink-0" />
               )}
             </button>
           ))}
@@ -157,7 +157,7 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
             </Button>
           )}
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleConnect}>
+          <Button onClick={handleConnect} className="btn-neon-green border-0">
             {isConnected ? "Update Connection" : "Connect"}
           </Button>
         </DialogFooter>

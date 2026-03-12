@@ -72,6 +72,14 @@ function btnStyle(theme: LandingPageTheme, isPrimary = true) {
   }
 }
 
+const NEON_GREEN = "#39d98a";
+const NEON_GREEN_GLOW = "0 0 20px rgba(57,217,138,0.4), 0 0 40px rgba(57,217,138,0.15)";
+
+function neonBtnStyle(theme: LandingPageTheme) {
+  const br = borderRadiusValue(theme.borderRadius);
+  return `padding:14px 32px;background:${NEON_GREEN};color:#000;border:none;border-radius:${br};text-decoration:none;font-weight:700;display:inline-block;box-shadow:${NEON_GREEN_GLOW};transition:all .2s;`;
+}
+
 function hoverCss(theme: LandingPageTheme) {
   switch (theme.hoverEffect) {
     case "lift": return `.hoverable:hover{transform:translateY(-4px);box-shadow:${shadowValue({ ...theme, cardShadow: "large" })};} .hoverable{transition:transform .2s,box-shadow .2s;}`;
@@ -446,8 +454,8 @@ function renderProductDetail(cfg: ProductDetailBlockConfig, theme: LandingPageTh
       </div>
       <p style="color:#6b7280;line-height:1.6;margin:0 0 20px;font-size:.95rem;">${cfg.description}</p>
       ${variants}
-      <div style="display:flex;gap:10px;margin-top:20px;">
-        <button style="${btnStyle(theme)}cursor:pointer;flex:1;">🛒 Add to Cart</button>
+      <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+        <button style="${neonBtnStyle(theme)}cursor:pointer;flex:1;min-width:180px;text-align:center;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">🛒 Add to Cart</button>
         <button style="padding:14px 20px;background:transparent;border:2px solid ${theme.primaryColor};color:${theme.primaryColor};border-radius:${br};cursor:pointer;font-weight:600;">♡</button>
       </div>
     </div>
@@ -462,7 +470,7 @@ function renderShoppingCart(cfg: ShoppingCartBlockConfig, theme: LandingPageThem
   const inner = `
   <div style="max-width:500px;margin:0 auto;">
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 24px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:${br};overflow:hidden;box-shadow:${shadowValue(theme)};">
+    <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);border:1px solid rgba(255,255,255,0.3);border-radius:${br};overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.08);">
       <div style="padding:16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:12px;">
         <div style="width:60px;height:60px;background:#f3f4f6;border-radius:${br};display:flex;align-items:center;justify-content:center;">📦</div>
         <div style="flex:1;">
@@ -481,7 +489,7 @@ function renderShoppingCart(cfg: ShoppingCartBlockConfig, theme: LandingPageThem
       </div>
       <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;background:#f9fafb;">
         <span style="font-weight:700;font-size:1.1rem;">Total: $217.00</span>
-        <button style="${btnStyle(theme)}cursor:pointer;">${cfg.ctaText}</button>
+        <button style="${neonBtnStyle(theme)}cursor:pointer;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">${cfg.ctaText}</button>
       </div>
     </div>
   </div>`;
@@ -517,7 +525,7 @@ function renderCheckoutForm(cfg: CheckoutFormBlockConfig, theme: LandingPageThem
         <p style="font-weight:600;margin:0 0 8px;font-size:.9rem;color:${theme.textColor};">Payment Method</p>
         <div style="display:flex;flex-direction:column;gap:8px;">${payIcons}</div>
       </div>
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;width:100%;text-align:center;">Complete Order</button>
+      <button type="submit" style="${neonBtnStyle(theme)}cursor:pointer;width:100%;text-align:center;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">Complete Order</button>
     </form>
   </div>`;
   return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
@@ -529,7 +537,7 @@ function renderCustomerReviews(cfg: CustomerReviewsBlockConfig, theme: LandingPa
   const br = borderRadiusValue(theme.borderRadius);
   const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
   const cards = cfg.reviews.map((r) => `
-    <div class="hoverable" style="background:#fff;border:1px solid #e5e7eb;border-radius:${br};padding:20px;box-shadow:${shadowValue(theme)};">
+    <div class="hoverable" style="background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.3);border-radius:${br};padding:20px;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="color:${theme.primaryColor};font-size:1rem;letter-spacing:2px;">${stars(r.rating)}</span>
         <span style="color:#9ca3af;font-size:.75rem;">${r.date}</span>
@@ -640,11 +648,17 @@ export function generateStorefrontHtml(options: GenerateOptions): string {
     body{font-family:${theme.bodyFont};color:${theme.textColor};background:${theme.bgColor};-webkit-font-smoothing:antialiased;font-size:${theme.bodySize ?? 16}px;}
     img{max-width:100%;}
     ${hoverCss(theme)}
+    .neon-btn:hover{filter:brightness(1.15);box-shadow:0 0 28px rgba(57,217,138,0.5),0 0 56px rgba(57,217,138,0.2);}
     @media(max-width:768px){
       section div[style*="grid-template-columns"]{grid-template-columns:1fr!important;}
       section div[style*="display:flex"][style*="gap:48px"]{flex-direction:column;gap:24px!important;}
       section div[style*="display:flex"][style*="gap:16px"]{flex-direction:column;gap:12px!important;}
+      section div[style*="display:flex"][style*="min-width:300px"]{flex-direction:column!important;}
+      section div[style*="grid-template-columns:2fr"]{grid-template-columns:1fr!important;}
+      section div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;}
       h1{font-size:1.8rem!important;}
+      h2{font-size:1.4rem!important;}
+      section{padding:40px 16px!important;}
     }
   </style>
 </head>
