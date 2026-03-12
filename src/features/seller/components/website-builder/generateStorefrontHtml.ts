@@ -525,7 +525,7 @@ function renderCheckoutForm(cfg: CheckoutFormBlockConfig, theme: LandingPageThem
         <p style="font-weight:600;margin:0 0 8px;font-size:.9rem;color:${theme.textColor};">Payment Method</p>
         <div style="display:flex;flex-direction:column;gap:8px;">${payIcons}</div>
       </div>
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;width:100%;text-align:center;">Complete Order</button>
+      <button type="submit" style="${neonBtnStyle(theme)}cursor:pointer;width:100%;text-align:center;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">Complete Order</button>
     </form>
   </div>`;
   return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
