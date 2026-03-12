@@ -71,6 +71,21 @@ export const useWebsiteBuilderStore = create<WebsiteEditorState & { storeMode: "
       setIsPublished: (v) => set({ isPublished: v }),
       setSlug: (slug) => set({ slug }),
       setCustomHtml: (html) => set({ customHtml: html }),
+      setStoreMode: (mode) => {
+        const state = get();
+        if (mode === "ecommerce") {
+          const existingTypes = state.blocks.map((b) => b.type);
+          const newBlocks = [...state.blocks];
+          for (const t of ECOMMERCE_BLOCK_TYPES) {
+            if (!existingTypes.includes(t)) {
+              newBlocks.push(createDefaultBlock(t));
+            }
+          }
+          set({ storeMode: mode, blocks: newBlocks });
+        } else {
+          set({ storeMode: mode });
+        }
+      },
       setTemplateChosen: (v) => set({ templateChosen: v }),
       loadFromDb: (data) => {
         const cfg = data.config_json as any;
