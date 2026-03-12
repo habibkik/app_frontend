@@ -31,6 +31,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface SellerDemoResult {
   product: {
@@ -112,6 +113,7 @@ const simulateAnalysis = async (): Promise<SellerDemoResult> => {
 };
 
 export function SellerInteractiveDemo() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -134,8 +136,8 @@ export function SellerInteractiveDemo() {
   const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       toast({
-        title: "Invalid File",
-        description: "Please upload an image file (JPG, PNG, etc.)",
+        title: t("interactiveDemo.invalidFile"),
+        description: t("interactiveDemo.invalidFileDesc"),
         variant: "destructive",
       });
       return;
@@ -147,7 +149,7 @@ export function SellerInteractiveDemo() {
       setResult(null);
     };
     reader.readAsDataURL(file);
-  }, [toast]);
+  }, [toast, t]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -175,11 +177,11 @@ export function SellerInteractiveDemo() {
     setAnalysisProgress(0);
     
     const steps = [
-      "Identifying product...",
-      "Analyzing competitors...",
-      "Calculating optimal pricing...",
-      "Assessing market demand...",
-      "Generating insights...",
+      t("sellerDemo.identifyingProduct"),
+      t("sellerDemo.analyzingCompetitors"),
+      t("sellerDemo.calculatingPricing"),
+      t("sellerDemo.assessingDemand"),
+      t("sellerDemo.generatingInsights"),
     ];
 
     let stepIndex = 0;
@@ -198,12 +200,12 @@ export function SellerInteractiveDemo() {
       clearInterval(progressInterval);
       setResult(analysisResult);
       setAnalysisProgress(100);
-      setAnalysisStep("Complete!");
+      setAnalysisStep(t("interactiveDemo.complete"));
     } catch (error) {
       clearInterval(progressInterval);
       toast({
-        title: "Analysis Failed",
-        description: "Please try again",
+        title: t("interactiveDemo.analysisFailed"),
+        description: t("interactiveDemo.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -222,14 +224,13 @@ export function SellerInteractiveDemo() {
         >
           <Badge className="mb-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
             <Bot className="h-3 w-3 mr-1" />
-            Try It Now - No Signup Required
+            {t("sellerDemo.badge")}
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            See Market Intelligence in Action
+            {t("sellerDemo.title")}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Upload any product image and watch AI analyze competitors, 
-            calculate optimal pricing, and assess market demand.
+            {t("sellerDemo.subtitle")}
           </p>
         </motion.div>
 
@@ -245,7 +246,7 @@ export function SellerInteractiveDemo() {
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg text-foreground mb-4 flex items-center gap-2">
                     <Upload className="h-5 w-5 text-emerald-600" />
-                    Upload Your Product
+                    {t("sellerDemo.uploadTitle")}
                   </h3>
 
                   {!imagePreview ? (
@@ -273,19 +274,19 @@ export function SellerInteractiveDemo() {
                           <ImageIcon className="h-8 w-8 text-emerald-600" />
                         </div>
                         <p className="text-foreground font-medium mb-2">
-                          Drop your product image here
+                          {t("sellerDemo.dropHere")}
                         </p>
                         <p className="text-sm text-muted-foreground mb-4">
-                          or click to browse
+                          {t("sellerDemo.orBrowse")}
                         </p>
                         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Camera className="h-3.5 w-3.5" />
-                            Camera
+                            {t("sellerDemo.camera")}
                           </span>
                           <span className="flex items-center gap-1">
                             <Package className="h-3.5 w-3.5" />
-                            Any Product
+                            {t("sellerDemo.anyProduct")}
                           </span>
                         </div>
                       </div>
@@ -325,12 +326,12 @@ export function SellerInteractiveDemo() {
                         {isAnalyzing ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Analyzing Market...
+                            {t("sellerDemo.analyzingMarket")}
                           </>
                         ) : (
                           <>
                             <Sparkles className="h-4 w-4" />
-                            Analyze Market Position
+                            {t("sellerDemo.analyzeMarketPosition")}
                           </>
                         )}
                       </Button>
@@ -350,7 +351,7 @@ export function SellerInteractiveDemo() {
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg text-foreground mb-4 flex items-center gap-2">
                     <BarChart3 className="h-5 w-5 text-emerald-600" />
-                    Market Intelligence
+                    {t("sellerDemo.resultsTitle")}
                   </h3>
 
                   <AnimatePresence mode="wait">
@@ -366,10 +367,10 @@ export function SellerInteractiveDemo() {
                           <Bot className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <p className="text-muted-foreground mb-2">
-                          Upload an image to see market analysis
+                          {t("sellerDemo.uploadToSee")}
                         </p>
                         <p className="text-sm text-muted-foreground/70">
-                          Competitors, pricing, and demand in seconds
+                          {t("sellerDemo.competitorsInSeconds")}
                         </p>
                       </motion.div>
                     ) : (
@@ -384,9 +385,9 @@ export function SellerInteractiveDemo() {
                         <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                           <div className="flex items-center gap-2 mb-2">
                             <Target className="h-4 w-4 text-emerald-600" />
-                            <span className="text-sm font-medium text-foreground">Product Identified</span>
+                            <span className="text-sm font-medium text-foreground">{t("sellerDemo.productIdentified")}</span>
                             <Badge variant="secondary" className="ml-auto text-xs bg-emerald-500/10 text-emerald-600">
-                              {result.confidence}% confidence
+                              {result.confidence}% {t("sellerDemo.confidence")}
                             </Badge>
                           </div>
                           <p className="font-semibold text-foreground">{result.product.name}</p>
@@ -399,13 +400,13 @@ export function SellerInteractiveDemo() {
                             <DollarSign className="h-4 w-4 text-emerald-600" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-xs text-muted-foreground">AI-Optimized Price</p>
+                            <p className="text-xs text-muted-foreground">{t("sellerDemo.aiOptimizedPrice")}</p>
                             <p className="font-semibold text-foreground text-lg">
                               ${result.pricing.suggestedPrice}
                             </p>
                           </div>
                           <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600">
-                            Optimal
+                            {t("sellerDemo.optimal")}
                           </Badge>
                         </div>
 
@@ -414,7 +415,7 @@ export function SellerInteractiveDemo() {
                           <div className="flex items-center gap-2 mb-2">
                             <Eye className="h-4 w-4 text-emerald-600" />
                             <span className="text-sm font-medium text-foreground">
-                              Competitor Landscape
+                              {t("sellerDemo.competitorLandscape")}
                             </span>
                           </div>
                           <div className="space-y-2">
@@ -448,7 +449,7 @@ export function SellerInteractiveDemo() {
                           )}
                           <div>
                             <p className="text-sm font-medium text-foreground capitalize">
-                              {result.demand.trend} Demand
+                              {result.demand.trend} {t("sellerDemo.demand")}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {result.demand.searchVolume} searches • {result.demand.seasonality}
@@ -462,7 +463,7 @@ export function SellerInteractiveDemo() {
                             <div className="flex items-center gap-2 mb-2">
                               <Map className="h-4 w-4 text-emerald-600" />
                               <span className="text-sm font-medium text-foreground">
-                                Regional Heat Map
+                                {t("sellerDemo.regionalHeatMap")}
                               </span>
                             </div>
                             <div className="grid grid-cols-3 gap-2">
@@ -491,14 +492,14 @@ export function SellerInteractiveDemo() {
                             <Repeat2 className="h-4 w-4 text-amber-600" />
                             <div className="flex-1">
                               <p className="text-sm font-medium text-foreground">
-                                {result.substituteCompetitors.length} Substitute Threats
+                                {result.substituteCompetitors.length} {t("sellerDemo.substituteThreats")}
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 {result.substituteCompetitors[0]?.name} selling {result.substituteCompetitors[0]?.product}
                               </p>
                             </div>
                             <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600">
-                              {result.substituteCompetitors[0]?.threat} threat
+                              {result.substituteCompetitors[0]?.threat} {t("sellerDemo.threat")}
                             </Badge>
                           </div>
                         )}
@@ -506,7 +507,7 @@ export function SellerInteractiveDemo() {
                         {/* CTA */}
                         <Button asChild className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700" size="lg">
                           <Link to="/signup">
-                            Get Full Analysis
+                            {t("sellerDemo.getFullAnalysis")}
                             <ArrowRight className="h-4 w-4" />
                           </Link>
                         </Button>
