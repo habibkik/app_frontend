@@ -20,6 +20,7 @@ interface WebsiteBuilderActions {
   setSlug: (slug: string) => void;
   setCustomHtml: (html: string | null) => void;
   setTemplateChosen: (v: boolean) => void;
+  setStoreMode: (mode: "standard" | "ecommerce") => void;
   loadFromDb: (data: { config_json: any; theme_json: any; id: string; name: string; slug: string; is_published: boolean }) => void;
   reset: () => void;
   importLandingPage: (data: { html: string; theme: any; sections: any }) => void;
