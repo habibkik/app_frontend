@@ -1,35 +1,82 @@
 
 
-## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
+## Store Builder Upgrade — Phased Plan
 
-### What Changes
+This is a large transformation. I'll break it into **4 phases** to keep each change testable and avoid breaking the existing builder.
 
-Replace the plain "Product Title" text input with a **combo dropdown** that lists:
-1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
-2. A **"Custom Product (Manual Entry)"** blank option at the top
+---
 
-When the user selects a Market Intelligence product, the system:
-- Sets the `title` to the product name
-- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
-- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
-- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
-- Shows the "Imported from" banner
+### Phase 1: Standard Site ↔ E-Commerce Toggle + New E-Commerce Blocks (This implementation)
 
-When "Custom Product" is selected → clears the title field so the user can type manually.
+**1A. Site Mode Toggle in WebsiteBuilder header**
+- Add `storeMode: "standard" | "ecommerce"` to `websiteBuilderStore.ts`
+- Render a toggle switch in the top bar: `[Standard Site] ↔ [E-Commerce Store]`
+- When switching to e-commerce, auto-inject e-commerce blocks (Product Grid, Cart Widget, Checkout, Reviews) if not already present
+- When switching to standard, hide (not delete) e-commerce-only blocks
 
-### File to Edit
+**1B. New Block Types (types.ts + blocks.ts)**
+Add 4 new block types to the existing system:
+- `product-detail` — Image carousel placeholder, variant selector (size/color badges), price display, Add to Cart button
+- `shopping-cart` — Slide-out cart summary with item list, quantity controls, subtotal
+- `checkout-form` — Shipping address, billing info, payment method selector (Stripe/PayPal mockup)
+- `customer-reviews` — Star rating display, review cards with author/date
+- `order-tracking` — Status timeline (Processing → Shipped → Delivered)
 
-**`src/features/marketplace/components/TabProductListing.tsx`**:
+Each gets: type definition, default config, BLOCK_META entry, category "E-commerce", and HTML generation in `generateStorefrontHtml.ts`.
 
-1. Import `useAnalysisStore` and read `history` and `sellerResults`
-2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
-   - First option: `"custom"` → "Custom Product (Manual Entry)"
-   - Then each unique `history` item showing `productName — category`
-3. Add `handleProductSelect(value)` function:
-   - If `"custom"` → clear title, let user type in a text input that appears below
-   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
-4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
-5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
+**1C. BlockPalette filtering**
+- When `storeMode === "ecommerce"`, show all blocks
+- When `storeMode === "standard"`, hide e-commerce-only blocks from the "Add" section (product-detail, shopping-cart, checkout-form, order-tracking, customer-reviews)
 
-### No database changes needed
+**1D. generateStorefrontHtml.ts updates**
+- Add HTML render functions for each new block type with inline CSS
+- Shopping cart renders as a floating button + slide-out panel
+- Checkout form renders as a multi-field form with payment icons
+- Reviews render as star-rated cards
+- Order tracking renders as a horizontal timeline
+
+---
+
+### Phase 2: Enhanced Orders & Stock Dashboard
+
+**Upgrade `OrdersStock.tsx`:**
+- Add `status` field to orders (Pending/Shipped/Delivered) with colored badges (Yellow/Blue/Green)
+- Add `stock_count` to products table, red highlight when < 5
+- Add KPI cards: Total Revenue, AOV (revenue/orders), Conversion Rate (mock), Active Orders
+- Add Order detail view modal
+- Rename sidebar entry to "Commerce Manager"
+
+---
+
+### Phase 3: Connect Store Settings Modal
+
+**New component: `ConnectStoreModal.tsx`**
+- Three options: Standalone (our engine), Connect WooCommerce, Connect Shopify
+- WooCommerce option: API Key + Store URL inputs + "Sync Products" button
+- Shopify option: Store URL + API Key inputs
+- Store selection persisted in `websiteBuilderStore`
+- Accessible from Website Builder header via a "Connect Store" button
+
+---
+
+### Phase 4: Visual Polish
+
+- Neon green accent for Add to Cart buttons and active e-commerce states
+- Glassmorphism CSS (`backdrop-blur`, semi-transparent backgrounds) on modals and cards
+- Already have mobile preview toggle — ensure new blocks render responsively
+
+---
+
+### Files to Create/Edit (Phase 1 — immediate implementation)
+
+| Action | File |
+|--------|------|
+| Edit | `src/features/seller/components/website-builder/types.ts` — add 5 new block types + configs |
+| Edit | `src/features/seller/components/website-builder/blocks.ts` — add BLOCK_META + defaults for new blocks |
+| Edit | `src/stores/websiteBuilderStore.ts` — add `storeMode` state + toggle action |
+| Edit | `src/features/seller/components/website-builder/WebsiteBuilder.tsx` — add toggle switch in header |
+| Edit | `src/features/seller/components/website-builder/BlockPalette.tsx` — filter blocks by mode |
+| Edit | `src/features/seller/components/website-builder/generateStorefrontHtml.ts` — render new block types |
+
+No database changes needed for Phase 1 — all blocks generate static HTML preview.
 
