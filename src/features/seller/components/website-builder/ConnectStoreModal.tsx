@@ -106,7 +106,7 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
                 <p className="text-xs text-muted-foreground">{opt.description}</p>
               </div>
               {selected === opt.id && (
-                <Check className="h-4 w-4 text-primary shrink-0" />
+                <Check className="h-4 w-4 text-neon-green shrink-0" />
               )}
             </button>
           ))}
