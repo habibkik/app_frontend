@@ -8,8 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import {
   Save, Globe, Monitor, Smartphone, Loader2, Check, Copy, ExternalLink, Paintbrush,
-  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download, Search,
+  Link as LinkIcon, LayoutTemplate, Sparkles, ImageIcon, Download, Search, Store, FileText,
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import JSZip from "jszip";
 import { supabase } from "@/integrations/supabase/client";
