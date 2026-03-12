@@ -65,6 +65,7 @@ const groupKeyMap: Record<string, string> = {
   "Setup": "sidebar.setup",
   "Intelligence": "sidebar.intelligence",
   "Marketing": "sidebar.marketing",
+  "Analysis": "sidebar.analysis",
 };
 
 interface DashboardSidebarProps {
