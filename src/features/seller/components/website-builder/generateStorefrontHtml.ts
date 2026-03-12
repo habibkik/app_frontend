@@ -423,6 +423,157 @@ function renderNewsletter(cfg: NewsletterBlockConfig, theme: LandingPageTheme) {
 </section>`;
 }
 
+function renderProductDetail(cfg: ProductDetailBlockConfig, theme: LandingPageTheme) {
+  const br = borderRadiusValue(theme.borderRadius);
+  const images = cfg.images.length > 0
+    ? cfg.images.map((url, i) => `<img src="${url}" alt="Product ${i + 1}" style="width:100%;height:300px;object-fit:cover;border-radius:${br};${i > 0 ? "display:none;" : ""}">`).join("")
+    : `<div style="width:100%;height:300px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border-radius:${br};color:#9ca3af;font-size:3rem;">📦</div>`;
+  const variants = cfg.variants.map((v) => `
+    <div style="margin-bottom:12px;">
+      <p style="font-size:.8rem;font-weight:600;color:${theme.textColor};margin:0 0 6px;">${v.type}</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${v.options.map((o, i) => `<span style="padding:6px 14px;border:${i === 0 ? `2px solid ${theme.primaryColor}` : "1px solid #d1d5db"};border-radius:${br};font-size:.8rem;cursor:pointer;${i === 0 ? `background:${theme.primaryColor}11;font-weight:600;` : ""}">${o}</span>`).join("")}
+      </div>
+    </div>`).join("");
+  const inner = `
+  <div style="max-width:${maxW(theme)};margin:0 auto;display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap;">
+    <div style="flex:1;min-width:300px;">${images}</div>
+    <div style="flex:1;min-width:300px;">
+      <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${theme.textColor};">${cfg.productName}</h2>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="font-size:1.8rem;font-weight:800;color:${theme.primaryColor};">${cfg.price}</span>
+        ${cfg.compareAtPrice ? `<span style="font-size:1.1rem;text-decoration:line-through;color:#9ca3af;">${cfg.compareAtPrice}</span>` : ""}
+      </div>
+      <p style="color:#6b7280;line-height:1.6;margin:0 0 20px;font-size:.95rem;">${cfg.description}</p>
+      ${variants}
+      <div style="display:flex;gap:10px;margin-top:20px;">
+        <button style="${btnStyle(theme)}cursor:pointer;flex:1;">🛒 Add to Cart</button>
+        <button style="padding:14px 20px;background:transparent;border:2px solid ${theme.primaryColor};color:${theme.primaryColor};border-radius:${br};cursor:pointer;font-weight:600;">♡</button>
+      </div>
+    </div>
+  </div>`;
+  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderShoppingCart(cfg: ShoppingCartBlockConfig, theme: LandingPageTheme) {
+  const br = borderRadiusValue(theme.borderRadius);
+  const inner = `
+  <div style="max-width:500px;margin:0 auto;">
+    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 24px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:${br};overflow:hidden;box-shadow:${shadowValue(theme)};">
+      <div style="padding:16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:12px;">
+        <div style="width:60px;height:60px;background:#f3f4f6;border-radius:${br};display:flex;align-items:center;justify-content:center;">📦</div>
+        <div style="flex:1;">
+          <p style="margin:0;font-weight:600;font-size:.9rem;">Sample Product</p>
+          <p style="margin:2px 0 0;color:#6b7280;font-size:.8rem;">Qty: 1</p>
+        </div>
+        <p style="margin:0;font-weight:700;color:${theme.primaryColor};">$99.00</p>
+      </div>
+      <div style="padding:16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:12px;">
+        <div style="width:60px;height:60px;background:#f3f4f6;border-radius:${br};display:flex;align-items:center;justify-content:center;">📦</div>
+        <div style="flex:1;">
+          <p style="margin:0;font-weight:600;font-size:.9rem;">Another Product</p>
+          <p style="margin:2px 0 0;color:#6b7280;font-size:.8rem;">Qty: 2</p>
+        </div>
+        <p style="margin:0;font-weight:700;color:${theme.primaryColor};">$59.00</p>
+      </div>
+      <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;background:#f9fafb;">
+        <span style="font-weight:700;font-size:1.1rem;">Total: $217.00</span>
+        <button style="${btnStyle(theme)}cursor:pointer;">${cfg.ctaText}</button>
+      </div>
+    </div>
+  </div>`;
+  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderCheckoutForm(cfg: CheckoutFormBlockConfig, theme: LandingPageTheme) {
+  const br = borderRadiusValue(theme.borderRadius);
+  const payIcons = cfg.enabledPaymentMethods.map((m) => {
+    const labels: Record<string, string> = { stripe: "💳 Credit Card", paypal: "🅿️ PayPal", cod: "💵 Cash on Delivery" };
+    return `<label style="display:flex;align-items:center;gap:8px;padding:12px;border:1px solid #d1d5db;border-radius:${br};cursor:pointer;font-size:.85rem;"><input type="radio" name="payment" style="accent-color:${theme.primaryColor};">${labels[m] || m}</label>`;
+  }).join("");
+  const inner = `
+  <div style="max-width:600px;margin:0 auto;">
+    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
+    <form style="display:flex;flex-direction:column;gap:20px;">
+      <div>
+        <p style="font-weight:600;margin:0 0 8px;font-size:.9rem;color:${theme.textColor};">Shipping Address</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input placeholder="First Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.85rem;">
+          <input placeholder="Last Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.85rem;">
+        </div>
+        <input placeholder="Street Address" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.85rem;margin-top:8px;">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-top:8px;">
+          <input placeholder="City" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.85rem;">
+          <input placeholder="State" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.85rem;">
+          <input placeholder="ZIP" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.85rem;">
+        </div>
+      </div>
+      <div>
+        <p style="font-weight:600;margin:0 0 8px;font-size:.9rem;color:${theme.textColor};">Payment Method</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">${payIcons}</div>
+      </div>
+      <button type="submit" style="${btnStyle(theme)}cursor:pointer;width:100%;text-align:center;">Complete Order</button>
+    </form>
+  </div>`;
+  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderCustomerReviews(cfg: CustomerReviewsBlockConfig, theme: LandingPageTheme) {
+  const br = borderRadiusValue(theme.borderRadius);
+  const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
+  const cards = cfg.reviews.map((r) => `
+    <div class="hoverable" style="background:#fff;border:1px solid #e5e7eb;border-radius:${br};padding:20px;box-shadow:${shadowValue(theme)};">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <span style="color:${theme.primaryColor};font-size:1rem;letter-spacing:2px;">${stars(r.rating)}</span>
+        <span style="color:#9ca3af;font-size:.75rem;">${r.date}</span>
+      </div>
+      <p style="margin:0 0 8px;color:#374151;font-size:.9rem;line-height:1.5;">"${r.comment}"</p>
+      <p style="margin:0;font-weight:600;font-size:.85rem;color:${theme.textColor};">— ${r.author}</p>
+    </div>`).join("");
+  const avgRating = cfg.reviews.length > 0 ? (cfg.reviews.reduce((s, r) => s + r.rating, 0) / cfg.reviews.length).toFixed(1) : "0";
+  const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const inner = `
+  <div style="max-width:${maxW(theme)};margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
+    <p style="color:${theme.primaryColor};font-size:1.5rem;margin:0 0 32px;letter-spacing:2px;">${stars(Math.round(Number(avgRating)))} <span style="font-size:.9rem;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.7)" : "#9ca3af"};">(${avgRating} avg)</span></p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">${cards}</div>
+  </div>`;
+  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
+function renderOrderTracking(cfg: OrderTrackingBlockConfig, theme: LandingPageTheme) {
+  const br = borderRadiusValue(theme.borderRadius);
+  const steps = cfg.steps.map((s, i) => {
+    const color = s.status === "completed" ? theme.primaryColor : s.status === "active" ? theme.accentColor : "#d1d5db";
+    const textColor = s.status === "pending" ? "#9ca3af" : theme.textColor;
+    const icon = s.status === "completed" ? "✓" : s.status === "active" ? "●" : "○";
+    const connector = i < cfg.steps.length - 1
+      ? `<div style="flex:1;height:3px;background:${cfg.steps[i + 1].status === "pending" ? "#e5e7eb" : theme.primaryColor};margin:0 -4px;"></div>`
+      : "";
+    return `<div style="display:flex;flex-direction:column;align-items:center;flex:1;position:relative;">
+      <div style="width:36px;height:36px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;z-index:1;">${icon}</div>
+      <p style="margin:8px 0 0;font-size:.8rem;font-weight:${s.status === "active" ? "700" : "500"};color:${textColor};text-align:center;">${s.label}</p>
+    </div>${connector}`;
+  }).join("");
+  const inner = `
+  <div style="max-width:700px;margin:0 auto;text-align:center;">
+    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
+    <div style="display:flex;align-items:flex-start;gap:0;">${steps}</div>
+  </div>`;
+  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
+</section>`;
+}
+
 export function generateStorefrontHtml(options: GenerateOptions): string {
   const { siteConfig, blocks, theme, products, marketData, socialStats } = options;
   const enabledBlocks = blocks.filter((b) => b.enabled);
@@ -447,6 +598,11 @@ export function generateStorefrontHtml(options: GenerateOptions): string {
       case "video-embed": return renderVideoEmbed(block.config as VideoEmbedBlockConfig, theme);
       case "countdown-timer": return renderCountdownTimer(block.config as CountdownTimerBlockConfig, theme);
       case "newsletter": return renderNewsletter(block.config as NewsletterBlockConfig, theme);
+      case "product-detail": return renderProductDetail(block.config as ProductDetailBlockConfig, theme);
+      case "shopping-cart": return renderShoppingCart(block.config as ShoppingCartBlockConfig, theme);
+      case "checkout-form": return renderCheckoutForm(block.config as CheckoutFormBlockConfig, theme);
+      case "customer-reviews": return renderCustomerReviews(block.config as CustomerReviewsBlockConfig, theme);
+      case "order-tracking": return renderOrderTracking(block.config as OrderTrackingBlockConfig, theme);
       default: return "";
     }
   }).join("\n");
