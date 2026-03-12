@@ -56,6 +56,11 @@
     --info: 199 89% 48%;
     --info-foreground: 0 0% 100%;
 
+    /* Neon Green (E-commerce CTAs) */
+    --neon-green: 142 76% 52%;
+    --neon-green-foreground: 0 0% 0%;
+    --neon-green-glow: 0 0 20px hsl(142 76% 52% / 0.4), 0 0 40px hsl(142 76% 52% / 0.15);
+
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(230 85% 45%));
     --gradient-accent: linear-gradient(135deg, hsl(160 84% 39%), hsl(158 75% 32%));
