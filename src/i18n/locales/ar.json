@@ -631,6 +631,19 @@
       "suppliers": "الموردين",
       "accuracy": "الدقة",
       "analysisTime": "وقت التحليل"
+    },
+    "card": {
+      "actionTitle": { "buyer": "البحث عن موردين", "producer": "إنشاء قائمة مواد", "seller": "تحليل السوق" },
+      "actionDesc": { "buyer": "احصل على موردين مطابقين وعروض فورية", "producer": "احصل على تفصيل التكاليف وتحليل الجدوى", "seller": "احصل على أسعار تنافسية ورؤى" },
+      "tryDemo": "جرّب العرض",
+      "buyerHeaders": { "supplier": "المورد", "match": "التطابق", "price": "السعر" },
+      "producerHeaders": { "component": "المكون", "qty": "الكمية", "unit": "الوحدة", "total": "الإجمالي" },
+      "sellerHeaders": { "metric": "المقياس", "value": "القيمة", "trend": "الاتجاه" },
+      "totalBOM": "إجمالي قائمة المواد",
+      "sellerRows": { "marketPrice": "سعر السوق", "competitors": "المنافسون", "competitorsValue": "تم العثور على 23", "demandScore": "مؤشر الطلب", "bestChannel": "أفضل قناة" },
+      "footer": "صورة واحدة. <1>رؤى لا نهائية.</1>",
+      "footerLine1": "صورة واحدة.",
+      "footerLine2": "رؤى لا نهائية."
     }
   },
   "features": {

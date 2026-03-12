@@ -70,19 +70,19 @@ const Hero = () => {
       icon: Search, label: t("hero.modes.buyer"), description: t("hero.modes.buyerDesc"),
       color: "text-blue-400", demoLabel: t("hero.modes.buyerResult"),
       features: ["AI Supplier Matching", "Instant Quote System", "Price Comparison", "Order Tracking"],
-      actionTitle: "Find Suppliers", actionDesc: "Get matched suppliers & instant quotes", productImg: demoBuyerImg,
+      actionTitle: t("hero.card.actionTitle.buyer"), actionDesc: t("hero.card.actionDesc.buyer"), productImg: demoBuyerImg,
     },
     producer: {
       icon: Package, label: t("hero.modes.producer"), description: t("hero.modes.producerDesc"),
       color: "text-amber-400", demoLabel: t("hero.modes.producerResult"),
       features: ["BOM Generation", "Cost Optimization", "Feasibility Analysis", "Dynamic Pricing"],
-      actionTitle: "Generate BOM", actionDesc: "Get cost breakdown & feasibility analysis", productImg: demoProducerImg,
+      actionTitle: t("hero.card.actionTitle.producer"), actionDesc: t("hero.card.actionDesc.producer"), productImg: demoProducerImg,
     },
     seller: {
       icon: TrendingUp, label: t("hero.modes.seller"), description: t("hero.modes.sellerDesc"),
       color: "text-emerald-400", demoLabel: t("hero.modes.sellerResult"),
       features: ["Market Intelligence", "Competitor Monitor", "Demand Signals", "Content Studio"],
-      actionTitle: "Analyze Market", actionDesc: "Get competitive pricing & insights", productImg: demoSellerImg,
+      actionTitle: t("hero.card.actionTitle.seller"), actionDesc: t("hero.card.actionDesc.seller"), productImg: demoSellerImg,
     },
   };
 
@@ -232,7 +232,7 @@ const Hero = () => {
                             onClick={() => navigate("/dashboard")}
                             className="mt-2 sm:mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[hsl(var(--foreground))] text-white font-medium text-xs transition-all hover:opacity-90 group"
                           >
-                            Try Demo
+                            {t("hero.card.tryDemo")}
                             <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
                           </button>
                         </div>
@@ -243,9 +243,9 @@ const Hero = () => {
                         {selectedMode === "buyer" && (
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
-                              <span className="flex-1">Supplier</span>
-                              <span className="w-12 text-center">Match</span>
-                              <span className="w-16 text-right">Price</span>
+                              <span className="flex-1">{t("hero.card.buyerHeaders.supplier")}</span>
+                              <span className="w-12 text-center">{t("hero.card.buyerHeaders.match")}</span>
+                              <span className="w-16 text-right">{t("hero.card.buyerHeaders.price")}</span>
                             </div>
                             {[
                               { name: "SteelMax GmbH", flag: "🇩🇪", match: "97.2%", price: "$12.40/kg" },
@@ -267,10 +267,10 @@ const Hero = () => {
                         {selectedMode === "producer" && (
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
-                              <span className="flex-1">Component</span>
-                              <span className="w-8 text-center">Qty</span>
-                              <span className="w-14 text-center">Unit</span>
-                              <span className="w-14 text-right">Total</span>
+                              <span className="flex-1">{t("hero.card.producerHeaders.component")}</span>
+                              <span className="w-8 text-center">{t("hero.card.producerHeaders.qty")}</span>
+                              <span className="w-14 text-center">{t("hero.card.producerHeaders.unit")}</span>
+                              <span className="w-14 text-right">{t("hero.card.producerHeaders.total")}</span>
                             </div>
                             {[
                               { name: "Steel Frame", qty: 2, unit: "$24.50", total: "$49.00" },
@@ -286,7 +286,7 @@ const Hero = () => {
                               </div>
                             ))}
                             <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-[hsl(var(--accent))]/10">
-                              <span className="text-xs font-bold text-[hsl(var(--foreground))]">Total BOM</span>
+                              <span className="text-xs font-bold text-[hsl(var(--foreground))]">{t("hero.card.totalBOM")}</span>
                               <span className="text-xs font-bold text-[hsl(var(--accent))]">$111.10</span>
                             </div>
                           </div>
@@ -295,15 +295,15 @@ const Hero = () => {
                         {selectedMode === "seller" && (
                           <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider px-2 pb-0.5">
-                              <span className="flex-1">Metric</span>
-                              <span className="w-16 text-center">Value</span>
-                              <span className="w-14 text-right">Trend</span>
+                              <span className="flex-1">{t("hero.card.sellerHeaders.metric")}</span>
+                              <span className="w-16 text-center">{t("hero.card.sellerHeaders.value")}</span>
+                              <span className="w-14 text-right">{t("hero.card.sellerHeaders.trend")}</span>
                             </div>
                             {[
-                              { metric: "Market Price", value: "$45.20", trend: "↑ +8.2%", trendColor: "text-emerald-400" },
-                              { metric: "Competitors", value: "23 found", trend: "—", trendColor: "text-[hsl(var(--muted-foreground))]" },
-                              { metric: "Demand Score", value: "87/100", trend: "↑ High", trendColor: "text-emerald-400" },
-                              { metric: "Best Channel", value: "Amazon EU", trend: "★", trendColor: "text-amber-400" },
+                              { metric: t("hero.card.sellerRows.marketPrice"), value: "$45.20", trend: "↑ +8.2%", trendColor: "text-emerald-400" },
+                              { metric: t("hero.card.sellerRows.competitors"), value: t("hero.card.sellerRows.competitorsValue"), trend: "—", trendColor: "text-[hsl(var(--muted-foreground))]" },
+                              { metric: t("hero.card.sellerRows.demandScore"), value: "87/100", trend: "↑ High", trendColor: "text-emerald-400" },
+                              { metric: t("hero.card.sellerRows.bestChannel"), value: "Amazon EU", trend: "★", trendColor: "text-amber-400" },
                             ].map((row) => (
                               <div key={row.metric} className="flex items-center justify-between px-2 py-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30">
                                 <span className="flex-1 text-xs font-medium text-[hsl(var(--foreground))]">{row.metric}</span>
@@ -321,7 +321,7 @@ const Hero = () => {
                 {/* Footer */}
                 <div className="mt-5 pt-4 border-t border-[hsl(var(--border))]">
                   <p className="text-center text-sm font-semibold text-[hsl(var(--foreground))] tracking-wide">
-                    One Image. <span className="text-[hsl(var(--accent))]">Infinite Insights.</span>
+                    {t("hero.card.footerLine1")} <span className="text-[hsl(var(--accent))]">{t("hero.card.footerLine2")}</span>
                   </p>
                 </div>
               </div>

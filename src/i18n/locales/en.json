@@ -631,6 +631,19 @@
       "suppliers": "Suppliers",
       "accuracy": "Accuracy",
       "analysisTime": "Analysis Time"
+    },
+    "card": {
+      "actionTitle": { "buyer": "Find Suppliers", "producer": "Generate BOM", "seller": "Analyze Market" },
+      "actionDesc": { "buyer": "Get matched suppliers & instant quotes", "producer": "Get cost breakdown & feasibility analysis", "seller": "Get competitive pricing & insights" },
+      "tryDemo": "Try Demo",
+      "buyerHeaders": { "supplier": "Supplier", "match": "Match", "price": "Price" },
+      "producerHeaders": { "component": "Component", "qty": "Qty", "unit": "Unit", "total": "Total" },
+      "sellerHeaders": { "metric": "Metric", "value": "Value", "trend": "Trend" },
+      "totalBOM": "Total BOM",
+      "sellerRows": { "marketPrice": "Market Price", "competitors": "Competitors", "competitorsValue": "found 23", "demandScore": "Demand Score", "bestChannel": "Best Channel" },
+      "footer": "One Image. <1>Infinite Insights.</1>",
+      "footerLine1": "One Image.",
+      "footerLine2": "Infinite Insights."
     }
   },
   "features": {
