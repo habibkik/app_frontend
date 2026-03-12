@@ -470,7 +470,7 @@ function renderShoppingCart(cfg: ShoppingCartBlockConfig, theme: LandingPageThem
   const inner = `
   <div style="max-width:500px;margin:0 auto;">
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 24px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
-    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:${br};overflow:hidden;box-shadow:${shadowValue(theme)};">
+    <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(16px) saturate(1.8);-webkit-backdrop-filter:blur(16px) saturate(1.8);border:1px solid rgba(255,255,255,0.3);border-radius:${br};overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.08);">
       <div style="padding:16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:12px;">
         <div style="width:60px;height:60px;background:#f3f4f6;border-radius:${br};display:flex;align-items:center;justify-content:center;">📦</div>
         <div style="flex:1;">
