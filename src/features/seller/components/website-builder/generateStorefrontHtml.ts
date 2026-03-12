@@ -72,6 +72,14 @@ function btnStyle(theme: LandingPageTheme, isPrimary = true) {
   }
 }
 
+const NEON_GREEN = "#39d98a";
+const NEON_GREEN_GLOW = "0 0 20px rgba(57,217,138,0.4), 0 0 40px rgba(57,217,138,0.15)";
+
+function neonBtnStyle(theme: LandingPageTheme) {
+  const br = borderRadiusValue(theme.borderRadius);
+  return `padding:14px 32px;background:${NEON_GREEN};color:#000;border:none;border-radius:${br};text-decoration:none;font-weight:700;display:inline-block;box-shadow:${NEON_GREEN_GLOW};transition:all .2s;`;
+}
+
 function hoverCss(theme: LandingPageTheme) {
   switch (theme.hoverEffect) {
     case "lift": return `.hoverable:hover{transform:translateY(-4px);box-shadow:${shadowValue({ ...theme, cardShadow: "large" })};} .hoverable{transition:transform .2s,box-shadow .2s;}`;
