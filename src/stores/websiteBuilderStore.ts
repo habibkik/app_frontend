@@ -5,6 +5,13 @@ import { DEFAULT_LANDING_THEME } from "@/features/seller/components/content-stud
 import type { SiteBlock, SiteConfig, WebsiteEditorState } from "@/features/seller/components/website-builder/types";
 import { DEFAULT_BLOCKS, createDefaultBlock } from "@/features/seller/components/website-builder/blocks";
 
+interface StoreConnection {
+  engine: "standalone" | "woocommerce" | "shopify";
+  connected: boolean;
+  storeUrl?: string;
+  apiKey?: string;
+}
+
 interface WebsiteBuilderActions {
   setSiteConfig: (config: Partial<SiteConfig>) => void;
   setTheme: (theme: LandingPageTheme) => void;
@@ -21,6 +28,7 @@ interface WebsiteBuilderActions {
   setCustomHtml: (html: string | null) => void;
   setTemplateChosen: (v: boolean) => void;
   setStoreMode: (mode: "standard" | "ecommerce") => void;
+  setStoreConnection: (conn: StoreConnection | null) => void;
   loadFromDb: (data: { config_json: any; theme_json: any; id: string; name: string; slug: string; is_published: boolean }) => void;
   reset: () => void;
   importLandingPage: (data: { html: string; theme: any; sections: any }) => void;
