@@ -167,10 +167,18 @@
 
   html[dir="rtl"] body {
     text-align: right;
+    font-family: 'Cairo', sans-serif;
+  }
+
+  html[dir="rtl"] h1,
+  html[dir="rtl"] h2,
+  html[dir="rtl"] h3,
+  html[dir="rtl"] h4 {
+    font-weight: 800;
   }
 
   .font-arabic {
-    font-family: 'Noto Sans Arabic', sans-serif;
+    font-family: 'Cairo', sans-serif;
   }
 }
 
