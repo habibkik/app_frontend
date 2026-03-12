@@ -537,7 +537,7 @@ function renderCustomerReviews(cfg: CustomerReviewsBlockConfig, theme: LandingPa
   const br = borderRadiusValue(theme.borderRadius);
   const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
   const cards = cfg.reviews.map((r) => `
-    <div class="hoverable" style="background:#fff;border:1px solid #e5e7eb;border-radius:${br};padding:20px;box-shadow:${shadowValue(theme)};">
+    <div class="hoverable" style="background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.3);border-radius:${br};padding:20px;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span style="color:${theme.primaryColor};font-size:1rem;letter-spacing:2px;">${stars(r.rating)}</span>
         <span style="color:#9ca3af;font-size:.75rem;">${r.date}</span>
