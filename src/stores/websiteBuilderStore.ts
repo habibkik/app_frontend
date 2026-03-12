@@ -41,9 +41,9 @@ const initialState: WebsiteEditorState & { storeMode: "standard" | "ecommerce" }
   storeMode: "standard",
 };
 
-export const useWebsiteBuilderStore = create<WebsiteEditorState & WebsiteBuilderActions>()(
+export const useWebsiteBuilderStore = create<WebsiteEditorState & { storeMode: "standard" | "ecommerce" } & WebsiteBuilderActions>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...initialState,
 
       setSiteConfig: (config) => set((s) => ({ siteConfig: { ...s.siteConfig, ...config } })),
