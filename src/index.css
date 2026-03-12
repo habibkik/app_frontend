@@ -161,16 +161,29 @@
   }
 
   /* RTL Support */
-  html[dir="rtl"] {
+  html[dir="rtl"],
+  html[lang="ar"],
+  html[lang^="ar-"],
+  .rtl {
     font-family: 'Cairo', sans-serif;
   }
 
-  html[dir="rtl"] body {
+  html[dir="rtl"] body,
+  html[lang="ar"] body,
+  html[lang^="ar-"] body,
+  .rtl body {
     text-align: right;
     font-family: 'Cairo', sans-serif;
     line-height: 1.8;
     letter-spacing: 0.01em;
     word-spacing: 0.05em;
+  }
+
+  html[dir="rtl"] *,
+  html[lang="ar"] *,
+  html[lang^="ar-"] *,
+  .rtl * {
+    font-family: 'Cairo', sans-serif;
   }
 
   html[dir="rtl"] h1,

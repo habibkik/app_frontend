@@ -47,8 +47,10 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     // Add/remove RTL class for Tailwind
     if (isRTL) {
       document.documentElement.classList.add("rtl");
+      document.body.style.fontFamily = "'Cairo', sans-serif";
     } else {
       document.documentElement.classList.remove("rtl");
+      document.body.style.fontFamily = "";
     }
   }, [language, direction, isRTL]);
 
