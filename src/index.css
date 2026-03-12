@@ -173,17 +173,21 @@
   html[lang^="ar-"] body,
   .rtl body {
     text-align: right;
-    font-family: 'Cairo', sans-serif;
+    font-family: 'Cairo', sans-serif !important;
     line-height: 1.8;
     letter-spacing: 0.01em;
     word-spacing: 0.05em;
   }
 
-  html[dir="rtl"] *,
-  html[lang="ar"] *,
-  html[lang^="ar-"] *,
-  .rtl * {
-    font-family: 'Cairo', sans-serif;
+  html[dir="rtl"] :where(*, *::before, *::after),
+  html[lang="ar"] :where(*, *::before, *::after),
+  html[lang^="ar-"] :where(*, *::before, *::after),
+  .rtl :where(*, *::before, *::after),
+  html[dir="rtl"] :is(input, textarea, button, select),
+  html[lang="ar"] :is(input, textarea, button, select),
+  html[lang^="ar-"] :is(input, textarea, button, select),
+  .rtl :is(input, textarea, button, select) {
+    font-family: 'Cairo', sans-serif !important;
   }
 
   html[dir="rtl"] h1,
