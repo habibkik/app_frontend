@@ -70,6 +70,11 @@ export const BLOCK_META: Record<BlockType, { label: string; description: string;
   "video-embed": { label: "Video Embed", description: "YouTube/Vimeo embed", icon: Video, category: "Text & Media" },
   "countdown-timer": { label: "Countdown Timer", description: "Urgency countdown", icon: Timer, category: "Advanced" },
   newsletter: { label: "Newsletter Signup", description: "Email capture form", icon: Newspaper, category: "Forms" },
+  "product-detail": { label: "Product Detail", description: "Image, variants & Add to Cart", icon: Package, category: "E-commerce" },
+  "shopping-cart": { label: "Shopping Cart", description: "Slide-out cart widget", icon: ShoppingCart, category: "E-commerce" },
+  "checkout-form": { label: "Checkout Form", description: "Shipping, billing & payment", icon: Receipt, category: "E-commerce" },
+  "customer-reviews": { label: "Customer Reviews", description: "Star ratings & comments", icon: Star, category: "E-commerce" },
+  "order-tracking": { label: "Order Tracking", description: "Status timeline", icon: Truck, category: "E-commerce" },
 };
 
 export function createDefaultBlock(type: BlockType): SiteBlock {
