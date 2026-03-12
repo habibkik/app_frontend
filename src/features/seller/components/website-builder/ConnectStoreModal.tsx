@@ -92,7 +92,7 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
               }`}
             >
               <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${
-                selected === opt.id ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                selected === opt.id ? "bg-neon-green/10 text-neon-green" : "bg-muted text-muted-foreground"
               }`}>
                 {opt.icon}
               </div>
