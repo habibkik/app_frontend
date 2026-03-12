@@ -96,6 +96,7 @@ export const useWebsiteBuilderStore = create<WebsiteEditorState & { storeMode: "
         }
       },
       setTemplateChosen: (v) => set({ templateChosen: v }),
+      setStoreConnection: (conn) => set({ storeConnection: conn }),
       loadFromDb: (data) => {
         const cfg = data.config_json as any;
         set({
