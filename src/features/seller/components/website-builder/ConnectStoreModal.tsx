@@ -85,9 +85,9 @@ export const ConnectStoreModal: React.FC<ConnectStoreModalProps> = ({ open, onOp
             <button
               key={opt.id}
               onClick={() => setSelected(opt.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
+              className={`w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-all ${
                 selected === opt.id
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                  ? "border-neon-green/50 bg-neon-green/5 ring-1 ring-neon-green/20 shadow-[0_0_12px_rgba(57,217,138,0.15)]"
                   : "border-border bg-card hover:bg-muted/50"
               }`}
             >
