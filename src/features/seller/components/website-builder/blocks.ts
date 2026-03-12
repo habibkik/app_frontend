@@ -44,6 +44,11 @@ import {
   Video,
   Timer,
   Newspaper,
+  Package,
+  ShoppingCart,
+  Receipt,
+  Star,
+  Truck,
 } from "lucide-react";
 
 export const BLOCK_META: Record<BlockType, { label: string; description: string; icon: typeof LayoutTemplate; category: string }> = {
