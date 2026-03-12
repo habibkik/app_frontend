@@ -168,6 +168,9 @@
   html[dir="rtl"] body {
     text-align: right;
     font-family: 'Cairo', sans-serif;
+    line-height: 1.8;
+    letter-spacing: 0.01em;
+    word-spacing: 0.05em;
   }
 
   html[dir="rtl"] h1,
@@ -175,6 +178,14 @@
   html[dir="rtl"] h3,
   html[dir="rtl"] h4 {
     font-weight: 800;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  html[dir="rtl"] p,
+  html[dir="rtl"] li,
+  html[dir="rtl"] span {
+    line-height: 1.9;
   }
 
   .font-arabic {
