@@ -489,7 +489,7 @@ function renderShoppingCart(cfg: ShoppingCartBlockConfig, theme: LandingPageThem
       </div>
       <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;background:#f9fafb;">
         <span style="font-weight:700;font-size:1.1rem;">Total: $217.00</span>
-        <button style="${btnStyle(theme)}cursor:pointer;">${cfg.ctaText}</button>
+        <button style="${neonBtnStyle(theme)}cursor:pointer;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">${cfg.ctaText}</button>
       </div>
     </div>
   </div>`;
