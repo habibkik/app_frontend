@@ -204,7 +204,18 @@
     "contentStudio": "استوديو المحتوى",
     "socialPublisher": "الناشر الاجتماعي",
     "websiteBuilder": "منشئ المواقع",
-    "sellerAnalytics": "التحليلات"
+    "sellerAnalytics": "التحليلات",
+    "outreachHub": "مركز التواصل",
+    "rfqTemplates": "قوالب طلب العروض",
+    "compareSuppliers": "مقارنة الموردين",
+    "negotiationAI": "الذكاء التفاوضي",
+    "shouldCostModel": "نموذج التكلفة المتوقعة",
+    "dfmDfaReview": "مراجعة التصنيع والتجميع",
+    "demandSignals": "إشارات الطلب",
+    "commerceManager": "مدير التجارة",
+    "marketplace": "السوق",
+    "dailyReport": "التقرير اليومي",
+    "analysis": "التحليل"
   },
   "suppliers": {
     "title": "الموردين",
