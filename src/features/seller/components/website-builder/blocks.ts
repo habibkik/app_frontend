@@ -19,6 +19,11 @@ import type {
   VideoEmbedBlockConfig,
   CountdownTimerBlockConfig,
   NewsletterBlockConfig,
+  ProductDetailBlockConfig,
+  ShoppingCartBlockConfig,
+  CheckoutFormBlockConfig,
+  CustomerReviewsBlockConfig,
+  OrderTrackingBlockConfig,
 } from "./types";
 import {
   LayoutTemplate,
