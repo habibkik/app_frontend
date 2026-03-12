@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface DemoAnalysisResult {
   product: {
@@ -73,6 +74,7 @@ interface DemoAnalysisResult {
 }
 
 export function InteractiveDemo() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -95,8 +97,8 @@ export function InteractiveDemo() {
   const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       toast({
-        title: "Invalid File",
-        description: "Please upload an image file (JPG, PNG, etc.)",
+        title: t("interactiveDemo.invalidFile"),
+        description: t("interactiveDemo.invalidFileDesc"),
         variant: "destructive",
       });
       return;
@@ -104,8 +106,8 @@ export function InteractiveDemo() {
 
     if (file.size > 5 * 1024 * 1024) {
       toast({
-        title: "File Too Large",
-        description: "Please upload an image under 5MB",
+        title: t("interactiveDemo.fileTooLarge"),
+        description: t("interactiveDemo.fileTooLargeDesc"),
         variant: "destructive",
       });
       return;
@@ -117,7 +119,7 @@ export function InteractiveDemo() {
       setResult(null);
     };
     reader.readAsDataURL(file);
-  }, [toast]);
+  }, [toast, t]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -143,14 +145,14 @@ export function InteractiveDemo() {
 
     setIsAnalyzing(true);
     setAnalysisProgress(0);
-    setAnalysisStep("Uploading image...");
+    setAnalysisStep(t("interactiveDemo.uploadingImage"));
 
     const steps = [
-      "Identifying product...",
-      "Analyzing specifications...",
-      "Searching global suppliers...",
-      "Finding alternatives...",
-      "Generating insights...",
+      t("interactiveDemo.identifyingProduct"),
+      t("interactiveDemo.analyzingSpecs"),
+      t("interactiveDemo.searchingSuppliers"),
+      t("interactiveDemo.findingAlternatives"),
+      t("interactiveDemo.generatingInsights"),
     ];
 
     let stepIndex = 0;
@@ -187,15 +189,15 @@ export function InteractiveDemo() {
         };
         setResult(enrichedData);
         setAnalysisProgress(100);
-        setAnalysisStep("Complete!");
+        setAnalysisStep(t("interactiveDemo.complete"));
       } else {
-        throw new Error(data?.error || "Analysis failed");
+        throw new Error(data?.error || t("interactiveDemo.analysisFailed"));
       }
     } catch (error) {
       clearInterval(progressInterval);
       toast({
-        title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "Please try again",
+        title: t("interactiveDemo.analysisFailed"),
+        description: error instanceof Error ? error.message : t("interactiveDemo.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -215,14 +217,13 @@ export function InteractiveDemo() {
         >
           <span className="column-pill mb-4">
             <Bot className="h-3 w-3" />
-            Try It Now - No Signup Required
+            {t("interactiveDemo.badge")}
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-column-navy mb-4 tracking-tight mt-4">
-            See AI in Action
+            {t("interactiveDemo.title")}
           </h2>
           <p className="text-xl text-column-body max-w-2xl mx-auto">
-            Upload any product image and watch our AI instantly find suppliers,
-            compare prices, and suggest alternatives.
+            {t("interactiveDemo.subtitle")}
           </p>
         </motion.div>
 
@@ -240,7 +241,7 @@ export function InteractiveDemo() {
                     <div className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center">
                       <Upload className="h-4 w-4 text-column-navy" />
                     </div>
-                    Upload Product Image
+                    {t("interactiveDemo.uploadTitle")}
                   </h3>
 
                   {!imagePreview ? (
@@ -268,19 +269,19 @@ export function InteractiveDemo() {
                           <ImageIcon className="h-8 w-8 text-column-navy" />
                         </div>
                         <p className="text-column-navy font-medium mb-2">
-                          Drop your product image here
+                          {t("interactiveDemo.dropHere")}
                         </p>
                         <p className="text-sm text-column-muted mb-4">
-                          or click to browse (JPG, PNG up to 5MB)
+                          {t("interactiveDemo.orBrowse")}
                         </p>
                         <div className="flex items-center justify-center gap-4 text-xs text-column-muted">
                           <span className="flex items-center gap-1">
                             <Camera className="h-3.5 w-3.5" />
-                            Camera
+                            {t("interactiveDemo.camera")}
                           </span>
                           <span className="flex items-center gap-1">
                             <Package className="h-3.5 w-3.5" />
-                            Any Product
+                            {t("interactiveDemo.anyProduct")}
                           </span>
                         </div>
                       </div>
@@ -320,12 +321,12 @@ export function InteractiveDemo() {
                         {isAnalyzing ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Analyzing...
+                            {t("interactiveDemo.analyzing")}
                           </>
                         ) : (
                           <>
                             <Sparkles className="h-4 w-4" />
-                            Analyze with AI
+                            {t("interactiveDemo.analyzeWithAI")}
                           </>
                         )}
                       </Button>
@@ -347,7 +348,7 @@ export function InteractiveDemo() {
                     <div className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center">
                       <Sparkles className="h-4 w-4 text-column-navy" />
                     </div>
-                    AI Analysis Results
+                    {t("interactiveDemo.resultsTitle")}
                   </h3>
 
                   <AnimatePresence mode="wait">
@@ -363,10 +364,10 @@ export function InteractiveDemo() {
                           <Bot className="h-8 w-8 text-column-muted" />
                         </div>
                         <p className="text-column-body mb-2">
-                          Upload an image to see AI analysis
+                          {t("interactiveDemo.uploadToSee")}
                         </p>
                         <p className="text-sm text-column-muted">
-                          Suppliers, pricing, and alternatives in seconds
+                          {t("interactiveDemo.suppliersInSeconds")}
                         </p>
                       </motion.div>
                     ) : (
@@ -381,9 +382,9 @@ export function InteractiveDemo() {
                         <div className="p-4 rounded-xl bg-column-teal/5 border border-column-teal/20">
                           <div className="flex items-center gap-2 mb-2">
                             <CheckCircle2 className="h-4 w-4 text-column-teal" />
-                            <span className="text-sm font-medium text-column-navy">Product Identified</span>
+                            <span className="text-sm font-medium text-column-navy">{t("interactiveDemo.productIdentified")}</span>
                             <Badge variant="secondary" className="ml-auto text-xs">
-                              {result.confidence}% match
+                              {result.confidence}% {t("interactiveDemo.match")}
                             </Badge>
                           </div>
                           <p className="font-semibold text-column-navy">{result.product.name}</p>
@@ -396,9 +397,9 @@ export function InteractiveDemo() {
                             <DollarSign className="h-4 w-4 text-column-navy" />
                           </div>
                           <div>
-                            <p className="text-xs text-column-muted">Market Price</p>
+                            <p className="text-xs text-column-muted">{t("interactiveDemo.marketPrice")}</p>
                             <p className="font-semibold text-column-navy">
-                              ${result.estimatedPrice.min} - ${result.estimatedPrice.max}/unit
+                              ${result.estimatedPrice.min} - ${result.estimatedPrice.max}/{t("interactiveDemo.unit")}
                             </p>
                           </div>
                         </div>
@@ -408,7 +409,7 @@ export function InteractiveDemo() {
                           <div className="flex items-center gap-2 mb-2">
                             <ShieldCheck className="h-4 w-4 text-column-navy" />
                             <span className="text-sm font-medium text-column-navy">
-                              Top Suppliers ({result.suppliers?.length || 0} found)
+                              {t("interactiveDemo.topSuppliers")} ({result.suppliers?.length || 0} {t("interactiveDemo.found")})
                             </span>
                           </div>
                           <div className="space-y-2">
@@ -452,10 +453,10 @@ export function InteractiveDemo() {
                             <Repeat2 className="h-4 w-4 text-amber-600" />
                             <div>
                               <p className="text-sm font-medium text-column-navy">
-                                {result.substitutes.length} Alternatives Found
+                                {result.substitutes.length} {t("interactiveDemo.alternativesFound")}
                               </p>
                               <p className="text-xs text-column-muted">
-                                {result.substitutes[0]?.priceAdvantage} potential savings
+                                {result.substitutes[0]?.priceAdvantage} {t("interactiveDemo.potentialSavings")}
                               </p>
                             </div>
                             <TrendingDown className="h-4 w-4 text-column-navy ml-auto" />
@@ -468,7 +469,7 @@ export function InteractiveDemo() {
                             <div className="flex items-center gap-2 mb-2">
                               <Package className="h-4 w-4 text-column-navy" />
                               <span className="text-sm font-medium text-column-navy">
-                                Substitute Suppliers
+                                {t("interactiveDemo.substituteSuppliers")}
                               </span>
                             </div>
                             <div className="space-y-1.5">
@@ -482,7 +483,7 @@ export function InteractiveDemo() {
                                     <p className="text-xs text-column-muted">{sub.product}</p>
                                   </div>
                                   <Badge variant="secondary" className="text-xs bg-column-teal/10 text-column-teal">
-                                    {sub.savings} savings
+                                    {sub.savings} {t("interactiveDemo.savings")}
                                   </Badge>
                                 </div>
                               ))}
@@ -496,7 +497,7 @@ export function InteractiveDemo() {
                             <Truck className="h-4 w-4 text-column-navy" />
                             <div className="flex-1">
                               <p className="text-sm font-medium text-column-navy">
-                                Delivery Estimates
+                                {t("interactiveDemo.deliveryEstimates")}
                               </p>
                               <p className="text-xs text-column-muted">
                                 From ${result.deliveryEstimates[0]?.cost} • {result.deliveryEstimates[0]?.days}
@@ -508,12 +509,12 @@ export function InteractiveDemo() {
                         {/* CTA */}
                         <Button asChild className="w-full gap-2 bg-column-navy hover:brightness-125 text-white" size="lg">
                           <Link to="/signup">
-                            Get Full Access
+                            {t("interactiveDemo.getFullAccess")}
                             <ArrowRight className="h-4 w-4" />
                           </Link>
                         </Button>
                         <p className="text-xs text-center text-column-muted">
-                          Free 14-day trial • No credit card required
+                          {t("interactiveDemo.freeTrial")}
                         </p>
                       </motion.div>
                     )}

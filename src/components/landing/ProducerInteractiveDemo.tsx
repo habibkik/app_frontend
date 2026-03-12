@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useFormatCurrency } from "@/hooks/useFormatCurrency";
+import { useTranslation } from "react-i18next";
 
 interface BOMComponent {
   name: string;
@@ -125,6 +126,7 @@ const simulateAnalysis = async (): Promise<ProducerDemoResult> => {
 };
 
 export function ProducerInteractiveDemo() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const fc = useFormatCurrency();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -148,8 +150,8 @@ export function ProducerInteractiveDemo() {
   const processFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       toast({
-        title: "Invalid File",
-        description: "Please upload an image file (JPG, PNG, etc.)",
+        title: t("interactiveDemo.invalidFile"),
+        description: t("interactiveDemo.invalidFileDesc"),
         variant: "destructive",
       });
       return;
@@ -161,7 +163,7 @@ export function ProducerInteractiveDemo() {
       setResult(null);
     };
     reader.readAsDataURL(file);
-  }, [toast]);
+  }, [toast, t]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -189,11 +191,11 @@ export function ProducerInteractiveDemo() {
     setAnalysisProgress(0);
     
     const steps = [
-      "Identifying product...",
-      "Detecting components...",
-      "Estimating costs...",
-      "Finding suppliers...",
-      "Assessing feasibility...",
+      t("producerDemo.identifyingProduct"),
+      t("producerDemo.detectingComponents"),
+      t("producerDemo.estimatingCosts"),
+      t("producerDemo.findingSuppliers"),
+      t("producerDemo.assessingFeasibility"),
     ];
 
     let stepIndex = 0;
@@ -212,12 +214,12 @@ export function ProducerInteractiveDemo() {
       clearInterval(progressInterval);
       setResult(analysisResult);
       setAnalysisProgress(100);
-      setAnalysisStep("Complete!");
+      setAnalysisStep(t("interactiveDemo.complete"));
     } catch (error) {
       clearInterval(progressInterval);
       toast({
-        title: "Analysis Failed",
-        description: "Please try again",
+        title: t("interactiveDemo.analysisFailed"),
+        description: t("interactiveDemo.tryAgain"),
         variant: "destructive",
       });
     } finally {
@@ -236,14 +238,13 @@ export function ProducerInteractiveDemo() {
         >
           <Badge className="mb-4 bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20">
             <Bot className="h-3 w-3 mr-1" />
-            Try It Now - No Signup Required
+            {t("producerDemo.badge")}
           </Badge>
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            See AI BOM Analysis in Action
+            {t("producerDemo.title")}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Upload any product image and watch AI generate a complete Bill of Materials 
-            with cost estimates and supplier options.
+            {t("producerDemo.subtitle")}
           </p>
         </motion.div>
 
@@ -259,7 +260,7 @@ export function ProducerInteractiveDemo() {
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg text-foreground mb-4 flex items-center gap-2">
                     <Upload className="h-5 w-5 text-amber-600" />
-                    Upload Product Image
+                    {t("producerDemo.uploadTitle")}
                   </h3>
 
                   {!imagePreview ? (
@@ -287,19 +288,19 @@ export function ProducerInteractiveDemo() {
                           <ImageIcon className="h-8 w-8 text-amber-600" />
                         </div>
                         <p className="text-foreground font-medium mb-2">
-                          Drop your product image here
+                          {t("producerDemo.dropHere")}
                         </p>
                         <p className="text-sm text-muted-foreground mb-4">
-                          or click to browse
+                          {t("producerDemo.orBrowse")}
                         </p>
                         <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Camera className="h-3.5 w-3.5" />
-                            Camera
+                            {t("producerDemo.camera")}
                           </span>
                           <span className="flex items-center gap-1">
                             <Package className="h-3.5 w-3.5" />
-                            Any Product
+                            {t("producerDemo.anyProduct")}
                           </span>
                         </div>
                       </div>
@@ -339,12 +340,12 @@ export function ProducerInteractiveDemo() {
                         {isAnalyzing ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin" />
-                            Generating BOM...
+                            {t("producerDemo.generatingBOM")}
                           </>
                         ) : (
                           <>
                             <Sparkles className="h-4 w-4" />
-                            Generate Bill of Materials
+                            {t("producerDemo.generateBOM")}
                           </>
                         )}
                       </Button>
@@ -364,7 +365,7 @@ export function ProducerInteractiveDemo() {
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg text-foreground mb-4 flex items-center gap-2">
                     <FileSpreadsheet className="h-5 w-5 text-amber-600" />
-                    AI BOM Analysis
+                    {t("producerDemo.resultsTitle")}
                   </h3>
 
                   <AnimatePresence mode="wait">
@@ -380,10 +381,10 @@ export function ProducerInteractiveDemo() {
                           <Bot className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <p className="text-muted-foreground mb-2">
-                          Upload an image to generate BOM
+                          {t("producerDemo.uploadToSee")}
                         </p>
                         <p className="text-sm text-muted-foreground/70">
-                          Components, costs, and suppliers in seconds
+                          {t("producerDemo.componentsInSeconds")}
                         </p>
                       </motion.div>
                     ) : (
@@ -398,14 +399,14 @@ export function ProducerInteractiveDemo() {
                         <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
                           <div className="flex items-center gap-2 mb-2">
                             <Layers className="h-4 w-4 text-amber-600" />
-                            <span className="text-sm font-medium text-foreground">Product Identified</span>
+                            <span className="text-sm font-medium text-foreground">{t("producerDemo.productIdentified")}</span>
                             <Badge variant="secondary" className="ml-auto text-xs bg-amber-500/10 text-amber-600">
-                              {result.confidence}% confidence
+                              {result.confidence}% {t("producerDemo.confidence")}
                             </Badge>
                           </div>
                           <p className="font-semibold text-foreground">{result.product.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {result.product.category} • {result.product.complexity} complexity
+                            {result.product.category} • {result.product.complexity} {t("producerDemo.complexity")}
                           </p>
                         </div>
 
@@ -415,7 +416,7 @@ export function ProducerInteractiveDemo() {
                             <div className="flex items-center gap-2">
                               <Package className="h-4 w-4 text-amber-600" />
                               <span className="text-sm font-medium text-foreground">
-                                Components ({result.components.length})
+                                {t("producerDemo.components")} ({result.components.length})
                               </span>
                             </div>
                           </div>
@@ -431,7 +432,7 @@ export function ProducerInteractiveDemo() {
                             ))}
                             {result.components.length > 4 && (
                               <p className="text-xs text-muted-foreground text-center py-1">
-                                +{result.components.length - 4} more components
+                                +{result.components.length - 4} {t("producerDemo.moreComponents")}
                               </p>
                             )}
                           </div>
@@ -442,14 +443,14 @@ export function ProducerInteractiveDemo() {
                           <div className="p-3 rounded-lg bg-muted/50">
                             <div className="flex items-center gap-2 mb-1">
                               <Calculator className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">Total Cost</span>
+                              <span className="text-xs text-muted-foreground">{t("producerDemo.totalCost")}</span>
                             </div>
                             <p className="font-semibold text-foreground">${result.costSummary.totalCost}</p>
                           </div>
                           <div className="p-3 rounded-lg bg-muted/50">
                             <div className="flex items-center gap-2 mb-1">
                               <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">Suggested Price</span>
+                              <span className="text-xs text-muted-foreground">{t("producerDemo.suggestedPrice")}</span>
                             </div>
                             <p className="font-semibold text-foreground">${result.costSummary.suggestedPrice}</p>
                           </div>
@@ -460,10 +461,10 @@ export function ProducerInteractiveDemo() {
                           <Truck className="h-4 w-4 text-amber-600" />
                           <div className="flex-1">
                             <p className="text-sm font-medium text-foreground">
-                              {result.suppliers.total} Suppliers Found
+                              {result.suppliers.total} {t("producerDemo.suppliersFound")}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {result.suppliers.verified} verified • {result.feasibility.leadTime} lead time
+                              {result.suppliers.verified} {t("producerDemo.verified")} • {result.feasibility.leadTime} {t("producerDemo.leadTime")}
                             </p>
                           </div>
                           <Badge 
@@ -473,7 +474,7 @@ export function ProducerInteractiveDemo() {
                               : "bg-amber-500/10 text-amber-600"
                             }
                           >
-                            {result.feasibility.score}% feasible
+                            {result.feasibility.score}% {t("producerDemo.feasible")}
                           </Badge>
                         </div>
 
@@ -482,7 +483,7 @@ export function ProducerInteractiveDemo() {
                           <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-500/5 border border-amber-500/20">
                             <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
                             <p className="text-xs text-muted-foreground">
-                              <span className="font-medium text-foreground">Risks: </span>
+                              <span className="font-medium text-foreground">{t("producerDemo.risks")}: </span>
                               {result.feasibility.risks.join(", ")}
                             </p>
                           </div>
@@ -494,7 +495,7 @@ export function ProducerInteractiveDemo() {
                             <div className="flex items-center gap-2 mb-2">
                               <Users className="h-4 w-4 text-amber-600" />
                               <span className="text-sm font-medium text-foreground">
-                                Competition ({result.competition.length})
+                                {t("producerDemo.competition")} ({result.competition.length})
                               </span>
                             </div>
                             <div className="space-y-1.5">
@@ -522,7 +523,7 @@ export function ProducerInteractiveDemo() {
                             <Repeat2 className="h-4 w-4 text-amber-600" />
                             <div className="flex-1">
                               <p className="text-sm font-medium text-foreground">
-                                {result.substituteProducers.length} Substitute Producers
+                                {result.substituteProducers.length} {t("producerDemo.substituteProducers")}
                               </p>
                               <p className="text-xs text-muted-foreground">
                                 {result.substituteProducers[0]?.name}: {result.substituteProducers[0]?.advantage}
@@ -534,7 +535,7 @@ export function ProducerInteractiveDemo() {
                         {/* CTA */}
                         <Button asChild className="w-full gap-2 bg-amber-600 hover:bg-amber-700" size="lg">
                           <Link to="/signup">
-                            Get Full BOM Report
+                            {t("producerDemo.getFullBOM")}
                             <ArrowRight className="h-4 w-4" />
                           </Link>
                         </Button>
