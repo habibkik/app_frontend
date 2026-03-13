@@ -316,12 +316,11 @@ export default function MarketIntelligencePage() {
                       <CardContent className="py-16">
                         <div className="text-center">
                           <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-medium mb-2">
-                            Start Your Market Analysis
+                           <h3 className="text-lg font-medium mb-2">
+                             {t("pages.marketIntelligence.startYourMarketAnalysis")}
                           </h3>
                           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                            Enter a product, industry, or market to get AI-powered insights
-                            including competitor analysis, market trends, and pricing recommendations.
+                             {t("pages.marketIntelligence.startYourMarketAnalysisDesc")}
                           </p>
                         </div>
                       </CardContent>

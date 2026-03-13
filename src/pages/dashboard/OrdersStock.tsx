@@ -288,7 +288,7 @@ export default function OrdersStockPage() {
           <TabsContent value="orders">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-base">Order History</CardTitle>
+                <CardTitle className="text-base">{t("pages.ordersStock.orderHistory")}</CardTitle>
                 <Select value={orderFilter} onValueChange={(v: any) => setOrderFilter(v)}>
                   <SelectTrigger className="w-36 h-8 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>

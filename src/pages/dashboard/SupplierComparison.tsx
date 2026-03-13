@@ -400,7 +400,7 @@ export default function SupplierComparisonPage() {
                           </Badge>
                         </div>
                         <div className="rounded-lg bg-background p-3 border border-border">
-                          <p className="text-xs text-muted-foreground mb-1">Lowest MOV</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t("pages.supplierComparison.lowestMOQ")}</p>
                           <p className="font-semibold text-sm">{lowestMOV.name}</p>
                           <Badge variant="outline" className="text-xs mt-1 text-primary">
                             {fc(lowestMOV.minOrderValue)}

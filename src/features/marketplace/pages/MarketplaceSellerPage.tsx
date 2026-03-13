@@ -30,8 +30,8 @@ export default function MarketplaceSellerPage() {
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6 py-3">
-          <h1 className="text-xl font-bold">Marketplace Publisher</h1>
-          <p className="text-sm text-muted-foreground">Create once, sell everywhere</p>
+          <h1 className="text-xl font-bold">{t("pages.marketplace.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("pages.marketplace.subtitle")}</p>
         </div>
 
         {/* Sticky Tab Bar */}
