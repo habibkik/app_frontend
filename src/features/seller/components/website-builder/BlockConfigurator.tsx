@@ -368,7 +368,7 @@ function OrderFormConfig({ config, update }: { config: OrderFormBlockConfig; upd
   );
 }
 
-function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string; overlayOpacity?: number }; update: (c: any) => void }) {
+function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string; overlayOpacity?: number; bgImageWidth?: number; bgImageHeight?: number; fitToImage?: boolean }; update: (c: any) => void }) {
   return (
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
