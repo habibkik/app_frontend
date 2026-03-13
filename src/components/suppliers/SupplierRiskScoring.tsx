@@ -182,7 +182,7 @@ export function SupplierRiskScoring({ supplier, compact = false }: SupplierRiskS
               <div key={cat.id} className={cn("flex items-center gap-1.5 rounded px-2 py-1 text-xs", getRiskBg(catLevel))}>
                 <cat.icon className={cn("h-3 w-3", getRiskColor(catLevel))} />
                 <span className="truncate">{cat.name}</span>
-                <span className={cn("ml-auto font-semibold", getRiskColor(catLevel))}>{catAvg}</span>
+                <span className={cn("ms-auto font-semibold", getRiskColor(catLevel))}>{catAvg}</span>
               </div>
             );
           })}
