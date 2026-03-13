@@ -283,7 +283,7 @@ export default function OutreachHub() {
                     {expandedHistory === c.id && (
                       <div className="px-4 pb-3 border-t border-border/30 pt-3 space-y-2">
                         <div>
-                          <p className="text-xs font-medium text-muted-foreground mb-1">Sent Message</p>
+                         <p className="text-xs font-medium text-muted-foreground mb-1">{t("pages.outreachHub.sentMessage")}</p>
                           <p className="text-sm bg-muted/50 p-2 rounded">{c.message || "—"}</p>
                         </div>
                         {c.response_received && (
