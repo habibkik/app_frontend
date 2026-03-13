@@ -282,6 +282,8 @@ function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme,
 
 function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: LandingPageTheme) {
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
   const bullets = cfg.painPoints.map((p) => `
     <div class="hoverable" style="background:#fff;border:1px solid #e5e7eb;border-radius:${borderRadiusValue(theme.borderRadius)};padding:24px;text-align:center;box-shadow:${shadowValue(theme)};">
       <div style="font-size:2rem;margin-bottom:8px;">${p.icon}</div>
@@ -290,8 +292,8 @@ function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: Landing
     </div>`).join("");
   const inner = `
   <div style="max-width:800px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${textColor};">${cfg.heading}</h2>
-    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${textColor};">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>` : ""}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">${bullets}</div>
     <p style="margin-top:32px;font-size:1.15rem;font-weight:600;color:${cfg.backgroundImageUrl ? "#fff" : theme.primaryColor};">${cfg.reinforcement}</p>
   </div>`;
