@@ -208,7 +208,7 @@ export default function NegotiationIntelligencePage() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Target Price</Label>
+                    <Label className="text-sm">{t("pages.negotiation.targetPrice")}</Label>
                     <Input type="number" min={0} step={0.01} value={targetPrice || ""} onChange={(e) => setTargetPrice(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1.5">
