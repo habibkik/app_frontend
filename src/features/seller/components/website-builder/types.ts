@@ -120,7 +120,7 @@ export interface SolutionBlockConfig {
   imageUrl: string;
 }
 
-export interface OfferPricingBlockConfig extends BgImageDimensions {
+export interface OfferPricingBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   valueItems: string[];
   anchorPrice: string;
