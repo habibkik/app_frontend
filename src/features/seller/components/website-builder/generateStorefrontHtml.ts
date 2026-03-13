@@ -104,15 +104,16 @@ function heroBg(theme: LandingPageTheme, imageUrl?: string, fitToImage?: boolean
 // --- Block Renderers ---
 
 function renderHero(cfg: HeroBlockConfig, theme: LandingPageTheme) {
-  const bg = heroBg(theme, cfg.backgroundImageUrl);
+  const bg = heroBg(theme, cfg.backgroundImageUrl, cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight);
   const hSize = theme.headingSize ?? 40;
+  const fitPad = cfg.fitToImage && cfg.bgImageWidth && cfg.bgImageHeight ? "padding:40px 20px;" : "padding:80px 20px;";
   const inner = `
   <div style="max-width:900px;margin:0 auto;">
     <h1 style="font-family:${theme.headingFont};font-size:${hSize}px;margin:0 0 16px;">${cfg.title}</h1>
     <p style="font-size:${(theme.bodySize ?? 16) * 1.2}px;opacity:.9;margin:0 0 24px;">${cfg.subtitle}</p>
     <a href="#order" style="${btnStyle(theme)}">${cfg.ctaText}</a>
   </div>`;
-  return `<section style="${bg}color:#fff;padding:80px 20px;text-align:${theme.heroStyle === "left-aligned" ? "left" : "center"};">
+  return `<section style="${bg}color:#fff;${fitPad}text-align:${theme.heroStyle === "left-aligned" ? "left" : "center"};">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
