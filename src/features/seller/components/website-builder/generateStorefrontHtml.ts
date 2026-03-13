@@ -461,13 +461,16 @@ function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPage
 
 function renderNewsletter(cfg: NewsletterBlockConfig, theme: LandingPageTheme) {
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
-    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 24px;font-size:.95rem;">${cfg.subtitle}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 24px;font-size:.95rem;">${cfg.subtitle}</p>` : ""}
     <form style="display:flex;gap:8px;">
       <input type="email" placeholder="${cfg.placeholderText}" style="flex:1;padding:14px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;">
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;white-space:nowrap;">${cfg.buttonText}</button>
+      ${showBtn ? `<button type="submit" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}cursor:pointer;white-space:nowrap;">${cfg.buttonText}</button>` : ""}
     </form>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
