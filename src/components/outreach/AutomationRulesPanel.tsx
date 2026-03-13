@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,10 +25,10 @@ const ALL_CHANNELS = [
 
 interface TriggerWorkflow {
   id: string;
-  name: string;
-  trigger: string;
+  nameKey: string;
+  triggerKey: string;
   triggerIcon: React.ElementType;
-  actions: { action: string; icon: React.ElementType }[];
+  actionKeys: { key: string; icon: React.ElementType }[];
   status: "active" | "inactive";
   borderColor: string;
   priority: "critical" | "high" | "medium";
@@ -35,77 +36,83 @@ interface TriggerWorkflow {
 
 const triggerWorkflows: TriggerWorkflow[] = [
   {
-    id: "tw1", name: "Reply Received → Pause & Notify",
-    trigger: "When a prospect replies to any message", triggerIcon: MessageSquareReply,
-    actions: [
-      { action: "Pause active sequence for this contact", icon: PauseCircle },
-      { action: "Send notification to assigned rep", icon: Bell },
-      { action: "Move lead to 'Engaged' stage", icon: ArrowRight },
-      { action: "Log interaction in CRM", icon: FileText },
+    id: "tw1", nameKey: "automationRules.tw1Name",
+    triggerKey: "automationRules.tw1Trigger", triggerIcon: MessageSquareReply,
+    actionKeys: [
+      { key: "automationRules.tw1a1", icon: PauseCircle },
+      { key: "automationRules.tw1a2", icon: Bell },
+      { key: "automationRules.tw1a3", icon: ArrowRight },
+      { key: "automationRules.tw1a4", icon: FileText },
     ],
-    status: "active", borderColor: "border-l-emerald-500", priority: "critical",
+    status: "active", borderColor: "border-s-emerald-500", priority: "critical",
   },
   {
-    id: "tw2", name: "No Reply → Nurture List",
-    trigger: "When full sequence completes with zero replies", triggerIcon: XCircle,
-    actions: [
-      { action: "Wait 30 days (cooling period)", icon: Clock },
-      { action: "Move to 'Nurture' segment", icon: FolderInput },
-      { action: "Add to monthly newsletter", icon: Mail },
-      { action: "Schedule re-engagement in 60 days", icon: CalendarClock },
+    id: "tw2", nameKey: "automationRules.tw2Name",
+    triggerKey: "automationRules.tw2Trigger", triggerIcon: XCircle,
+    actionKeys: [
+      { key: "automationRules.tw2a1", icon: Clock },
+      { key: "automationRules.tw2a2", icon: FolderInput },
+      { key: "automationRules.tw2a3", icon: Mail },
+      { key: "automationRules.tw2a4", icon: CalendarClock },
     ],
-    status: "active", borderColor: "border-l-amber-500", priority: "high",
+    status: "active", borderColor: "border-s-amber-500", priority: "high",
   },
   {
-    id: "tw3", name: "Meeting Booked → Confirm & Prepare",
-    trigger: "When a prospect books a meeting via calendar link", triggerIcon: CalendarCheck,
-    actions: [
-      { action: "Send confirmation email with agenda", icon: Mail },
-      { action: "Send WhatsApp reminder 1h before", icon: MessageCircle },
-      { action: "Create meeting prep doc", icon: FileText },
-      { action: "Notify sales team", icon: Bell },
+    id: "tw3", nameKey: "automationRules.tw3Name",
+    triggerKey: "automationRules.tw3Trigger", triggerIcon: CalendarCheck,
+    actionKeys: [
+      { key: "automationRules.tw3a1", icon: Mail },
+      { key: "automationRules.tw3a2", icon: MessageCircle },
+      { key: "automationRules.tw3a3", icon: FileText },
+      { key: "automationRules.tw3a4", icon: Bell },
     ],
-    status: "active", borderColor: "border-l-primary", priority: "critical",
+    status: "active", borderColor: "border-s-primary", priority: "critical",
   },
   {
-    id: "tw4", name: "Hot Lead → Fast Track",
-    trigger: "When lead score crosses 80 points", triggerIcon: TrendingUp,
-    actions: [
-      { action: "Alert senior sales rep immediately", icon: AlertTriangle },
-      { action: "Prioritize in outreach queue", icon: ArrowUpCircle },
-      { action: "Send personalized high-value message", icon: Star },
-      { action: "Add to VIP tracking", icon: Eye },
+    id: "tw4", nameKey: "automationRules.tw4Name",
+    triggerKey: "automationRules.tw4Trigger", triggerIcon: TrendingUp,
+    actionKeys: [
+      { key: "automationRules.tw4a1", icon: AlertTriangle },
+      { key: "automationRules.tw4a2", icon: ArrowUpCircle },
+      { key: "automationRules.tw4a3", icon: Star },
+      { key: "automationRules.tw4a4", icon: Eye },
     ],
-    status: "active", borderColor: "border-l-destructive", priority: "critical",
+    status: "active", borderColor: "border-s-destructive", priority: "critical",
   },
   {
-    id: "tw5", name: "Email Bounced → Clean & Re-route",
-    trigger: "When an email hard bounces", triggerIcon: AlertCircle,
-    actions: [
-      { action: "Mark email as invalid in CRM", icon: XCircle },
-      { action: "Search for alternative email", icon: Search },
-      { action: "Switch to LinkedIn or WhatsApp", icon: RefreshCw },
-      { action: "Update lead score (-10 points)", icon: MinusCircle },
+    id: "tw5", nameKey: "automationRules.tw5Name",
+    triggerKey: "automationRules.tw5Trigger", triggerIcon: AlertCircle,
+    actionKeys: [
+      { key: "automationRules.tw5a1", icon: XCircle },
+      { key: "automationRules.tw5a2", icon: Search },
+      { key: "automationRules.tw5a3", icon: RefreshCw },
+      { key: "automationRules.tw5a4", icon: MinusCircle },
     ],
-    status: "active", borderColor: "border-l-muted-foreground", priority: "medium",
+    status: "active", borderColor: "border-s-muted-foreground", priority: "medium",
   },
   {
-    id: "tw6", name: "3+ Opens → Strike While Hot",
-    trigger: "When prospect opens same email 3+ times", triggerIcon: Eye,
-    actions: [
-      { action: "Send immediate follow-up within 1h", icon: Zap },
-      { action: "Boost lead score by +15 points", icon: TrendingUp },
-      { action: "Notify rep: 'High intent detected'", icon: Bell },
-      { action: "Add to 'Hot Prospects' segment", icon: Flame },
+    id: "tw6", nameKey: "automationRules.tw6Name",
+    triggerKey: "automationRules.tw6Trigger", triggerIcon: Eye,
+    actionKeys: [
+      { key: "automationRules.tw6a1", icon: Zap },
+      { key: "automationRules.tw6a2", icon: TrendingUp },
+      { key: "automationRules.tw6a3", icon: Bell },
+      { key: "automationRules.tw6a4", icon: Flame },
     ],
-    status: "active", borderColor: "border-l-orange-500", priority: "high",
+    status: "active", borderColor: "border-s-orange-500", priority: "high",
   },
 ];
 
+const priorityKeys: Record<string, string> = {
+  critical: "automationRules.critical",
+  high: "automationRules.high",
+  medium: "automationRules.medium",
+};
+
 const priorityConfig = {
-  critical: { label: "Critical", className: "bg-destructive/10 text-destructive" },
-  high: { label: "High", className: "bg-amber-500/10 text-amber-600" },
-  medium: { label: "Medium", className: "bg-primary/10 text-primary" },
+  critical: { className: "bg-destructive/10 text-destructive" },
+  high: { className: "bg-amber-500/10 text-amber-600" },
+  medium: { className: "bg-primary/10 text-primary" },
 };
 
 interface AutomationRulesPanelProps {
@@ -117,6 +124,7 @@ interface AutomationRulesPanelProps {
 }
 
 export function AutomationRulesPanel({ rules, onAddRule, onUpdateRule, onDeleteRule, userId }: AutomationRulesPanelProps) {
+  const { t } = useTranslation();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [newProductName, setNewProductName] = useState("");
   const [newChannel, setNewChannel] = useState("email");
@@ -141,41 +149,41 @@ export function AutomationRulesPanel({ rules, onAddRule, onUpdateRule, onDeleteR
       {/* Existing Automation Rules */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <CardTitle className="text-lg">Automation Rules</CardTitle>
+          <CardTitle className="text-lg">{t("automationRules.title")}</CardTitle>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Add Rule</Button>
+              <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> {t("automationRules.addRule")}</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Add Automation Rule</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{t("automationRules.addAutomationRule")}</DialogTitle></DialogHeader>
               <div className="space-y-4 pt-2">
-                <div><Label>Product Name</Label><Input value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder="e.g. Wireless Earbuds" /></div>
+                <div><Label>{t("automationRules.productName")}</Label><Input value={newProductName} onChange={(e) => setNewProductName(e.target.value)} placeholder={t("outreach.productNamePlaceholder")} /></div>
                 <div>
-                  <Label>Channel</Label>
+                  <Label>{t("automationRules.channel")}</Label>
                   <Select value={newChannel} onValueChange={setNewChannel}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>{ALL_CHANNELS.map((c) => <SelectItem key={c} value={c}>{c.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-                <div><Label>Max Runs: {newMaxRuns}</Label><Slider value={[newMaxRuns]} onValueChange={([v]) => setNewMaxRuns(v)} min={1} max={20} step={1} /></div>
-                <div><Label>Interval: Every {newInterval} hours</Label><Slider value={[newInterval]} onValueChange={([v]) => setNewInterval(v)} min={1} max={168} step={1} /></div>
-                <Button onClick={handleAdd} className="w-full">Add Rule</Button>
+                <div><Label>{t("automationRules.maxRuns")}: {newMaxRuns}</Label><Slider value={[newMaxRuns]} onValueChange={([v]) => setNewMaxRuns(v)} min={1} max={20} step={1} /></div>
+                <div><Label>{t("automationRules.interval")}: {t("automationRules.everyHours", { hours: newInterval })}</Label><Slider value={[newInterval]} onValueChange={([v]) => setNewInterval(v)} min={1} max={168} step={1} /></div>
+                <Button onClick={handleAdd} className="w-full">{t("automationRules.addRule")}</Button>
               </div>
             </DialogContent>
           </Dialog>
         </CardHeader>
         <CardContent>
           {rules.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No automation rules configured yet.</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("automationRules.noRules")}</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Channel</TableHead>
-                  <TableHead>Max Runs</TableHead>
-                  <TableHead>Interval</TableHead>
-                  <TableHead>Enabled</TableHead>
+                  <TableHead>{t("automationRules.product")}</TableHead>
+                  <TableHead>{t("automationRules.channel")}</TableHead>
+                  <TableHead>{t("automationRules.maxRuns")}</TableHead>
+                  <TableHead>{t("automationRules.interval")}</TableHead>
+                  <TableHead>{t("automationRules.enabled")}</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>
@@ -207,9 +215,9 @@ export function AutomationRulesPanel({ rules, onAddRule, onUpdateRule, onDeleteR
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
-            <CardTitle className="text-lg">Smart Trigger Workflows</CardTitle>
+            <CardTitle className="text-lg">{t("automationRules.smartTriggerWorkflows")}</CardTitle>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">Automated actions triggered by prospect behavior</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("automationRules.automatedActions")}</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -218,37 +226,37 @@ export function AutomationRulesPanel({ rules, onAddRule, onUpdateRule, onDeleteR
               const pc = priorityConfig[tw.priority];
               const isActive = workflowToggles[tw.id];
               return (
-                <Card key={tw.id} className={`border-l-4 ${tw.borderColor} border-border/50 transition-all ${!isActive ? "opacity-50" : ""}`}>
+                <Card key={tw.id} className={`border-s-4 ${tw.borderColor} border-border/50 transition-all ${!isActive ? "opacity-50" : ""}`}>
                   <CardContent className="p-4 space-y-3">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <TriggerIcon className="h-4 w-4 text-primary flex-shrink-0" />
-                        <h4 className="text-sm font-medium leading-tight">{tw.name}</h4>
+                        <h4 className="text-sm font-medium leading-tight">{t(tw.nameKey)}</h4>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <Badge className={`${pc.className} text-[10px] px-1.5 py-0 border-0`}>{pc.label}</Badge>
+                        <Badge className={`${pc.className} text-[10px] px-1.5 py-0 border-0`}>{t(priorityKeys[tw.priority])}</Badge>
                         <Switch checked={isActive} onCheckedChange={(v) => setWorkflowToggles((prev) => ({ ...prev, [tw.id]: v }))} />
                       </div>
                     </div>
 
                     {/* Trigger */}
                     <div className="bg-muted/50 rounded p-2">
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">WHEN</p>
-                      <p className="text-xs">{tw.trigger}</p>
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">{t("automationRules.when")}</p>
+                      <p className="text-xs">{t(tw.triggerKey)}</p>
                     </div>
 
                     {/* Actions */}
                     <div>
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">THEN</p>
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{t("automationRules.then")}</p>
                       <div className="space-y-1">
-                        {tw.actions.map((action, idx) => {
+                        {tw.actionKeys.map((action, idx) => {
                           const ActionIcon = action.icon;
                           return (
                             <div key={idx} className="flex items-center gap-2 text-xs">
                               <span className="text-[10px] text-muted-foreground w-3 flex-shrink-0">{idx + 1}.</span>
                               <ActionIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                              <span>{action.action}</span>
+                              <span>{t(action.key)}</span>
                             </div>
                           );
                         })}
@@ -260,7 +268,7 @@ export function AutomationRulesPanel({ rules, onAddRule, onUpdateRule, onDeleteR
             })}
           </div>
           <Button variant="outline" className="w-full mt-4 gap-1.5 text-xs" disabled>
-            <Plus className="h-3.5 w-3.5" /> Create Custom Workflow (Coming Soon)
+            <Plus className="h-3.5 w-3.5" /> {t("automationRules.createCustom")}
           </Button>
         </CardContent>
       </Card>
