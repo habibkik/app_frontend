@@ -214,7 +214,7 @@ export default function ShouldCostPage() {
             <BOMSelector fallbackLabel="No BOM (manual input)" onBOMSelected={handleBOMSelected} />
             {hasBOMData && !bomApplied && (
               <Button variant="default" size="sm" onClick={handleAutoFillFromBOM} className="gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> Auto-fill from BOM
+                <Sparkles className="h-3.5 w-3.5" /> {t("pages.shouldCost.autoFillBom")}
               </Button>
             )}
             {bomApplied && (
