@@ -326,6 +326,7 @@ function HeroForm({ config, update }: { config: HeroBlockConfig; update: (c: any
       <Field label="Title"><Input value={config.title} onChange={(e) => update({ title: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} hasSubtitle />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
