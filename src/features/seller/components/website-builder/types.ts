@@ -187,7 +187,7 @@ export interface NewsletterBlockConfig extends BgImageDimensions, TextButtonCust
   overlayOpacity?: number;
 }
 
-export interface ProductDetailBlockConfig extends BgImageDimensions {
+export interface ProductDetailBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   productName: string;
   price: string;
@@ -199,7 +199,7 @@ export interface ProductDetailBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ShoppingCartBlockConfig extends BgImageDimensions {
+export interface ShoppingCartBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   emptyMessage: string;
   ctaText: string;
@@ -207,21 +207,21 @@ export interface ShoppingCartBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface CheckoutFormBlockConfig extends BgImageDimensions {
+export interface CheckoutFormBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   enabledPaymentMethods: ("stripe" | "paypal" | "cod")[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface CustomerReviewsBlockConfig extends BgImageDimensions {
+export interface CustomerReviewsBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   reviews: { author: string; rating: number; date: string; comment: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface OrderTrackingBlockConfig extends BgImageDimensions {
+export interface OrderTrackingBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   steps: { label: string; status: "completed" | "active" | "pending" }[];
   backgroundImageUrl?: string;
