@@ -594,7 +594,7 @@ function renderOrderTracking(cfg: OrderTrackingBlockConfig, theme: LandingPageTh
     <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
     <div style="display:flex;align-items:flex-start;gap:0;">${steps}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
