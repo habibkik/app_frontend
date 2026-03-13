@@ -86,7 +86,7 @@ export interface SocialProofBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface MarketStatsBlockConfig {
+export interface MarketStatsBlockConfig extends BgImageDimensions {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
