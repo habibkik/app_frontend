@@ -230,7 +230,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">{conversionRate.toFixed(1)}%</p>
-                  <p className="text-[10px] text-muted-foreground">Conversion Rate</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.conversionRate")}</p>
                 </div>
               </div>
             </CardContent>
