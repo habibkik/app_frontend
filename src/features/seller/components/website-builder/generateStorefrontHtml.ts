@@ -421,9 +421,10 @@ function renderVideoEmbed(cfg: VideoEmbedBlockConfig, theme: LandingPageTheme) {
     embedHtml = `<div style="width:100%;aspect-ratio:16/9;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border-radius:${borderRadiusValue(theme.borderRadius)};color:#9ca3af;">Add a video URL</div>`;
   }
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:800px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${textColor};">${cfg.heading}</h2>` : ""}
     ${embedHtml}
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
