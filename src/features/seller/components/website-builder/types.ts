@@ -102,7 +102,7 @@ export interface MarketStatsBlockConfig extends BgImageDimensions, TextButtonCus
   overlayOpacity?: number;
 }
 
-export interface ProblemAgitationBlockConfig extends BgImageDimensions {
+export interface ProblemAgitationBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   intro: string;
   painPoints: { icon: string; title: string; description: string }[];
