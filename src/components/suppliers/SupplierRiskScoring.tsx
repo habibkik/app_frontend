@@ -244,7 +244,7 @@ export function SupplierRiskScoring({ supplier, compact = false }: SupplierRiskS
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="px-3 pb-3 pt-1 space-y-3 ml-6">
+                  <div className="px-3 pb-3 pt-1 space-y-3 ms-6">
                     {cat.factors.map((factor) => {
                       const fLevel = getRiskLevel(factor.score);
                       return (

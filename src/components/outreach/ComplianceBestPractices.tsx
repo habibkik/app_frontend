@@ -110,7 +110,7 @@ export function ComplianceBestPractices() {
                     <span className="flex items-center gap-2">
                       <SIcon className="h-4 w-4 text-muted-foreground" />
                       {section.title}
-                      <Badge variant="outline" className="text-[10px] ml-1">{t("compliance.rules", { count: section.rules.length })}</Badge>
+                      <Badge variant="outline" className="text-[10px] ms-1">{t("compliance.rules", { count: section.rules.length })}</Badge>
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>

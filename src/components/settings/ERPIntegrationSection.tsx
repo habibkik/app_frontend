@@ -201,7 +201,7 @@ export function ERPIntegrationSection() {
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-0 top-0 h-full w-9"
+                                className="absolute end-0 top-0 h-full w-9"
                                 onClick={() => toggleFieldVisibility(fieldId)}
                               >
                                 {isVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}

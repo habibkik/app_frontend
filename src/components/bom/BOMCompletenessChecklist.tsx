@@ -106,7 +106,7 @@ export function BOMCompletenessChecklist({ components }: BOMCompletenessChecklis
                     {t(item.labelKey)}
                   </span>
                   {isAuto && (
-                    <Badge variant="outline" className="text-[9px] ml-auto">
+                    <Badge variant="outline" className="text-[9px] ms-auto">
                       {t("bomChecklist.detected")}
                     </Badge>
                   )}

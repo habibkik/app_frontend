@@ -35,7 +35,7 @@ export function PersonalizationScore({ message, supplierName, productName }: Per
             {score}%
           </Badge>
         </TooltipTrigger>
-        <TooltipContent side="left" className="max-w-xs">
+        <TooltipContent side="bottom" className="max-w-xs">
           <p className="text-xs font-medium mb-1">{t("personalization.title")}</p>
           {checks.map((c) => (
             <div key={c.labelKey} className="flex items-center gap-1 text-xs">

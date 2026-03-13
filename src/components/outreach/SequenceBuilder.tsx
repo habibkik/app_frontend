@@ -31,7 +31,7 @@ export function SequenceBuilder({ campaigns, supplierName }: SequenceBuilderProp
         {t("sequenceBuilder.timelineTouches", { count: sorted.length })}
       </h4>
       <div className="relative">
-        <div className="absolute left-[18px] top-4 bottom-4 w-px bg-border" />
+        <div className="absolute start-[18px] top-4 bottom-4 w-px bg-border" />
 
         <div className="space-y-2">
           {sorted.map((c, i) => (
