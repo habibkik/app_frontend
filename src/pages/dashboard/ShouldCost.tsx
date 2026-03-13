@@ -206,9 +206,9 @@ export default function ShouldCostPage() {
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2">
               <Calculator className="h-5 w-5 text-primary" />
-              Should-Cost Model Calculator
+              {t("pages.shouldCost.title")}
             </h1>
-            <p className="text-sm text-muted-foreground">Estimate expected production cost to benchmark supplier quotes</p>
+            <p className="text-sm text-muted-foreground">{t("pages.shouldCost.subtitle")}</p>
           </div>
           <div className="flex gap-2 flex-wrap items-center">
             <BOMSelector fallbackLabel="No BOM (manual input)" onBOMSelected={handleBOMSelected} />
