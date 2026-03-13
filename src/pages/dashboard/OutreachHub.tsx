@@ -88,7 +88,7 @@ export default function OutreachHub() {
 
   const handleApproveAllForSupplier = async (ids: string[]) => {
     for (const id of ids) await approveCampaign(id);
-    toast({ title: "Approved", description: `${ids.length} campaigns approved.` });
+    toast({ title: t("pages.outreachHub.approved"), description: t("pages.outreachHub.campaignsApproved", { count: ids.length }) });
   };
 
   const handleGenerateCampaigns = async (supplier: Supplier, tier?: string) => {
