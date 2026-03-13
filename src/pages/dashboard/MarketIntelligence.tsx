@@ -208,12 +208,11 @@ export default function MarketIntelligencePage() {
                     <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                       <ImageIcon className="h-8 w-8 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Analyze Market from Image
+                     <h3 className="text-lg font-semibold text-foreground mb-2">
+                      {t("pages.marketIntelligence.analyzeMarketFromImage")}
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Upload a product image to get instant competitor analysis, 
-                      pricing recommendations, and market demand signals.
+                      {t("pages.marketIntelligence.analyzeMarketFromImageDesc")}
                     </p>
                   </div>
                   <UniversalImageUpload 
