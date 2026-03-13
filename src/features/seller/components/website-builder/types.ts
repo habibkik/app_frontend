@@ -204,7 +204,7 @@ export interface CheckoutFormBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface CustomerReviewsBlockConfig {
+export interface CustomerReviewsBlockConfig extends BgImageDimensions {
   heading: string;
   reviews: { author: string; rating: number; date: string; comment: string }[];
   backgroundImageUrl?: string;
