@@ -214,10 +214,10 @@ export default function OutreachHub() {
 
                 {suppliersWithCampaigns.length === 0 && suppliersWithoutCampaigns.length === 0 && (
                   <div className="text-center py-16">
-                    <Send className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground">No campaigns yet</h3>
+                     <Send className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground">{t("pages.outreachHub.noCampaignsYet")}</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Upload a product image in Supplier Search to auto-generate outreach campaigns
+                      {t("pages.outreachHub.noCampaignsDesc")}
                     </p>
                   </div>
                 )}
