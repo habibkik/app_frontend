@@ -279,7 +279,7 @@ export default function NegotiationIntelligencePage() {
                     </div>
                     <div className="text-center p-1.5 rounded bg-background border">
                       <p className="font-bold">5–10%</p>
-                      <p className="text-muted-foreground">Distribution</p>
+                      <p className="text-muted-foreground">{t("pages.negotiation.distribution")}</p>
                     </div>
                   </div>
                 </div>
