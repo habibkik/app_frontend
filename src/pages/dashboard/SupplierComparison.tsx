@@ -270,8 +270,8 @@ export default function SupplierComparisonPage() {
               <GitCompareArrows className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Supplier Comparison</h1>
-              <p className="text-sm text-muted-foreground">Compare risk, pricing, and capabilities side by side</p>
+              <h1 className="text-2xl font-bold text-foreground">{t("pages.supplierComparison.title")}</h1>
+              <p className="text-sm text-muted-foreground">{t("pages.supplierComparison.subtitle")}</p>
             </div>
           </div>
         </motion.div>
