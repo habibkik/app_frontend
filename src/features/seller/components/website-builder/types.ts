@@ -75,7 +75,7 @@ export interface FaqBlockConfig extends BgImageDimensions, TextButtonCustomizati
   overlayOpacity?: number;
 }
 
-export interface ContactBlockConfig extends BgImageDimensions {
+export interface ContactBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   showPhone: boolean;
   showAddress: boolean;
@@ -83,7 +83,7 @@ export interface ContactBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface OrderFormBlockConfig extends BgImageDimensions {
+export interface OrderFormBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   productName: string;
   backgroundImageUrl?: string;
