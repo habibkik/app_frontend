@@ -311,7 +311,7 @@ function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageThem
   const gradBg = theme.gradientEnabled
     ? `linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`
     : `linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(gradBg, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(gradBg, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
