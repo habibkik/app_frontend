@@ -298,8 +298,8 @@ export default function OutreachHub() {
                           className="gap-1.5"
                           onClick={() => navigate("/dashboard/conversations")}
                         >
-                          <MessageSquare className="h-3.5 w-3.5" />
-                          Open Conversation
+                           <MessageSquare className="h-3.5 w-3.5" />
+                          {t("pages.outreachHub.openConversation")}
                         </Button>
                       </div>
                     )}
