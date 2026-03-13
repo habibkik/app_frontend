@@ -8,7 +8,7 @@ export interface GeneratedImage {
   section?: string;
 }
 
-export type ProImageSection = "packshot" | "ugc" | "usage" | "studio";
+export type ProImageSection = "packshot" | "ugc" | "usage" | "studio" | "marketing";
 
 export const PRO_IMAGE_SECTIONS: {
   id: ProImageSection;
