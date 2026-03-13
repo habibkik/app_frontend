@@ -22,8 +22,11 @@ interface GenerateOptions {
 
 // --- Theme helpers ---
 
-function bgStyle(fallback: string, imageUrl?: string): string {
-  if (imageUrl) return `background-image:url('${imageUrl}');background-size:cover;background-position:center;`;
+function bgStyle(fallback: string, imageUrl?: string, fitToImage?: boolean, bgW?: number, bgH?: number): string {
+  if (imageUrl) {
+    const aspectStyle = fitToImage && bgW && bgH ? `aspect-ratio:${bgW}/${bgH};min-height:auto;` : "";
+    return `background-image:url('${imageUrl}');background-size:cover;background-position:center;${aspectStyle}`;
+  }
   return `background:${fallback};`;
 }
 
