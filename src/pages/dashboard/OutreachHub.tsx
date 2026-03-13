@@ -83,7 +83,7 @@ export default function OutreachHub() {
 
   const handleApproveAll = async () => {
     await approveAll();
-    toast({ title: "All Approved", description: `${draftCount} campaigns approved.` });
+    toast({ title: t("pages.outreachHub.allApproved"), description: t("pages.outreachHub.campaignsApproved", { count: draftCount }) });
   };
 
   const handleApproveAllForSupplier = async (ids: string[]) => {
