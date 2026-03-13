@@ -230,7 +230,7 @@ export default function NegotiationIntelligencePage() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Walk-Away Price</Label>
+                    <Label className="text-sm">{t("pages.negotiation.walkAwayPrice")}</Label>
                     <Input type="number" min={0} step={0.01} value={walkAwayPrice || ""} onChange={(e) => setWalkAwayPrice(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1.5">
