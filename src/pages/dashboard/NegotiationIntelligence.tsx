@@ -182,10 +182,10 @@ export default function NegotiationIntelligencePage() {
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
-              Negotiation Intelligence
+              {t("pages.negotiation.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              AI-powered tactics & scripts based on supplier quote analysis
+              {t("pages.negotiation.subtitle")}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={loadDemoData}>
