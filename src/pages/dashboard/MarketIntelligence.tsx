@@ -153,9 +153,9 @@ export default function MarketIntelligencePage() {
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Market Intelligence</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t("pages.marketIntelligence.title")}</h1>
               <p className="text-muted-foreground">
-                AI-powered market analysis and competitive insights
+                {t("pages.marketIntelligence.subtitle")}
               </p>
             </div>
           </div>
