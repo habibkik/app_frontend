@@ -76,8 +76,8 @@ export default function MarketIntelligencePage() {
       setAnalysisProgress(100, "Complete!");
       
       toast({
-        title: "Market Analysis Complete",
-        description: `Found ${result.competitors.length} competitors and pricing insights for your product.`,
+        title: t("pages.marketIntelligence.marketAnalysisComplete"),
+        description: t("pages.marketIntelligence.analysisCompetitors", { count: result.competitors.length }),
       });
     } catch (error) {
       console.error("Analysis error:", error);
