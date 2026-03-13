@@ -510,7 +510,7 @@ function renderShoppingCart(cfg: ShoppingCartBlockConfig, theme: LandingPageThem
       </div>
     </div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
