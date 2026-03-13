@@ -239,7 +239,7 @@ function renderSocialProof(cfg: SocialProofBlockConfig, theme: LandingPageTheme,
       <div><p style="font-size:2rem;font-weight:700;color:${accentColor};margin:0;">${(stats?.totalEngagement ?? 0).toLocaleString()}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Total Engagement</p></div>
     </div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
