@@ -389,7 +389,7 @@ export default function SupplierComparisonPage() {
                           <p className="text-xs text-muted-foreground mb-1">{t("pages.supplierComparison.lowestRisk")}</p>
                           <p className="font-semibold text-sm">{lowestRisk.s.name}</p>
                           <Badge variant="outline" className="text-xs mt-1 text-emerald-500">
-                            Score: {risks[lowestRisk.idx].overall}/100
+                            {t("pages.supplierComparison.score")}: {risks[lowestRisk.idx].overall}/100
                           </Badge>
                         </div>
                         <div className="rounded-lg bg-background p-3 border border-border">
