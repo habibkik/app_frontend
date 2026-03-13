@@ -443,7 +443,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
-                      {generatedCount}/5
+                      {generatedCount}/{section.imageIds.length}
                     </Badge>
                     {generatedCount > 0 && (
                       <Button

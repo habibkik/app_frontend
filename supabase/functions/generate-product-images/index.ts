@@ -84,6 +84,28 @@ const IMAGE_PROMPTS: Record<string, (p: string, d: string) => string> = {
     `Premium studio dramatic shot of "${p}" (${d}). Low-key lighting with strong shadows and highlights. Moody, cinematic atmosphere. Product as the star, dark background with single spotlight effect. High contrast, luxury feel.${GLOBAL_SUFFIX}`,
   "studio-flat": (p, d) =>
     `Premium studio flat lay of "${p}" (${d}) with complementary accessories arranged geometrically. Top-down view, even professional lighting. Clean organized composition. Marble or textured surface. Instagram-worthy product flat lay.${GLOBAL_SUFFIX}`,
+
+  // ── Marketing Creatives (Arabic COD landing-page style) ──
+  "marketing-hero-banner": (p, d) =>
+    `Design a vertical promotional hero banner for "${p}" (${d}). Bold headline area at top, large product image centered, 3 key benefit icons below, vibrant gradient background. Arabic/Middle-Eastern marketing aesthetic with warm gold and deep blue accents. Eye-catching, high-conversion landing page style. Professional graphic design, not a photo.${GLOBAL_SUFFIX}`,
+  "marketing-before-after": (p, d) =>
+    `Design a vertical before-and-after comparison graphic for "${p}" (${d}). Split layout: left side shows "before" scenario (dull, problem state), right side shows "after" with the product (bright, solved state). Clear dividing line, dramatic contrast. Arabic COD product page style with bold colors and clean typography areas.${GLOBAL_SUFFIX}`,
+  "marketing-testimonials": (p, d) =>
+    `Design a vertical testimonial/review card for "${p}" (${d}). Show 3 customer review cards with star ratings, avatar placeholders, and quote areas. Product image at top. Trust-building layout with warm background. Arabic e-commerce landing page style, professional graphic design.${GLOBAL_SUFFIX}`,
+  "marketing-features": (p, d) =>
+    `Design a vertical product features grid for "${p}" (${d}). Product image centered with 4-6 feature callout lines pointing to different parts. Icons for each feature. Clean infographic style, professional layout. Arabic marketing page aesthetic with modern gradients and bold accent colors.${GLOBAL_SUFFIX}`,
+  "marketing-trust-badges": (p, d) =>
+    `Design a horizontal trust badge banner for "${p}" (${d}). Include visual icons for: Free Shipping, Money-Back Guarantee, Secure Payment, 24/7 Support. Clean professional layout with the product shown small. Arabic COD e-commerce style with gold/green trust colors on dark background.${GLOBAL_SUFFIX}`,
+  "marketing-ingredients": (p, d) =>
+    `Design a vertical ingredients/specs breakdown graphic for "${p}" (${d}). Show the product with ingredient or component callouts arranged around it. Clean scientific/premium layout. Numbered list or circular badges for each component. Arabic health/beauty product page style with clean white background and accent colors.${GLOBAL_SUFFIX}`,
+  "marketing-urgency-cta": (p, d) =>
+    `Design a vertical urgency/limited-time offer banner for "${p}" (${d}). Bold "LIMITED TIME" or countdown timer area at top, product image, original price crossed out with discount price, large CTA button area. Red/orange urgency colors. Arabic flash-sale landing page style, high-conversion design.${GLOBAL_SUFFIX}`,
+  "marketing-social-proof": (p, d) =>
+    `Design a vertical social proof collage for "${p}" (${d}). Show a grid of small user photos/avatars with the product, "10,000+ Happy Customers" counter area, rating stars. Community feel with diverse faces. Arabic influencer marketing style with vibrant colors and modern layout.${GLOBAL_SUFFIX}`,
+  "marketing-guarantee": (p, d) =>
+    `Design a guarantee/certification seal graphic for "${p}" (${d}). Large circular seal/badge with "100% Satisfaction Guaranteed" area, product image, quality certification icons. Premium gold and navy colors. Arabic COD product guarantee style, trust-building professional design.${GLOBAL_SUFFIX}`,
+  "marketing-order-footer": (p, d) =>
+    `Design a vertical order-now footer section for "${p}" (${d}). Product image with price display, "Order Now" CTA button area, payment method icons (COD, Visa, etc.), delivery timeline graphic. Arabic e-commerce checkout style with green/gold conversion-optimized colors.${GLOBAL_SUFFIX}`,
 };
 
 serve(async (req) => {

@@ -73,6 +73,16 @@ export const PRO_IMAGE_LABELS: Record<string, string> = {
   "studio-lifestyle": "Styled Lifestyle",
   "studio-dramatic": "Dramatic Lighting",
   "studio-flat": "Flat Lay",
+  "marketing-hero-banner": "Hero Banner",
+  "marketing-before-after": "Before & After",
+  "marketing-testimonials": "Testimonials",
+  "marketing-features": "Features Grid",
+  "marketing-trust-badges": "Trust Badges",
+  "marketing-ingredients": "Ingredients/Specs",
+  "marketing-urgency-cta": "Urgency CTA",
+  "marketing-social-proof": "Social Proof",
+  "marketing-guarantee": "Guarantee Seal",
+  "marketing-order-footer": "Order Footer",
 };
 
 export interface SocialImagePost {
