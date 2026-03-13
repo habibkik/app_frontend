@@ -61,6 +61,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
     ugc: true,
     usage: true,
     studio: true,
+    marketing: true,
   });
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
 
@@ -342,7 +343,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
             Pro Product Photography
           </h3>
           <p className="text-sm text-muted-foreground">
-            20 professional images across 4 categories using your product as reference.
+            30 professional images across 5 categories using your product as reference.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -365,7 +366,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
               </>
             ) : (
               <>
-                <Wand2 className="h-4 w-4 mr-2" /> Generate All 20 Images
+                <Wand2 className="h-4 w-4 mr-2" /> Generate All 30 Images
               </>
             )}
           </Button>
@@ -442,7 +443,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
-                      {generatedCount}/5
+                      {generatedCount}/{section.imageIds.length}
                     </Badge>
                     {generatedCount > 0 && (
                       <Button

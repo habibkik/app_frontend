@@ -8,7 +8,7 @@ export interface GeneratedImage {
   section?: string;
 }
 
-export type ProImageSection = "packshot" | "ugc" | "usage" | "studio";
+export type ProImageSection = "packshot" | "ugc" | "usage" | "studio" | "marketing";
 
 export const PRO_IMAGE_SECTIONS: {
   id: ProImageSection;
@@ -40,6 +40,16 @@ export const PRO_IMAGE_SECTIONS: {
     description: "Premium studio advertising photography with professional lighting",
     imageIds: ["studio-hero", "studio-detail", "studio-lifestyle", "studio-dramatic", "studio-flat"],
   },
+  {
+    id: "marketing",
+    title: "Marketing Creatives",
+    description: "Promotional landing-page-style images — hero banners, trust badges, testimonials & CTAs",
+    imageIds: [
+      "marketing-hero-banner", "marketing-before-after", "marketing-testimonials",
+      "marketing-features", "marketing-trust-badges", "marketing-ingredients",
+      "marketing-urgency-cta", "marketing-social-proof", "marketing-guarantee", "marketing-order-footer",
+    ],
+  },
 ];
 
 export const PRO_IMAGE_LABELS: Record<string, string> = {
@@ -63,6 +73,16 @@ export const PRO_IMAGE_LABELS: Record<string, string> = {
   "studio-lifestyle": "Styled Lifestyle",
   "studio-dramatic": "Dramatic Lighting",
   "studio-flat": "Flat Lay",
+  "marketing-hero-banner": "Hero Banner",
+  "marketing-before-after": "Before & After",
+  "marketing-testimonials": "Testimonials",
+  "marketing-features": "Features Grid",
+  "marketing-trust-badges": "Trust Badges",
+  "marketing-ingredients": "Ingredients/Specs",
+  "marketing-urgency-cta": "Urgency CTA",
+  "marketing-social-proof": "Social Proof",
+  "marketing-guarantee": "Guarantee Seal",
+  "marketing-order-footer": "Order Footer",
 };
 
 export interface SocialImagePost {
