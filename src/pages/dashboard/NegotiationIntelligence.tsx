@@ -267,7 +267,7 @@ export default function NegotiationIntelligencePage() {
 
                 {/* Industry margins */}
                 <div className="p-3 rounded-lg border bg-muted/30">
-                  <p className="text-xs font-medium mb-1.5">Industry Margin Benchmarks</p>
+                  <p className="text-xs font-medium mb-1.5">{t("pages.negotiation.industryBenchmarks")}</p>
                   <div className="grid grid-cols-3 gap-2 text-[10px]">
                     <div className="text-center p-1.5 rounded bg-background border">
                       <p className="font-bold">8–15%</p>
