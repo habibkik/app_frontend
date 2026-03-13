@@ -255,9 +255,9 @@ export default function SupplierComparisonPage() {
   const toggleSection = (id: string) => setExpandedSection(expandedSection === id ? null : id);
 
   const sections = [
-    { id: "risk", label: "Risk Scores", icon: Shield },
-    { id: "pricing", label: "Pricing & Terms", icon: DollarSign },
-    { id: "capabilities", label: "Capabilities & Profile", icon: Award },
+    { id: "risk", label: t("pages.supplierComparison.riskScores"), icon: Shield },
+    { id: "pricing", label: t("pages.supplierComparison.pricingTerms"), icon: DollarSign },
+    { id: "capabilities", label: t("pages.supplierComparison.capabilitiesProfile"), icon: Award },
   ];
 
   return (
