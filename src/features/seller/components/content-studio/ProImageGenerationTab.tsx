@@ -204,6 +204,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                 marketingCurrency,
                 marketingCountry,
                 marketingStyle,
+                marketingColors: resolvedMarketingColors,
               } : {}),
             },
           }
