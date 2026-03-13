@@ -323,9 +323,9 @@ export default function ShouldCostPage() {
                     </div>
                   ))}
                   <Separator />
-                  <div className="flex justify-between font-medium"><span>Production Cost</span><span>{fc(costs.totalCost)}</span></div>
-                  <div className="flex justify-between text-muted-foreground"><span>Margin ({inputs.marginPercent}%)</span><span>{fc(costs.margin)}</span></div>
-                  <div className="flex justify-between font-bold text-primary"><span>Should-Cost</span><span>{fc(costs.shouldCost)}</span></div>
+                  <div className="flex justify-between font-medium"><span>{t("pages.shouldCost.productionCost")}</span><span>{fc(costs.totalCost)}</span></div>
+                  <div className="flex justify-between text-muted-foreground"><span>{t("pages.shouldCost.margin")} ({inputs.marginPercent}%)</span><span>{fc(costs.margin)}</span></div>
+                  <div className="flex justify-between font-bold text-primary"><span>{t("pages.shouldCost.shouldCost")}</span><span>{fc(costs.shouldCost)}</span></div>
                 </div>
                 <Separator />
                 <div className="bg-muted/50 rounded-md p-3 text-center">
