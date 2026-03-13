@@ -577,6 +577,7 @@ function FeaturesGridForm({ config, update }: { config: FeaturesGridBlockConfig;
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
+      <TextVisibilityFields config={config} update={update} hasSubtitle />
       <Field label="Columns">
         <Select value={String(config.columns)} onValueChange={(v) => update({ columns: Number(v) })}>
           <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
