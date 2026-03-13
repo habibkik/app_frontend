@@ -190,7 +190,7 @@ export default function NegotiationIntelligencePage() {
           </div>
           <Button variant="outline" size="sm" onClick={loadDemoData}>
             <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            Load Demo Data
+            {t("pages.negotiation.loadDemoData")}
           </Button>
         </motion.div>
 
