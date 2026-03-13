@@ -92,7 +92,7 @@ export interface MarketStatsBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ProblemAgitationBlockConfig {
+export interface ProblemAgitationBlockConfig extends BgImageDimensions {
   heading: string;
   intro: string;
   painPoints: { icon: string; title: string; description: string }[];
