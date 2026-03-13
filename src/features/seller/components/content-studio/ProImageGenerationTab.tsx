@@ -174,6 +174,13 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                 brandTargetAudience: brandKit.target_audience,
                 brandToneKeywords: brandKit.tone_keywords,
               } : {}),
+              // Marketing customization (only for marketing-* image types)
+              ...(imageType.startsWith("marketing-") ? {
+                marketingLanguage,
+                marketingCurrency,
+                marketingCountry,
+                marketingStyle,
+              } : {}),
             },
           }
         );
