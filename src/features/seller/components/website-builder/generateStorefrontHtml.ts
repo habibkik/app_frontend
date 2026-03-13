@@ -431,10 +431,13 @@ function renderVideoEmbed(cfg: VideoEmbedBlockConfig, theme: LandingPageTheme) {
 
 function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPageTheme) {
   const bg = heroBg(theme, cfg.backgroundImageUrl, cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight);
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:600px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:#fff;">${cfg.heading}</h2>
-    <p style="color:rgba(255,255,255,.8);margin:0 0 24px;font-size:1.05rem;">${cfg.subtitle}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:#fff;">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:rgba(255,255,255,.8);margin:0 0 24px;font-size:1.05rem;">${cfg.subtitle}</p>` : ""}
     <div id="countdown-display" style="display:flex;justify-content:center;gap:16px;margin-bottom:24px;">
       ${["Days", "Hours", "Minutes", "Seconds"].map((label, i) => `
       <div style="background:rgba(255,255,255,.15);padding:16px 20px;border-radius:${borderRadiusValue(theme.borderRadius)};min-width:70px;">
@@ -442,7 +445,7 @@ function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPage
         <p style="margin:4px 0 0;font-size:.75rem;color:rgba(255,255,255,.7);">${label}</p>
       </div>`).join("")}
     </div>
-    <a href="${cfg.ctaUrl || "#"}" style="${btnStyle({ ...theme, primaryColor: "#fff", buttonStyle: "filled" })}color:${theme.primaryColor};">${cfg.ctaText}</a>
+    ${showBtn ? wrapBtn(`<a href="${cfg.ctaUrl || "#"}" style="${btnStyle({ ...theme, primaryColor: "#fff", buttonStyle: "filled" } as any, true, cfg.buttonColor, cfg.buttonTextColor)}color:${cfg.buttonTextColor || theme.primaryColor};">${cfg.ctaText}</a>`, cfg.buttonPosition) : ""}
   </div>
   <script>
   (function(){
