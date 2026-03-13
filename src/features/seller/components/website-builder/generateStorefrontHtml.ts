@@ -192,9 +192,10 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
       <h4 style="margin:0 0 8px;font-family:${theme.headingFont};color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${f.question}</h4>
       <p style="margin:0;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;">${f.answer}</p>
     </div>`).join("");
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:700px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">Frequently Asked Questions</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">Frequently Asked Questions</h2>` : ""}
     ${items}
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
