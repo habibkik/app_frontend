@@ -449,6 +449,7 @@ function OrderFormConfig({ config, update }: { config: OrderFormBlockConfig; upd
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Product Name"><Input value={config.productName} onChange={(e) => update({ productName: e.target.value })} className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
