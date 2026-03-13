@@ -288,7 +288,7 @@ export default function OutreachHub() {
                         </div>
                         {c.response_received && (
                           <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">Response</p>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">{t("pages.outreachHub.response")}</p>
                             <p className="text-sm bg-emerald-500/5 p-2 rounded border border-emerald-500/20">{c.response_received}</p>
                           </div>
                         )}
