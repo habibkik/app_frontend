@@ -273,7 +273,7 @@ export default function ShouldCostPage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base">Overhead, Scrap & Extras</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.overheadScrapExtras")}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between"><Label className="text-sm">Overhead</Label><Badge variant="secondary">{inputs.overheadPercent}%</Badge></div>
