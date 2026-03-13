@@ -90,13 +90,13 @@ export interface OrderFormBlockConfig extends BgImageDimensions, TextButtonCusto
   overlayOpacity?: number;
 }
 
-export interface SocialProofBlockConfig extends BgImageDimensions {
+export interface SocialProofBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface MarketStatsBlockConfig extends BgImageDimensions {
+export interface MarketStatsBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
