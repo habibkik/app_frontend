@@ -278,10 +278,10 @@ export default function OrdersStockPage() {
 
         <Tabs defaultValue="orders" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="orders"><ShoppingCart className="h-4 w-4 mr-1.5" /> Orders</TabsTrigger>
-            <TabsTrigger value="stock"><Package className="h-4 w-4 mr-1.5" /> Inventory</TabsTrigger>
-            <TabsTrigger value="customers"><Users className="h-4 w-4 mr-1.5" /> Customers</TabsTrigger>
-            <TabsTrigger value="analytics"><BarChart3 className="h-4 w-4 mr-1.5" /> Analytics</TabsTrigger>
+             <TabsTrigger value="orders"><ShoppingCart className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.orders")}</TabsTrigger>
+            <TabsTrigger value="stock"><Package className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.inventory")}</TabsTrigger>
+            <TabsTrigger value="customers"><Users className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.customers")}</TabsTrigger>
+            <TabsTrigger value="analytics"><BarChart3 className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.analytics")}</TabsTrigger>
           </TabsList>
 
           {/* Orders Tab */}
