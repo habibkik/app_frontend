@@ -30,6 +30,16 @@ function bgStyle(fallback: string, imageUrl?: string, fitToImage?: boolean, bgW?
   return `background:${fallback};`;
 }
 
+// Shorthand: extract fit params from any block config that has BgImageDimensions
+function bgFit(cfg: any): [boolean | undefined, number | undefined, number | undefined] {
+  return [cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight];
+}
+
+function sectionPadFor(theme: LandingPageTheme, cfg: any): string {
+  if (cfg.fitToImage && cfg.bgImageWidth && cfg.bgImageHeight) return "40px 20px";
+  return sectionPad(theme);
+}
+
 function wrapWithOverlay(innerHtml: string, imageUrl?: string, opacity?: number): string {
   if (!imageUrl) return innerHtml;
   const op = typeof opacity === "number" ? opacity : 0.5;
