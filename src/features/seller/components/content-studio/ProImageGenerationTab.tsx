@@ -127,6 +127,26 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   const [marketingCountry, setMarketingCountry] = useState("saudi-arabia");
   const [marketingStyle, setMarketingStyle] = useState("cod-landing");
 
+  // Marketing colors state
+  const [useBrandKitColors, setUseBrandKitColors] = useState(true);
+  const [marketingColors, setMarketingColors] = useState<string[]>([]);
+  const [newMarketingColor, setNewMarketingColor] = useState("#6366f1");
+
+  const addMarketingColor = () => {
+    if (marketingColors.length >= 4) {
+      toast.error("Maximum 4 marketing colors");
+      return;
+    }
+    if (marketingColors.includes(newMarketingColor)) return;
+    setMarketingColors((prev) => [...prev, newMarketingColor]);
+  };
+
+  const removeMarketingColor = (color: string) => {
+    setMarketingColors((prev) => prev.filter((c) => c !== color));
+  };
+
+  const resolvedMarketingColors = useBrandKitColors ? (brandKit?.colors || []) : marketingColors;
+
   // Auto-populate reference from Market Intelligence on mount (resize it)
   useEffect(() => {
     if (currentImage && !store.referenceImageUrl) {
