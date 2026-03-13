@@ -232,6 +232,88 @@ function BackgroundImageFields({ backgroundImageUrl, overlayOpacity, bgImageWidt
   );
 }
 
+// --- Reusable Text Visibility & Button Customizer ---
+
+function TextVisibilityFields({ config, update, hasSubtitle = false }: { config: any; update: (c: any) => void; hasSubtitle?: boolean }) {
+  return (
+    <div className="border rounded-md p-2 space-y-2">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Text Visibility</p>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Show Title</Label>
+        <Switch checked={config.showTitle !== false} onCheckedChange={(v) => update({ showTitle: v })} className="scale-75" />
+      </div>
+      {hasSubtitle && (
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">Show Subtitle</Label>
+          <Switch checked={config.showSubtitle !== false} onCheckedChange={(v) => update({ showSubtitle: v })} className="scale-75" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ButtonCustomizer({ config, update, hasSubtitle = false }: { config: any; update: (c: any) => void; hasSubtitle?: boolean }) {
+  const COLOR_LABELS = [
+    { key: "buttonColor", label: "Button Color" },
+    { key: "buttonTextColor", label: "Button Text" },
+  ];
+
+  return (
+    <div className="border rounded-md p-2 space-y-2">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Button & Text</p>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Show Title</Label>
+        <Switch checked={config.showTitle !== false} onCheckedChange={(v) => update({ showTitle: v })} className="scale-75" />
+      </div>
+      {hasSubtitle && (
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">Show Subtitle</Label>
+          <Switch checked={config.showSubtitle !== false} onCheckedChange={(v) => update({ showSubtitle: v })} className="scale-75" />
+        </div>
+      )}
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Show Button</Label>
+        <Switch checked={config.showButton !== false} onCheckedChange={(v) => update({ showButton: v })} className="scale-75" />
+      </div>
+      {config.showButton !== false && (
+        <>
+          <Field label="Button Position">
+            <Select value={config.buttonPosition || "center"} onValueChange={(v) => update({ buttonPosition: v })}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Left</SelectItem>
+                <SelectItem value="center">Center</SelectItem>
+                <SelectItem value="right">Right</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <div className="grid grid-cols-2 gap-2">
+            {COLOR_LABELS.map(({ key, label }) => (
+              <div key={key} className="space-y-1">
+                <Label className="text-[10px]">{label}</Label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="color"
+                    value={config[key] || (key === "buttonColor" ? "#6366f1" : "#ffffff")}
+                    onChange={(e) => update({ [key]: e.target.value })}
+                    className="w-7 h-7 rounded border border-input cursor-pointer p-0"
+                  />
+                  <Input
+                    value={config[key] || ""}
+                    onChange={(e) => update({ [key]: e.target.value })}
+                    placeholder="Theme"
+                    className="text-xs h-7 flex-1"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // --- Sub-forms ---
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
