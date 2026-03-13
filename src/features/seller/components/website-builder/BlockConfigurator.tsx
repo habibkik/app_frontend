@@ -512,7 +512,7 @@ function FeaturesGridForm({ config, update }: { config: FeaturesGridBlockConfig;
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Feature</Button>
-      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
 }
