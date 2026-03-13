@@ -53,7 +53,7 @@ export interface AboutBlockConfig {
   imageUrl: string;
 }
 
-export interface TestimonialsBlockConfig {
+export interface TestimonialsBlockConfig extends BgImageDimensions {
   items: { quote: string; author: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
