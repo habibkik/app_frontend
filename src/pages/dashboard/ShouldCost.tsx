@@ -348,7 +348,7 @@ export default function ShouldCostPage() {
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">Enter cost inputs to see distribution</div>
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">{t("pages.shouldCost.noDataYet")}</div>
                 )}
               </CardContent>
             </Card>
