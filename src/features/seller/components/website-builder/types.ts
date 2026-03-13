@@ -211,7 +211,7 @@ export interface CustomerReviewsBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface OrderTrackingBlockConfig {
+export interface OrderTrackingBlockConfig extends BgImageDimensions {
   heading: string;
   steps: { label: string; status: "completed" | "active" | "pending" }[];
   backgroundImageUrl?: string;
