@@ -135,7 +135,7 @@ export default function OutreachHub() {
           <TabsList className="flex-wrap">
             <TabsTrigger value="campaigns" className="gap-1.5">
               <Send className="h-4 w-4" />
-              Campaigns
+              {t("pages.outreachHub.campaigns")}
               {draftCount > 0 && (
                 <Badge variant="secondary" className="ml-1 text-xs">{draftCount}</Badge>
               )}
