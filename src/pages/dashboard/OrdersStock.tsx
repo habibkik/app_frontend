@@ -204,7 +204,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">${totalRevenue.toFixed(0)}</p>
-                  <p className="text-[10px] text-muted-foreground">Total Revenue</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.totalRevenue")}</p>
                 </div>
               </div>
             </CardContent>
