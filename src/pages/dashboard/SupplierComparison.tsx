@@ -238,6 +238,7 @@ function bestWorst(values: number[], mode: "lowest" | "highest") {
 // ── Main Page ──
 
 export default function SupplierComparisonPage() {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
   const [selected, setSelected] = useState<Supplier[]>(() => mockSuppliers.slice(0, 3));
   const [expandedSection, setExpandedSection] = useState<string | null>("risk");
