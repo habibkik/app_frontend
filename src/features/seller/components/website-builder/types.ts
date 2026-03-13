@@ -124,7 +124,7 @@ export interface OfferPricingBlockConfig extends BgImageDimensions {
 
 // --- New Block Configs ---
 
-export interface FeaturesGridBlockConfig {
+export interface FeaturesGridBlockConfig extends BgImageDimensions {
   heading: string;
   subtitle: string;
   items: { icon: string; title: string; description: string }[];
