@@ -170,7 +170,7 @@ function renderTestimonials(cfg: TestimonialsBlockConfig, theme: LandingPageThem
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">What Our Customers Say</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">${cards}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
