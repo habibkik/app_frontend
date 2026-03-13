@@ -324,7 +324,7 @@ export default function NegotiationIntelligencePage() {
                         <Input type="number" min={1} value={q.leadTimeDays} onChange={(e) => updateQuote(q.id, "leadTimeDays", parseInt(e.target.value) || 1)} className="h-7 text-sm" />
                       </div>
                     </div>
-                    <Input value={q.paymentTerms} onChange={(e) => updateQuote(q.id, "paymentTerms", e.target.value)} placeholder="Payment terms" className="h-7 text-sm" />
+                    <Input value={q.paymentTerms} onChange={(e) => updateQuote(q.id, "paymentTerms", e.target.value)} placeholder={t("pages.negotiation.paymentTerms")} className="h-7 text-sm" />
                   </div>
                 ))}
               </CardContent>
