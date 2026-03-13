@@ -346,10 +346,12 @@ function renderFeaturesGrid(cfg: FeaturesGridBlockConfig, theme: LandingPageThem
       <p style="margin:0;color:#6b7280;font-size:.9rem;line-height:1.5;">${item.description}</p>
     </div>`).join("");
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
-    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 40px;font-size:1.05rem;">${cfg.subtitle}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 40px;font-size:1.05rem;">${cfg.subtitle}</p>` : ""}
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:24px;">${cards}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
