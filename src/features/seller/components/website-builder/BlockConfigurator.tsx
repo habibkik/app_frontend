@@ -740,6 +740,7 @@ function CountdownTimerForm({ config, update }: { config: CountdownTimerBlockCon
       <Field label="Target Date"><Input type="date" value={config.targetDate} onChange={(e) => update({ targetDate: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Link"><Input value={config.ctaUrl} onChange={(e) => update({ ctaUrl: e.target.value })} placeholder="#contact" className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} hasSubtitle />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
