@@ -350,8 +350,8 @@ export default function NegotiationIntelligencePage() {
             {loading && (
               <Card className="h-full flex items-center justify-center min-h-[400px]">
                 <CardContent className="text-center space-y-3 py-12">
-                  <Loader2 className="h-10 w-10 text-primary animate-spin mx-auto" />
-                  <p className="text-sm text-muted-foreground">Analyzing quotes & generating negotiation strategy…</p>
+                   <Loader2 className="h-10 w-10 text-primary animate-spin mx-auto" />
+                  <p className="text-sm text-muted-foreground">{t("pages.negotiation.analyzingDesc")}</p>
                 </CardContent>
               </Card>
             )}
