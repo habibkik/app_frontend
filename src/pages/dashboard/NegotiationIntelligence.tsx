@@ -107,6 +107,7 @@ const DEMO_QUOTES: QuoteInput[] = [
 ];
 
 export default function NegotiationIntelligencePage() {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
   const [productName, setProductName] = useState("");
   const [targetPrice, setTargetPrice] = useState<number>(0);
