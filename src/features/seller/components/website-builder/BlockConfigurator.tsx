@@ -636,6 +636,7 @@ function PricingTableForm({ config, update }: { config: PricingTableBlockConfig;
   return (
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <TextVisibilityFields config={config} update={update} />
       {config.plans.map((plan: any, idx: number) => (
         <div key={idx} className="space-y-1.5 border rounded-md p-2">
           <div className="flex items-center justify-between">
