@@ -32,6 +32,16 @@ export interface BgImageDimensions {
   fitToImage?: boolean;
 }
 
+// Shared text & button customization fields
+export interface TextButtonCustomization {
+  showTitle?: boolean;
+  showSubtitle?: boolean;
+  showButton?: boolean;
+  buttonPosition?: "left" | "center" | "right";
+  buttonColor?: string;
+  buttonTextColor?: string;
+}
+
 export interface HeroBlockConfig extends BgImageDimensions {
   title: string;
   subtitle: string;
