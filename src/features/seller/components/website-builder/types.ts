@@ -177,7 +177,7 @@ export interface NewsletterBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ProductDetailBlockConfig {
+export interface ProductDetailBlockConfig extends BgImageDimensions {
   heading: string;
   productName: string;
   price: string;
