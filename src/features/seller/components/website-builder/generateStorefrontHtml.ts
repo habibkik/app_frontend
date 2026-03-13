@@ -175,9 +175,10 @@ function renderTestimonials(cfg: TestimonialsBlockConfig, theme: LandingPageThem
       <p style="font-style:italic;color:#374151;margin:0 0 12px;">"${t.quote}"</p>
       <p style="margin:0;font-weight:600;color:${theme.primaryColor};font-size:.9rem;">— ${t.author}</p>
     </div>`).join("");
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">What Our Customers Say</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">What Our Customers Say</h2>` : ""}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">${cards}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
