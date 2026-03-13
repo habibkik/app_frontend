@@ -205,15 +205,17 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
 
 function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
   const br = borderRadiusValue(theme.borderRadius);
+  const showTitle = cfg.showTitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>` : ""}
     <form style="display:flex;flex-direction:column;gap:12px;">
       <input placeholder="Your Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="email" placeholder="Your Email" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       ${cfg.showPhone ? `<input type="tel" placeholder="Phone" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">` : ""}
       <textarea placeholder="Your Message" rows="4" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;resize:vertical;"></textarea>
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;">Send Message</button>
+      ${showBtn ? wrapBtn(`<button type="submit" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}cursor:pointer;">Send Message</button>`, cfg.buttonPosition) : ""}
     </form>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
