@@ -66,6 +66,7 @@ export function OutreachCampaignCard({
   onUpdateMessage,
   onDelete,
 }: OutreachCampaignCardProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [viewMode, setViewMode] = useState<"list" | "timeline">("timeline");
   const draftCount = campaigns.filter((c) => c.status === "draft").length;
