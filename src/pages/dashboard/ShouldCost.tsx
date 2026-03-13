@@ -261,8 +261,8 @@ export default function ShouldCostPage() {
             <Card>
               <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[2] }} />{t("pages.shouldCost.machine")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <InputRow label="Cycle Time" icon={Cpu} suffix="min" value={inputs.machineCycleMinutes} onChange={(v) => set("machineCycleMinutes", v)} />
-                <InputRow label="Hourly Rate" icon={Cpu} suffix="$/hr" value={inputs.machineHourlyRate} onChange={(v) => set("machineHourlyRate", v)} />
+                <InputRow label={t("pages.shouldCost.cycleTime")} icon={Cpu} suffix="min" value={inputs.machineCycleMinutes} onChange={(v) => set("machineCycleMinutes", v)} />
+                <InputRow label={t("pages.shouldCost.hourlyRate")} icon={Cpu} suffix="$/hr" value={inputs.machineHourlyRate} onChange={(v) => set("machineHourlyRate", v)} />
               </CardContent>
             </Card>
             <Card>
