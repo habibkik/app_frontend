@@ -320,7 +320,7 @@ export default function NegotiationIntelligencePage() {
                         <Input type="number" min={1} value={q.moq} onChange={(e) => updateQuote(q.id, "moq", parseInt(e.target.value) || 1)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Lead Time (days)</Label>
+                        <Label className="text-xs">{t("pages.negotiation.leadTimeDays")}</Label>
                         <Input type="number" min={1} value={q.leadTimeDays} onChange={(e) => updateQuote(q.id, "leadTimeDays", parseInt(e.target.value) || 1)} className="h-7 text-sm" />
                       </div>
                     </div>
