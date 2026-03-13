@@ -597,9 +597,10 @@ function renderCustomerReviews(cfg: CustomerReviewsBlockConfig, theme: LandingPa
     </div>`).join("");
   const avgRating = cfg.reviews.length > 0 ? (cfg.reviews.reduce((s, r) => s + r.rating, 0) / cfg.reviews.length).toFixed(1) : "0";
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <p style="color:${theme.primaryColor};font-size:1.5rem;margin:0 0 32px;letter-spacing:2px;">${stars(Math.round(Number(avgRating)))} <span style="font-size:.9rem;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.7)" : "#9ca3af"};">(${avgRating} avg)</span></p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">${cards}</div>
   </div>`;
