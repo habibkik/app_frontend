@@ -252,7 +252,7 @@ export default function ShouldCostPage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[1] }} />Labor</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[1] }} />{t("pages.shouldCost.labor")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 <InputRow label="Hours per Unit" icon={Users} suffix="hrs" value={inputs.laborHoursPerUnit} onChange={(v) => set("laborHoursPerUnit", v)} />
                 <InputRow label="Rate per Hour" icon={Users} suffix="$/hr" value={inputs.laborRatePerHour} onChange={(v) => set("laborRatePerHour", v)} />
