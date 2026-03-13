@@ -124,8 +124,8 @@ export function ImageMarketAnalysis({
       <Tabs defaultValue="analysis" className="w-full">
         <TabsList className="grid w-full max-w-2xl grid-cols-3 sm:grid-cols-5">
           <TabsTrigger value="analysis">{t("marketInsights.insights")}</TabsTrigger>
-          <TabsTrigger value="heatmap">{t("heatMap.title")}</TabsTrigger>
-          <TabsTrigger value="substitutes">{t("substituteCompetitors.alternatives")}</TabsTrigger>
+          <TabsTrigger value="heatmap">{t("nav.heatMap")}</TabsTrigger>
+          <TabsTrigger value="substitutes">{t("market.competitorAnalysis")}</TabsTrigger>
           <TabsTrigger value="pricing">{t("pricingStrategy.title")}</TabsTrigger>
           <TabsTrigger value="content">{t("contentStudio.title")}</TabsTrigger>
         </TabsList>
