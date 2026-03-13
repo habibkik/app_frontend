@@ -25,7 +25,14 @@ export type BlockType =
   | "customer-reviews"
   | "order-tracking";
 
-export interface HeroBlockConfig {
+// Common background image dimension fields
+export interface BgImageDimensions {
+  bgImageWidth?: number;
+  bgImageHeight?: number;
+  fitToImage?: boolean;
+}
+
+export interface HeroBlockConfig extends BgImageDimensions {
   title: string;
   subtitle: string;
   ctaText: string;
