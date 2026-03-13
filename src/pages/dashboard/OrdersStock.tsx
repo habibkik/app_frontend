@@ -256,7 +256,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">{uniqueCustomers}</p>
-                  <p className="text-[10px] text-muted-foreground">Customers</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.customers")}</p>
                 </div>
               </div>
             </CardContent>
