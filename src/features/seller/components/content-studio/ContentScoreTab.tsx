@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { TrendingUp, Target, Heart, Monitor, Shield, Lightbulb, FlaskConical, DollarSign } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { ContentScore } from "./types";
 
 interface Props {
@@ -26,11 +27,13 @@ const ScoreBar = ({ label, value, icon: Icon }: { label: string; value: number; 
 };
 
 export const ContentScoreTab: React.FC<Props> = ({ score }) => {
+  const { t } = useTranslation();
+
   if (!score) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
         <Target className="h-12 w-12 mb-3" />
-        <p className="text-sm">Generate your marketing kit to see content scores.</p>
+        <p className="text-sm">{t("contentScore.generateToSee")}</p>
       </div>
     );
   }
@@ -40,46 +43,43 @@ export const ContentScoreTab: React.FC<Props> = ({ score }) => {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Content Score & Optimization</h3>
+      <h3 className="text-lg font-semibold">{t("contentScore.title")}</h3>
 
-      {/* Overall Score */}
       <Card className="border-2">
         <CardContent className="flex items-center gap-6 py-6">
           <div className={`text-5xl font-bold ${overallColor}`}>{score.overall}</div>
           <div>
-            <p className="font-semibold">Overall Content Score</p>
+            <p className="font-semibold">{t("contentScore.overallContentScore")}</p>
             <p className="text-sm text-muted-foreground">
               {score.overall >= 80
-                ? "Excellent! Your content is well-optimized."
+                ? t("contentScore.excellent")
                 : score.overall >= 60
-                ? "Good, but there's room for improvement."
-                : "Needs improvement. See suggestions below."}
+                ? t("contentScore.good")
+                : t("contentScore.needsImprovement")}
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Breakdown */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Score Breakdown</CardTitle>
+          <CardTitle className="text-sm">{t("contentScore.scoreBreakdown")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <ScoreBar label="Headline Clarity" value={score.headlineClarity} icon={TrendingUp} />
-          <ScoreBar label="CTA Strength" value={score.ctaStrength} icon={Target} />
-          <ScoreBar label="Emotional Appeal" value={score.emotionalAppeal} icon={Heart} />
-          <ScoreBar label="Platform Optimization" value={score.platformOptimization} icon={Monitor} />
-          <ScoreBar label="Competitive Differentiation" value={score.competitiveDifferentiation} icon={Shield} />
+          <ScoreBar label={t("contentScore.headlineClarity")} value={score.headlineClarity} icon={TrendingUp} />
+          <ScoreBar label={t("contentScore.ctaStrength")} value={score.ctaStrength} icon={Target} />
+          <ScoreBar label={t("contentScore.emotionalAppeal")} value={score.emotionalAppeal} icon={Heart} />
+          <ScoreBar label={t("contentScore.platformOptimization")} value={score.platformOptimization} icon={Monitor} />
+          <ScoreBar label={t("contentScore.competitiveDifferentiation")} value={score.competitiveDifferentiation} icon={Shield} />
         </CardContent>
       </Card>
 
-      {/* Suggestions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <Shield className="h-4 w-4 text-primary" />
-              Competitor Differentiation
+              {t("contentScore.competitorDifferentiation")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -98,7 +98,7 @@ export const ContentScoreTab: React.FC<Props> = ({ score }) => {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <DollarSign className="h-4 w-4 text-primary" />
-              Pricing Angle Suggestions
+              {t("contentScore.pricingAngleSuggestions")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -117,7 +117,7 @@ export const ContentScoreTab: React.FC<Props> = ({ score }) => {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <Target className="h-4 w-4 text-primary" />
-              CTA Optimization
+              {t("contentScore.ctaOptimization")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -136,7 +136,7 @@ export const ContentScoreTab: React.FC<Props> = ({ score }) => {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm">
               <FlaskConical className="h-4 w-4 text-primary" />
-              A/B Testing Suggestions
+              {t("contentScore.abTestingSuggestions")}
             </CardTitle>
           </CardHeader>
           <CardContent>

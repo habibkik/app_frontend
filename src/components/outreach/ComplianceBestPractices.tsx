@@ -7,6 +7,7 @@ import {
   UserCheck, Flame, Smartphone, Clock, FlaskConical, Repeat, Layers, Trash2,
   AlertTriangle, Info,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ComplianceRule {
   rule: string;
@@ -90,14 +91,15 @@ const bestPractices: BestPractice[] = [
 ];
 
 export function ComplianceBestPractices() {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
-      {/* Compliance Accordion */}
       <Card className="border-primary/20 bg-primary/[0.02]">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3">
             <Shield className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold">Channel Compliance Rules</h3>
+            <h3 className="text-sm font-semibold">{t("compliance.channelComplianceRules")}</h3>
           </div>
           <Accordion type="multiple" className="w-full">
             {complianceSections.map((section, idx) => {
@@ -108,7 +110,7 @@ export function ComplianceBestPractices() {
                     <span className="flex items-center gap-2">
                       <SIcon className="h-4 w-4 text-muted-foreground" />
                       {section.title}
-                      <Badge variant="outline" className="text-[10px] ml-1">{section.rules.length} rules</Badge>
+                      <Badge variant="outline" className="text-[10px] ml-1">{t("compliance.rules", { count: section.rules.length })}</Badge>
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
@@ -134,12 +136,11 @@ export function ComplianceBestPractices() {
         </CardContent>
       </Card>
 
-      {/* Best Practices Grid */}
       <Card className="border-border/50">
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-3">
             <Info className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold">Best Practices</h3>
+            <h3 className="text-sm font-semibold">{t("compliance.bestPractices")}</h3>
           </div>
           <TooltipProvider>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

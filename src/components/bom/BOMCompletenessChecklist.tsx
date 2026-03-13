@@ -6,28 +6,29 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp, ClipboardCheck, AlertTriangle } from "lucide-react";
 import { BOMComponent } from "@/data/bom";
+import { useTranslation } from "react-i18next";
 
 interface ChecklistItem {
   id: string;
-  label: string;
+  labelKey: string;
   matchCategories: string[];
 }
 
 const CHECKLIST_ITEMS: ChecklistItem[] = [
-  { id: "mechanical", label: "Mechanical parts", matchCategories: ["Structural", "Sealing"] },
-  { id: "electronic", label: "Electronic components", matchCategories: ["Electronics"] },
-  { id: "fasteners", label: "Fasteners", matchCategories: ["Fasteners"] },
-  { id: "adhesives", label: "Adhesives & tapes", matchCategories: [] },
-  { id: "surface", label: "Surface treatments", matchCategories: [] },
-  { id: "coatings", label: "Coatings", matchCategories: [] },
-  { id: "labels", label: "Labels & regulatory marks", matchCategories: [] },
-  { id: "firmware", label: "Firmware programming", matchCategories: [] },
-  { id: "packaging", label: "Packaging (primary/secondary/master)", matchCategories: [] },
-  { id: "manuals", label: "Manuals", matchCategories: [] },
-  { id: "inserts", label: "Inserts", matchCategories: [] },
-  { id: "testing", label: "Testing consumables", matchCategories: [] },
-  { id: "shipping", label: "Shipping protection materials", matchCategories: [] },
-  { id: "power", label: "Power components", matchCategories: ["Power"] },
+  { id: "mechanical", labelKey: "bomChecklist.mechanical", matchCategories: ["Structural", "Sealing"] },
+  { id: "electronic", labelKey: "bomChecklist.electronic", matchCategories: ["Electronics"] },
+  { id: "fasteners", labelKey: "bomChecklist.fasteners", matchCategories: ["Fasteners"] },
+  { id: "adhesives", labelKey: "bomChecklist.adhesives", matchCategories: [] },
+  { id: "surface", labelKey: "bomChecklist.surface", matchCategories: [] },
+  { id: "coatings", labelKey: "bomChecklist.coatings", matchCategories: [] },
+  { id: "labels", labelKey: "bomChecklist.labels", matchCategories: [] },
+  { id: "firmware", labelKey: "bomChecklist.firmware", matchCategories: [] },
+  { id: "packaging", labelKey: "bomChecklist.packaging", matchCategories: [] },
+  { id: "manuals", labelKey: "bomChecklist.manuals", matchCategories: [] },
+  { id: "inserts", labelKey: "bomChecklist.inserts", matchCategories: [] },
+  { id: "testing", labelKey: "bomChecklist.testing", matchCategories: [] },
+  { id: "shipping", labelKey: "bomChecklist.shipping", matchCategories: [] },
+  { id: "power", labelKey: "bomChecklist.power", matchCategories: ["Power"] },
 ];
 
 interface BOMCompletenessChecklistProps {
@@ -35,6 +36,7 @@ interface BOMCompletenessChecklistProps {
 }
 
 export function BOMCompletenessChecklist({ components }: BOMCompletenessChecklistProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const detectedCategories = useMemo(
@@ -75,7 +77,7 @@ export function BOMCompletenessChecklist({ components }: BOMCompletenessChecklis
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ClipboardCheck className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm">BOM Completeness</CardTitle>
+                <CardTitle className="text-sm">{t("bomChecklist.title")}</CardTitle>
                 <Badge variant={pct === 100 ? "default" : "secondary"} className="text-[10px]">
                   {pct}%
                 </Badge>
@@ -101,11 +103,11 @@ export function BOMCompletenessChecklist({ components }: BOMCompletenessChecklis
                     onCheckedChange={() => toggle(item.id)}
                   />
                   <span className={checked ? "text-foreground" : "text-muted-foreground"}>
-                    {item.label}
+                    {t(item.labelKey)}
                   </span>
                   {isAuto && (
                     <Badge variant="outline" className="text-[9px] ml-auto">
-                      detected
+                      {t("bomChecklist.detected")}
                     </Badge>
                   )}
                 </label>
@@ -115,7 +117,7 @@ export function BOMCompletenessChecklist({ components }: BOMCompletenessChecklis
               <div className="mt-3 p-2 rounded-md bg-destructive/5 border border-destructive/20">
                 <p className="text-xs font-medium text-destructive flex items-center gap-1">
                   <AlertTriangle className="h-3 w-3" />
-                  {missing.length} potentially missing categories
+                  {t("bomChecklist.missingCategories", { count: missing.length })}
                 </p>
               </div>
             )}

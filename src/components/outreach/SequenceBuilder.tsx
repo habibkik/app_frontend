@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Mail, Linkedin, MessageCircle, Phone, Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { OutreachCampaign } from "@/stores/outreachCampaignStore";
 
 const CHANNEL_ICON: Record<string, React.ReactNode> = {
@@ -21,21 +22,20 @@ interface SequenceBuilderProps {
 }
 
 export function SequenceBuilder({ campaigns, supplierName }: SequenceBuilderProps) {
+  const { t } = useTranslation();
   const sorted = [...campaigns].sort((a, b) => (a.sequence_step || 1) - (b.sequence_step || 1));
 
   return (
     <div className="space-y-1">
       <h4 className="text-xs font-medium text-muted-foreground mb-2">
-        Sequence Timeline — {sorted.length} touches
+        {t("sequenceBuilder.timelineTouches", { count: sorted.length })}
       </h4>
       <div className="relative">
-        {/* Timeline line */}
         <div className="absolute left-[18px] top-4 bottom-4 w-px bg-border" />
 
         <div className="space-y-2">
           {sorted.map((c, i) => (
             <div key={c.id} className="flex items-start gap-3 relative">
-              {/* Step circle */}
               <div className="relative z-10 h-9 w-9 rounded-full bg-background border-2 border-border flex items-center justify-center flex-shrink-0">
                 {CHANNEL_ICON[c.channel] || <Send className="h-3.5 w-3.5" />}
               </div>
@@ -43,7 +43,7 @@ export function SequenceBuilder({ campaigns, supplierName }: SequenceBuilderProp
               <div className="flex-1 min-w-0 pb-1">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-foreground">
-                    Day {c.scheduled_day || (i + 1)}
+                    {t("sequenceBuilder.day", { day: c.scheduled_day || (i + 1) })}
                   </span>
                   <Badge variant="outline" className="text-[10px] h-4 px-1.5">
                     {c.channel}
@@ -53,7 +53,7 @@ export function SequenceBuilder({ campaigns, supplierName }: SequenceBuilderProp
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                  {c.message?.slice(0, 80) || "No message"}
+                  {c.message?.slice(0, 80) || t("sequenceBuilder.noMessage")}
                   {(c.message?.length || 0) > 80 ? "..." : ""}
                 </p>
               </div>
