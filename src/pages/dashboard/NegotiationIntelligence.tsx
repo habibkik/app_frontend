@@ -365,7 +365,7 @@ export default function NegotiationIntelligencePage() {
                       <Target className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-sm">Strategy Summary</h3>
+                          <h3 className="font-semibold text-sm">{t("pages.negotiation.strategySummary")}</h3>
                           {(() => {
                             const cfg = LEVERAGE_CONFIG[result.overallLeverage];
                             const Icon = cfg.icon;
