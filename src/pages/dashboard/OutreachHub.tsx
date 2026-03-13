@@ -142,7 +142,7 @@ export default function OutreachHub() {
             </TabsTrigger>
             <TabsTrigger value="templates" className="gap-1.5">
               <FileText className="h-4 w-4" />
-              Templates
+              {t("pages.outreachHub.templates")}
             </TabsTrigger>
             <TabsTrigger value="metrics" className="gap-1.5">
               <BarChart3 className="h-4 w-4" />
