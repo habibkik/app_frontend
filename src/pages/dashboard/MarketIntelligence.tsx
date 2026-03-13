@@ -227,7 +227,7 @@ export default function MarketIntelligencePage() {
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-background px-2 text-muted-foreground">
-                          Or explore with sample data
+                          {t("pages.marketIntelligence.orExploreWithSampleData")}
                         </span>
                       </div>
                     </div>
