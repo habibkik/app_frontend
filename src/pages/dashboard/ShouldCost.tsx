@@ -266,7 +266,7 @@ export default function ShouldCostPage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[3] }} />Tooling</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[3] }} />{t("pages.shouldCost.tooling")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 <InputRow label="Total Tooling Cost" icon={Wrench} suffix="$" value={inputs.toolingCost} onChange={(v) => set("toolingCost", v)} />
                 <InputRow label="Tooling Life" icon={Wrench} suffix="units" value={inputs.toolingLifeUnits} onChange={(v) => set("toolingLifeUnits", v)} min={1} step={1000} />
