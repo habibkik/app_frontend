@@ -189,7 +189,7 @@ export interface ProductDetailBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ShoppingCartBlockConfig {
+export interface ShoppingCartBlockConfig extends BgImageDimensions {
   heading: string;
   emptyMessage: string;
   ctaText: string;
