@@ -276,7 +276,7 @@ export default function ShouldCostPage() {
               <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.overheadScrapExtras")}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between"><Label className="text-sm">Overhead</Label><Badge variant="secondary">{inputs.overheadPercent}%</Badge></div>
+                  <div className="flex items-center justify-between"><Label className="text-sm">{t("pages.shouldCost.overhead")}</Label><Badge variant="secondary">{inputs.overheadPercent}%</Badge></div>
                   <Slider value={[inputs.overheadPercent]} onValueChange={([v]) => set("overheadPercent", v)} min={0} max={50} step={1} />
                 </div>
                 <div className="space-y-2">
