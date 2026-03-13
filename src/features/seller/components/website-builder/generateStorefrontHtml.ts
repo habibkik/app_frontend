@@ -376,9 +376,10 @@ function renderPricingTable(cfg: PricingTableBlockConfig, theme: LandingPageThem
     </div>`;
   }).join("");
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 40px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 40px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:grid;grid-template-columns:repeat(${cfg.plans.length},1fr);gap:24px;">${plans}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
