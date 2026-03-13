@@ -636,7 +636,7 @@ function VideoEmbedForm({ config, update }: { config: VideoEmbedBlockConfig; upd
         <Label className="text-xs">Autoplay (muted)</Label>
         <Switch checked={config.autoplay} onCheckedChange={(v) => update({ autoplay: v })} className="scale-75" />
       </div>
-      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
 }
