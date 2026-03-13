@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Loader2, Sparkles, Search, ImageIcon, Play } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
