@@ -238,7 +238,7 @@ export function SupplierRiskScoring({ supplier, compact = false }: SupplierRiskS
                       <div className="w-20">
                         <Progress value={catAvg} className={cn("h-1.5", getRiskProgressColor(catLevel))} />
                       </div>
-                      <span className={cn("text-sm font-semibold w-8 text-right", getRiskColor(catLevel))}>{catAvg}</span>
+                      <span className={cn("text-sm font-semibold w-8 text-end", getRiskColor(catLevel))}>{catAvg}</span>
                       {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </div>
                   </Button>
