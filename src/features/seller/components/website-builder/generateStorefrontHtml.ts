@@ -186,7 +186,7 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">Frequently Asked Questions</h2>
     ${items}
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
