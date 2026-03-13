@@ -99,7 +99,7 @@ export default function OutreachHub() {
       location: `${supplier.location.city}, ${supplier.location.country}`,
     }, undefined, objective, tier);
     if (count > 0) {
-      toast({ title: "Campaigns Generated", description: `${count} outreach campaigns created for ${supplier.name}.` });
+      toast({ title: t("pages.outreachHub.campaignsGenerated"), description: t("pages.outreachHub.campaignsCreated", { count, name: supplier.name }) });
     }
     return count;
   };
