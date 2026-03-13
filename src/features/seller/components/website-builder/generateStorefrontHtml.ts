@@ -265,9 +265,10 @@ function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme,
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
   const accentColor = cfg.backgroundImageUrl ? "#fff" : theme.primaryColor;
   const subColor = cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280";
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:700px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;">
       ${marketData?.priceRange ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;">$${marketData.priceRange.min} – $${marketData.priceRange.max}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Market Price Range</p></div>` : ""}
       ${marketData?.demandTrend ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;text-transform:capitalize;">${marketData.demandTrend}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Demand Trend</p></div>` : ""}
