@@ -129,7 +129,7 @@ export function OutreachCampaignCard({
                   onClick={() => onApproveAll(campaigns.filter((c) => c.status === "draft").map((c) => c.id))}
                 >
                   <CheckCheck className="h-3.5 w-3.5" />
-                  Approve All ({draftCount})
+                  {t("outreach.approveAll")} ({draftCount})
                 </Button>
               )}
             </div>
