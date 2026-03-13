@@ -336,7 +336,7 @@ export default function ShouldCostPage() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-base">Cost Distribution</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-base">{t("pages.shouldCost.costDistribution")}</CardTitle></CardHeader>
               <CardContent className="h-[240px]">
                 {pieData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
