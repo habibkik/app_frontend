@@ -173,11 +173,11 @@ export default function OrdersStockPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Commerce Manager</h1>
-            <p className="text-sm text-muted-foreground">Manage orders, inventory, and track performance</p>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.ordersStock.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("pages.ordersStock.subtitle")}</p>
           </div>
           <Button onClick={() => setShowAddProduct(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add Product
+            <Plus className="h-4 w-4 mr-2" /> {t("pages.ordersStock.addProduct")}
           </Button>
         </div>
 
