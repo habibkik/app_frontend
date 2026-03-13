@@ -166,7 +166,7 @@ export default function MarketIntelligencePage() {
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="ai-image" className="gap-2">
               <Sparkles className="h-4 w-4" />
-              Image Analysis
+              {t("pages.marketIntelligence.imageAnalysis")}
               {sellerResults && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   Results
