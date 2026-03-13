@@ -407,7 +407,7 @@ function ProblemAgitationForm({ config, update }: { config: ProblemAgitationBloc
       <Field label="Reinforcement"><Textarea value={config.reinforcement} onChange={(e) => update({ reinforcement: e.target.value })} rows={2} className="text-xs" /></Field>
       <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
       <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
-      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={(config as any).bgImageWidth} bgImageHeight={(config as any).bgImageHeight} fitToImage={(config as any).fitToImage} update={update} />
     </>
   );
 }
