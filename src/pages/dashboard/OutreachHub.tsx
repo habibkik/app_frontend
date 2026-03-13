@@ -199,8 +199,8 @@ export default function OutreachHub() {
 
                 {suppliersWithoutCampaigns.length > 0 && (
                   <div className="space-y-2 mt-6">
-                    <h3 className="text-sm font-medium text-muted-foreground px-1">
-                      All Suppliers — No campaigns yet ({suppliersWithoutCampaigns.length})
+                     <h3 className="text-sm font-medium text-muted-foreground px-1">
+                       {t("pages.outreachHub.noSuppliersYet")} ({suppliersWithoutCampaigns.length})
                     </h3>
                     {suppliersWithoutCampaigns.map((supplier) => (
                       <OutreachSupplierDiscoveryCard
