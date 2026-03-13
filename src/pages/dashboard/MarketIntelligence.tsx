@@ -175,7 +175,7 @@ export default function MarketIntelligencePage() {
             </TabsTrigger>
             <TabsTrigger value="text-search" className="gap-2">
               <Search className="h-4 w-4" />
-              Text Search
+              {t("pages.marketIntelligence.textSearch")}
             </TabsTrigger>
           </TabsList>
 
