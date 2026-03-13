@@ -367,7 +367,7 @@ export default function SupplierComparisonPage() {
               <CardContent className="p-5">
                 <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
                   <Award className="h-4 w-4 text-primary" />
-                  Comparison Summary
+                  {t("pages.supplierComparison.comparisonSummary")}
                 </h3>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {(() => {
