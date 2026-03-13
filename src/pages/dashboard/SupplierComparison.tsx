@@ -396,7 +396,7 @@ export default function SupplierComparisonPage() {
                           <p className="text-xs text-muted-foreground mb-1">{t("pages.supplierComparison.highestRated")}</p>
                           <p className="font-semibold text-sm">{highestRated.name}</p>
                           <Badge variant="outline" className="text-xs mt-1 text-amber-500">
-                            ★ {highestRated.rating} ({highestRated.reviewCount} reviews)
+                            ★ {highestRated.rating} ({highestRated.reviewCount} {t("pages.supplierComparison.reviews")})
                           </Badge>
                         </div>
                         <div className="rounded-lg bg-background p-3 border border-border">
