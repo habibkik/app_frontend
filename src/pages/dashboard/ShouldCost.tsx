@@ -245,10 +245,10 @@ export default function ShouldCostPage() {
                 <CardDescription className="text-xs">{t("pages.shouldCost.materialDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <InputRow label="Weight per Unit" icon={Package} suffix="kg" value={inputs.materialWeight} onChange={(v) => set("materialWeight", v)} />
-                <InputRow label="Price per Kg" icon={TrendingUp} suffix="$/kg" value={inputs.materialPricePerKg} onChange={(v) => set("materialPricePerKg", v)} />
+                <InputRow label={t("pages.shouldCost.weightPerUnit")} icon={Package} suffix="kg" value={inputs.materialWeight} onChange={(v) => set("materialWeight", v)} />
+                <InputRow label={t("pages.shouldCost.pricePerKg")} icon={TrendingUp} suffix="$/kg" value={inputs.materialPricePerKg} onChange={(v) => set("materialPricePerKg", v)} />
                 <Separator />
-                <InputRow label="Or Direct Unit Cost" icon={Package} suffix="$/unit" value={inputs.materialCostPerUnit} onChange={(v) => set("materialCostPerUnit", v)} />
+                <InputRow label={t("pages.shouldCost.orDirectUnitCost")} icon={Package} suffix="$/unit" value={inputs.materialCostPerUnit} onChange={(v) => set("materialCostPerUnit", v)} />
               </CardContent>
             </Card>
             <Card>
