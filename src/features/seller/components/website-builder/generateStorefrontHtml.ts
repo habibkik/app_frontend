@@ -92,8 +92,11 @@ function hoverCss(theme: LandingPageTheme) {
   }
 }
 
-function heroBg(theme: LandingPageTheme, imageUrl?: string) {
-  if (imageUrl) return `background-image:url('${imageUrl}');background-size:cover;background-position:center;`;
+function heroBg(theme: LandingPageTheme, imageUrl?: string, fitToImage?: boolean, bgW?: number, bgH?: number) {
+  if (imageUrl) {
+    const aspectStyle = fitToImage && bgW && bgH ? `aspect-ratio:${bgW}/${bgH};min-height:auto;` : "";
+    return `background-image:url('${imageUrl}');background-size:cover;background-position:center;${aspectStyle}`;
+  }
   if (theme.gradientEnabled) return `background:linear-gradient(${theme.gradientAngle ?? 135}deg,${theme.gradientStart || theme.primaryColor},${theme.gradientEnd || theme.accentColor});`;
   return `background:${theme.primaryColor};`;
 }
