@@ -319,14 +319,16 @@ function renderSolution(cfg: SolutionBlockConfig, theme: LandingPageTheme) {
 
 function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageTheme) {
   const values = cfg.valueItems.map((v) => `<li style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#374151;">✓ ${v}</li>`).join("");
+  const showTitle = cfg.showTitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;text-align:center;background:#fff;border-radius:${borderRadiusValue(theme.borderRadius)};padding:40px;box-shadow:${shadowValue(theme)};">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${theme.textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${theme.textColor};">${cfg.heading}</h2>` : ""}
     <ul style="list-style:none;padding:0;margin:0 0 24px;text-align:left;">${values}</ul>
     ${cfg.anchorPrice ? `<p style="color:#9ca3af;text-decoration:line-through;font-size:1.2rem;margin:0;">${cfg.anchorPrice}</p>` : ""}
     <p style="font-size:2.5rem;font-weight:800;color:${theme.primaryColor};margin:4px 0 16px;">${cfg.actualPrice}</p>
     ${cfg.scarcityText ? `<p style="color:#dc2626;font-weight:600;font-size:.9rem;margin:0 0 16px;">⚡ ${cfg.scarcityText}</p>` : ""}
-    <a href="#order" style="${btnStyle(theme)}">${cfg.ctaText}</a>
+    ${showBtn ? wrapBtn(`<a href="#order" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}">${cfg.ctaText}</a>`, cfg.buttonPosition) : ""}
   </div>`;
   const gradBg = theme.gradientEnabled
     ? `linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`
