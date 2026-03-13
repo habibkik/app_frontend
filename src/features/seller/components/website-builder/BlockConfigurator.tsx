@@ -612,7 +612,7 @@ function ImageGalleryForm({ config, update }: { config: ImageGalleryBlockConfig;
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addImage} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Image</Button>
-      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
 }
