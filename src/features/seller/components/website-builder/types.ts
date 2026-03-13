@@ -32,7 +32,17 @@ export interface BgImageDimensions {
   fitToImage?: boolean;
 }
 
-export interface HeroBlockConfig extends BgImageDimensions {
+// Shared text & button customization fields
+export interface TextButtonCustomization {
+  showTitle?: boolean;
+  showSubtitle?: boolean;
+  showButton?: boolean;
+  buttonPosition?: "left" | "center" | "right";
+  buttonColor?: string;
+  buttonTextColor?: string;
+}
+
+export interface HeroBlockConfig extends BgImageDimensions, TextButtonCustomization {
   title: string;
   subtitle: string;
   ctaText: string;
@@ -53,19 +63,19 @@ export interface AboutBlockConfig {
   imageUrl: string;
 }
 
-export interface TestimonialsBlockConfig extends BgImageDimensions {
+export interface TestimonialsBlockConfig extends BgImageDimensions, TextButtonCustomization {
   items: { quote: string; author: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface FaqBlockConfig extends BgImageDimensions {
+export interface FaqBlockConfig extends BgImageDimensions, TextButtonCustomization {
   items: { question: string; answer: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface ContactBlockConfig extends BgImageDimensions {
+export interface ContactBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   showPhone: boolean;
   showAddress: boolean;
@@ -73,26 +83,26 @@ export interface ContactBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface OrderFormBlockConfig extends BgImageDimensions {
+export interface OrderFormBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   productName: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface SocialProofBlockConfig extends BgImageDimensions {
+export interface SocialProofBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface MarketStatsBlockConfig extends BgImageDimensions {
+export interface MarketStatsBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface ProblemAgitationBlockConfig extends BgImageDimensions {
+export interface ProblemAgitationBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   intro: string;
   painPoints: { icon: string; title: string; description: string }[];
@@ -110,7 +120,7 @@ export interface SolutionBlockConfig {
   imageUrl: string;
 }
 
-export interface OfferPricingBlockConfig extends BgImageDimensions {
+export interface OfferPricingBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   valueItems: string[];
   anchorPrice: string;
@@ -124,7 +134,7 @@ export interface OfferPricingBlockConfig extends BgImageDimensions {
 
 // --- New Block Configs ---
 
-export interface FeaturesGridBlockConfig extends BgImageDimensions {
+export interface FeaturesGridBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   subtitle: string;
   items: { icon: string; title: string; description: string }[];
@@ -133,14 +143,14 @@ export interface FeaturesGridBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface PricingTableBlockConfig extends BgImageDimensions {
+export interface PricingTableBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   plans: { name: string; price: string; period: string; features: string[]; highlighted: boolean; ctaText: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface ImageGalleryBlockConfig extends BgImageDimensions {
+export interface ImageGalleryBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   images: { url: string; caption: string }[];
   columns: 2 | 3 | 4;
@@ -149,7 +159,7 @@ export interface ImageGalleryBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface VideoEmbedBlockConfig extends BgImageDimensions {
+export interface VideoEmbedBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   videoUrl: string;
   provider: "youtube" | "vimeo" | "custom";
@@ -158,7 +168,7 @@ export interface VideoEmbedBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface CountdownTimerBlockConfig extends BgImageDimensions {
+export interface CountdownTimerBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   subtitle: string;
   targetDate: string;
@@ -168,7 +178,7 @@ export interface CountdownTimerBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface NewsletterBlockConfig extends BgImageDimensions {
+export interface NewsletterBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   subtitle: string;
   buttonText: string;
@@ -177,7 +187,7 @@ export interface NewsletterBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ProductDetailBlockConfig extends BgImageDimensions {
+export interface ProductDetailBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   productName: string;
   price: string;
@@ -189,7 +199,7 @@ export interface ProductDetailBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ShoppingCartBlockConfig extends BgImageDimensions {
+export interface ShoppingCartBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   emptyMessage: string;
   ctaText: string;
@@ -197,21 +207,21 @@ export interface ShoppingCartBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface CheckoutFormBlockConfig extends BgImageDimensions {
+export interface CheckoutFormBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   enabledPaymentMethods: ("stripe" | "paypal" | "cod")[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface CustomerReviewsBlockConfig extends BgImageDimensions {
+export interface CustomerReviewsBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   reviews: { author: string; rating: number; date: string; comment: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface OrderTrackingBlockConfig extends BgImageDimensions {
+export interface OrderTrackingBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   steps: { label: string; status: "completed" | "active" | "pending" }[];
   backgroundImageUrl?: string;

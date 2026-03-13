@@ -70,19 +70,26 @@ function shadowValue(theme: LandingPageTheme) {
   }
 }
 
-function btnStyle(theme: LandingPageTheme, isPrimary = true) {
+function btnStyle(theme: LandingPageTheme, isPrimary = true, customColor?: string, customTextColor?: string) {
   const br = borderRadiusValue(theme.borderRadius);
-  const gradient = theme.gradientEnabled ? `linear-gradient(${theme.gradientAngle ?? 135}deg,${theme.gradientStart || theme.primaryColor},${theme.gradientEnd || theme.accentColor})` : theme.primaryColor;
+  const bg = customColor || theme.primaryColor;
+  const textCol = customTextColor || "#fff";
+  const gradient = theme.gradientEnabled ? `linear-gradient(${theme.gradientAngle ?? 135}deg,${customColor || theme.gradientStart || theme.primaryColor},${customColor ? bg : theme.gradientEnd || theme.accentColor})` : bg;
   switch (theme.buttonStyle) {
     case "outline":
-      return `padding:14px 32px;background:transparent;color:${theme.primaryColor};border:2px solid ${theme.primaryColor};border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:transparent;color:${customColor || theme.primaryColor};border:2px solid ${customColor || theme.primaryColor};border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
     case "pill":
-      return `padding:14px 32px;background:${isPrimary ? gradient : "transparent"};color:${isPrimary ? "#fff" : theme.primaryColor};border:${isPrimary ? "none" : `2px solid ${theme.primaryColor}`};border-radius:999px;text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:${isPrimary ? gradient : "transparent"};color:${isPrimary ? textCol : (customColor || theme.primaryColor)};border:${isPrimary ? "none" : `2px solid ${customColor || theme.primaryColor}`};border-radius:999px;text-decoration:none;font-weight:600;display:inline-block;`;
     case "gradient":
-      return `padding:14px 32px;background:${gradient};color:#fff;border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:${gradient};color:${textCol};border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
     default:
-      return `padding:14px 32px;background:${theme.primaryColor};color:#fff;border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:${bg};color:${textCol};border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
   }
+}
+
+function wrapBtn(html: string, position?: string): string {
+  const align = position || "center";
+  return `<div style="text-align:${align};">${html}</div>`;
 }
 
 const NEON_GREEN = "#39d98a";
@@ -117,11 +124,14 @@ function renderHero(cfg: HeroBlockConfig, theme: LandingPageTheme) {
   const bg = heroBg(theme, cfg.backgroundImageUrl, cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight);
   const hSize = theme.headingSize ?? 40;
   const fitPad = cfg.fitToImage && cfg.bgImageWidth && cfg.bgImageHeight ? "padding:40px 20px;" : "padding:80px 20px;";
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:900px;margin:0 auto;">
-    <h1 style="font-family:${theme.headingFont};font-size:${hSize}px;margin:0 0 16px;">${cfg.title}</h1>
-    <p style="font-size:${(theme.bodySize ?? 16) * 1.2}px;opacity:.9;margin:0 0 24px;">${cfg.subtitle}</p>
-    <a href="#order" style="${btnStyle(theme)}">${cfg.ctaText}</a>
+    ${showTitle ? `<h1 style="font-family:${theme.headingFont};font-size:${hSize}px;margin:0 0 16px;">${cfg.title}</h1>` : ""}
+    ${showSub ? `<p style="font-size:${(theme.bodySize ?? 16) * 1.2}px;opacity:.9;margin:0 0 24px;">${cfg.subtitle}</p>` : ""}
+    ${showBtn ? wrapBtn(`<a href="#order" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}">${cfg.ctaText}</a>`, cfg.buttonPosition) : ""}
   </div>`;
   return `<section style="${bg}color:#fff;${fitPad}text-align:${theme.heroStyle === "left-aligned" ? "left" : "center"};">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
@@ -165,9 +175,10 @@ function renderTestimonials(cfg: TestimonialsBlockConfig, theme: LandingPageThem
       <p style="font-style:italic;color:#374151;margin:0 0 12px;">"${t.quote}"</p>
       <p style="margin:0;font-weight:600;color:${theme.primaryColor};font-size:.9rem;">— ${t.author}</p>
     </div>`).join("");
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">What Our Customers Say</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">What Our Customers Say</h2>` : ""}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">${cards}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -181,9 +192,10 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
       <h4 style="margin:0 0 8px;font-family:${theme.headingFont};color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${f.question}</h4>
       <p style="margin:0;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;">${f.answer}</p>
     </div>`).join("");
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:700px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">Frequently Asked Questions</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">Frequently Asked Questions</h2>` : ""}
     ${items}
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -193,15 +205,17 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
 
 function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
   const br = borderRadiusValue(theme.borderRadius);
+  const showTitle = cfg.showTitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>` : ""}
     <form style="display:flex;flex-direction:column;gap:12px;">
       <input placeholder="Your Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="email" placeholder="Your Email" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       ${cfg.showPhone ? `<input type="tel" placeholder="Phone" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">` : ""}
       <textarea placeholder="Your Message" rows="4" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;resize:vertical;"></textarea>
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;">Send Message</button>
+      ${showBtn ? wrapBtn(`<button type="submit" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}cursor:pointer;">Send Message</button>`, cfg.buttonPosition) : ""}
     </form>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -211,16 +225,18 @@ function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
 
 function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
   const br = borderRadiusValue(theme.borderRadius);
+  const showTitle = cfg.showTitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>` : ""}
     <form style="display:flex;flex-direction:column;gap:12px;">
       <input placeholder="Full Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="email" placeholder="Email" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="tel" placeholder="Phone" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="number" placeholder="Quantity" min="1" value="1" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <textarea placeholder="Shipping Address" rows="3" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;resize:vertical;"></textarea>
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;">Place Order</button>
+      ${showBtn ? wrapBtn(`<button type="submit" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}cursor:pointer;">Place Order</button>`, cfg.buttonPosition) : ""}
     </form>
   </div>`;
   return `<section id="order" style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -231,9 +247,10 @@ function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
 function renderSocialProof(cfg: SocialProofBlockConfig, theme: LandingPageTheme, stats?: { postCount: number; totalEngagement: number }) {
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
   const accentColor = cfg.backgroundImageUrl ? "#fff" : theme.primaryColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:700px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:flex;justify-content:center;gap:48px;">
       <div><p style="font-size:2rem;font-weight:700;color:${accentColor};margin:0;">${stats?.postCount ?? 0}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Posts Published</p></div>
       <div><p style="font-size:2rem;font-weight:700;color:${accentColor};margin:0;">${(stats?.totalEngagement ?? 0).toLocaleString()}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Total Engagement</p></div>
@@ -248,9 +265,10 @@ function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme,
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
   const accentColor = cfg.backgroundImageUrl ? "#fff" : theme.primaryColor;
   const subColor = cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280";
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:700px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:flex;justify-content:center;gap:48px;flex-wrap:wrap;">
       ${marketData?.priceRange ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;">$${marketData.priceRange.min} – $${marketData.priceRange.max}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Market Price Range</p></div>` : ""}
       ${marketData?.demandTrend ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;text-transform:capitalize;">${marketData.demandTrend}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Demand Trend</p></div>` : ""}
@@ -264,6 +282,8 @@ function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme,
 
 function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: LandingPageTheme) {
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
   const bullets = cfg.painPoints.map((p) => `
     <div class="hoverable" style="background:#fff;border:1px solid #e5e7eb;border-radius:${borderRadiusValue(theme.borderRadius)};padding:24px;text-align:center;box-shadow:${shadowValue(theme)};">
       <div style="font-size:2rem;margin-bottom:8px;">${p.icon}</div>
@@ -272,8 +292,8 @@ function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: Landing
     </div>`).join("");
   const inner = `
   <div style="max-width:800px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${textColor};">${cfg.heading}</h2>
-    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 12px;color:${textColor};">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 32px;font-size:1.1rem;">${cfg.intro}</p>` : ""}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">${bullets}</div>
     <p style="margin-top:32px;font-size:1.15rem;font-weight:600;color:${cfg.backgroundImageUrl ? "#fff" : theme.primaryColor};">${cfg.reinforcement}</p>
   </div>`;
@@ -299,14 +319,16 @@ function renderSolution(cfg: SolutionBlockConfig, theme: LandingPageTheme) {
 
 function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageTheme) {
   const values = cfg.valueItems.map((v) => `<li style="padding:8px 0;border-bottom:1px solid #e5e7eb;color:#374151;">✓ ${v}</li>`).join("");
+  const showTitle = cfg.showTitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;text-align:center;background:#fff;border-radius:${borderRadiusValue(theme.borderRadius)};padding:40px;box-shadow:${shadowValue(theme)};">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${theme.textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${theme.textColor};">${cfg.heading}</h2>` : ""}
     <ul style="list-style:none;padding:0;margin:0 0 24px;text-align:left;">${values}</ul>
     ${cfg.anchorPrice ? `<p style="color:#9ca3af;text-decoration:line-through;font-size:1.2rem;margin:0;">${cfg.anchorPrice}</p>` : ""}
     <p style="font-size:2.5rem;font-weight:800;color:${theme.primaryColor};margin:4px 0 16px;">${cfg.actualPrice}</p>
     ${cfg.scarcityText ? `<p style="color:#dc2626;font-weight:600;font-size:.9rem;margin:0 0 16px;">⚡ ${cfg.scarcityText}</p>` : ""}
-    <a href="#order" style="${btnStyle(theme)}">${cfg.ctaText}</a>
+    ${showBtn ? wrapBtn(`<a href="#order" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}">${cfg.ctaText}</a>`, cfg.buttonPosition) : ""}
   </div>`;
   const gradBg = theme.gradientEnabled
     ? `linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`
@@ -324,10 +346,12 @@ function renderFeaturesGrid(cfg: FeaturesGridBlockConfig, theme: LandingPageThem
       <p style="margin:0;color:#6b7280;font-size:.9rem;line-height:1.5;">${item.description}</p>
     </div>`).join("");
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
-    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 40px;font-size:1.05rem;">${cfg.subtitle}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 40px;font-size:1.05rem;">${cfg.subtitle}</p>` : ""}
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:24px;">${cards}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -352,9 +376,10 @@ function renderPricingTable(cfg: PricingTableBlockConfig, theme: LandingPageThem
     </div>`;
   }).join("");
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 40px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 40px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:grid;grid-template-columns:repeat(${cfg.plans.length},1fr);gap:24px;">${plans}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -369,9 +394,10 @@ function renderImageGallery(cfg: ImageGalleryBlockConfig, theme: LandingPageThem
       ${img.caption ? `<p style="padding:8px 12px;margin:0;font-size:.85rem;color:#6b7280;background:#fff;">${img.caption}</p>` : ""}
     </div>`).join("");
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:16px;">${imgs}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -395,9 +421,10 @@ function renderVideoEmbed(cfg: VideoEmbedBlockConfig, theme: LandingPageTheme) {
     embedHtml = `<div style="width:100%;aspect-ratio:16/9;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border-radius:${borderRadiusValue(theme.borderRadius)};color:#9ca3af;">Add a video URL</div>`;
   }
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:800px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${textColor};">${cfg.heading}</h2>` : ""}
     ${embedHtml}
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -407,10 +434,13 @@ function renderVideoEmbed(cfg: VideoEmbedBlockConfig, theme: LandingPageTheme) {
 
 function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPageTheme) {
   const bg = heroBg(theme, cfg.backgroundImageUrl, cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight);
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:600px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:#fff;">${cfg.heading}</h2>
-    <p style="color:rgba(255,255,255,.8);margin:0 0 24px;font-size:1.05rem;">${cfg.subtitle}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:#fff;">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:rgba(255,255,255,.8);margin:0 0 24px;font-size:1.05rem;">${cfg.subtitle}</p>` : ""}
     <div id="countdown-display" style="display:flex;justify-content:center;gap:16px;margin-bottom:24px;">
       ${["Days", "Hours", "Minutes", "Seconds"].map((label, i) => `
       <div style="background:rgba(255,255,255,.15);padding:16px 20px;border-radius:${borderRadiusValue(theme.borderRadius)};min-width:70px;">
@@ -418,7 +448,7 @@ function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPage
         <p style="margin:4px 0 0;font-size:.75rem;color:rgba(255,255,255,.7);">${label}</p>
       </div>`).join("")}
     </div>
-    <a href="${cfg.ctaUrl || "#"}" style="${btnStyle({ ...theme, primaryColor: "#fff", buttonStyle: "filled" })}color:${theme.primaryColor};">${cfg.ctaText}</a>
+    ${showBtn ? wrapBtn(`<a href="${cfg.ctaUrl || "#"}" style="${btnStyle({ ...theme, primaryColor: "#fff", buttonStyle: "filled" } as any, true, cfg.buttonColor, cfg.buttonTextColor)}color:${cfg.buttonTextColor || theme.primaryColor};">${cfg.ctaText}</a>`, cfg.buttonPosition) : ""}
   </div>
   <script>
   (function(){
@@ -434,13 +464,16 @@ function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPage
 
 function renderNewsletter(cfg: NewsletterBlockConfig, theme: LandingPageTheme) {
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
+  const showSub = cfg.showSubtitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
-    <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 24px;font-size:.95rem;">${cfg.subtitle}</p>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>` : ""}
+    ${showSub ? `<p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 24px;font-size:.95rem;">${cfg.subtitle}</p>` : ""}
     <form style="display:flex;gap:8px;">
       <input type="email" placeholder="${cfg.placeholderText}" style="flex:1;padding:14px;border:1px solid #d1d5db;border-radius:${borderRadiusValue(theme.borderRadius)};font-size:.9rem;">
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;white-space:nowrap;">${cfg.buttonText}</button>
+      ${showBtn ? `<button type="submit" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}cursor:pointer;white-space:nowrap;">${cfg.buttonText}</button>` : ""}
     </form>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
@@ -564,9 +597,10 @@ function renderCustomerReviews(cfg: CustomerReviewsBlockConfig, theme: LandingPa
     </div>`).join("");
   const avgRating = cfg.reviews.length > 0 ? (cfg.reviews.reduce((s, r) => s + r.rating, 0) / cfg.reviews.length).toFixed(1) : "0";
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <p style="color:${theme.primaryColor};font-size:1.5rem;margin:0 0 32px;letter-spacing:2px;">${stars(Math.round(Number(avgRating)))} <span style="font-size:.9rem;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.7)" : "#9ca3af"};">(${avgRating} avg)</span></p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">${cards}</div>
   </div>`;

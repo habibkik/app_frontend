@@ -232,6 +232,88 @@ function BackgroundImageFields({ backgroundImageUrl, overlayOpacity, bgImageWidt
   );
 }
 
+// --- Reusable Text Visibility & Button Customizer ---
+
+function TextVisibilityFields({ config, update, hasSubtitle = false }: { config: any; update: (c: any) => void; hasSubtitle?: boolean }) {
+  return (
+    <div className="border rounded-md p-2 space-y-2">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Text Visibility</p>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Show Title</Label>
+        <Switch checked={config.showTitle !== false} onCheckedChange={(v) => update({ showTitle: v })} className="scale-75" />
+      </div>
+      {hasSubtitle && (
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">Show Subtitle</Label>
+          <Switch checked={config.showSubtitle !== false} onCheckedChange={(v) => update({ showSubtitle: v })} className="scale-75" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ButtonCustomizer({ config, update, hasSubtitle = false }: { config: any; update: (c: any) => void; hasSubtitle?: boolean }) {
+  const COLOR_LABELS = [
+    { key: "buttonColor", label: "Button Color" },
+    { key: "buttonTextColor", label: "Button Text" },
+  ];
+
+  return (
+    <div className="border rounded-md p-2 space-y-2">
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Button & Text</p>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Show Title</Label>
+        <Switch checked={config.showTitle !== false} onCheckedChange={(v) => update({ showTitle: v })} className="scale-75" />
+      </div>
+      {hasSubtitle && (
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">Show Subtitle</Label>
+          <Switch checked={config.showSubtitle !== false} onCheckedChange={(v) => update({ showSubtitle: v })} className="scale-75" />
+        </div>
+      )}
+      <div className="flex items-center justify-between">
+        <Label className="text-xs">Show Button</Label>
+        <Switch checked={config.showButton !== false} onCheckedChange={(v) => update({ showButton: v })} className="scale-75" />
+      </div>
+      {config.showButton !== false && (
+        <>
+          <Field label="Button Position">
+            <Select value={config.buttonPosition || "center"} onValueChange={(v) => update({ buttonPosition: v })}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="left">Left</SelectItem>
+                <SelectItem value="center">Center</SelectItem>
+                <SelectItem value="right">Right</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <div className="grid grid-cols-2 gap-2">
+            {COLOR_LABELS.map(({ key, label }) => (
+              <div key={key} className="space-y-1">
+                <Label className="text-[10px]">{label}</Label>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="color"
+                    value={config[key] || (key === "buttonColor" ? "#6366f1" : "#ffffff")}
+                    onChange={(e) => update({ [key]: e.target.value })}
+                    className="w-7 h-7 rounded border border-input cursor-pointer p-0"
+                  />
+                  <Input
+                    value={config[key] || ""}
+                    onChange={(e) => update({ [key]: e.target.value })}
+                    placeholder="Theme"
+                    className="text-xs h-7 flex-1"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // --- Sub-forms ---
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -244,6 +326,7 @@ function HeroForm({ config, update }: { config: HeroBlockConfig; update: (c: any
       <Field label="Title"><Input value={config.title} onChange={(e) => update({ title: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} hasSubtitle />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
@@ -309,6 +392,7 @@ function TestimonialsForm({ config, update }: { config: TestimonialsBlockConfig;
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Testimonial</Button>
+      <TextVisibilityFields config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
@@ -336,6 +420,7 @@ function FaqForm({ config, update }: { config: FaqBlockConfig; update: (c: any) 
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add FAQ</Button>
+      <TextVisibilityFields config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
@@ -353,6 +438,7 @@ function ContactForm({ config, update }: { config: ContactBlockConfig; update: (
         <Label className="text-xs">Show Address Field</Label>
         <Switch checked={config.showAddress} onCheckedChange={(v) => update({ showAddress: v })} className="scale-75" />
       </div>
+      <ButtonCustomizer config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
@@ -363,15 +449,17 @@ function OrderFormConfig({ config, update }: { config: OrderFormBlockConfig; upd
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Product Name"><Input value={config.productName} onChange={(e) => update({ productName: e.target.value })} className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
 }
 
-function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string; overlayOpacity?: number; bgImageWidth?: number; bgImageHeight?: number; fitToImage?: boolean }; update: (c: any) => void }) {
+function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string; overlayOpacity?: number; bgImageWidth?: number; bgImageHeight?: number; fitToImage?: boolean; showTitle?: boolean }; update: (c: any) => void }) {
   return (
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <TextVisibilityFields config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
@@ -466,6 +554,7 @@ function OfferPricingForm({ config, update }: { config: OfferPricingBlockConfig;
       </div>
       <Field label="Scarcity Text (optional)"><Input value={config.scarcityText} onChange={(e) => update({ scarcityText: e.target.value })} className="text-xs h-8" placeholder="Only 50 left!" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} />
       <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
       <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
@@ -488,6 +577,7 @@ function FeaturesGridForm({ config, update }: { config: FeaturesGridBlockConfig;
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
+      <TextVisibilityFields config={config} update={update} hasSubtitle />
       <Field label="Columns">
         <Select value={String(config.columns)} onValueChange={(v) => update({ columns: Number(v) })}>
           <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
@@ -546,6 +636,7 @@ function PricingTableForm({ config, update }: { config: PricingTableBlockConfig;
   return (
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <TextVisibilityFields config={config} update={update} />
       {config.plans.map((plan: any, idx: number) => (
         <div key={idx} className="space-y-1.5 border rounded-md p-2">
           <div className="flex items-center justify-between">
@@ -649,6 +740,7 @@ function CountdownTimerForm({ config, update }: { config: CountdownTimerBlockCon
       <Field label="Target Date"><Input type="date" value={config.targetDate} onChange={(e) => update({ targetDate: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="CTA Link"><Input value={config.ctaUrl} onChange={(e) => update({ ctaUrl: e.target.value })} placeholder="#contact" className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} hasSubtitle />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
@@ -661,6 +753,7 @@ function NewsletterForm({ config, update }: { config: NewsletterBlockConfig; upd
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Button Text"><Input value={config.buttonText} onChange={(e) => update({ buttonText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Placeholder Text"><Input value={config.placeholderText} onChange={(e) => update({ placeholderText: e.target.value })} className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} hasSubtitle />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
