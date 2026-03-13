@@ -392,6 +392,7 @@ function TestimonialsForm({ config, update }: { config: TestimonialsBlockConfig;
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={addItem} className="w-full text-xs h-7"><Plus className="h-3 w-3 mr-1" />Add Testimonial</Button>
+      <TextVisibilityFields config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
