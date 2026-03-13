@@ -64,6 +64,7 @@ function getStockCount(product: Product): number {
 }
 
 export default function OrdersStockPage() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
