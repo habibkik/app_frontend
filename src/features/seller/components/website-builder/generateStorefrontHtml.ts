@@ -225,16 +225,18 @@ function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
 
 function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
   const br = borderRadiusValue(theme.borderRadius);
+  const showTitle = cfg.showTitle !== false;
+  const showBtn = cfg.showButton !== false;
   const inner = `
   <div style="max-width:500px;margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>` : ""}
     <form style="display:flex;flex-direction:column;gap:12px;">
       <input placeholder="Full Name" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="email" placeholder="Email" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="tel" placeholder="Phone" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <input type="number" placeholder="Quantity" min="1" value="1" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;">
       <textarea placeholder="Shipping Address" rows="3" style="padding:12px;border:1px solid #d1d5db;border-radius:${br};font-size:.9rem;resize:vertical;"></textarea>
-      <button type="submit" style="${btnStyle(theme)}cursor:pointer;">Place Order</button>
+      ${showBtn ? wrapBtn(`<button type="submit" style="${btnStyle(theme, true, cfg.buttonColor, cfg.buttonTextColor)}cursor:pointer;">Place Order</button>`, cfg.buttonPosition) : ""}
     </form>
   </div>`;
   return `<section id="order" style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
