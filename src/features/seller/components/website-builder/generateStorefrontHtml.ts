@@ -247,9 +247,10 @@ function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
 function renderSocialProof(cfg: SocialProofBlockConfig, theme: LandingPageTheme, stats?: { postCount: number; totalEngagement: number }) {
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
   const accentColor = cfg.backgroundImageUrl ? "#fff" : theme.primaryColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:700px;margin:0 auto;text-align:center;">
-    <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:flex;justify-content:center;gap:48px;">
       <div><p style="font-size:2rem;font-weight:700;color:${accentColor};margin:0;">${stats?.postCount ?? 0}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Posts Published</p></div>
       <div><p style="font-size:2rem;font-weight:700;color:${accentColor};margin:0;">${(stats?.totalEngagement ?? 0).toLocaleString()}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Total Engagement</p></div>
