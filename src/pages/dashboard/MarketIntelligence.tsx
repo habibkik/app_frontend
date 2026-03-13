@@ -82,8 +82,8 @@ export default function MarketIntelligencePage() {
     } catch (error) {
       console.error("Analysis error:", error);
       toast({
-        title: "Analysis Failed",
-        description: "There was an error analyzing your image. Please try again.",
+        title: t("pages.marketIntelligence.analysisFailed"),
+        description: t("pages.marketIntelligence.analysisFailedDesc"),
         variant: "destructive",
       });
     } finally {
