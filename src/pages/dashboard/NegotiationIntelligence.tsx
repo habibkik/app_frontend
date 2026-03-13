@@ -298,7 +298,7 @@ export default function NegotiationIntelligencePage() {
                 {quotes.map((q, idx) => (
                   <div key={q.id} className="space-y-2 p-3 rounded-lg border bg-muted/30">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-muted-foreground">Quote #{idx + 1}</span>
+                      <span className="text-xs font-medium text-muted-foreground">{t("pages.negotiation.quote")} #{idx + 1}</span>
                       {quotes.length > 1 && (
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeQuote(q.id)}>
                           <Trash2 className="h-3 w-3" />
