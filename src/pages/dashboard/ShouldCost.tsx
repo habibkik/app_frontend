@@ -303,7 +303,7 @@ export default function ShouldCostPage() {
           <motion.div variants={item} className="space-y-4">
             <Card className="border-primary/30 bg-primary/5 sticky top-4">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Should-Cost Result</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />{t("pages.shouldCost.shouldCostResult")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center py-3">
