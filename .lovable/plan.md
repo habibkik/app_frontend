@@ -1,35 +1,28 @@
 
 
-## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
+# Plan: Add Color Chooser & Brand Kit Toggle to Marketing Creatives Settings
 
-### What Changes
+## What We're Building
+Add a **custom color picker** and a **"Use Brand Kit Colors" toggle** inside the existing Marketing Creatives Settings panel. When the toggle is on, colors come from the user's saved Brand Kit. When off, the user can manually pick up to 4 custom marketing colors. These colors get passed to the edge function as `marketingColors` and injected into marketing prompts.
 
-Replace the plain "Product Title" text input with a **combo dropdown** that lists:
-1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
-2. A **"Custom Product (Manual Entry)"** blank option at the top
+## Changes
 
-When the user selects a Market Intelligence product, the system:
-- Sets the `title` to the product name
-- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
-- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
-- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
-- Shows the "Imported from" banner
+### 1. `ProImageGenerationTab.tsx`
+- Add state: `marketingColors: string[]` (default empty), `useBrandKitColors: boolean` (default `true`)
+- Add a new row in the Marketing Settings card (below the existing 4-column grid):
+  - A Switch: "Use Brand Kit Colors" — when on, grays out the manual picker
+  - When off, show up to 4 color swatches with a color input picker (same pattern as BrandKitPanel)
+- When building the request body for `marketing-*` images, include `marketingColors`:
+  - If `useBrandKitColors` is true, send `brandKit.colors`
+  - If false, send the manually chosen `marketingColors`
 
-When "Custom Product" is selected → clears the title field so the user can type manually.
+### 2. Edge Function (`generate-product-images/index.ts`)
+- Add `marketingColors?: string[]` to `ImageRequest`
+- In the marketing prompt injection block (around line 185), if `marketingColors` is present and non-empty, append: `"Use these specific colors for the design palette: ${colors.join(', ')}. These should be the primary and accent colors in all visual elements."`
+- This takes priority over the general `brandColors` injection for marketing images
 
-### File to Edit
-
-**`src/features/marketplace/components/TabProductListing.tsx`**:
-
-1. Import `useAnalysisStore` and read `history` and `sellerResults`
-2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
-   - First option: `"custom"` → "Custom Product (Manual Entry)"
-   - Then each unique `history` item showing `productName — category`
-3. Add `handleProductSelect(value)` function:
-   - If `"custom"` → clear title, let user type in a text input that appears below
-   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
-4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
-5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
-
-### No database changes needed
+### 3. UI Details
+- The color picker row uses the same compact swatch + `<input type="color">` + Plus/X pattern from BrandKitPanel
+- Maximum 4 colors (primary, secondary, accent, background)
+- Labels: "Primary", "Secondary", "Accent", "Background" shown as tiny text under each swatch
 
