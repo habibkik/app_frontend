@@ -158,7 +158,7 @@ export interface VideoEmbedBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface CountdownTimerBlockConfig {
+export interface CountdownTimerBlockConfig extends BgImageDimensions {
   heading: string;
   subtitle: string;
   targetDate: string;
