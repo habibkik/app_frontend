@@ -168,7 +168,7 @@ export interface CountdownTimerBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface NewsletterBlockConfig {
+export interface NewsletterBlockConfig extends BgImageDimensions {
   heading: string;
   subtitle: string;
   buttonText: string;
