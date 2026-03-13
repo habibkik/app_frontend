@@ -59,7 +59,7 @@ export interface TestimonialsBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface FaqBlockConfig {
+export interface FaqBlockConfig extends BgImageDimensions {
   items: { question: string; answer: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
