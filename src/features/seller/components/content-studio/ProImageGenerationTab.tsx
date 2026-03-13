@@ -61,6 +61,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
     ugc: true,
     usage: true,
     studio: true,
+    marketing: true,
   });
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
 
