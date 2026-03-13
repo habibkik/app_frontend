@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,7 @@ export function OutreachCampaignCard({
   onUpdateMessage,
   onDelete,
 }: OutreachCampaignCardProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [viewMode, setViewMode] = useState<"list" | "timeline">("timeline");
   const draftCount = campaigns.filter((c) => c.status === "draft").length;
@@ -103,7 +105,7 @@ export function OutreachCampaignCard({
                 )}
               </div>
               <Badge variant="secondary" className="text-xs">
-                {campaigns.length} channels
+                {campaigns.length} {t("outreach.channels")}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -116,7 +118,7 @@ export function OutreachCampaignCard({
                   <button
                     className={`px-2 py-1 text-xs ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
                     onClick={() => setViewMode("list")}
-                  >List</button>
+                  >{t("outreach.list")}</button>
                 </div>
               )}
               {draftCount > 0 && (
@@ -127,7 +129,7 @@ export function OutreachCampaignCard({
                   onClick={() => onApproveAll(campaigns.filter((c) => c.status === "draft").map((c) => c.id))}
                 >
                   <CheckCheck className="h-3.5 w-3.5" />
-                  Approve All ({draftCount})
+                  {t("outreach.approveAll")} ({draftCount})
                 </Button>
               )}
             </div>

@@ -1,41 +1,54 @@
 import { Card } from "@/components/ui/card";
 import { Search, RefreshCw, Shield, FileSearch, MessageSquare, Target } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type CampaignObjective = "sourcing" | "renewal" | "dual" | "esg" | "rfq-followup" | "general";
 
-const OBJECTIVES: { id: CampaignObjective; label: string; description: string; icon: React.ReactNode }[] = [
-  { id: "sourcing", label: "Supplier Sourcing", description: "Find and qualify new suppliers", icon: <Search className="h-5 w-5" /> },
-  { id: "renewal", label: "Contract Renewal", description: "Competitive pressure before renegotiation", icon: <RefreshCw className="h-5 w-5" /> },
-  { id: "dual", label: "Dual Sourcing", description: "Find backup supplier", icon: <Shield className="h-5 w-5" /> },
-  { id: "esg", label: "ESG Compliance", description: "Request updated certifications", icon: <FileSearch className="h-5 w-5" /> },
-  { id: "rfq-followup", label: "RFQ Follow-up", description: "Follow up on sent RFQs", icon: <MessageSquare className="h-5 w-5" /> },
-  { id: "general", label: "General Inquiry", description: "Custom outreach", icon: <Target className="h-5 w-5" /> },
-];
+const OBJECTIVE_ICONS: Record<CampaignObjective, React.ReactNode> = {
+  sourcing: <Search className="h-5 w-5" />,
+  renewal: <RefreshCw className="h-5 w-5" />,
+  dual: <Shield className="h-5 w-5" />,
+  esg: <FileSearch className="h-5 w-5" />,
+  "rfq-followup": <MessageSquare className="h-5 w-5" />,
+  general: <Target className="h-5 w-5" />,
+};
 
 interface CampaignObjectiveSelectorProps {
   selected: CampaignObjective;
   onSelect: (objective: CampaignObjective) => void;
 }
 
+const OBJECTIVE_KEYS: Record<CampaignObjective, { labelKey: string; descKey: string }> = {
+  sourcing: { labelKey: "outreach.supplierSourcing", descKey: "outreach.supplierSourcingDesc" },
+  renewal: { labelKey: "outreach.contractRenewal", descKey: "outreach.contractRenewalDesc" },
+  dual: { labelKey: "outreach.dualSourcing", descKey: "outreach.dualSourcingDesc" },
+  esg: { labelKey: "outreach.esgCompliance", descKey: "outreach.esgComplianceDesc" },
+  "rfq-followup": { labelKey: "outreach.rfqFollowupLabel", descKey: "outreach.rfqFollowupDesc" },
+  general: { labelKey: "outreach.generalInquiry", descKey: "outreach.generalInquiryDesc" },
+};
+
 export function CampaignObjectiveSelector({ selected, onSelect }: CampaignObjectiveSelectorProps) {
+  const { t } = useTranslation();
+  const objectives = (Object.keys(OBJECTIVE_ICONS) as CampaignObjective[]);
+
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium text-muted-foreground">Campaign Objective</h3>
+      <h3 className="text-sm font-medium text-muted-foreground">{t("outreach.campaignObjective")}</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-        {OBJECTIVES.map((obj) => (
+        {objectives.map((id) => (
           <Card
-            key={obj.id}
+            key={id}
             className={`p-3 cursor-pointer transition-all hover:border-primary/50 ${
-              selected === obj.id ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-border/50"
+              selected === id ? "border-primary bg-primary/5 ring-1 ring-primary/20" : "border-border/50"
             }`}
-            onClick={() => onSelect(obj.id)}
+            onClick={() => onSelect(id)}
           >
             <div className="flex flex-col items-center text-center gap-1.5">
-              <div className={`${selected === obj.id ? "text-primary" : "text-muted-foreground"}`}>
-                {obj.icon}
+              <div className={`${selected === id ? "text-primary" : "text-muted-foreground"}`}>
+                {OBJECTIVE_ICONS[id]}
               </div>
-              <span className="text-xs font-medium leading-tight">{obj.label}</span>
-              <span className="text-[10px] text-muted-foreground leading-tight">{obj.description}</span>
+              <span className="text-xs font-medium leading-tight">{t(OBJECTIVE_KEYS[id].labelKey)}</span>
+              <span className="text-[10px] text-muted-foreground leading-tight">{t(OBJECTIVE_KEYS[id].descKey)}</span>
             </div>
           </Card>
         ))}
