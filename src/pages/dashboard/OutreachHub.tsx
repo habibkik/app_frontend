@@ -154,7 +154,7 @@ export default function OutreachHub() {
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
-              History
+              {t("pages.outreachHub.history")}
               {sentCampaigns.filter((c) => c.response_received).length > 0 && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   {sentCampaigns.filter((c) => c.response_received).length}
