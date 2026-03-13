@@ -88,6 +88,7 @@ function InputRow({
 }
 
 export default function ShouldCostPage() {
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState<CostInputs>(DEFAULT_INPUTS);
   const fc = useFormatCurrency();
   const producerResults = useAnalysisStore((s) => s.producerResults);
