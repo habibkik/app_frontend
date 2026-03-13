@@ -4,6 +4,7 @@
  * Shows supplier cards with sorting & filtering controls.
  */
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { MapPin, Star, DollarSign, Map, ArrowRight, Building2, ArrowUpDown, Filter, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,31 +29,32 @@ type SortKey = "matchScore" | "priceMin" | "priceMax" | "country" | "name";
 type SortDir = "asc" | "desc";
 type ScoreTier = "all" | "excellent" | "good" | "fair";
 
-const sortLabels: Record<SortKey, string> = {
-  matchScore: "Match Score",
-  priceMin: "Price (Low)",
-  priceMax: "Price (High)",
-  country: "Country",
-  name: "Name",
-};
-
 function matchScoreColor(score: number) {
   if (score >= 80) return "text-emerald-600 bg-emerald-500/10 border-emerald-500/30";
   if (score >= 60) return "text-amber-600 bg-amber-500/10 border-amber-500/30";
   return "text-muted-foreground bg-muted border-border";
 }
 
-function matchScoreLabel(score: number) {
-  if (score >= 80) return "Excellent";
-  if (score >= 60) return "Good";
-  return "Fair";
-}
-
 export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGridProps) {
+  const { t } = useTranslation();
   const [sortKey, setSortKey] = useState<SortKey>("matchScore");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [scoreTier, setScoreTier] = useState<ScoreTier>("all");
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
+
+  const sortLabels: Record<SortKey, string> = {
+    matchScore: t("buyerGrid.sortMatchScore"),
+    priceMin: t("buyerGrid.sortPriceLow"),
+    priceMax: t("buyerGrid.sortPriceHigh"),
+    country: t("buyerGrid.sortCountry"),
+    name: t("buyerGrid.sortName"),
+  };
+
+  function matchScoreLabel(score: number) {
+    if (score >= 80) return t("buyerGrid.excellent");
+    if (score >= 60) return t("buyerGrid.good");
+    return t("buyerGrid.fair");
+  }
 
   // Unique countries for filter dropdown
   const countries = useMemo(
@@ -103,9 +105,9 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
           <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
             <Building2 className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="font-semibold text-lg mb-2">No Suppliers Found</h3>
+          <h3 className="font-semibold text-lg mb-2">{t("buyerGrid.noSuppliersFound")}</h3>
           <p className="text-muted-foreground text-sm">
-            Run a buyer analysis to discover suppliers with geographic data.
+            {t("buyerGrid.noSuppliersDescription")}
           </p>
         </CardContent>
       </Card>
@@ -127,7 +129,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
         <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
-            Supplier Locations
+            {t("buyerGrid.supplierLocations")}
           </CardTitle>
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -144,7 +146,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                 {(Object.keys(sortLabels) as SortKey[]).map((key) => (
                   <DropdownMenuItem key={key} onClick={() => handleSort(key)} className={cn(sortKey === key && "font-semibold")}>
                     {sortLabels[key]}
-                    {sortKey === key && <span className="ml-auto text-xs text-muted-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
+                    {sortKey === key && <span className="ms-auto text-xs text-muted-foreground">{sortDir === "asc" ? "↑" : "↓"}</span>}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -155,13 +157,13 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
                   <Star className="h-3.5 w-3.5" />
-                  {scoreTier === "all" ? "All Tiers" : scoreTier.charAt(0).toUpperCase() + scoreTier.slice(1)}
+                  {scoreTier === "all" ? t("buyerGrid.allTiers") : t(`buyerGrid.${scoreTier}`)}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="z-50 bg-popover">
                 {(["all", "excellent", "good", "fair"] as ScoreTier[]).map((tier) => (
                   <DropdownMenuItem key={tier} onClick={() => setScoreTier(tier)} className={cn(scoreTier === tier && "font-semibold")}>
-                    {tier === "all" ? "All Tiers" : tier === "excellent" ? "Excellent (80%+)" : tier === "good" ? "Good (60–79%)" : "Fair (<60%)"}
+                    {tier === "all" ? t("buyerGrid.allTiers") : tier === "excellent" ? `${t("buyerGrid.excellent")} (80%+)` : tier === "good" ? `${t("buyerGrid.good")} (60–79%)` : `${t("buyerGrid.fair")} (<60%)`}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -173,12 +175,12 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs h-8">
                     <Filter className="h-3.5 w-3.5" />
-                    {countryFilter ?? "All Countries"}
+                    {countryFilter ?? t("buyerGrid.allCountries")}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="z-50 bg-popover max-h-60 overflow-y-auto">
                   <DropdownMenuItem onClick={() => setCountryFilter(null)} className={cn(!countryFilter && "font-semibold")}>
-                    All Countries
+                    {t("buyerGrid.allCountries")}
                   </DropdownMenuItem>
                   {countries.map((c) => (
                     <DropdownMenuItem key={c} onClick={() => setCountryFilter(c)} className={cn(countryFilter === c && "font-semibold")}>
@@ -198,7 +200,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                 onClick={() => { setScoreTier("all"); setCountryFilter(null); }}
               >
                 <X className="h-3 w-3" />
-                Clear
+                {t("buyerGrid.clear")}
               </Button>
             )}
           </div>
@@ -206,14 +208,14 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
 
         {/* Result count */}
         <p className="text-xs text-muted-foreground mt-1">
-          Showing {sorted.length} of {entities.length} suppliers
+          {t("buyerGrid.showing", { count: sorted.length, total: entities.length })}
         </p>
       </CardHeader>
 
       <CardContent>
         {sorted.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground text-sm">
-            No suppliers match the current filters.
+            {t("buyerGrid.noMatch")}
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -246,7 +248,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                       </span>
                     </div>
                     {score > 0 && (
-                      <Badge variant="outline" className={cn("text-xs ml-2 shrink-0", scoreClass)}>
+                      <Badge variant="outline" className={cn("text-xs ms-2 shrink-0", scoreClass)}>
                         {matchScoreLabel(score)}
                       </Badge>
                     )}
@@ -258,7 +260,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-muted-foreground flex items-center gap-1">
                           <Star className="h-3 w-3" />
-                          Match Score
+                          {t("buyerGrid.matchScore")}
                         </span>
                         <span className="font-semibold">{score}%</span>
                       </div>
@@ -271,7 +273,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                     <div className="flex items-center justify-between text-sm">
                       <span className="flex items-center gap-1.5 text-muted-foreground">
                         <DollarSign className="h-3.5 w-3.5" />
-                        Price Range
+                        {t("buyerGrid.priceRange")}
                       </span>
                       <span className="font-medium text-foreground">
                         ${entity.priceRange.min} – ${entity.priceRange.max}
@@ -283,7 +285,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                   <div className="flex items-center justify-between text-sm mt-2">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
                       <MapPin className="h-3.5 w-3.5" />
-                      Country
+                      {t("buyerGrid.country")}
                     </span>
                     <span className="font-medium text-foreground">{entity.geoLocation.country}</span>
                   </div>
@@ -292,7 +294,7 @@ export function BuyerSupplierGrid({ entities, onSelectEntity }: BuyerSupplierGri
                   {onSelectEntity && (
                     <div className="mt-3 pt-2 border-t border-border flex items-center justify-end gap-1 text-xs text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity">
                       <Map className="h-3 w-3" />
-                      <span>View on map</span>
+                      <span>{t("buyerGrid.viewOnMap")}</span>
                       <ArrowRight className="h-3 w-3" />
                     </div>
                   )}

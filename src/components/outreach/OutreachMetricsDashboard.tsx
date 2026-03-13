@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,21 +16,21 @@ interface OutreachMetricsDashboardProps {
   campaigns: OutreachCampaign[];
 }
 
-function StatusBadge({ actual, target, inverse }: { actual: number; target: number; inverse?: boolean }) {
+function StatusBadge({ actual, target, inverse, t }: { actual: number; target: number; inverse?: boolean; t: (key: string) => string }) {
   const ratio = inverse ? target / (actual || 1) : actual / (target || 1);
-  if (ratio >= 0.9) return <Badge className="bg-emerald-500/10 text-emerald-600 text-xs">On Track</Badge>;
-  if (ratio >= 0.6) return <Badge className="bg-amber-500/10 text-amber-600 text-xs">Needs Attention</Badge>;
-  return <Badge className="bg-destructive/10 text-destructive text-xs">Below Target</Badge>;
+  if (ratio >= 0.9) return <Badge className="bg-emerald-500/10 text-emerald-600 text-xs">{t("outreachMetrics.onTrack")}</Badge>;
+  if (ratio >= 0.6) return <Badge className="bg-amber-500/10 text-amber-600 text-xs">{t("outreachMetrics.needsAttention")}</Badge>;
+  return <Badge className="bg-destructive/10 text-destructive text-xs">{t("outreachMetrics.belowTarget")}</Badge>;
 }
 
 // Funnel data
-const funnelStages = [
-  { stage: "Total Leads", count: 2500, icon: Users, delta: "+12%" },
-  { stage: "Messages Sent", count: 2100, icon: Send, delta: "+8%" },
-  { stage: "Opened / Seen", count: 1470, icon: Eye, delta: "+5%" },
-  { stage: "Replied", count: 420, icon: MessageSquare, delta: "+18%" },
-  { stage: "Meeting Booked", count: 105, icon: Calendar, delta: "+22%" },
-  { stage: "Converted / Won", count: 42, icon: Trophy, delta: "+15%" },
+const funnelStageKeys = [
+  { stageKey: "outreach.totalLeads", count: 2500, icon: Users, delta: "+12%" },
+  { stageKey: "outreach.messagesSent", count: 2100, icon: Send, delta: "+8%" },
+  { stageKey: "outreach.openedSeen", count: 1470, icon: Eye, delta: "+5%" },
+  { stageKey: "outreach.replied", count: 420, icon: MessageSquare, delta: "+18%" },
+  { stageKey: "outreach.meetingBooked", count: 105, icon: Calendar, delta: "+22%" },
+  { stageKey: "outreach.convertedWon", count: 42, icon: Trophy, delta: "+15%" },
 ];
 
 const channelPerformance = [
@@ -51,13 +52,8 @@ const messagePerformance = [
   { variant: "LinkedIn - Connection Note", subject: "Noticed your work in...", openRate: 45, replyRate: 28, channel: "LinkedIn", status: "testing" as const },
 ];
 
-const statusConfig = {
-  winner: { label: "🏆 Winner", className: "bg-emerald-500/10 text-emerald-600" },
-  testing: { label: "⚠️ Testing", className: "bg-amber-500/10 text-amber-600" },
-  underperforming: { label: "🔻 Under", className: "bg-destructive/10 text-destructive" },
-};
-
 export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboardProps) {
+  const { t } = useTranslation();
   const [showPercentages, setShowPercentages] = useState(false);
 
   const total = campaigns.length;
@@ -73,22 +69,28 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
   const qualifiedSuppliers = Math.floor(responded * 0.6);
   const rfqsSent = Math.floor(qualifiedSuppliers * 0.5);
 
+  const statusConfig = {
+    winner: { label: t("outreach.winner"), className: "bg-emerald-500/10 text-emerald-600" },
+    testing: { label: t("outreach.testing"), className: "bg-amber-500/10 text-amber-600" },
+    underperforming: { label: t("outreach.underperforming"), className: "bg-destructive/10 text-destructive" },
+  };
+
   const metrics = [
-    { label: "Open Rate", target: "45–65%", actual: `${openRate}%`, targetNum: 50, actualNum: openRate },
-    { label: "Reply Rate", target: "8–20%", actual: `${replyRate}%`, targetNum: 12, actualNum: replyRate },
-    { label: "Positive Reply Rate", target: ">5%", actual: `${positiveReplyRate}%`, targetNum: 5, actualNum: positiveReplyRate },
-    { label: "Bounce Rate", target: "<3%", actual: `${bounceRate}%`, targetNum: 3, actualNum: bounceRate, inverse: true },
-    { label: "LinkedIn Acceptance", target: ">30%", actual: `${linkedinAcceptance}%`, targetNum: 30, actualNum: linkedinAcceptance },
-    { label: "Meetings Booked", target: "—", actual: `${meetingsBooked}`, targetNum: 5, actualNum: meetingsBooked },
-    { label: "Qualified Suppliers", target: "—", actual: `${qualifiedSuppliers}`, targetNum: 3, actualNum: qualifiedSuppliers },
-    { label: "RFQs Sent", target: "—", actual: `${rfqsSent}`, targetNum: 2, actualNum: rfqsSent },
+    { label: t("outreachMetrics.openRate"), target: "45–65%", actual: `${openRate}%`, targetNum: 50, actualNum: openRate },
+    { label: t("outreachMetrics.replyRate"), target: "8–20%", actual: `${replyRate}%`, targetNum: 12, actualNum: replyRate },
+    { label: t("outreach.positiveReplyRate"), target: ">5%", actual: `${positiveReplyRate}%`, targetNum: 5, actualNum: positiveReplyRate },
+    { label: t("outreach.bounceRate"), target: "<3%", actual: `${bounceRate}%`, targetNum: 3, actualNum: bounceRate, inverse: true },
+    { label: t("outreach.linkedinAcceptance"), target: ">30%", actual: `${linkedinAcceptance}%`, targetNum: 30, actualNum: linkedinAcceptance },
+    { label: t("outreach.meetingsBooked"), target: "—", actual: `${meetingsBooked}`, targetNum: 5, actualNum: meetingsBooked },
+    { label: t("outreach.qualifiedSuppliers"), target: "—", actual: `${qualifiedSuppliers}`, targetNum: 3, actualNum: qualifiedSuppliers },
+    { label: t("outreach.rfqsSent"), target: "—", actual: `${rfqsSent}`, targetNum: 2, actualNum: rfqsSent },
   ];
 
   const statCards = [
-    { label: "Total Campaigns", value: total, icon: <Send className="h-4 w-4" />, color: "text-primary" },
-    { label: "Sent / Approved", value: sent, icon: <Mail className="h-4 w-4" />, color: "text-emerald-600" },
-    { label: "Responses", value: responded, icon: <MessageSquare className="h-4 w-4" />, color: "text-amber-600" },
-    { label: "Reply Rate", value: `${replyRate}%`, icon: <TrendingUp className="h-4 w-4" />, color: "text-primary" },
+    { label: t("outreachMetrics.totalCampaigns"), value: total, icon: <Send className="h-4 w-4" />, color: "text-primary" },
+    { label: t("outreachMetrics.sentApproved"), value: sent, icon: <Mail className="h-4 w-4" />, color: "text-emerald-600" },
+    { label: t("outreachMetrics.responses"), value: responded, icon: <MessageSquare className="h-4 w-4" />, color: "text-amber-600" },
+    { label: t("outreachMetrics.replyRate"), value: `${replyRate}%`, icon: <TrendingUp className="h-4 w-4" />, color: "text-primary" },
   ];
 
   const chartData = showPercentages
@@ -133,24 +135,24 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
       {/* Conversion Funnel */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Conversion Funnel</CardTitle>
+          <CardTitle className="text-base">{t("outreachMetrics.conversionFunnel")}</CardTitle>
         </CardHeader>
         <CardContent>
           <TooltipProvider>
             <div className="space-y-1">
-              {funnelStages.map((stage, idx) => {
-                const maxCount = funnelStages[0].count;
+              {funnelStageKeys.map((stage, idx) => {
+                const maxCount = funnelStageKeys[0].count;
                 const widthPct = Math.max(20, (stage.count / maxCount) * 100);
                 const convRate = idx > 0
-                  ? Math.round((stage.count / funnelStages[idx - 1].count) * 100)
+                  ? Math.round((stage.count / funnelStageKeys[idx - 1].count) * 100)
                   : 100;
                 const StageIcon = stage.icon;
                 return (
-                  <div key={stage.stage}>
+                  <div key={stage.stageKey}>
                     {idx > 0 && (
                       <div className="flex items-center justify-center gap-1 py-0.5">
                         <ArrowDown className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-[10px] text-muted-foreground font-medium">{convRate}% conversion</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">{convRate}% {t("outreach.conversion")}</span>
                       </div>
                     )}
                     <Tooltip>
@@ -163,14 +165,14 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
                           <div className="relative flex items-center justify-between px-3 py-2">
                             <div className="flex items-center gap-2">
                               <StageIcon className="h-3.5 w-3.5 text-primary" />
-                              <span className="text-xs font-medium">{stage.stage}</span>
+                              <span className="text-xs font-medium">{t(stage.stageKey)}</span>
                             </div>
                             <span className="text-sm font-bold">{stage.count.toLocaleString()}</span>
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p className="text-xs">vs. last month: {stage.delta}</p>
+                        <p className="text-xs">{t("outreachMetrics.vsLastMonth", { delta: stage.delta })}</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -185,13 +187,13 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
       <Card className="border-border/50">
         <CardHeader className="pb-3 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base">Channel Performance</CardTitle>
+            <CardTitle className="text-base">{t("outreachMetrics.channelPerformance")}</CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              🏆 Best performing: <span className="font-medium text-foreground">{bestChannel.channel}</span> ({bestChannel.sent > 0 ? Math.round((bestChannel.replied / bestChannel.sent) * 100) : 0}% reply rate)
+              🏆 {t("outreachMetrics.bestPerforming")}: <span className="font-medium text-foreground">{bestChannel.channel}</span> ({bestChannel.sent > 0 ? Math.round((bestChannel.replied / bestChannel.sent) * 100) : 0}% {t("outreachMetrics.replyRate").toLowerCase()})
             </p>
           </div>
           <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => setShowPercentages(!showPercentages)}>
-            {showPercentages ? "Show Numbers" : "Show Rates"}
+            {showPercentages ? t("outreachMetrics.showNumbers") : t("outreachMetrics.showRates")}
           </Button>
         </CardHeader>
         <CardContent>
@@ -224,7 +226,7 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
       {/* A/B Test Performance */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Message Performance Insights</CardTitle>
+          <CardTitle className="text-base">{t("outreachMetrics.messagePerformanceInsights")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -242,16 +244,16 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
                     <div className="flex items-center gap-4">
                       <div>
                         <p className="text-lg font-bold">{mp.openRate}%</p>
-                        <p className="text-[10px] text-muted-foreground">Open Rate</p>
+                        <p className="text-[10px] text-muted-foreground">{t("outreachMetrics.openRate")}</p>
                       </div>
                       <div>
                         <p className="text-lg font-bold">{mp.replyRate}%</p>
-                        <p className="text-[10px] text-muted-foreground">Reply Rate</p>
+                        <p className="text-[10px] text-muted-foreground">{t("outreachMetrics.replyRate")}</p>
                       </div>
                     </div>
                     {mp.status === "winner" && mp.replyRate > 20 && (
                       <p className="text-[10px] text-emerald-600 font-medium">
-                        💡 Recommended — {mp.replyRate}% reply rate, above average
+                        {t("outreachMetrics.recommended", { rate: mp.replyRate })}
                       </p>
                     )}
                   </CardContent>
@@ -265,16 +267,16 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
       {/* Performance Table */}
       <Card className="border-border/50">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Performance Summary</CardTitle>
+          <CardTitle className="text-base">{t("outreachMetrics.performanceSummary")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Metric</TableHead>
-                <TableHead>Target</TableHead>
-                <TableHead>Actual</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("outreachMetrics.metric")}</TableHead>
+                <TableHead>{t("outreachMetrics.target")}</TableHead>
+                <TableHead>{t("outreachMetrics.actual")}</TableHead>
+                <TableHead>{t("common.status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -284,7 +286,7 @@ export function OutreachMetricsDashboard({ campaigns }: OutreachMetricsDashboard
                   <TableCell className="text-sm text-muted-foreground">{m.target}</TableCell>
                   <TableCell className="text-sm font-semibold">{m.actual}</TableCell>
                   <TableCell>
-                    <StatusBadge actual={m.actualNum} target={m.targetNum} inverse={m.inverse} />
+                    <StatusBadge actual={m.actualNum} target={m.targetNum} inverse={m.inverse} t={t} />
                   </TableCell>
                 </TableRow>
               ))}

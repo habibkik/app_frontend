@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -17,8 +18,8 @@ import { toast } from "sonner";
 
 interface ChecklistItem {
   id: string;
-  task: string;
-  description: string;
+  taskKey: string;
+  descKey: string;
   timeBlock: "morning" | "midday" | "afternoon" | "weekly";
   icon: React.ElementType;
   priority: "high" | "medium" | "low";
@@ -50,25 +51,25 @@ interface DailyWorkflowChecklistProps {
 }
 
 const dailyChecklist: ChecklistItem[] = [
-  { id: "m1", task: "Check unified inbox for replies", description: "Review all channel inboxes — prioritize warm leads", timeBlock: "morning", icon: Inbox, priority: "high", estimatedMinutes: 15 },
-  { id: "m2", task: "Respond to warm leads", description: "Reply within 5 minutes to interested prospects", timeBlock: "morning", icon: Zap, priority: "high", estimatedMinutes: 20 },
-  { id: "m3", task: "Review analytics dashboard", description: "Check open rates, reply rates, bounce rates", timeBlock: "morning", icon: BarChart3, priority: "medium", estimatedMinutes: 10 },
-  { id: "d1", task: "Launch new outreach sequences", description: "Start today's batch across all active channels", timeBlock: "midday", icon: Rocket, priority: "high", estimatedMinutes: 20 },
-  { id: "d2", task: "Add new leads to database", description: "Import from Apollo, LinkedIn, referrals. Verify emails.", timeBlock: "midday", icon: UserPlus, priority: "medium", estimatedMinutes: 25 },
-  { id: "d3", task: "Social media engagement", description: "Like, comment, share posts from prospects", timeBlock: "midday", icon: Heart, priority: "medium", estimatedMinutes: 15 },
-  { id: "a1", task: "A/B test new message templates", description: "Create variants of top-performing templates", timeBlock: "afternoon", icon: FlaskConical, priority: "medium", estimatedMinutes: 20 },
-  { id: "a2", task: "Clean bounced & invalid contacts", description: "Remove hard bounces and invalid numbers", timeBlock: "afternoon", icon: Trash2, priority: "low", estimatedMinutes: 15 },
-  { id: "a3", task: "Update CRM pipeline", description: "Move leads through stages, update notes", timeBlock: "afternoon", icon: KanbanSquare, priority: "medium", estimatedMinutes: 15 },
-  { id: "w1", task: "Review weekly performance metrics", description: "Compare this week vs last. Identify winners.", timeBlock: "weekly", icon: TrendingUp, priority: "high", estimatedMinutes: 30 },
-  { id: "w2", task: "Optimize underperforming channels", description: "Pause channels with <5% reply rate", timeBlock: "weekly", icon: Settings, priority: "high", estimatedMinutes: 25 },
-  { id: "w3", task: "Team sync meeting", description: "Share insights, blockers, and wins", timeBlock: "weekly", icon: Users, priority: "high", estimatedMinutes: 30 },
+  { id: "m1", taskKey: "outreach.taskM1", descKey: "outreach.taskM1Desc", timeBlock: "morning", icon: Inbox, priority: "high", estimatedMinutes: 15 },
+  { id: "m2", taskKey: "outreach.taskM2", descKey: "outreach.taskM2Desc", timeBlock: "morning", icon: Zap, priority: "high", estimatedMinutes: 20 },
+  { id: "m3", taskKey: "outreach.taskM3", descKey: "outreach.taskM3Desc", timeBlock: "morning", icon: BarChart3, priority: "medium", estimatedMinutes: 10 },
+  { id: "d1", taskKey: "outreach.taskD1", descKey: "outreach.taskD1Desc", timeBlock: "midday", icon: Rocket, priority: "high", estimatedMinutes: 20 },
+  { id: "d2", taskKey: "outreach.taskD2", descKey: "outreach.taskD2Desc", timeBlock: "midday", icon: UserPlus, priority: "medium", estimatedMinutes: 25 },
+  { id: "d3", taskKey: "outreach.taskD3", descKey: "outreach.taskD3Desc", timeBlock: "midday", icon: Heart, priority: "medium", estimatedMinutes: 15 },
+  { id: "a1", taskKey: "outreach.taskA1", descKey: "outreach.taskA1Desc", timeBlock: "afternoon", icon: FlaskConical, priority: "medium", estimatedMinutes: 20 },
+  { id: "a2", taskKey: "outreach.taskA2", descKey: "outreach.taskA2Desc", timeBlock: "afternoon", icon: Trash2, priority: "low", estimatedMinutes: 15 },
+  { id: "a3", taskKey: "outreach.taskA3", descKey: "outreach.taskA3Desc", timeBlock: "afternoon", icon: KanbanSquare, priority: "medium", estimatedMinutes: 15 },
+  { id: "w1", taskKey: "outreach.taskW1", descKey: "outreach.taskW1Desc", timeBlock: "weekly", icon: TrendingUp, priority: "high", estimatedMinutes: 30 },
+  { id: "w2", taskKey: "outreach.taskW2", descKey: "outreach.taskW2Desc", timeBlock: "weekly", icon: Settings, priority: "high", estimatedMinutes: 25 },
+  { id: "w3", taskKey: "outreach.taskW3", descKey: "outreach.taskW3Desc", timeBlock: "weekly", icon: Users, priority: "high", estimatedMinutes: 30 },
 ];
 
-const timeBlocks = [
-  { key: "morning" as const, label: "🌅 Morning", items: dailyChecklist.filter((i) => i.timeBlock === "morning") },
-  { key: "midday" as const, label: "☀️ Midday", items: dailyChecklist.filter((i) => i.timeBlock === "midday") },
-  { key: "afternoon" as const, label: "🌇 Afternoon", items: dailyChecklist.filter((i) => i.timeBlock === "afternoon") },
-  { key: "weekly" as const, label: "📅 Weekly", items: dailyChecklist.filter((i) => i.timeBlock === "weekly") },
+const timeBlockKeys = [
+  { key: "morning" as const, labelKey: "dailyWorkflow.morning" },
+  { key: "midday" as const, labelKey: "dailyWorkflow.midday" },
+  { key: "afternoon" as const, labelKey: "dailyWorkflow.afternoon" },
+  { key: "weekly" as const, labelKey: "dailyWorkflow.weekly" },
 ];
 
 const priorityDot: Record<string, string> = {
@@ -87,6 +88,7 @@ function getWeekKey() {
 }
 
 export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklistProps) {
+  const { t } = useTranslation();
   const dateKey = getDateKey();
   const weekKey = getWeekKey();
   const [checkedDaily, setCheckedDaily] = useLocalStorage<Record<string, boolean>>(`outreach-checklist-${dateKey}`, {});
@@ -150,7 +152,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
 
       if (error) {
         console.error("AI task error:", error);
-        toast.error("AI analysis failed. Please try again.");
+        toast.error(t("outreach.aiFailed"));
         return;
       }
 
@@ -162,11 +164,11 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
       setAiResults((prev) => ({ ...prev, [item.id]: data as AIResult }));
     } catch (e) {
       console.error("AI task exception:", e);
-      toast.error("Failed to run AI analysis.");
+      toast.error(t("outreach.aiFailed"));
     } finally {
       setLoadingTasks((prev) => ({ ...prev, [item.id]: false }));
     }
-  }, [aiContext]);
+  }, [aiContext, t]);
 
   const approveTask = useCallback(async (item: ChecklistItem) => {
     const result = aiResults[item.id];
@@ -178,7 +180,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
       delete next[item.id];
       return next;
     });
-    toast.success(`"${item.task}" approved & completed`);
+    toast.success(t("outreach.taskApproved", { task: t(item.taskKey) }));
 
     // Persist to database
     if (result) {
@@ -188,7 +190,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
           await supabase.from("workflow_ai_results").insert({
             user_id: userData.user.id,
             task_id: item.id,
-            task_name: item.task,
+            task_name: t(item.taskKey),
             summary: result.summary,
             recommendations_json: result.recommendations,
             suggested_actions_json: result.suggestedActions,
@@ -199,7 +201,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
         console.error("Failed to persist workflow result:", e);
       }
     }
-  }, [markComplete, aiResults]);
+  }, [markComplete, aiResults, t]);
 
   const dismissTask = useCallback((item: ChecklistItem) => {
     setAiResults((prev) => {
@@ -211,15 +213,15 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
 
   const skipTask = useCallback((item: ChecklistItem) => {
     markComplete(item);
-    toast.info(`"${item.task}" skipped`);
-  }, [markComplete]);
+    toast.info(t("outreach.taskSkipped", { task: t(item.taskKey) }));
+  }, [markComplete, t]);
 
   const runAllPending = useCallback(async () => {
     const pending = dailyChecklist.filter(
       (item) => !isChecked(item) && !aiResults[item.id] && !loadingTasks[item.id]
     );
     if (pending.length === 0) {
-      toast.info("No pending tasks to analyze.");
+      toast.info(t("outreach.noPendingTasks"));
       return;
     }
     setRunningAll(true);
@@ -229,8 +231,8 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
       await runAI(pending[i]);
     }
     setRunningAll(false);
-    toast.success(`AI analysis complete for ${pending.length} tasks. Review and approve each one.`);
-  }, [isChecked, aiResults, loadingTasks, runAI]);
+    toast.success(t("outreach.aiCompleteForTasks", { count: pending.length }));
+  }, [isChecked, aiResults, loadingTasks, runAI, t]);
 
   const fetchHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -264,6 +266,11 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
   const progress = totalDailyItems > 0 ? Math.round((completedCount / totalDailyItems) * 100) : 0;
   const remainingMinutes = dailyItems.filter((i) => !checkedDaily[i.id]).reduce((sum, i) => sum + i.estimatedMinutes, 0);
 
+  const timeBlocks = timeBlockKeys.map((tb) => ({
+    ...tb,
+    items: dailyChecklist.filter((i) => i.timeBlock === tb.key),
+  }));
+
   return (
     <Collapsible open={!collapsed} onOpenChange={(o) => setCollapsed(!o)}>
       <Card className="border-border/50">
@@ -272,13 +279,13 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
             <div className="flex items-center gap-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
-                AI Daily Workflow
+                {t("dailyWorkflow.title")}
               </CardTitle>
-              <Badge variant="outline" className="text-xs">{completedCount}/{totalDailyItems} done</Badge>
-              {streak > 0 && <Badge className="bg-orange-500/10 text-orange-600 border-0 text-xs gap-1"><Flame className="h-3 w-3" />{streak}-day streak!</Badge>}
+              <Badge variant="outline" className="text-xs">{t("dailyWorkflow.done", { completed: completedCount, total: totalDailyItems })}</Badge>
+              {streak > 0 && <Badge className="bg-orange-500/10 text-orange-600 border-0 text-xs gap-1"><Flame className="h-3 w-3" />{t("dailyWorkflow.dayStreak", { count: streak })}</Badge>}
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> ~{remainingMinutes}min left</span>
+              <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {t("dailyWorkflow.minLeft", { minutes: remainingMinutes })}</span>
               <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${!collapsed ? "rotate-180" : ""}`} />
             </div>
           </CollapsibleTrigger>
@@ -292,9 +299,9 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
               onClick={(e) => { e.stopPropagation(); runAllPending(); }}
             >
               {runningAll ? (
-                <><Sparkles className="h-3 w-3 animate-pulse" /> Running {runAllProgress.current}/{runAllProgress.total}...</>
+                <><Sparkles className="h-3 w-3 animate-pulse" /> {t("dailyWorkflow.running", { current: runAllProgress.current, total: runAllProgress.total })}</>
               ) : (
-                <><Play className="h-3 w-3" /> Run All AI Tasks</>
+                <><Play className="h-3 w-3" /> {t("dailyWorkflow.runAllAI")}</>
               )}
             </Button>
           </div>
@@ -303,7 +310,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
           <CardContent className="pt-0 space-y-4">
             {timeBlocks.map((block) => (
               <div key={block.key}>
-                <p className="text-xs font-semibold text-muted-foreground mb-2">{block.label}</p>
+                <p className="text-xs font-semibold text-muted-foreground mb-2">{t(block.labelKey)}</p>
                 <div className="space-y-2">
                   {block.items.map((item) => {
                     const checked = isChecked(item);
@@ -323,11 +330,11 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                           <div className={`h-2 w-2 rounded-full flex-shrink-0 ${priorityDot[item.priority]}`} />
                           <ItemIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium line-through text-muted-foreground">{item.task}</p>
+                            <p className="text-sm font-medium line-through text-muted-foreground">{t(item.taskKey)}</p>
                           </div>
                           {approved && (
                             <Badge variant="outline" className="text-[10px] text-emerald-600 border-emerald-200 gap-1">
-                              <Check className="h-2.5 w-2.5" /> Approved {approved}
+                              <Check className="h-2.5 w-2.5" /> {t("dailyWorkflow.approved", { time: approved })}
                             </Badge>
                           )}
                         </div>
@@ -341,8 +348,8 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                           <div className={`h-2 w-2 rounded-full flex-shrink-0 ${priorityDot[item.priority]}`} />
                           <ItemIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium">{item.task}</p>
-                            <p className="text-[10px] text-muted-foreground">{item.description}</p>
+                            <p className="text-sm font-medium">{t(item.taskKey)}</p>
+                            <p className="text-[10px] text-muted-foreground">{t(item.descKey)}</p>
                           </div>
                           <span className="text-[10px] text-muted-foreground flex-shrink-0">{item.estimatedMinutes}min</span>
                           <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -354,7 +361,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                                   className="h-7 text-xs gap-1.5 px-3"
                                   onClick={() => runAI(item)}
                                 >
-                                  <Play className="h-3 w-3" /> Run AI
+                                  <Play className="h-3 w-3" /> {t("dailyWorkflow.runAI")}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -362,7 +369,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                                   className="h-7 text-xs gap-1 px-2 text-muted-foreground"
                                   onClick={() => skipTask(item)}
                                 >
-                                  <SkipForward className="h-3 w-3" /> Skip
+                                  <SkipForward className="h-3 w-3" /> {t("dailyWorkflow.skip")}
                                 </Button>
                               </>
                             )}
@@ -374,7 +381,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                           <div className="px-3 pb-3 space-y-2 border-t border-border/30 pt-3">
                             <div className="flex items-center gap-2 text-xs text-primary">
                               <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-                              AI analyzing your outreach data...
+                              {t("outreach.aiAnalyzing")}
                             </div>
                             <Skeleton className="h-16 w-full rounded" />
                             <Skeleton className="h-4 w-3/4 rounded" />
@@ -389,7 +396,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                               {/* Summary */}
                               <div className="bg-background/80 rounded-lg p-3 border border-border/30">
                                 <p className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1.5">
-                                  <Sparkles className="h-3 w-3 text-primary" /> AI Analysis
+                                  <Sparkles className="h-3 w-3 text-primary" /> {t("outreach.aiAnalysis")}
                                 </p>
                                 <p className="text-sm leading-relaxed">{result.summary}</p>
                               </div>
@@ -398,7 +405,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                               {result.recommendations?.length > 0 && (
                                 <div>
                                   <p className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                                    <Lightbulb className="h-3 w-3" /> Recommendations
+                                    <Lightbulb className="h-3 w-3" /> {t("outreach.recommendations")}
                                   </p>
                                   <ul className="space-y-1">
                                     {result.recommendations.map((rec, i) => (
@@ -434,7 +441,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                                   className="h-8 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
                                   onClick={() => approveTask(item)}
                                 >
-                                  <Check className="h-3.5 w-3.5" /> Approve & Complete
+                                  <Check className="h-3.5 w-3.5" /> {t("outreach.approveComplete")}
                                 </Button>
                                 <Button
                                   size="sm"
@@ -442,7 +449,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                                   className="h-8 text-xs gap-1.5 text-muted-foreground"
                                   onClick={() => dismissTask(item)}
                                 >
-                                  <X className="h-3.5 w-3.5" /> Dismiss
+                                  <X className="h-3.5 w-3.5" /> {t("outreach.dismiss")}
                                 </Button>
                               </div>
                             </div>
@@ -456,7 +463,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
             ))}
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" className="gap-1.5 text-xs flex-1" onClick={resetDay}>
-                <RotateCcw className="h-3 w-3" /> Reset Day
+                <RotateCcw className="h-3 w-3" /> {t("outreach.resetDay")}
               </Button>
               <Button
                 variant="ghost"
@@ -464,7 +471,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                 className="gap-1.5 text-xs flex-1"
                 onClick={() => setShowHistory(!showHistory)}
               >
-                <History className="h-3 w-3" /> {showHistory ? "Hide" : "View"} History
+                <History className="h-3 w-3" /> {showHistory ? t("outreach.hideHistory") : t("outreach.viewHistory")}
               </Button>
             </div>
 
@@ -472,7 +479,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
             {showHistory && (
               <div className="border-t border-border/30 pt-3 space-y-2">
                 <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
-                  <CalendarDays className="h-3 w-3" /> Workflow History
+                  <CalendarDays className="h-3 w-3" /> {t("outreach.workflowHistory")}
                 </p>
                 {loadingHistory ? (
                   <div className="space-y-2">
@@ -480,13 +487,13 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                     <Skeleton className="h-12 w-full rounded" />
                   </div>
                 ) : historyItems.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-4">No history yet. Approve AI tasks to build your history.</p>
+                  <p className="text-xs text-muted-foreground text-center py-4">{t("outreach.noHistoryYet")}</p>
                 ) : (
                   <div className="space-y-1.5 max-h-80 overflow-y-auto">
                     {historyItems.map((h) => (
                       <Collapsible key={h.id}>
                         <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center gap-2 p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors text-left w-full">
+                          <div className="flex items-center gap-2 p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors text-start w-full">
                             <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium truncate">{h.task_name}</p>
@@ -498,7 +505,7 @@ export function DailyWorkflowChecklist({ campaigns = [] }: DailyWorkflowChecklis
                           </div>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                          <div className="px-2 pb-2 pt-1 space-y-2 ml-5">
+                          <div className="px-2 pb-2 pt-1 space-y-2 ms-5">
                             <p className="text-xs text-foreground/80">{h.summary}</p>
                             {Array.isArray(h.recommendations_json) && h.recommendations_json.length > 0 && (
                               <ul className="space-y-0.5">
