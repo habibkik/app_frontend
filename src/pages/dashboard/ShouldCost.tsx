@@ -292,7 +292,7 @@ export default function ShouldCostPage() {
               <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.supplierMargin")}</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between"><Label className="text-sm">Target Margin</Label><Badge variant="secondary">{inputs.marginPercent}%</Badge></div>
+                  <div className="flex items-center justify-between"><Label className="text-sm">{t("pages.shouldCost.targetMargin")}</Label><Badge variant="secondary">{inputs.marginPercent}%</Badge></div>
                   <Slider value={[inputs.marginPercent]} onValueChange={([v]) => set("marginPercent", v)} min={0} max={40} step={1} />
                 </div>
               </CardContent>
