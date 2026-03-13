@@ -232,7 +232,7 @@ export function SupplierRiskScoring({ supplier, compact = false }: SupplierRiskS
                     <div className="flex items-center gap-2">
                       <cat.icon className={cn("h-4 w-4", getRiskColor(catLevel))} />
                       <span className="font-medium text-sm">{cat.name}</span>
-                      <Badge variant="outline" className="text-xs ml-1">{cat.weight}%</Badge>
+                      <Badge variant="outline" className="text-xs ms-1">{cat.weight}%</Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-20">
