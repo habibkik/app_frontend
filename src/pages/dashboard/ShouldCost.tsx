@@ -241,8 +241,8 @@ export default function ShouldCostPage() {
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[0] }} />Material</CardTitle>
-                <CardDescription className="text-xs">Enter weight × price/kg or direct unit cost</CardDescription>
+                <CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[0] }} />{t("pages.shouldCost.material")}</CardTitle>
+                <CardDescription className="text-xs">{t("pages.shouldCost.materialDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <InputRow label="Weight per Unit" icon={Package} suffix="kg" value={inputs.materialWeight} onChange={(v) => set("materialWeight", v)} />
