@@ -406,7 +406,7 @@ function renderVideoEmbed(cfg: VideoEmbedBlockConfig, theme: LandingPageTheme) {
 }
 
 function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPageTheme) {
-  const bg = heroBg(theme, cfg.backgroundImageUrl);
+  const bg = heroBg(theme, cfg.backgroundImageUrl, cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight);
   const inner = `
   <div style="max-width:600px;margin:0 auto;text-align:center;">
     <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:#fff;">${cfg.heading}</h2>
@@ -427,7 +427,7 @@ function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPage
     upd();setInterval(upd,1000);
   })();
   </script>`;
-  return `<section style="padding:${sectionPad(theme)};${bg}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bg}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
