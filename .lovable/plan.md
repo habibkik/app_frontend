@@ -1,35 +1,68 @@
 
 
-## Plan: Market Intelligence Product Dropdown + Content Studio Auto-Fill
+# Plan: Block Text Visibility, Button Positioning & Color Customization
 
-### What Changes
+## What We're Building
 
-Replace the plain "Product Title" text input with a **combo dropdown** that lists:
-1. All products from **Market Intelligence** analysis history (`useAnalysisStore().history`)
-2. A **"Custom Product (Manual Entry)"** blank option at the top
+Two enhancements to the Website Builder block system:
 
-When the user selects a Market Intelligence product, the system:
-- Sets the `title` to the product name
-- Auto-searches `content_templates` (DB) and `savedItems` (in-memory) for a matching Content Studio entry by product name
-- If a match is found → auto-fills description, tags, and images using the existing `handleContentStudioImport` logic
-- If seller results exist for that product → fills `price` from `pricingRecommendation.suggested` and `compareAtPrice` from `marketPriceRange.max`
-- Shows the "Imported from" banner
+1. **Text Visibility Controls** — Let users hide/show titles, subtitles, and other text elements per block. If text is empty or toggled off, it won't render in the HTML output.
 
-When "Custom Product" is selected → clears the title field so the user can type manually.
+2. **Button Customization** — Per-block controls for:
+   - **Button position**: left, center, right
+   - **Button color**: custom color picker (overrides theme color)
+   - Option to hide/remove buttons entirely
 
-### File to Edit
+## Changes
 
-**`src/features/marketplace/components/TabProductListing.tsx`**:
+### 1. Update Types (`types.ts`)
 
-1. Import `useAnalysisStore` and read `history` and `sellerResults`
-2. Replace the Product Title `<Input>` (lines 330-338) with a `<Select>` dropdown containing:
-   - First option: `"custom"` → "Custom Product (Manual Entry)"
-   - Then each unique `history` item showing `productName — category`
-3. Add `handleProductSelect(value)` function:
-   - If `"custom"` → clear title, let user type in a text input that appears below
-   - Otherwise → set title, look up matching content template, call existing import logic, fill pricing from seller results
-4. Show a manual title `<Input>` below the dropdown when "Custom" is selected (or always, pre-filled when a product is selected so user can still edit)
-5. Keep the existing "Import from Content Studio" dropdown as a secondary override option
+Add shared optional fields to block configs that have text/buttons:
 
-### No database changes needed
+```typescript
+// Add to relevant block config interfaces (Hero, Contact, OrderForm, OfferPricing, Countdown, Newsletter, etc.)
+showTitle?: boolean;       // default true — toggle to hide section heading
+showSubtitle?: boolean;    // default true — for blocks that have subtitles
+showButton?: boolean;      // default true — toggle to hide CTA button
+buttonPosition?: "left" | "center" | "right";  // default "center"
+buttonColor?: string;      // custom hex color, overrides theme primaryColor
+buttonTextColor?: string;  // custom text color for button
+```
+
+### 2. Update `BlockConfigurator.tsx`
+
+Add a reusable **`ButtonCustomizer`** component rendered in block forms that have buttons (Hero, Contact, OrderForm, OfferPricing, Countdown, Newsletter, PricingTable, ShoppingCart, CheckoutForm, ProductDetail):
+
+- **Show/Hide Title** toggle (Switch)
+- **Show/Hide Subtitle** toggle (where applicable)
+- **Show/Hide Button** toggle (Switch)
+- **Button Position** select: Left / Center / Right
+- **Button Color** picker (`<input type="color">`)
+- **Button Text Color** picker (`<input type="color">`)
+
+Also add a reusable **`TextVisibilityFields`** component for blocks that only have headings (Testimonials, FAQ, FeaturesGrid, ImageGallery, VideoEmbed, SocialProof, MarketStats).
+
+### 3. Update `generateStorefrontHtml.ts`
+
+- Modify `btnStyle()` to accept optional `customColor` and `customTextColor` overrides
+- In each block renderer, conditionally render:
+  - Headings: only if `showTitle !== false` and text is non-empty
+  - Subtitles: only if `showSubtitle !== false` and text is non-empty  
+  - Buttons/CTAs: only if `showButton !== false`
+  - Button alignment: wrap button in a div with `text-align: ${buttonPosition || "center"}`
+- Apply `buttonColor` to the button's background and `buttonTextColor` to its text color when set
+
+### 4. Blocks Affected
+
+**Blocks with buttons** (full controls — title, subtitle, button visibility, position, color):
+- Hero, Contact, OrderForm, OfferPricing, Countdown, Newsletter, ProductDetail, ShoppingCart, CheckoutForm
+
+**Blocks with headings only** (title visibility toggle):
+- Testimonials, FAQ, FeaturesGrid, ImageGallery, VideoEmbed, SocialProof, MarketStats, About, ProblemAgitation, Solution, CustomerReviews
+
+## Technical Notes
+
+- All new fields are optional with sensible defaults (`true` for show, `"center"` for position) so existing configs are backward-compatible
+- The `ButtonCustomizer` component will be grouped under a collapsible "Button & Text" section in the configurator to keep the UI clean
+- Button color picker defaults to the theme's primary color as placeholder
 
