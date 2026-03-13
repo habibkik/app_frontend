@@ -233,7 +233,7 @@ export default function ShouldCostPage() {
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <Label className="text-sm min-w-[140px] shrink-0">Product Name</Label>
+                  <Label className="text-sm min-w-[140px] shrink-0">{t("pages.shouldCost.productName")}</Label>
                   <Input value={inputs.productName} onChange={(e) => set("productName", e.target.value as any)} placeholder="e.g. Aluminum Housing" className="h-8 text-sm" />
                 </div>
                 <InputRow label="Production Volume" icon={Package} suffix="units" value={inputs.volume} onChange={(v) => set("volume", v)} min={1} step={100} />
