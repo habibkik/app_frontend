@@ -183,7 +183,17 @@ function ProImagePicker({ currentValue, onSelect }: { currentValue: string; onSe
 
 // --- Reusable Background Image + Overlay Fields ---
 
-function BackgroundImageFields({ backgroundImageUrl, overlayOpacity, update }: { backgroundImageUrl?: string; overlayOpacity?: number; update: (c: any) => void }) {
+function BackgroundImageFields({ backgroundImageUrl, overlayOpacity, bgImageWidth, bgImageHeight, fitToImage, update }: { backgroundImageUrl?: string; overlayOpacity?: number; bgImageWidth?: number; bgImageHeight?: number; fitToImage?: boolean; update: (c: any) => void }) {
+  // Auto-detect image dimensions when URL changes
+  React.useEffect(() => {
+    if (!backgroundImageUrl) return;
+    const img = new Image();
+    img.onload = () => {
+      update({ bgImageWidth: img.naturalWidth, bgImageHeight: img.naturalHeight, fitToImage: fitToImage ?? true });
+    };
+    img.src = backgroundImageUrl;
+  }, [backgroundImageUrl]);
+
   return (
     <>
       <Field label="Background Image URL">
@@ -191,21 +201,32 @@ function BackgroundImageFields({ backgroundImageUrl, overlayOpacity, update }: {
       </Field>
       <ProImagePicker currentValue={backgroundImageUrl || ""} onSelect={(url) => update({ backgroundImageUrl: url })} />
       {backgroundImageUrl && (
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">Overlay Darkness</Label>
-            <span className="text-[10px] text-muted-foreground">{Math.round((typeof overlayOpacity === "number" ? overlayOpacity : 0.5) * 100)}%</span>
+        <>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Overlay Darkness</Label>
+              <span className="text-[10px] text-muted-foreground">{Math.round((typeof overlayOpacity === "number" ? overlayOpacity : 0.5) * 100)}%</span>
+            </div>
+            <Slider
+              value={[typeof overlayOpacity === "number" ? overlayOpacity * 100 : 50]}
+              onValueChange={([v]) => update({ overlayOpacity: v / 100 })}
+              min={0}
+              max={90}
+              step={5}
+              className="w-full"
+            />
+            <p className="text-[9px] text-muted-foreground">Controls the dark overlay that keeps text readable over photos</p>
           </div>
-          <Slider
-            value={[typeof overlayOpacity === "number" ? overlayOpacity * 100 : 50]}
-            onValueChange={([v]) => update({ overlayOpacity: v / 100 })}
-            min={0}
-            max={90}
-            step={5}
-            className="w-full"
-          />
-          <p className="text-[9px] text-muted-foreground">Controls the dark overlay that keeps text readable over photos</p>
-        </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label className="text-xs">Fit to Image Dimensions</Label>
+              {bgImageWidth && bgImageHeight && (
+                <p className="text-[9px] text-muted-foreground">{bgImageWidth}×{bgImageHeight}px</p>
+              )}
+            </div>
+            <Switch checked={fitToImage ?? true} onCheckedChange={(v) => update({ fitToImage: v })} className="scale-75" />
+          </div>
+        </>
       )}
     </>
   );

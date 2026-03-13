@@ -478,6 +478,65 @@ export const ProImageGenerationTab: React.FC<Props> = ({
         </CardContent>
       </Card>
 
+      {/* Marketing Settings Panel */}
+      <Card className="border-dashed border-primary/30 bg-primary/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Settings2 className="h-4 w-4 text-primary" />
+            Marketing Creatives Settings
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">Customize language, currency, country & style for generated marketing images</p>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Language</Label>
+              <Select value={marketingLanguage} onValueChange={setMarketingLanguage}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_LANGUAGES.map((l) => (
+                    <SelectItem key={l.value} value={l.value} className="text-xs">{l.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Currency</Label>
+              <Select value={marketingCurrency} onValueChange={setMarketingCurrency}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_CURRENCIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Country / Region</Label>
+              <Select value={marketingCountry} onValueChange={setMarketingCountry}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_COUNTRIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Style</Label>
+              <Select value={marketingStyle} onValueChange={setMarketingStyle}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_STYLES.map((s) => (
+                    <SelectItem key={s.value} value={s.value} className="text-xs">{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Sections */}
       {PRO_IMAGE_SECTIONS.map((section) => {
         const imgs = sectionImages(section.id);
