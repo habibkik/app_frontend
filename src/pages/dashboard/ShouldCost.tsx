@@ -284,8 +284,8 @@ export default function ShouldCostPage() {
                   <Slider value={[inputs.scrapPercent]} onValueChange={([v]) => set("scrapPercent", v)} min={0} max={20} step={0.5} />
                 </div>
                 <Separator />
-                <InputRow label="Packaging" icon={Package} suffix="$/unit" value={inputs.packagingPerUnit} onChange={(v) => set("packagingPerUnit", v)} />
-                <InputRow label="Logistics" icon={Building2} suffix="$/unit" value={inputs.logisticsPerUnit} onChange={(v) => set("logisticsPerUnit", v)} />
+                <InputRow label={t("pages.shouldCost.packaging")} icon={Package} suffix="$/unit" value={inputs.packagingPerUnit} onChange={(v) => set("packagingPerUnit", v)} />
+                <InputRow label={t("pages.shouldCost.logistics")} icon={Building2} suffix="$/unit" value={inputs.logisticsPerUnit} onChange={(v) => set("logisticsPerUnit", v)} />
               </CardContent>
             </Card>
             <Card>
