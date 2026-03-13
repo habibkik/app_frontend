@@ -22,6 +22,7 @@ const TABS: { value: MarketplaceTab; label: string; icon: typeof Package; mobile
 ];
 
 export default function MarketplaceSellerPage() {
+  const { t } = useTranslation();
   const { activeTab, setActiveTab } = useMarketplaceStore();
 
   return (
