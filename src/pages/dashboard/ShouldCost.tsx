@@ -220,8 +220,8 @@ export default function ShouldCostPage() {
             {bomApplied && (
               <Badge variant="outline" className="gap-1"><Sparkles className="h-3 w-3" /> {t("pages.shouldCost.bomApplied")}</Badge>
             )}
-            <Button variant="outline" size="sm" onClick={handleReset}><RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset</Button>
-            <Button variant="outline" size="sm" onClick={handleCopy}><Copy className="h-3.5 w-3.5 mr-1" /> Copy</Button>
+            <Button variant="outline" size="sm" onClick={handleReset}><RotateCcw className="h-3.5 w-3.5 mr-1" /> {t("pages.shouldCost.reset")}</Button>
+            <Button variant="outline" size="sm" onClick={handleCopy}><Copy className="h-3.5 w-3.5 mr-1" /> {t("pages.shouldCost.copy")}</Button>
           </div>
         </motion.div>
 
