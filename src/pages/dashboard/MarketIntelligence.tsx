@@ -236,8 +236,8 @@ export default function MarketIntelligencePage() {
                       onClick={handleLoadDemo}
                       className="mt-4 gap-2"
                     >
-                      <Play className="h-4 w-4" />
-                      View Demo Analysis
+                       <Play className="h-4 w-4" />
+                      {t("pages.marketIntelligence.viewDemoAnalysis")}
                     </Button>
                   </div>
                 </motion.div>
