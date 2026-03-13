@@ -316,7 +316,7 @@ export default function NegotiationIntelligencePage() {
                         <Input type="number" min={0} step={1} value={q.toolingCost || ""} onChange={(e) => updateQuote(q.id, "toolingCost", parseFloat(e.target.value) || 0)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">MOQ</Label>
+                        <Label className="text-xs">{t("pages.negotiation.moq")}</Label>
                         <Input type="number" min={1} value={q.moq} onChange={(e) => updateQuote(q.id, "moq", parseInt(e.target.value) || 1)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
