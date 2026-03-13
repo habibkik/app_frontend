@@ -343,7 +343,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
             Pro Product Photography
           </h3>
           <p className="text-sm text-muted-foreground">
-            20 professional images across 4 categories using your product as reference.
+            30 professional images across 5 categories using your product as reference.
           </p>
         </div>
         <div className="flex items-center gap-2">
