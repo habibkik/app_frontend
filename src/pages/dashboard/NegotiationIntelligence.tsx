@@ -271,7 +271,7 @@ export default function NegotiationIntelligencePage() {
                   <div className="grid grid-cols-3 gap-2 text-[10px]">
                     <div className="text-center p-1.5 rounded bg-background border">
                       <p className="font-bold">8–15%</p>
-                      <p className="text-muted-foreground">Manufacturing</p>
+                      <p className="text-muted-foreground">{t("pages.negotiation.manufacturing")}</p>
                     </div>
                     <div className="text-center p-1.5 rounded bg-background border">
                       <p className="font-bold">20–40%</p>
