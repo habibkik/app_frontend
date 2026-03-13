@@ -140,7 +140,7 @@ export interface PricingTableBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ImageGalleryBlockConfig {
+export interface ImageGalleryBlockConfig extends BgImageDimensions {
   heading: string;
   images: { url: string; caption: string }[];
   columns: 2 | 3 | 4;
