@@ -65,7 +65,7 @@ export interface FaqBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface ContactBlockConfig {
+export interface ContactBlockConfig extends BgImageDimensions {
   heading: string;
   showPhone: boolean;
   showAddress: boolean;
