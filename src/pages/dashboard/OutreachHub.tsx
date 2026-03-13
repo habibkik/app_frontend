@@ -33,6 +33,7 @@ const CHANNEL_LABELS: Record<string, string> = {
 
 export default function OutreachHub() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     campaigns, rules, loading,
