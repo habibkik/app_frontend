@@ -438,6 +438,7 @@ function ContactForm({ config, update }: { config: ContactBlockConfig; update: (
         <Label className="text-xs">Show Address Field</Label>
         <Switch checked={config.showAddress} onCheckedChange={(v) => update({ showAddress: v })} className="scale-75" />
       </div>
+      <ButtonCustomizer config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
