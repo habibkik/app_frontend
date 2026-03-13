@@ -307,9 +307,9 @@ export default function ShouldCostPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center py-3">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Per Unit</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("pages.shouldCost.perUnit")}</p>
                   <p className="text-3xl font-bold text-primary">{fc(costs.shouldCost)}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Production: {fc(costs.totalCost)} + Margin: {fc(costs.margin)}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("pages.shouldCost.productionCost")}: {fc(costs.totalCost)} + {t("pages.shouldCost.margin")}: {fc(costs.margin)}</p>
                 </div>
                 <Separator />
                 <div className="space-y-2 text-sm">
