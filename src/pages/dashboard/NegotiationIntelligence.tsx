@@ -224,7 +224,7 @@ export default function NegotiationIntelligencePage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Shield className="h-4 w-4 text-primary" />
-                  BATNA & Cost Analysis
+                  {t("pages.negotiation.batnaTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
