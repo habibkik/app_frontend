@@ -125,7 +125,7 @@ export default function OutreachHub() {
             {draftCount > 0 && (
               <Button onClick={handleApproveAll} className="gap-1.5">
                 <CheckCheck className="h-4 w-4" />
-                Approve All ({draftCount})
+                {t("pages.outreachHub.approveAll")} ({draftCount})
               </Button>
             )}
           </div>
