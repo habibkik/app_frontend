@@ -443,7 +443,7 @@ function renderNewsletter(cfg: NewsletterBlockConfig, theme: LandingPageTheme) {
       <button type="submit" style="${btnStyle(theme)}cursor:pointer;white-space:nowrap;">${cfg.buttonText}</button>
     </form>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
