@@ -194,7 +194,7 @@ export function ERPIntegrationSection() {
                               placeholder={field.placeholder}
                               value={credentials[sys.id]?.[field.key] || ""}
                               onChange={(e) => updateCredential(sys.id, field.key, e.target.value)}
-                              className="text-sm pr-9"
+                              className="text-sm pe-9"
                             />
                             {isPassword && (
                               <Button
