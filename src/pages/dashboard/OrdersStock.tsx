@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ function getStockCount(product: Product): number {
 }
 
 export default function OrdersStockPage() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -171,11 +173,11 @@ export default function OrdersStockPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Commerce Manager</h1>
-            <p className="text-sm text-muted-foreground">Manage orders, inventory, and track performance</p>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.ordersStock.title")}</h1>
+            <p className="text-sm text-muted-foreground">{t("pages.ordersStock.subtitle")}</p>
           </div>
           <Button onClick={() => setShowAddProduct(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add Product
+            <Plus className="h-4 w-4 mr-2" /> {t("pages.ordersStock.addProduct")}
           </Button>
         </div>
 
@@ -184,9 +186,9 @@ export default function OrdersStockPage() {
           <div className="flex items-center gap-3 p-3 rounded-lg border border-destructive/30 bg-destructive/5">
             <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-destructive">Low Stock Alert</p>
+              <p className="text-sm font-medium text-destructive">{t("pages.ordersStock.lowStockAlert")}</p>
               <p className="text-xs text-muted-foreground">
-                {lowStockProducts.map((p) => p.name).join(", ")} — {lowStockProducts.length === 1 ? "has" : "have"} fewer than 5 units remaining
+                {lowStockProducts.map((p) => p.name).join(", ")} — {t("pages.ordersStock.lowStockDesc")}
               </p>
             </div>
           </div>
@@ -202,7 +204,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">${totalRevenue.toFixed(0)}</p>
-                  <p className="text-[10px] text-muted-foreground">Total Revenue</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.totalRevenue")}</p>
                 </div>
               </div>
             </CardContent>
@@ -215,7 +217,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">${aov.toFixed(2)}</p>
-                  <p className="text-[10px] text-muted-foreground">Avg Order Value</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.avgOrderValue")}</p>
                 </div>
               </div>
             </CardContent>
@@ -228,7 +230,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">{conversionRate.toFixed(1)}%</p>
-                  <p className="text-[10px] text-muted-foreground">Conversion Rate</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.conversionRate")}</p>
                 </div>
               </div>
             </CardContent>
@@ -241,7 +243,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">{activeOrders}</p>
-                  <p className="text-[10px] text-muted-foreground">Active Orders</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.activeOrders")}</p>
                 </div>
               </div>
             </CardContent>
@@ -254,7 +256,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">{uniqueCustomers}</p>
-                  <p className="text-[10px] text-muted-foreground">Customers</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.customers")}</p>
                 </div>
               </div>
             </CardContent>
@@ -267,7 +269,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">{products.length}</p>
-                  <p className="text-[10px] text-muted-foreground">Products</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.products")}</p>
                 </div>
               </div>
             </CardContent>
@@ -276,17 +278,17 @@ export default function OrdersStockPage() {
 
         <Tabs defaultValue="orders" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="orders"><ShoppingCart className="h-4 w-4 mr-1.5" /> Orders</TabsTrigger>
-            <TabsTrigger value="stock"><Package className="h-4 w-4 mr-1.5" /> Inventory</TabsTrigger>
-            <TabsTrigger value="customers"><Users className="h-4 w-4 mr-1.5" /> Customers</TabsTrigger>
-            <TabsTrigger value="analytics"><BarChart3 className="h-4 w-4 mr-1.5" /> Analytics</TabsTrigger>
+             <TabsTrigger value="orders"><ShoppingCart className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.orders")}</TabsTrigger>
+            <TabsTrigger value="stock"><Package className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.inventory")}</TabsTrigger>
+            <TabsTrigger value="customers"><Users className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.customers")}</TabsTrigger>
+            <TabsTrigger value="analytics"><BarChart3 className="h-4 w-4 mr-1.5" /> {t("pages.ordersStock.analytics")}</TabsTrigger>
           </TabsList>
 
           {/* Orders Tab */}
           <TabsContent value="orders">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-base">Order History</CardTitle>
+                <CardTitle className="text-base">{t("pages.ordersStock.orderHistory")}</CardTitle>
                 <Select value={orderFilter} onValueChange={(v: any) => setOrderFilter(v)}>
                   <SelectTrigger className="w-36 h-8 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>

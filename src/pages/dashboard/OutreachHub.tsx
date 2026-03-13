@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DashboardLayout } from "@/features/dashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ const CHANNEL_LABELS: Record<string, string> = {
 
 export default function OutreachHub() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     campaigns, rules, loading,
@@ -81,12 +83,12 @@ export default function OutreachHub() {
 
   const handleApproveAll = async () => {
     await approveAll();
-    toast({ title: "All Approved", description: `${draftCount} campaigns approved.` });
+    toast({ title: t("pages.outreachHub.allApproved"), description: t("pages.outreachHub.campaignsApproved", { count: draftCount }) });
   };
 
   const handleApproveAllForSupplier = async (ids: string[]) => {
     for (const id of ids) await approveCampaign(id);
-    toast({ title: "Approved", description: `${ids.length} campaigns approved.` });
+    toast({ title: t("pages.outreachHub.approved"), description: t("pages.outreachHub.campaignsApproved", { count: ids.length }) });
   };
 
   const handleGenerateCampaigns = async (supplier: Supplier, tier?: string) => {
@@ -97,7 +99,7 @@ export default function OutreachHub() {
       location: `${supplier.location.city}, ${supplier.location.country}`,
     }, undefined, objective, tier);
     if (count > 0) {
-      toast({ title: "Campaigns Generated", description: `${count} outreach campaigns created for ${supplier.name}.` });
+      toast({ title: t("pages.outreachHub.campaignsGenerated"), description: t("pages.outreachHub.campaignsCreated", { count, name: supplier.name }) });
     }
     return count;
   };
@@ -113,9 +115,9 @@ export default function OutreachHub() {
       <div className="space-y-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Outreach Hub</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t("pages.outreachHub.title")}</h1>
             <p className="text-muted-foreground mt-1">
-              Review, edit, and launch outreach campaigns across all channels
+              {t("pages.outreachHub.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -123,7 +125,7 @@ export default function OutreachHub() {
             {draftCount > 0 && (
               <Button onClick={handleApproveAll} className="gap-1.5">
                 <CheckCheck className="h-4 w-4" />
-                Approve All ({draftCount})
+                {t("pages.outreachHub.approveAll")} ({draftCount})
               </Button>
             )}
           </div>
@@ -133,26 +135,26 @@ export default function OutreachHub() {
           <TabsList className="flex-wrap">
             <TabsTrigger value="campaigns" className="gap-1.5">
               <Send className="h-4 w-4" />
-              Campaigns
+              {t("pages.outreachHub.campaigns")}
               {draftCount > 0 && (
                 <Badge variant="secondary" className="ml-1 text-xs">{draftCount}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="templates" className="gap-1.5">
               <FileText className="h-4 w-4" />
-              Templates
+              {t("pages.outreachHub.templates")}
             </TabsTrigger>
             <TabsTrigger value="metrics" className="gap-1.5">
               <BarChart3 className="h-4 w-4" />
-              Metrics
+              {t("pages.outreachHub.metrics")}
             </TabsTrigger>
             <TabsTrigger value="automation" className="gap-1.5">
               <Settings2 className="h-4 w-4" />
-              Automation
+              {t("pages.outreachHub.automation")}
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
-              History
+              {t("pages.outreachHub.history")}
               {sentCampaigns.filter((c) => c.response_received).length > 0 && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   {sentCampaigns.filter((c) => c.response_received).length}
@@ -197,8 +199,8 @@ export default function OutreachHub() {
 
                 {suppliersWithoutCampaigns.length > 0 && (
                   <div className="space-y-2 mt-6">
-                    <h3 className="text-sm font-medium text-muted-foreground px-1">
-                      All Suppliers — No campaigns yet ({suppliersWithoutCampaigns.length})
+                     <h3 className="text-sm font-medium text-muted-foreground px-1">
+                       {t("pages.outreachHub.noSuppliersYet")} ({suppliersWithoutCampaigns.length})
                     </h3>
                     {suppliersWithoutCampaigns.map((supplier) => (
                       <OutreachSupplierDiscoveryCard
@@ -212,10 +214,10 @@ export default function OutreachHub() {
 
                 {suppliersWithCampaigns.length === 0 && suppliersWithoutCampaigns.length === 0 && (
                   <div className="text-center py-16">
-                    <Send className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground">No campaigns yet</h3>
+                     <Send className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground">{t("pages.outreachHub.noCampaignsYet")}</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Upload a product image in Supplier Search to auto-generate outreach campaigns
+                      {t("pages.outreachHub.noCampaignsDesc")}
                     </p>
                   </div>
                 )}
@@ -244,10 +246,10 @@ export default function OutreachHub() {
           <TabsContent value="history" className="mt-6">
             {sentCampaigns.length === 0 ? (
               <div className="text-center py-16">
-                <History className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                <h3 className="text-lg font-semibold text-foreground">No history yet</h3>
+                 <History className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                <h3 className="text-lg font-semibold text-foreground">{t("pages.outreachHub.noHistoryYet")}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Approved and sent campaigns will appear here
+                  {t("pages.outreachHub.noHistoryDesc")}
                 </p>
               </div>
             ) : (
@@ -264,10 +266,10 @@ export default function OutreachHub() {
                         {c.product_name && <span className="text-xs text-muted-foreground">• {c.product_name}</span>}
                       </div>
                       <div className="flex items-center gap-2">
-                        {c.response_received ? (
-                          <Badge className="bg-emerald-500/10 text-emerald-600 text-xs">Responded</Badge>
+                         {c.response_received ? (
+                          <Badge className="bg-emerald-500/10 text-emerald-600 text-xs">{t("pages.outreachHub.responded")}</Badge>
                         ) : (
-                          <Badge className="bg-amber-500/10 text-amber-600 text-xs">Awaiting Response</Badge>
+                          <Badge className="bg-amber-500/10 text-amber-600 text-xs">{t("pages.outreachHub.awaitingResponse")}</Badge>
                         )}
                         {c.response_channel && (
                           <Badge variant="outline" className="text-xs">via {CHANNEL_LABELS[c.response_channel] || c.response_channel}</Badge>
@@ -281,12 +283,12 @@ export default function OutreachHub() {
                     {expandedHistory === c.id && (
                       <div className="px-4 pb-3 border-t border-border/30 pt-3 space-y-2">
                         <div>
-                          <p className="text-xs font-medium text-muted-foreground mb-1">Sent Message</p>
+                         <p className="text-xs font-medium text-muted-foreground mb-1">{t("pages.outreachHub.sentMessage")}</p>
                           <p className="text-sm bg-muted/50 p-2 rounded">{c.message || "—"}</p>
                         </div>
                         {c.response_received && (
                           <div>
-                            <p className="text-xs font-medium text-muted-foreground mb-1">Response</p>
+                            <p className="text-xs font-medium text-muted-foreground mb-1">{t("pages.outreachHub.response")}</p>
                             <p className="text-sm bg-emerald-500/5 p-2 rounded border border-emerald-500/20">{c.response_received}</p>
                           </div>
                         )}
@@ -296,8 +298,8 @@ export default function OutreachHub() {
                           className="gap-1.5"
                           onClick={() => navigate("/dashboard/conversations")}
                         >
-                          <MessageSquare className="h-3.5 w-3.5" />
-                          Open Conversation
+                           <MessageSquare className="h-3.5 w-3.5" />
+                          {t("pages.outreachHub.openConversation")}
                         </Button>
                       </div>
                     )}

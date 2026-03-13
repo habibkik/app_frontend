@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, Loader2, Sparkles, Search, ImageIcon, Play } from "lucide-react";
 import { DashboardLayout } from "@/features/dashboard";
@@ -26,6 +27,7 @@ import {
 } from "@/lib/market-intel-service";
 
 export default function MarketIntelligencePage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { 
     sellerResults, 
@@ -74,14 +76,14 @@ export default function MarketIntelligencePage() {
       setAnalysisProgress(100, "Complete!");
       
       toast({
-        title: "Market Analysis Complete",
-        description: `Found ${result.competitors.length} competitors and pricing insights for your product.`,
+        title: t("pages.marketIntelligence.marketAnalysisComplete"),
+        description: t("pages.marketIntelligence.analysisCompetitors", { count: result.competitors.length }),
       });
     } catch (error) {
       console.error("Analysis error:", error);
       toast({
-        title: "Analysis Failed",
-        description: "There was an error analyzing your image. Please try again.",
+        title: t("pages.marketIntelligence.analysisFailed"),
+        description: t("pages.marketIntelligence.analysisFailedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -132,8 +134,8 @@ export default function MarketIntelligencePage() {
   const handleLoadDemo = () => {
     setSellerResults(DEMO_MARKET_RESULT);
     toast({
-      title: "Demo Data Loaded",
-      description: "Explore the market analysis with sample data for a Bluetooth speaker.",
+      title: t("pages.marketIntelligence.demoDataLoaded"),
+      description: t("pages.marketIntelligence.demoDataLoadedDesc"),
     });
   };
 
@@ -151,9 +153,9 @@ export default function MarketIntelligencePage() {
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Market Intelligence</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t("pages.marketIntelligence.title")}</h1>
               <p className="text-muted-foreground">
-                AI-powered market analysis and competitive insights
+                {t("pages.marketIntelligence.subtitle")}
               </p>
             </div>
           </div>
@@ -164,7 +166,7 @@ export default function MarketIntelligencePage() {
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="ai-image" className="gap-2">
               <Sparkles className="h-4 w-4" />
-              Image Analysis
+              {t("pages.marketIntelligence.imageAnalysis")}
               {sellerResults && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   Results
@@ -173,7 +175,7 @@ export default function MarketIntelligencePage() {
             </TabsTrigger>
             <TabsTrigger value="text-search" className="gap-2">
               <Search className="h-4 w-4" />
-              Text Search
+              {t("pages.marketIntelligence.textSearch")}
             </TabsTrigger>
           </TabsList>
 
@@ -206,12 +208,11 @@ export default function MarketIntelligencePage() {
                     <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                       <ImageIcon className="h-8 w-8 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Analyze Market from Image
+                     <h3 className="text-lg font-semibold text-foreground mb-2">
+                      {t("pages.marketIntelligence.analyzeMarketFromImage")}
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Upload a product image to get instant competitor analysis, 
-                      pricing recommendations, and market demand signals.
+                      {t("pages.marketIntelligence.analyzeMarketFromImageDesc")}
                     </p>
                   </div>
                   <UniversalImageUpload 
@@ -226,7 +227,7 @@ export default function MarketIntelligencePage() {
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-background px-2 text-muted-foreground">
-                          Or explore with sample data
+                          {t("pages.marketIntelligence.orExploreWithSampleData")}
                         </span>
                       </div>
                     </div>
@@ -235,8 +236,8 @@ export default function MarketIntelligencePage() {
                       onClick={handleLoadDemo}
                       className="mt-4 gap-2"
                     >
-                      <Play className="h-4 w-4" />
-                      View Demo Analysis
+                       <Play className="h-4 w-4" />
+                      {t("pages.marketIntelligence.viewDemoAnalysis")}
                     </Button>
                   </div>
                 </motion.div>
@@ -265,8 +266,8 @@ export default function MarketIntelligencePage() {
                           <div className="flex flex-col items-center justify-center text-center">
                             <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
                             <p className="font-medium">Analyzing "{currentQuery}"</p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Gathering market data and generating insights...
+                             <p className="text-sm text-muted-foreground mt-1">
+                              {t("pages.marketIntelligence.gatheringData")}
                             </p>
                           </div>
                         </CardContent>
@@ -315,12 +316,11 @@ export default function MarketIntelligencePage() {
                       <CardContent className="py-16">
                         <div className="text-center">
                           <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                          <h3 className="text-lg font-medium mb-2">
-                            Start Your Market Analysis
+                           <h3 className="text-lg font-medium mb-2">
+                             {t("pages.marketIntelligence.startYourMarketAnalysis")}
                           </h3>
                           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                            Enter a product, industry, or market to get AI-powered insights
-                            including competitor analysis, market trends, and pricing recommendations.
+                             {t("pages.marketIntelligence.startYourMarketAnalysisDesc")}
                           </p>
                         </div>
                       </CardContent>

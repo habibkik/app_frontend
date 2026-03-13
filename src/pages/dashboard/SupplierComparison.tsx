@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCompareArrows,
@@ -237,6 +238,7 @@ function bestWorst(values: number[], mode: "lowest" | "highest") {
 // ── Main Page ──
 
 export default function SupplierComparisonPage() {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
   const [selected, setSelected] = useState<Supplier[]>(() => mockSuppliers.slice(0, 3));
   const [expandedSection, setExpandedSection] = useState<string | null>("risk");
@@ -253,9 +255,9 @@ export default function SupplierComparisonPage() {
   const toggleSection = (id: string) => setExpandedSection(expandedSection === id ? null : id);
 
   const sections = [
-    { id: "risk", label: "Risk Scores", icon: Shield },
-    { id: "pricing", label: "Pricing & Terms", icon: DollarSign },
-    { id: "capabilities", label: "Capabilities & Profile", icon: Award },
+    { id: "risk", label: t("pages.supplierComparison.riskScores"), icon: Shield },
+    { id: "pricing", label: t("pages.supplierComparison.pricingTerms"), icon: DollarSign },
+    { id: "capabilities", label: t("pages.supplierComparison.capabilitiesProfile"), icon: Award },
   ];
 
   return (
@@ -268,8 +270,8 @@ export default function SupplierComparisonPage() {
               <GitCompareArrows className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Supplier Comparison</h1>
-              <p className="text-sm text-muted-foreground">Compare risk, pricing, and capabilities side by side</p>
+              <h1 className="text-2xl font-bold text-foreground">{t("pages.supplierComparison.title")}</h1>
+              <p className="text-sm text-muted-foreground">{t("pages.supplierComparison.subtitle")}</p>
             </div>
           </div>
         </motion.div>
@@ -365,7 +367,7 @@ export default function SupplierComparisonPage() {
               <CardContent className="p-5">
                 <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
                   <Award className="h-4 w-4 text-primary" />
-                  Comparison Summary
+                  {t("pages.supplierComparison.comparisonSummary")}
                 </h3>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {(() => {
@@ -384,21 +386,21 @@ export default function SupplierComparisonPage() {
                     return (
                       <>
                         <div className="rounded-lg bg-background p-3 border border-border">
-                          <p className="text-xs text-muted-foreground mb-1">Lowest Risk</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t("pages.supplierComparison.lowestRisk")}</p>
                           <p className="font-semibold text-sm">{lowestRisk.s.name}</p>
                           <Badge variant="outline" className="text-xs mt-1 text-emerald-500">
-                            Score: {risks[lowestRisk.idx].overall}/100
+                            {t("pages.supplierComparison.score")}: {risks[lowestRisk.idx].overall}/100
                           </Badge>
                         </div>
                         <div className="rounded-lg bg-background p-3 border border-border">
-                          <p className="text-xs text-muted-foreground mb-1">Highest Rated</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t("pages.supplierComparison.highestRated")}</p>
                           <p className="font-semibold text-sm">{highestRated.name}</p>
                           <Badge variant="outline" className="text-xs mt-1 text-amber-500">
-                            ★ {highestRated.rating} ({highestRated.reviewCount} reviews)
+                            ★ {highestRated.rating} ({highestRated.reviewCount} {t("pages.supplierComparison.reviews")})
                           </Badge>
                         </div>
                         <div className="rounded-lg bg-background p-3 border border-border">
-                          <p className="text-xs text-muted-foreground mb-1">Lowest MOV</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t("pages.supplierComparison.lowestMOQ")}</p>
                           <p className="font-semibold text-sm">{lowestMOV.name}</p>
                           <Badge variant="outline" className="text-xs mt-1 text-primary">
                             {fc(lowestMOV.minOrderValue)}

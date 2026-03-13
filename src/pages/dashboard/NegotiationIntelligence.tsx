@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -106,6 +107,7 @@ const DEMO_QUOTES: QuoteInput[] = [
 ];
 
 export default function NegotiationIntelligencePage() {
+  const { t } = useTranslation();
   const fc = useFormatCurrency();
   const [productName, setProductName] = useState("");
   const [targetPrice, setTargetPrice] = useState<number>(0);
@@ -180,15 +182,15 @@ export default function NegotiationIntelligencePage() {
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2">
               <Brain className="h-5 w-5 text-primary" />
-              Negotiation Intelligence
+              {t("pages.negotiation.title")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              AI-powered tactics & scripts based on supplier quote analysis
+              {t("pages.negotiation.subtitle")}
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={loadDemoData}>
             <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            Load Demo Data
+            {t("pages.negotiation.loadDemoData")}
           </Button>
         </motion.div>
 
@@ -197,20 +199,20 @@ export default function NegotiationIntelligencePage() {
           <motion.div variants={item} className="lg:col-span-1 space-y-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Context</CardTitle>
+                <CardTitle className="text-base">{t("pages.negotiation.context")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Product / Category</Label>
+                  <Label className="text-sm">{t("pages.negotiation.productCategory")}</Label>
                   <Input value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g. CNC Machined Housing" className="h-8 text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Target Price</Label>
+                    <Label className="text-sm">{t("pages.negotiation.targetPrice")}</Label>
                     <Input type="number" min={0} step={0.01} value={targetPrice || ""} onChange={(e) => setTargetPrice(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Market Benchmark</Label>
+                    <Label className="text-sm">{t("pages.negotiation.marketBenchmark")}</Label>
                     <Input type="number" min={0} step={0.01} value={marketBenchmark || ""} onChange={(e) => setMarketBenchmark(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                 </div>
@@ -222,22 +224,22 @@ export default function NegotiationIntelligencePage() {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Shield className="h-4 w-4 text-primary" />
-                  BATNA & Cost Analysis
+                  {t("pages.negotiation.batnaTitle")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Walk-Away Price</Label>
+                    <Label className="text-sm">{t("pages.negotiation.walkAwayPrice")}</Label>
                     <Input type="number" min={0} step={0.01} value={walkAwayPrice || ""} onChange={(e) => setWalkAwayPrice(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Should-Cost Estimate</Label>
+                    <Label className="text-sm">{t("pages.negotiation.shouldCostEstimate")}</Label>
                     <Input type="number" min={0} step={0.01} value={shouldCostEstimate || ""} onChange={(e) => setShouldCostEstimate(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Best Alternative (BATNA)</Label>
+                  <Label className="text-sm">{t("pages.negotiation.bestAlternative")}</Label>
                   <Input value={bestAlternative} onChange={(e) => setBestAlternative(e.target.value)} placeholder="e.g. Switch to Supplier B at $90/unit" className="h-8 text-sm" />
                 </div>
 
@@ -265,19 +267,19 @@ export default function NegotiationIntelligencePage() {
 
                 {/* Industry margins */}
                 <div className="p-3 rounded-lg border bg-muted/30">
-                  <p className="text-xs font-medium mb-1.5">Industry Margin Benchmarks</p>
+                  <p className="text-xs font-medium mb-1.5">{t("pages.negotiation.industryBenchmarks")}</p>
                   <div className="grid grid-cols-3 gap-2 text-[10px]">
                     <div className="text-center p-1.5 rounded bg-background border">
                       <p className="font-bold">8–15%</p>
-                      <p className="text-muted-foreground">Manufacturing</p>
+                      <p className="text-muted-foreground">{t("pages.negotiation.manufacturing")}</p>
                     </div>
                     <div className="text-center p-1.5 rounded bg-background border">
                       <p className="font-bold">20–40%</p>
-                      <p className="text-muted-foreground">IT / Software</p>
+                      <p className="text-muted-foreground">{t("pages.negotiation.itSoftware")}</p>
                     </div>
                     <div className="text-center p-1.5 rounded bg-background border">
                       <p className="font-bold">5–10%</p>
-                      <p className="text-muted-foreground">Distribution</p>
+                      <p className="text-muted-foreground">{t("pages.negotiation.distribution")}</p>
                     </div>
                   </div>
                 </div>
@@ -288,41 +290,41 @@ export default function NegotiationIntelligencePage() {
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Supplier Quotes</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={addQuote}><Plus className="h-3.5 w-3.5 mr-1" /> Add</Button>
+                   <CardTitle className="text-base">{t("pages.negotiation.supplierQuotes")}</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={addQuote}><Plus className="h-3.5 w-3.5 mr-1" /> {t("pages.negotiation.add")}</Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {quotes.map((q, idx) => (
                   <div key={q.id} className="space-y-2 p-3 rounded-lg border bg-muted/30">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-muted-foreground">Quote #{idx + 1}</span>
+                      <span className="text-xs font-medium text-muted-foreground">{t("pages.negotiation.quote")} #{idx + 1}</span>
                       {quotes.length > 1 && (
                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeQuote(q.id)}>
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       )}
                     </div>
-                    <Input value={q.supplierName} onChange={(e) => updateQuote(q.id, "supplierName", e.target.value)} placeholder="Supplier name" className="h-8 text-sm" />
+                    <Input value={q.supplierName} onChange={(e) => updateQuote(q.id, "supplierName", e.target.value)} placeholder={t("pages.negotiation.supplierName")} className="h-8 text-sm" />
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">
-                        <Label className="text-xs">Unit Price ($)</Label>
+                        <Label className="text-xs">{t("pages.negotiation.unitPrice")}</Label>
                         <Input type="number" min={0} step={0.01} value={q.unitPrice || ""} onChange={(e) => updateQuote(q.id, "unitPrice", parseFloat(e.target.value) || 0)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Tooling ($)</Label>
+                        <Label className="text-xs">{t("pages.negotiation.toolingCost")}</Label>
                         <Input type="number" min={0} step={1} value={q.toolingCost || ""} onChange={(e) => updateQuote(q.id, "toolingCost", parseFloat(e.target.value) || 0)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">MOQ</Label>
+                        <Label className="text-xs">{t("pages.negotiation.moq")}</Label>
                         <Input type="number" min={1} value={q.moq} onChange={(e) => updateQuote(q.id, "moq", parseInt(e.target.value) || 1)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Lead Time (days)</Label>
+                        <Label className="text-xs">{t("pages.negotiation.leadTimeDays")}</Label>
                         <Input type="number" min={1} value={q.leadTimeDays} onChange={(e) => updateQuote(q.id, "leadTimeDays", parseInt(e.target.value) || 1)} className="h-7 text-sm" />
                       </div>
                     </div>
-                    <Input value={q.paymentTerms} onChange={(e) => updateQuote(q.id, "paymentTerms", e.target.value)} placeholder="Payment terms" className="h-7 text-sm" />
+                    <Input value={q.paymentTerms} onChange={(e) => updateQuote(q.id, "paymentTerms", e.target.value)} placeholder={t("pages.negotiation.paymentTerms")} className="h-7 text-sm" />
                   </div>
                 ))}
               </CardContent>
@@ -330,7 +332,7 @@ export default function NegotiationIntelligencePage() {
 
             <Button className="w-full" onClick={analyze} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-              {loading ? "Analyzing…" : "Generate Intelligence"}
+              {loading ? t("pages.negotiation.analyzing") : t("pages.negotiation.generateIntelligence")}
             </Button>
           </motion.div>
 
@@ -339,8 +341,8 @@ export default function NegotiationIntelligencePage() {
             {!result && !loading && (
               <Card className="h-full flex items-center justify-center min-h-[400px]">
                 <CardContent className="text-center space-y-3 py-12">
-                  <Brain className="h-12 w-12 text-muted-foreground/30 mx-auto" />
-                  <p className="text-muted-foreground text-sm">Enter supplier quotes and click "Generate Intelligence" to get AI-powered negotiation tactics and scripts</p>
+                   <Brain className="h-12 w-12 text-muted-foreground/30 mx-auto" />
+                  <p className="text-muted-foreground text-sm">{t("pages.negotiation.emptyStateDesc")}</p>
                 </CardContent>
               </Card>
             )}
@@ -348,8 +350,8 @@ export default function NegotiationIntelligencePage() {
             {loading && (
               <Card className="h-full flex items-center justify-center min-h-[400px]">
                 <CardContent className="text-center space-y-3 py-12">
-                  <Loader2 className="h-10 w-10 text-primary animate-spin mx-auto" />
-                  <p className="text-sm text-muted-foreground">Analyzing quotes & generating negotiation strategy…</p>
+                   <Loader2 className="h-10 w-10 text-primary animate-spin mx-auto" />
+                  <p className="text-sm text-muted-foreground">{t("pages.negotiation.analyzingDesc")}</p>
                 </CardContent>
               </Card>
             )}
@@ -363,7 +365,7 @@ export default function NegotiationIntelligencePage() {
                       <Target className="h-5 w-5 text-primary mt-0.5 shrink-0" />
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-semibold text-sm">Strategy Summary</h3>
+                          <h3 className="font-semibold text-sm">{t("pages.negotiation.strategySummary")}</h3>
                           {(() => {
                             const cfg = LEVERAGE_CONFIG[result.overallLeverage];
                             const Icon = cfg.icon;

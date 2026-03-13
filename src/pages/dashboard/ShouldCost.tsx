@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -87,6 +88,7 @@ function InputRow({
 }
 
 export default function ShouldCostPage() {
+  const { t } = useTranslation();
   const [inputs, setInputs] = useState<CostInputs>(DEFAULT_INPUTS);
   const fc = useFormatCurrency();
   const producerResults = useAnalysisStore((s) => s.producerResults);
@@ -204,22 +206,22 @@ export default function ShouldCostPage() {
           <div>
             <h1 className="text-xl font-bold flex items-center gap-2">
               <Calculator className="h-5 w-5 text-primary" />
-              Should-Cost Model Calculator
+              {t("pages.shouldCost.title")}
             </h1>
-            <p className="text-sm text-muted-foreground">Estimate expected production cost to benchmark supplier quotes</p>
+            <p className="text-sm text-muted-foreground">{t("pages.shouldCost.subtitle")}</p>
           </div>
           <div className="flex gap-2 flex-wrap items-center">
             <BOMSelector fallbackLabel="No BOM (manual input)" onBOMSelected={handleBOMSelected} />
             {hasBOMData && !bomApplied && (
               <Button variant="default" size="sm" onClick={handleAutoFillFromBOM} className="gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> Auto-fill from BOM
+                <Sparkles className="h-3.5 w-3.5" /> {t("pages.shouldCost.autoFillBom")}
               </Button>
             )}
             {bomApplied && (
-              <Badge variant="outline" className="gap-1"><Sparkles className="h-3 w-3" /> BOM Applied</Badge>
+              <Badge variant="outline" className="gap-1"><Sparkles className="h-3 w-3" /> {t("pages.shouldCost.bomApplied")}</Badge>
             )}
-            <Button variant="outline" size="sm" onClick={handleReset}><RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset</Button>
-            <Button variant="outline" size="sm" onClick={handleCopy}><Copy className="h-3.5 w-3.5 mr-1" /> Copy</Button>
+            <Button variant="outline" size="sm" onClick={handleReset}><RotateCcw className="h-3.5 w-3.5 mr-1" /> {t("pages.shouldCost.reset")}</Button>
+            <Button variant="outline" size="sm" onClick={handleCopy}><Copy className="h-3.5 w-3.5 mr-1" /> {t("pages.shouldCost.copy")}</Button>
           </div>
         </motion.div>
 
@@ -227,70 +229,70 @@ export default function ShouldCostPage() {
           {/* Left: Inputs */}
           <motion.div variants={item} className="lg:col-span-2 space-y-4">
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base">General</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.general")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Package className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <Label className="text-sm min-w-[140px] shrink-0">Product Name</Label>
+                  <Label className="text-sm min-w-[140px] shrink-0">{t("pages.shouldCost.productName")}</Label>
                   <Input value={inputs.productName} onChange={(e) => set("productName", e.target.value as any)} placeholder="e.g. Aluminum Housing" className="h-8 text-sm" />
                 </div>
-                <InputRow label="Production Volume" icon={Package} suffix="units" value={inputs.volume} onChange={(v) => set("volume", v)} min={1} step={100} />
+                <InputRow label={t("pages.shouldCost.productionVolume")} icon={Package} suffix="units" value={inputs.volume} onChange={(v) => set("volume", v)} min={1} step={100} />
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[0] }} />Material</CardTitle>
-                <CardDescription className="text-xs">Enter weight × price/kg or direct unit cost</CardDescription>
+                <CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[0] }} />{t("pages.shouldCost.material")}</CardTitle>
+                <CardDescription className="text-xs">{t("pages.shouldCost.materialDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <InputRow label="Weight per Unit" icon={Package} suffix="kg" value={inputs.materialWeight} onChange={(v) => set("materialWeight", v)} />
-                <InputRow label="Price per Kg" icon={TrendingUp} suffix="$/kg" value={inputs.materialPricePerKg} onChange={(v) => set("materialPricePerKg", v)} />
+                <InputRow label={t("pages.shouldCost.weightPerUnit")} icon={Package} suffix="kg" value={inputs.materialWeight} onChange={(v) => set("materialWeight", v)} />
+                <InputRow label={t("pages.shouldCost.pricePerKg")} icon={TrendingUp} suffix="$/kg" value={inputs.materialPricePerKg} onChange={(v) => set("materialPricePerKg", v)} />
                 <Separator />
-                <InputRow label="Or Direct Unit Cost" icon={Package} suffix="$/unit" value={inputs.materialCostPerUnit} onChange={(v) => set("materialCostPerUnit", v)} />
+                <InputRow label={t("pages.shouldCost.orDirectUnitCost")} icon={Package} suffix="$/unit" value={inputs.materialCostPerUnit} onChange={(v) => set("materialCostPerUnit", v)} />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[1] }} />Labor</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[1] }} />{t("pages.shouldCost.labor")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <InputRow label="Hours per Unit" icon={Users} suffix="hrs" value={inputs.laborHoursPerUnit} onChange={(v) => set("laborHoursPerUnit", v)} />
-                <InputRow label="Rate per Hour" icon={Users} suffix="$/hr" value={inputs.laborRatePerHour} onChange={(v) => set("laborRatePerHour", v)} />
+                <InputRow label={t("pages.shouldCost.hoursPerUnit")} icon={Users} suffix="hrs" value={inputs.laborHoursPerUnit} onChange={(v) => set("laborHoursPerUnit", v)} />
+                <InputRow label={t("pages.shouldCost.ratePerHour")} icon={Users} suffix="$/hr" value={inputs.laborRatePerHour} onChange={(v) => set("laborRatePerHour", v)} />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[2] }} />Machine</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[2] }} />{t("pages.shouldCost.machine")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <InputRow label="Cycle Time" icon={Cpu} suffix="min" value={inputs.machineCycleMinutes} onChange={(v) => set("machineCycleMinutes", v)} />
-                <InputRow label="Hourly Rate" icon={Cpu} suffix="$/hr" value={inputs.machineHourlyRate} onChange={(v) => set("machineHourlyRate", v)} />
+                <InputRow label={t("pages.shouldCost.cycleTime")} icon={Cpu} suffix="min" value={inputs.machineCycleMinutes} onChange={(v) => set("machineCycleMinutes", v)} />
+                <InputRow label={t("pages.shouldCost.hourlyRate")} icon={Cpu} suffix="$/hr" value={inputs.machineHourlyRate} onChange={(v) => set("machineHourlyRate", v)} />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[3] }} />Tooling</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{ background: PIE_COLORS[3] }} />{t("pages.shouldCost.tooling")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                <InputRow label="Total Tooling Cost" icon={Wrench} suffix="$" value={inputs.toolingCost} onChange={(v) => set("toolingCost", v)} />
-                <InputRow label="Tooling Life" icon={Wrench} suffix="units" value={inputs.toolingLifeUnits} onChange={(v) => set("toolingLifeUnits", v)} min={1} step={1000} />
+                <InputRow label={t("pages.shouldCost.totalToolingCost")} icon={Wrench} suffix="$" value={inputs.toolingCost} onChange={(v) => set("toolingCost", v)} />
+                <InputRow label={t("pages.shouldCost.toolingLife")} icon={Wrench} suffix="units" value={inputs.toolingLifeUnits} onChange={(v) => set("toolingLifeUnits", v)} min={1} step={1000} />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base">Overhead, Scrap & Extras</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.overheadScrapExtras")}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between"><Label className="text-sm">Overhead</Label><Badge variant="secondary">{inputs.overheadPercent}%</Badge></div>
+                  <div className="flex items-center justify-between"><Label className="text-sm">{t("pages.shouldCost.overhead")}</Label><Badge variant="secondary">{inputs.overheadPercent}%</Badge></div>
                   <Slider value={[inputs.overheadPercent]} onValueChange={([v]) => set("overheadPercent", v)} min={0} max={50} step={1} />
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between"><Label className="text-sm">Scrap Rate</Label><Badge variant="secondary">{inputs.scrapPercent}%</Badge></div>
+                  <div className="flex items-center justify-between"><Label className="text-sm">{t("pages.shouldCost.scrapRate")}</Label><Badge variant="secondary">{inputs.scrapPercent}%</Badge></div>
                   <Slider value={[inputs.scrapPercent]} onValueChange={([v]) => set("scrapPercent", v)} min={0} max={20} step={0.5} />
                 </div>
                 <Separator />
-                <InputRow label="Packaging" icon={Package} suffix="$/unit" value={inputs.packagingPerUnit} onChange={(v) => set("packagingPerUnit", v)} />
-                <InputRow label="Logistics" icon={Building2} suffix="$/unit" value={inputs.logisticsPerUnit} onChange={(v) => set("logisticsPerUnit", v)} />
+                <InputRow label={t("pages.shouldCost.packaging")} icon={Package} suffix="$/unit" value={inputs.packagingPerUnit} onChange={(v) => set("packagingPerUnit", v)} />
+                <InputRow label={t("pages.shouldCost.logistics")} icon={Building2} suffix="$/unit" value={inputs.logisticsPerUnit} onChange={(v) => set("logisticsPerUnit", v)} />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base">Supplier Margin</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.supplierMargin")}</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between"><Label className="text-sm">Target Margin</Label><Badge variant="secondary">{inputs.marginPercent}%</Badge></div>
+                  <div className="flex items-center justify-between"><Label className="text-sm">{t("pages.shouldCost.targetMargin")}</Label><Badge variant="secondary">{inputs.marginPercent}%</Badge></div>
                   <Slider value={[inputs.marginPercent]} onValueChange={([v]) => set("marginPercent", v)} min={0} max={40} step={1} />
                 </div>
               </CardContent>
@@ -301,13 +303,13 @@ export default function ShouldCostPage() {
           <motion.div variants={item} className="space-y-4">
             <Card className="border-primary/30 bg-primary/5 sticky top-4">
               <CardHeader className="pb-2">
-                <CardTitle className="text-base flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />Should-Cost Result</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" />{t("pages.shouldCost.shouldCostResult")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center py-3">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Per Unit</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{t("pages.shouldCost.perUnit")}</p>
                   <p className="text-3xl font-bold text-primary">{fc(costs.shouldCost)}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Production: {fc(costs.totalCost)} + Margin: {fc(costs.margin)}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t("pages.shouldCost.productionCost")}: {fc(costs.totalCost)} + {t("pages.shouldCost.margin")}: {fc(costs.margin)}</p>
                 </div>
                 <Separator />
                 <div className="space-y-2 text-sm">
@@ -321,9 +323,9 @@ export default function ShouldCostPage() {
                     </div>
                   ))}
                   <Separator />
-                  <div className="flex justify-between font-medium"><span>Production Cost</span><span>{fc(costs.totalCost)}</span></div>
-                  <div className="flex justify-between text-muted-foreground"><span>Margin ({inputs.marginPercent}%)</span><span>{fc(costs.margin)}</span></div>
-                  <div className="flex justify-between font-bold text-primary"><span>Should-Cost</span><span>{fc(costs.shouldCost)}</span></div>
+                  <div className="flex justify-between font-medium"><span>{t("pages.shouldCost.productionCost")}</span><span>{fc(costs.totalCost)}</span></div>
+                  <div className="flex justify-between text-muted-foreground"><span>{t("pages.shouldCost.margin")} ({inputs.marginPercent}%)</span><span>{fc(costs.margin)}</span></div>
+                  <div className="flex justify-between font-bold text-primary"><span>{t("pages.shouldCost.shouldCost")}</span><span>{fc(costs.shouldCost)}</span></div>
                 </div>
                 <Separator />
                 <div className="bg-muted/50 rounded-md p-3 text-center">
@@ -334,7 +336,7 @@ export default function ShouldCostPage() {
             </Card>
 
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-base">Cost Distribution</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-base">{t("pages.shouldCost.costDistribution")}</CardTitle></CardHeader>
               <CardContent className="h-[240px]">
                 {pieData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
@@ -346,7 +348,7 @@ export default function ShouldCostPage() {
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">Enter cost inputs to see distribution</div>
+                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">{t("pages.shouldCost.noDataYet")}</div>
                 )}
               </CardContent>
             </Card>
