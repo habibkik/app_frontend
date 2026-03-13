@@ -545,7 +545,7 @@ function renderCheckoutForm(cfg: CheckoutFormBlockConfig, theme: LandingPageThem
       <button type="submit" style="${neonBtnStyle(theme)}cursor:pointer;width:100%;text-align:center;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">Complete Order</button>
     </form>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
