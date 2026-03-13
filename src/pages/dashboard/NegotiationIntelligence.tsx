@@ -199,7 +199,7 @@ export default function NegotiationIntelligencePage() {
           <motion.div variants={item} className="lg:col-span-1 space-y-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Context</CardTitle>
+                <CardTitle className="text-base">{t("pages.negotiation.context")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-1.5">
