@@ -374,7 +374,7 @@ function renderImageGallery(cfg: ImageGalleryBlockConfig, theme: LandingPageThem
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:16px;">${imgs}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
