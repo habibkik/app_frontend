@@ -9,6 +9,14 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
   Loader2,
   Download,
   DownloadCloud,
@@ -19,6 +27,7 @@ import {
   ChevronRight,
   Upload,
   Wand2,
+  Settings2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +38,49 @@ import { PRO_IMAGE_SECTIONS } from "./types";
 import type { GeneratedImage } from "./types";
 import type { BrandKit } from "./BrandKitPanel";
 import { RemixMenu, type RemixMode } from "./RemixMenu";
+
+const MARKETING_LANGUAGES = [
+  { value: "arabic", label: "العربية (Arabic)" },
+  { value: "english", label: "English" },
+  { value: "french", label: "Français (French)" },
+  { value: "spanish", label: "Español (Spanish)" },
+  { value: "turkish", label: "Türkçe (Turkish)" },
+];
+
+const MARKETING_CURRENCIES = [
+  { value: "SAR", label: "SAR – ر.س (Saudi Riyal)" },
+  { value: "AED", label: "AED – د.إ (Emirati Dirham)" },
+  { value: "USD", label: "USD – $ (US Dollar)" },
+  { value: "EUR", label: "EUR – € (Euro)" },
+  { value: "MAD", label: "MAD – د.م (Moroccan Dirham)" },
+  { value: "DZD", label: "DZD – د.ج (Algerian Dinar)" },
+  { value: "TND", label: "TND – د.ت (Tunisian Dinar)" },
+  { value: "EGP", label: "EGP – ج.م (Egyptian Pound)" },
+  { value: "GBP", label: "GBP – £ (British Pound)" },
+];
+
+const MARKETING_COUNTRIES = [
+  { value: "saudi-arabia", label: "🇸🇦 Saudi Arabia" },
+  { value: "uae", label: "🇦🇪 UAE" },
+  { value: "morocco", label: "🇲🇦 Morocco" },
+  { value: "algeria", label: "🇩🇿 Algeria" },
+  { value: "tunisia", label: "🇹🇳 Tunisia" },
+  { value: "egypt", label: "🇪🇬 Egypt" },
+  { value: "kuwait", label: "🇰🇼 Kuwait" },
+  { value: "qatar", label: "🇶🇦 Qatar" },
+  { value: "usa", label: "🇺🇸 USA" },
+  { value: "france", label: "🇫🇷 France" },
+  { value: "turkey", label: "🇹🇷 Turkey" },
+];
+
+const MARKETING_STYLES = [
+  { value: "cod-landing", label: "COD Landing Page" },
+  { value: "modern-minimal", label: "Modern Minimal" },
+  { value: "luxury-premium", label: "Luxury Premium" },
+  { value: "bold-aggressive", label: "Bold / Aggressive Sale" },
+  { value: "natural-organic", label: "Natural / Organic" },
+  { value: "tech-futuristic", label: "Tech / Futuristic" },
+];
 
 const downloadImage = (dataUrl: string, filename: string) => {
   const a = document.createElement("a");
