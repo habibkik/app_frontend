@@ -239,7 +239,7 @@ export default function NegotiationIntelligencePage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Best Alternative (BATNA)</Label>
+                  <Label className="text-sm">{t("pages.negotiation.bestAlternative")}</Label>
                   <Input value={bestAlternative} onChange={(e) => setBestAlternative(e.target.value)} placeholder="e.g. Switch to Supplier B at $90/unit" className="h-8 text-sm" />
                 </div>
 
