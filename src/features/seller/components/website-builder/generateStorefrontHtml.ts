@@ -22,9 +22,22 @@ interface GenerateOptions {
 
 // --- Theme helpers ---
 
-function bgStyle(fallback: string, imageUrl?: string): string {
-  if (imageUrl) return `background-image:url('${imageUrl}');background-size:cover;background-position:center;`;
+function bgStyle(fallback: string, imageUrl?: string, fitToImage?: boolean, bgW?: number, bgH?: number): string {
+  if (imageUrl) {
+    const aspectStyle = fitToImage && bgW && bgH ? `aspect-ratio:${bgW}/${bgH};min-height:auto;` : "";
+    return `background-image:url('${imageUrl}');background-size:cover;background-position:center;${aspectStyle}`;
+  }
   return `background:${fallback};`;
+}
+
+// Shorthand: extract fit params from any block config that has BgImageDimensions
+function bgFit(cfg: any): [boolean | undefined, number | undefined, number | undefined] {
+  return [cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight];
+}
+
+function sectionPadFor(theme: LandingPageTheme, cfg: any): string {
+  if (cfg.fitToImage && cfg.bgImageWidth && cfg.bgImageHeight) return "40px 20px";
+  return sectionPad(theme);
 }
 
 function wrapWithOverlay(innerHtml: string, imageUrl?: string, opacity?: number): string {
@@ -89,8 +102,11 @@ function hoverCss(theme: LandingPageTheme) {
   }
 }
 
-function heroBg(theme: LandingPageTheme, imageUrl?: string) {
-  if (imageUrl) return `background-image:url('${imageUrl}');background-size:cover;background-position:center;`;
+function heroBg(theme: LandingPageTheme, imageUrl?: string, fitToImage?: boolean, bgW?: number, bgH?: number) {
+  if (imageUrl) {
+    const aspectStyle = fitToImage && bgW && bgH ? `aspect-ratio:${bgW}/${bgH};min-height:auto;` : "";
+    return `background-image:url('${imageUrl}');background-size:cover;background-position:center;${aspectStyle}`;
+  }
   if (theme.gradientEnabled) return `background:linear-gradient(${theme.gradientAngle ?? 135}deg,${theme.gradientStart || theme.primaryColor},${theme.gradientEnd || theme.accentColor});`;
   return `background:${theme.primaryColor};`;
 }
@@ -98,15 +114,16 @@ function heroBg(theme: LandingPageTheme, imageUrl?: string) {
 // --- Block Renderers ---
 
 function renderHero(cfg: HeroBlockConfig, theme: LandingPageTheme) {
-  const bg = heroBg(theme, cfg.backgroundImageUrl);
+  const bg = heroBg(theme, cfg.backgroundImageUrl, cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight);
   const hSize = theme.headingSize ?? 40;
+  const fitPad = cfg.fitToImage && cfg.bgImageWidth && cfg.bgImageHeight ? "padding:40px 20px;" : "padding:80px 20px;";
   const inner = `
   <div style="max-width:900px;margin:0 auto;">
     <h1 style="font-family:${theme.headingFont};font-size:${hSize}px;margin:0 0 16px;">${cfg.title}</h1>
     <p style="font-size:${(theme.bodySize ?? 16) * 1.2}px;opacity:.9;margin:0 0 24px;">${cfg.subtitle}</p>
     <a href="#order" style="${btnStyle(theme)}">${cfg.ctaText}</a>
   </div>`;
-  return `<section style="${bg}color:#fff;padding:80px 20px;text-align:${theme.heroStyle === "left-aligned" ? "left" : "center"};">
+  return `<section style="${bg}color:#fff;${fitPad}text-align:${theme.heroStyle === "left-aligned" ? "left" : "center"};">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -153,7 +170,7 @@ function renderTestimonials(cfg: TestimonialsBlockConfig, theme: LandingPageThem
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">What Our Customers Say</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;">${cards}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -169,7 +186,7 @@ function renderFaq(cfg: FaqBlockConfig, theme: LandingPageTheme) {
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">Frequently Asked Questions</h2>
     ${items}
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -187,7 +204,7 @@ function renderContact(cfg: ContactBlockConfig, theme: LandingPageTheme) {
       <button type="submit" style="${btnStyle(theme)}cursor:pointer;">Send Message</button>
     </form>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -206,7 +223,7 @@ function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
       <button type="submit" style="${btnStyle(theme)}cursor:pointer;">Place Order</button>
     </form>
   </div>`;
-  return `<section id="order" style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section id="order" style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -222,7 +239,7 @@ function renderSocialProof(cfg: SocialProofBlockConfig, theme: LandingPageTheme,
       <div><p style="font-size:2rem;font-weight:700;color:${accentColor};margin:0;">${(stats?.totalEngagement ?? 0).toLocaleString()}</p><p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};font-size:.9rem;margin:4px 0 0;">Total Engagement</p></div>
     </div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -240,7 +257,7 @@ function renderMarketStats(cfg: MarketStatsBlockConfig, theme: LandingPageTheme,
       ${marketData?.competitorCount !== undefined ? `<div><p style="font-size:1.5rem;font-weight:700;color:${accentColor};margin:0;">${marketData.competitorCount}</p><p style="color:${subColor};font-size:.9rem;margin:4px 0 0;">Competitors Tracked</p></div>` : ""}
     </div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -260,7 +277,7 @@ function renderProblemAgitation(cfg: ProblemAgitationBlockConfig, theme: Landing
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;">${bullets}</div>
     <p style="margin-top:32px;font-size:1.15rem;font-weight:600;color:${cfg.backgroundImageUrl ? "#fff" : theme.primaryColor};">${cfg.reinforcement}</p>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#fef2f2", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#fef2f2", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -294,7 +311,7 @@ function renderOfferPricing(cfg: OfferPricingBlockConfig, theme: LandingPageThem
   const gradBg = theme.gradientEnabled
     ? `linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`
     : `linear-gradient(135deg,${theme.primaryColor}11,${theme.accentColor}22)`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(gradBg, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(gradBg, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -313,7 +330,7 @@ function renderFeaturesGrid(cfg: FeaturesGridBlockConfig, theme: LandingPageThem
     <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 40px;font-size:1.05rem;">${cfg.subtitle}</p>
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:24px;">${cards}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -340,7 +357,7 @@ function renderPricingTable(cfg: PricingTableBlockConfig, theme: LandingPageThem
     <h2 style="font-family:${theme.headingFont};margin:0 0 40px;color:${textColor};">${cfg.heading}</h2>
     <div style="display:grid;grid-template-columns:repeat(${cfg.plans.length},1fr);gap:24px;">${plans}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -357,7 +374,7 @@ function renderImageGallery(cfg: ImageGalleryBlockConfig, theme: LandingPageThem
     <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:16px;">${imgs}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -383,13 +400,13 @@ function renderVideoEmbed(cfg: VideoEmbedBlockConfig, theme: LandingPageTheme) {
     <h2 style="font-family:${theme.headingFont};margin:0 0 24px;color:${textColor};">${cfg.heading}</h2>
     ${embedHtml}
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
 
 function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPageTheme) {
-  const bg = heroBg(theme, cfg.backgroundImageUrl);
+  const bg = heroBg(theme, cfg.backgroundImageUrl, cfg.fitToImage, cfg.bgImageWidth, cfg.bgImageHeight);
   const inner = `
   <div style="max-width:600px;margin:0 auto;text-align:center;">
     <h2 style="font-family:${theme.headingFont};margin:0 0 8px;color:#fff;">${cfg.heading}</h2>
@@ -410,7 +427,7 @@ function renderCountdownTimer(cfg: CountdownTimerBlockConfig, theme: LandingPage
     upd();setInterval(upd,1000);
   })();
   </script>`;
-  return `<section style="padding:${sectionPad(theme)};${bg}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bg}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -426,7 +443,7 @@ function renderNewsletter(cfg: NewsletterBlockConfig, theme: LandingPageTheme) {
       <button type="submit" style="${btnStyle(theme)}cursor:pointer;white-space:nowrap;">${cfg.buttonText}</button>
     </form>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -460,7 +477,7 @@ function renderProductDetail(cfg: ProductDetailBlockConfig, theme: LandingPageTh
       </div>
     </div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -493,7 +510,7 @@ function renderShoppingCart(cfg: ShoppingCartBlockConfig, theme: LandingPageThem
       </div>
     </div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -528,7 +545,7 @@ function renderCheckoutForm(cfg: CheckoutFormBlockConfig, theme: LandingPageThem
       <button type="submit" style="${neonBtnStyle(theme)}cursor:pointer;width:100%;text-align:center;" onmouseover="this.style.filter='brightness(1.15)'" onmouseout="this.style.filter='none'">Complete Order</button>
     </form>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -553,7 +570,7 @@ function renderCustomerReviews(cfg: CustomerReviewsBlockConfig, theme: LandingPa
     <p style="color:${theme.primaryColor};font-size:1.5rem;margin:0 0 32px;letter-spacing:2px;">${stars(Math.round(Number(avgRating)))} <span style="font-size:.9rem;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.7)" : "#9ca3af"};">(${avgRating} avg)</span></p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">${cards}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
@@ -577,7 +594,7 @@ function renderOrderTracking(cfg: OrderTrackingBlockConfig, theme: LandingPageTh
     <h2 style="font-family:${theme.headingFont};margin:0 0 32px;color:${cfg.backgroundImageUrl ? "#fff" : theme.textColor};">${cfg.heading}</h2>
     <div style="display:flex;align-items:flex-start;gap:0;">${steps}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }

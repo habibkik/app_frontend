@@ -25,7 +25,14 @@ export type BlockType =
   | "customer-reviews"
   | "order-tracking";
 
-export interface HeroBlockConfig {
+// Common background image dimension fields
+export interface BgImageDimensions {
+  bgImageWidth?: number;
+  bgImageHeight?: number;
+  fitToImage?: boolean;
+}
+
+export interface HeroBlockConfig extends BgImageDimensions {
   title: string;
   subtitle: string;
   ctaText: string;
@@ -46,19 +53,19 @@ export interface AboutBlockConfig {
   imageUrl: string;
 }
 
-export interface TestimonialsBlockConfig {
+export interface TestimonialsBlockConfig extends BgImageDimensions {
   items: { quote: string; author: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface FaqBlockConfig {
+export interface FaqBlockConfig extends BgImageDimensions {
   items: { question: string; answer: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface ContactBlockConfig {
+export interface ContactBlockConfig extends BgImageDimensions {
   heading: string;
   showPhone: boolean;
   showAddress: boolean;
@@ -66,26 +73,26 @@ export interface ContactBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface OrderFormBlockConfig {
+export interface OrderFormBlockConfig extends BgImageDimensions {
   heading: string;
   productName: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface SocialProofBlockConfig {
+export interface SocialProofBlockConfig extends BgImageDimensions {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface MarketStatsBlockConfig {
+export interface MarketStatsBlockConfig extends BgImageDimensions {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface ProblemAgitationBlockConfig {
+export interface ProblemAgitationBlockConfig extends BgImageDimensions {
   heading: string;
   intro: string;
   painPoints: { icon: string; title: string; description: string }[];
@@ -103,7 +110,7 @@ export interface SolutionBlockConfig {
   imageUrl: string;
 }
 
-export interface OfferPricingBlockConfig {
+export interface OfferPricingBlockConfig extends BgImageDimensions {
   heading: string;
   valueItems: string[];
   anchorPrice: string;
@@ -117,7 +124,7 @@ export interface OfferPricingBlockConfig {
 
 // --- New Block Configs ---
 
-export interface FeaturesGridBlockConfig {
+export interface FeaturesGridBlockConfig extends BgImageDimensions {
   heading: string;
   subtitle: string;
   items: { icon: string; title: string; description: string }[];
@@ -126,14 +133,14 @@ export interface FeaturesGridBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface PricingTableBlockConfig {
+export interface PricingTableBlockConfig extends BgImageDimensions {
   heading: string;
   plans: { name: string; price: string; period: string; features: string[]; highlighted: boolean; ctaText: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface ImageGalleryBlockConfig {
+export interface ImageGalleryBlockConfig extends BgImageDimensions {
   heading: string;
   images: { url: string; caption: string }[];
   columns: 2 | 3 | 4;
@@ -142,7 +149,7 @@ export interface ImageGalleryBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface VideoEmbedBlockConfig {
+export interface VideoEmbedBlockConfig extends BgImageDimensions {
   heading: string;
   videoUrl: string;
   provider: "youtube" | "vimeo" | "custom";
@@ -151,7 +158,7 @@ export interface VideoEmbedBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface CountdownTimerBlockConfig {
+export interface CountdownTimerBlockConfig extends BgImageDimensions {
   heading: string;
   subtitle: string;
   targetDate: string;
@@ -161,7 +168,7 @@ export interface CountdownTimerBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface NewsletterBlockConfig {
+export interface NewsletterBlockConfig extends BgImageDimensions {
   heading: string;
   subtitle: string;
   buttonText: string;
@@ -170,7 +177,7 @@ export interface NewsletterBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface ProductDetailBlockConfig {
+export interface ProductDetailBlockConfig extends BgImageDimensions {
   heading: string;
   productName: string;
   price: string;
@@ -182,7 +189,7 @@ export interface ProductDetailBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface ShoppingCartBlockConfig {
+export interface ShoppingCartBlockConfig extends BgImageDimensions {
   heading: string;
   emptyMessage: string;
   ctaText: string;
@@ -190,21 +197,21 @@ export interface ShoppingCartBlockConfig {
   overlayOpacity?: number;
 }
 
-export interface CheckoutFormBlockConfig {
+export interface CheckoutFormBlockConfig extends BgImageDimensions {
   heading: string;
   enabledPaymentMethods: ("stripe" | "paypal" | "cod")[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface CustomerReviewsBlockConfig {
+export interface CustomerReviewsBlockConfig extends BgImageDimensions {
   heading: string;
   reviews: { author: string; rating: number; date: string; comment: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface OrderTrackingBlockConfig {
+export interface OrderTrackingBlockConfig extends BgImageDimensions {
   heading: string;
   steps: { label: string; status: "completed" | "active" | "pending" }[];
   backgroundImageUrl?: string;

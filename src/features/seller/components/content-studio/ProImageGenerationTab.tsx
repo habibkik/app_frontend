@@ -9,6 +9,14 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
   Loader2,
   Download,
   DownloadCloud,
@@ -19,6 +27,7 @@ import {
   ChevronRight,
   Upload,
   Wand2,
+  Settings2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -29,6 +38,49 @@ import { PRO_IMAGE_SECTIONS } from "./types";
 import type { GeneratedImage } from "./types";
 import type { BrandKit } from "./BrandKitPanel";
 import { RemixMenu, type RemixMode } from "./RemixMenu";
+
+const MARKETING_LANGUAGES = [
+  { value: "arabic", label: "العربية (Arabic)" },
+  { value: "english", label: "English" },
+  { value: "french", label: "Français (French)" },
+  { value: "spanish", label: "Español (Spanish)" },
+  { value: "turkish", label: "Türkçe (Turkish)" },
+];
+
+const MARKETING_CURRENCIES = [
+  { value: "SAR", label: "SAR – ر.س (Saudi Riyal)" },
+  { value: "AED", label: "AED – د.إ (Emirati Dirham)" },
+  { value: "USD", label: "USD – $ (US Dollar)" },
+  { value: "EUR", label: "EUR – € (Euro)" },
+  { value: "MAD", label: "MAD – د.م (Moroccan Dirham)" },
+  { value: "DZD", label: "DZD – د.ج (Algerian Dinar)" },
+  { value: "TND", label: "TND – د.ت (Tunisian Dinar)" },
+  { value: "EGP", label: "EGP – ج.م (Egyptian Pound)" },
+  { value: "GBP", label: "GBP – £ (British Pound)" },
+];
+
+const MARKETING_COUNTRIES = [
+  { value: "saudi-arabia", label: "🇸🇦 Saudi Arabia" },
+  { value: "uae", label: "🇦🇪 UAE" },
+  { value: "morocco", label: "🇲🇦 Morocco" },
+  { value: "algeria", label: "🇩🇿 Algeria" },
+  { value: "tunisia", label: "🇹🇳 Tunisia" },
+  { value: "egypt", label: "🇪🇬 Egypt" },
+  { value: "kuwait", label: "🇰🇼 Kuwait" },
+  { value: "qatar", label: "🇶🇦 Qatar" },
+  { value: "usa", label: "🇺🇸 USA" },
+  { value: "france", label: "🇫🇷 France" },
+  { value: "turkey", label: "🇹🇷 Turkey" },
+];
+
+const MARKETING_STYLES = [
+  { value: "cod-landing", label: "COD Landing Page" },
+  { value: "modern-minimal", label: "Modern Minimal" },
+  { value: "luxury-premium", label: "Luxury Premium" },
+  { value: "bold-aggressive", label: "Bold / Aggressive Sale" },
+  { value: "natural-organic", label: "Natural / Organic" },
+  { value: "tech-futuristic", label: "Tech / Futuristic" },
+];
 
 const downloadImage = (dataUrl: string, filename: string) => {
   const a = document.createElement("a");
@@ -64,6 +116,12 @@ export const ProImageGenerationTab: React.FC<Props> = ({
     marketing: true,
   });
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
+
+  // Marketing customization state
+  const [marketingLanguage, setMarketingLanguage] = useState("arabic");
+  const [marketingCurrency, setMarketingCurrency] = useState("SAR");
+  const [marketingCountry, setMarketingCountry] = useState("saudi-arabia");
+  const [marketingStyle, setMarketingStyle] = useState("cod-landing");
 
   // Auto-populate reference from Market Intelligence on mount (resize it)
   useEffect(() => {
@@ -116,6 +174,13 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                 brandTargetAudience: brandKit.target_audience,
                 brandToneKeywords: brandKit.tone_keywords,
               } : {}),
+              // Marketing customization (only for marketing-* image types)
+              ...(imageType.startsWith("marketing-") ? {
+                marketingLanguage,
+                marketingCurrency,
+                marketingCountry,
+                marketingStyle,
+              } : {}),
             },
           }
         );
@@ -158,7 +223,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
         });
       }
     },
-    [productName, productCategory, competitors, referenceImageUrl, store, brandKit]
+    [productName, productCategory, competitors, referenceImageUrl, store, brandKit, marketingLanguage, marketingCurrency, marketingCountry, marketingStyle]
   );
 
   const remixProImage = useCallback(
@@ -409,6 +474,65 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                 </span>
               </Button>
             </label>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Marketing Settings Panel */}
+      <Card className="border-dashed border-primary/30 bg-primary/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Settings2 className="h-4 w-4 text-primary" />
+            Marketing Creatives Settings
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">Customize language, currency, country & style for generated marketing images</p>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Language</Label>
+              <Select value={marketingLanguage} onValueChange={setMarketingLanguage}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_LANGUAGES.map((l) => (
+                    <SelectItem key={l.value} value={l.value} className="text-xs">{l.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Currency</Label>
+              <Select value={marketingCurrency} onValueChange={setMarketingCurrency}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_CURRENCIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Country / Region</Label>
+              <Select value={marketingCountry} onValueChange={setMarketingCountry}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_COUNTRIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value} className="text-xs">{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Style</Label>
+              <Select value={marketingStyle} onValueChange={setMarketingStyle}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MARKETING_STYLES.map((s) => (
+                    <SelectItem key={s.value} value={s.value} className="text-xs">{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>

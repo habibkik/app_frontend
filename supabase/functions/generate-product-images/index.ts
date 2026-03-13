@@ -20,6 +20,10 @@ interface ImageRequest {
   brandToneKeywords?: string[];
   remixMode?: "change-background" | "add-prop" | "expand-canvas";
   remixContext?: string;
+  marketingLanguage?: string;
+  marketingCurrency?: string;
+  marketingCountry?: string;
+  marketingStyle?: string;
 }
 
 const GLOBAL_SUFFIX = " No distortion, no hallucinated features, accurate branding. Hyper-realistic, photorealistic materials and textures, commercial product photography, high detail, sharp focus, advertising quality, 8k resolution.";
@@ -119,7 +123,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const { productName, productDescription, category, imageType, competitors, referenceImageUrl, brandColors, brandAesthetic, brandTargetAudience, brandToneKeywords, remixMode, remixContext }: ImageRequest =
+    const { productName, productDescription, category, imageType, competitors, referenceImageUrl, brandColors, brandAesthetic, brandTargetAudience, brandToneKeywords, remixMode, remixContext, marketingLanguage, marketingCurrency, marketingCountry, marketingStyle }: ImageRequest =
       await req.json();
 
     if (!productName || !imageType) {
@@ -175,6 +179,58 @@ serve(async (req) => {
 
     if (competitors && competitors.length > 0) {
       prompt += ` The product should look premium and differentiated from competitors like ${competitors.slice(0, 3).join(", ")}.`;
+    }
+
+    // Inject marketing customization for marketing-* image types
+    if (imageType.startsWith("marketing-")) {
+      const mParts: string[] = [];
+      if (marketingLanguage) {
+        const langMap: Record<string, string> = {
+          arabic: "Arabic (العربية) — use right-to-left text direction",
+          english: "English",
+          french: "French (Français)",
+          spanish: "Spanish (Español)",
+          turkish: "Turkish (Türkçe)",
+        };
+        mParts.push(`ALL text in the image must be written in ${langMap[marketingLanguage] || marketingLanguage}.`);
+      }
+      if (marketingCurrency) {
+        const currSymbols: Record<string, string> = {
+          SAR: "ر.س (SAR)", AED: "د.إ (AED)", USD: "$ (USD)", EUR: "€ (EUR)",
+          MAD: "د.م (MAD)", DZD: "د.ج (DZD)", TND: "د.ت (TND)", EGP: "ج.م (EGP)", GBP: "£ (GBP)",
+        };
+        mParts.push(`Use ${currSymbols[marketingCurrency] || marketingCurrency} currency symbol for all prices shown.`);
+      }
+      if (marketingCountry) {
+        const countryMap: Record<string, string> = {
+          "saudi-arabia": "Saudi Arabian market with local cultural aesthetic cues",
+          uae: "UAE/Dubai market with modern luxury aesthetic",
+          morocco: "Moroccan market with local cultural touches",
+          algeria: "Algerian market with local aesthetic",
+          tunisia: "Tunisian market with Mediterranean touches",
+          egypt: "Egyptian market with local cultural cues",
+          kuwait: "Kuwaiti market with Gulf premium aesthetic",
+          qatar: "Qatari market with luxury Gulf aesthetic",
+          usa: "US market with clean Western commercial aesthetic",
+          france: "French market with elegant European aesthetic",
+          turkey: "Turkish market with vibrant commercial aesthetic",
+        };
+        mParts.push(`Design for the ${countryMap[marketingCountry] || marketingCountry}.`);
+      }
+      if (marketingStyle) {
+        const styleMap: Record<string, string> = {
+          "cod-landing": "Bold COD (Cash-on-Delivery) flash-sale landing page style — urgency-driven, vibrant gradients, big prices, strong CTAs.",
+          "modern-minimal": "Modern minimal style — clean whitespace, subtle typography, refined muted palette.",
+          "luxury-premium": "Luxury premium style — gold accents, dark backgrounds, serif fonts, elegant and high-end feel.",
+          "bold-aggressive": "Bold aggressive sale style — red/orange urgency colors, large percentages, countdown feeling, maximum conversion.",
+          "natural-organic": "Natural organic style — earth tones, botanical elements, soft textures, health/wellness feel.",
+          "tech-futuristic": "Tech futuristic style — gradient neons, dark backgrounds, geometric shapes, cutting-edge feel.",
+        };
+        mParts.push(styleMap[marketingStyle] || `Visual style: ${marketingStyle}.`);
+      }
+      if (mParts.length > 0) {
+        prompt += ` MARKETING CUSTOMIZATION: ${mParts.join(" ")}`;
+      }
     }
 
     console.log(`Generating ${imageType} image for: ${productName}${referenceImageUrl ? " (with reference)" : ""}`);
