@@ -332,7 +332,7 @@ export default function NegotiationIntelligencePage() {
 
             <Button className="w-full" onClick={analyze} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-              {loading ? "Analyzing…" : "Generate Intelligence"}
+              {loading ? t("pages.negotiation.analyzing") : t("pages.negotiation.generateIntelligence")}
             </Button>
           </motion.div>
 
