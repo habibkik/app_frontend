@@ -1,16 +1,17 @@
 import { Card } from "@/components/ui/card";
 import { Search, RefreshCw, Shield, FileSearch, MessageSquare, Target } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export type CampaignObjective = "sourcing" | "renewal" | "dual" | "esg" | "rfq-followup" | "general";
 
-const OBJECTIVES: { id: CampaignObjective; label: string; description: string; icon: React.ReactNode }[] = [
-  { id: "sourcing", label: "Supplier Sourcing", description: "Find and qualify new suppliers", icon: <Search className="h-5 w-5" /> },
-  { id: "renewal", label: "Contract Renewal", description: "Competitive pressure before renegotiation", icon: <RefreshCw className="h-5 w-5" /> },
-  { id: "dual", label: "Dual Sourcing", description: "Find backup supplier", icon: <Shield className="h-5 w-5" /> },
-  { id: "esg", label: "ESG Compliance", description: "Request updated certifications", icon: <FileSearch className="h-5 w-5" /> },
-  { id: "rfq-followup", label: "RFQ Follow-up", description: "Follow up on sent RFQs", icon: <MessageSquare className="h-5 w-5" /> },
-  { id: "general", label: "General Inquiry", description: "Custom outreach", icon: <Target className="h-5 w-5" /> },
-];
+const OBJECTIVE_ICONS: Record<CampaignObjective, React.ReactNode> = {
+  sourcing: <Search className="h-5 w-5" />,
+  renewal: <RefreshCw className="h-5 w-5" />,
+  dual: <Shield className="h-5 w-5" />,
+  esg: <FileSearch className="h-5 w-5" />,
+  "rfq-followup": <MessageSquare className="h-5 w-5" />,
+  general: <Target className="h-5 w-5" />,
+};
 
 interface CampaignObjectiveSelectorProps {
   selected: CampaignObjective;
