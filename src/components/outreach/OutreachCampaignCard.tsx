@@ -105,7 +105,7 @@ export function OutreachCampaignCard({
                 )}
               </div>
               <Badge variant="secondary" className="text-xs">
-                {campaigns.length} channels
+                {campaigns.length} {t("outreach.channels")}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
