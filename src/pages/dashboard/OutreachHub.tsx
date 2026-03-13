@@ -146,7 +146,7 @@ export default function OutreachHub() {
             </TabsTrigger>
             <TabsTrigger value="metrics" className="gap-1.5">
               <BarChart3 className="h-4 w-4" />
-              Metrics
+              {t("pages.outreachHub.metrics")}
             </TabsTrigger>
             <TabsTrigger value="automation" className="gap-1.5">
               <Settings2 className="h-4 w-4" />
