@@ -753,6 +753,7 @@ function NewsletterForm({ config, update }: { config: NewsletterBlockConfig; upd
       <Field label="Subtitle"><Input value={config.subtitle} onChange={(e) => update({ subtitle: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Button Text"><Input value={config.buttonText} onChange={(e) => update({ buttonText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Placeholder Text"><Input value={config.placeholderText} onChange={(e) => update({ placeholderText: e.target.value })} className="text-xs h-8" /></Field>
+      <ButtonCustomizer config={config} update={update} hasSubtitle />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
