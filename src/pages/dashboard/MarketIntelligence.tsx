@@ -134,8 +134,8 @@ export default function MarketIntelligencePage() {
   const handleLoadDemo = () => {
     setSellerResults(DEMO_MARKET_RESULT);
     toast({
-      title: "Demo Data Loaded",
-      description: "Explore the market analysis with sample data for a Bluetooth speaker.",
+      title: t("pages.marketIntelligence.demoDataLoaded"),
+      description: t("pages.marketIntelligence.demoDataLoadedDesc"),
     });
   };
 
