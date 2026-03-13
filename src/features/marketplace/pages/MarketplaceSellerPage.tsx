@@ -1,6 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Package, Globe, BarChart3, Zap, Sparkles, Settings } from "lucide-react";
 import { useMarketplaceStore, type MarketplaceTab } from "../store/marketplaceStore";
 import { TabProductListing } from "../components/TabProductListing";
