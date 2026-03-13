@@ -223,7 +223,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
         });
       }
     },
-    [productName, productCategory, competitors, referenceImageUrl, store, brandKit]
+    [productName, productCategory, competitors, referenceImageUrl, store, brandKit, marketingLanguage, marketingCurrency, marketingCountry, marketingStyle]
   );
 
   const remixProImage = useCallback(
