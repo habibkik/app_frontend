@@ -341,8 +341,8 @@ export default function NegotiationIntelligencePage() {
             {!result && !loading && (
               <Card className="h-full flex items-center justify-center min-h-[400px]">
                 <CardContent className="text-center space-y-3 py-12">
-                  <Brain className="h-12 w-12 text-muted-foreground/30 mx-auto" />
-                  <p className="text-muted-foreground text-sm">Enter supplier quotes and click "Generate Intelligence" to get AI-powered negotiation tactics and scripts</p>
+                   <Brain className="h-12 w-12 text-muted-foreground/30 mx-auto" />
+                  <p className="text-muted-foreground text-sm">{t("pages.negotiation.emptyStateDesc")}</p>
                 </CardContent>
               </Card>
             )}
