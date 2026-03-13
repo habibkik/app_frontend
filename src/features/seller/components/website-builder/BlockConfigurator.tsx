@@ -468,7 +468,7 @@ function OfferPricingForm({ config, update }: { config: OfferPricingBlockConfig;
       <Field label="CTA Text"><Input value={config.ctaText} onChange={(e) => update({ ctaText: e.target.value })} className="text-xs h-8" /></Field>
       <Field label="Image URL"><Input value={config.imageUrl || ""} onChange={(e) => update({ imageUrl: e.target.value })} placeholder="https://..." className="text-xs h-8" /></Field>
       <ProImagePicker currentValue={config.imageUrl || ""} onSelect={(url) => update({ imageUrl: url })} />
-      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} update={update} />
+      <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
 }
