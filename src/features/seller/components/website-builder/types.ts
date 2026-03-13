@@ -133,7 +133,7 @@ export interface FeaturesGridBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface PricingTableBlockConfig {
+export interface PricingTableBlockConfig extends BgImageDimensions {
   heading: string;
   plans: { name: string; price: string; period: string; features: string[]; highlighted: boolean; ctaText: string }[];
   backgroundImageUrl?: string;
