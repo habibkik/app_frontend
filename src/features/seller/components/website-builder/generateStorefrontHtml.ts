@@ -570,7 +570,7 @@ function renderCustomerReviews(cfg: CustomerReviewsBlockConfig, theme: LandingPa
     <p style="color:${theme.primaryColor};font-size:1.5rem;margin:0 0 32px;letter-spacing:2px;">${stars(Math.round(Number(avgRating)))} <span style="font-size:.9rem;color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.7)" : "#9ca3af"};">(${avgRating} avg)</span></p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">${cards}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle("#f9fafb", cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle("#f9fafb", cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
