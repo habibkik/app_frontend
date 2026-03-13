@@ -229,7 +229,7 @@ export default function ShouldCostPage() {
           {/* Left: Inputs */}
           <motion.div variants={item} className="lg:col-span-2 space-y-4">
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base">General</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.general")}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Package className="h-4 w-4 text-muted-foreground shrink-0" />
