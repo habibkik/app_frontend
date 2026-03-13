@@ -289,7 +289,7 @@ export default function ShouldCostPage() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-3"><CardTitle className="text-base">Supplier Margin</CardTitle></CardHeader>
+              <CardHeader className="pb-3"><CardTitle className="text-base">{t("pages.shouldCost.supplierMargin")}</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between"><Label className="text-sm">Target Margin</Label><Badge variant="secondary">{inputs.marginPercent}%</Badge></div>
