@@ -1,25 +1,11 @@
 /**
  * Buyers Landing Page
- * Showcase features and AI benefits for Buyers
  */
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  Search,
-  ImageIcon,
-  Zap,
-  Clock,
-  Shield,
-  TrendingDown,
-  Globe,
-  MessageSquare,
-  FileText,
-  CheckCircle2,
-  ArrowRight,
-  Sparkles,
-  Bot,
-  Moon,
-  Sun,
+  Search, ImageIcon, Zap, Clock, Shield, TrendingDown, Globe, MessageSquare,
+  FileText, CheckCircle2, ArrowRight, Sparkles, Bot, Moon, Sun,
 } from "lucide-react";
 import Navigation from "@/components/landing/Navigation";
 import Footer from "@/components/landing/Footer";
@@ -27,148 +13,74 @@ import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
-const features = [
-  {
-    icon: ImageIcon,
-    title: "AI Image Analysis",
-    description: "Upload any product image and instantly discover matching suppliers worldwide with pricing and MOQ details.",
-  },
-  {
-    icon: Search,
-    title: "Smart Supplier Discovery",
-    description: "Find verified suppliers across 50+ countries with real-time availability and quality ratings.",
-  },
-  {
-    icon: TrendingDown,
-    title: "Price Comparison",
-    description: "Compare prices from multiple suppliers at once. Get substitute product recommendations for better deals.",
-  },
-  {
-    icon: FileText,
-    title: "Automated RFQs",
-    description: "Generate and send professional RFQs to multiple suppliers with a single click.",
-  },
-  {
-    icon: MessageSquare,
-    title: "Centralized Communication",
-    description: "Manage all supplier conversations in one place with real-time translation support.",
-  },
-  {
-    icon: Shield,
-    title: "Verified Suppliers",
-    description: "Access our vetted network of manufacturers with quality certifications and trade assurance.",
-  },
-];
-
-const aiFeatures = [
-  {
-    title: "Works While You Sleep",
-    description: "Our AI agents continuously monitor supplier prices, track shipments, and alert you to opportunities 24/7.",
-    icon: Moon,
-  },
-  {
-    title: "Instant Analysis",
-    description: "Get detailed product specifications, market pricing, and supplier recommendations in seconds, not hours.",
-    icon: Zap,
-  },
-  {
-    title: "Never Misses a Deal",
-    description: "AI monitors price changes across thousands of suppliers, alerting you when prices drop.",
-    icon: TrendingDown,
-  },
-  {
-    title: "Global Intelligence",
-    description: "Analyze suppliers from China, India, Vietnam, Europe, and North America simultaneously.",
-    icon: Globe,
-  },
-];
-
-const benefits = [
-  "Reduce sourcing time by 80%",
-  "Access 100,000+ verified suppliers",
-  "Real-time price monitoring",
-  "Automated quote comparisons",
-  "Quality-assured manufacturers",
-  "Multi-language support",
-];
+const featureIcons = [ImageIcon, Search, TrendingDown, FileText, MessageSquare, Shield];
+const aiIcons = [Moon, Zap, TrendingDown, Globe];
 
 export default function BuyersPage() {
+  const { t } = useTranslation();
+
+  const features = Array.from({ length: 6 }, (_, i) => ({
+    icon: featureIcons[i],
+    title: t(`buyersPage.feat${i + 1}`),
+    description: t(`buyersPage.feat${i + 1}Desc`),
+  }));
+
+  const aiFeatures = Array.from({ length: 4 }, (_, i) => ({
+    icon: aiIcons[i],
+    title: t(`buyersPage.ai${i + 1}`),
+    description: t(`buyersPage.ai${i + 1}Desc`),
+  }));
+
+  const benefits = Array.from({ length: 6 }, (_, i) => t(`buyersPage.benefit${i + 1}`));
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="pt-32 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="container mx-auto px-6 relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-4xl mx-auto text-center">
             <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
               <Bot className="h-3 w-3 mr-1" />
-              AI-Powered Sourcing
+              {t("buyersPage.badge")}
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-              Find Perfect Suppliers
-              <span className="block text-primary">While You Sleep</span>
+              {t("buyersPage.heroTitle1")}
+              <span className="block text-primary">{t("buyersPage.heroTitle2")}</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Upload a product image and let our AI discover the best suppliers, compare prices,
-              and handle negotiations—all automatically, 24/7.
-            </p>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">{t("buyersPage.heroSubtitle")}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="gap-2">
-                <Link to="/signup">
-                  Start Free Trial
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                <Link to="/signup">{t("buyersPage.startFreeTrial")} <ArrowRight className="h-4 w-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/login">Watch Demo</Link>
+                <Link to="/login">{t("buyersPage.watchDemo")}</Link>
               </Button>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Interactive Demo */}
       <InteractiveDemo />
 
-      {/* AI Never Sleeps Section */}
+      {/* AI Never Sleeps */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
             <div className="flex items-center justify-center gap-3 mb-4">
               <Sun className="h-6 w-6 text-amber-500" />
               <Moon className="h-6 w-6 text-primary" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              AI That Never Sleeps
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Our AI agents work around the clock, across every timezone, ensuring you never miss
-              an opportunity or waste time on manual research.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{t("buyersPage.aiTitle")}</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{t("buyersPage.aiSubtitle")}</p>
           </motion.div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {aiFeatures.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
+              <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
                 <Card className="h-full bg-card hover:shadow-lg transition-shadow border-primary/10">
                   <CardContent className="p-6">
                     <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
@@ -187,29 +99,13 @@ export default function BuyersPage() {
       {/* Features Grid */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Everything You Need to Source Smarter
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powerful tools designed to streamline your procurement process from discovery to delivery.
-            </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{t("buyersPage.featuresTitle")}</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">{t("buyersPage.featuresSubtitle")}</p>
           </motion.div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
+              <motion.div key={index} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
                 <Card className="h-full hover:shadow-lg transition-all hover:border-primary/30">
                   <CardContent className="p-6">
                     <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4">
@@ -225,32 +121,16 @@ export default function BuyersPage() {
         </div>
       </section>
 
-      {/* Benefits Section */}
+      {/* Benefits */}
       <section className="py-20 bg-primary/5">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
-                Why Buyers Choose Us
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8">
-                Join thousands of procurement professionals who've transformed their sourcing
-                operations with AI-powered automation.
-              </p>
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">{t("buyersPage.whyTitle")}</h2>
+              <p className="text-lg text-muted-foreground mb-8">{t("buyersPage.whySubtitle")}</p>
               <div className="grid sm:grid-cols-2 gap-4">
                 {benefits.map((benefit, index) => (
-                  <motion.div
-                    key={benefit}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center gap-3"
-                  >
+                  <motion.div key={index} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                     <span className="text-foreground">{benefit}</span>
                   </motion.div>
@@ -258,43 +138,30 @@ export default function BuyersPage() {
               </div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
+            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
               <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-8 border border-primary/20">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="h-14 w-14 rounded-xl bg-primary flex items-center justify-center">
                     <Sparkles className="h-7 w-7 text-primary-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">AI Analysis Demo</h3>
-                    <p className="text-sm text-muted-foreground">See it in action</p>
+                    <h3 className="font-semibold text-foreground">{t("buyersPage.demoTitle")}</h3>
+                    <p className="text-sm text-muted-foreground">{t("buyersPage.demoSubtitle")}</p>
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
-                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-foreground">Upload product image</span>
-                    <CheckCircle2 className="h-4 w-4 text-primary ml-auto" />
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
-                    <Bot className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-foreground">AI identifies product specs</span>
-                    <CheckCircle2 className="h-4 w-4 text-primary ml-auto" />
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
-                    <Globe className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-foreground">15 suppliers found</span>
-                    <CheckCircle2 className="h-4 w-4 text-primary ml-auto" />
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
-                    <TrendingDown className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-foreground">Best price: $45.20/unit</span>
-                    <Badge variant="secondary" className="ml-auto text-xs">-23%</Badge>
-                  </div>
+                  {[
+                    { icon: ImageIcon, text: t("buyersPage.demoStep1"), right: <CheckCircle2 className="h-4 w-4 text-primary ml-auto" /> },
+                    { icon: Bot, text: t("buyersPage.demoStep2"), right: <CheckCircle2 className="h-4 w-4 text-primary ml-auto" /> },
+                    { icon: Globe, text: t("buyersPage.demoStep3"), right: <CheckCircle2 className="h-4 w-4 text-primary ml-auto" /> },
+                    { icon: TrendingDown, text: t("buyersPage.demoStep4"), right: <Badge variant="secondary" className="ml-auto text-xs">-23%</Badge> },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-background/50">
+                      <item.icon className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-sm text-foreground">{item.text}</span>
+                      {item.right}
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
@@ -302,30 +169,18 @@ export default function BuyersPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Ready to Transform Your Sourcing?
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Join 10,000+ buyers who source smarter with AI. Start your free trial today.
-            </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{t("buyersPage.ctaTitle")}</h2>
+            <p className="text-xl text-muted-foreground mb-8">{t("buyersPage.ctaSubtitle")}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="gap-2">
-                <Link to="/signup">
-                  Get Started Free
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                <Link to="/signup">{t("buyersPage.getStartedFree")} <ArrowRight className="h-4 w-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/pricing">View Pricing</Link>
+                <Link to="/pricing">{t("buyersPage.viewPricing")}</Link>
               </Button>
             </div>
           </motion.div>

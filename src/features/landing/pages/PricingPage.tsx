@@ -29,95 +29,73 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
-const plans = [
-  {
-    name: "Starter",
-    description: "Perfect for individuals and small teams getting started",
-    price: 49,
-    period: "month",
-    icon: Zap,
-    color: "primary",
-    popular: false,
-    features: [
-      { name: "Up to 100 AI analyses/month", included: true },
-      { name: "5 supplier contacts/month", included: true },
-      { name: "Basic market intelligence", included: true },
-      { name: "Email support", included: true },
-      { name: "1 team member", included: true },
-      { name: "Advanced analytics", included: false },
-      { name: "API access", included: false },
-      { name: "Custom integrations", included: false },
-    ],
-  },
-  {
-    name: "Professional",
-    description: "For growing businesses that need more power",
-    price: 149,
-    period: "month",
-    icon: Rocket,
-    color: "emerald",
-    popular: true,
-    features: [
-      { name: "Unlimited AI analyses", included: true },
-      { name: "50 supplier contacts/month", included: true },
-      { name: "Advanced market intelligence", included: true },
-      { name: "Priority support", included: true },
-      { name: "Up to 5 team members", included: true },
-      { name: "Advanced analytics", included: true },
-      { name: "API access", included: true },
-      { name: "Custom integrations", included: false },
-    ],
-  },
-  {
-    name: "Enterprise",
-    description: "For large organizations with custom requirements",
-    price: null,
-    period: "month",
-    icon: Building2,
-    color: "amber",
-    popular: false,
-    features: [
-      { name: "Unlimited everything", included: true },
-      { name: "Unlimited supplier contacts", included: true },
-      { name: "White-label options", included: true },
-      { name: "Dedicated account manager", included: true },
-      { name: "Unlimited team members", included: true },
-      { name: "Custom AI models", included: true },
-      { name: "Full API access", included: true },
-      { name: "Custom integrations", included: true },
-    ],
-  },
-];
-
-const faqs = [
-  {
-    question: "What does 'AI that never sleeps' mean?",
-    answer: "Our AI agents work 24/7 to monitor markets, track competitor prices, analyze supplier changes, and alert you to opportunities—even while you're asleep. This means you never miss a deal or get caught off-guard by market changes.",
-  },
-  {
-    question: "Can I switch plans later?",
-    answer: "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll get immediate access to new features. When downgrading, changes take effect at the next billing cycle.",
-  },
-  {
-    question: "Is there a free trial?",
-    answer: "Yes, we offer a 14-day free trial on all plans. No credit card required to start. You'll have full access to all features during the trial period.",
-  },
-  {
-    question: "What payment methods do you accept?",
-    answer: "We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and bank transfers for Enterprise plans. All payments are processed securely through Stripe.",
-  },
-  {
-    question: "How does the AI analysis work?",
-    answer: "Simply upload a product image, and our AI will identify the product, find matching suppliers, compare prices, suggest alternatives, and provide market insights—all in seconds. The AI uses advanced vision models and is trained on millions of B2B products.",
-  },
-  {
-    question: "Do you offer refunds?",
-    answer: "Yes, we offer a 30-day money-back guarantee. If you're not satisfied with our service for any reason, contact our support team for a full refund.",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export default function PricingPage() {
+  const { t } = useTranslation();
+
+  const plans = [
+    {
+      nameKey: "starter",
+      descKey: "starterDesc",
+      price: 49,
+      icon: Zap,
+      color: "primary",
+      popular: false,
+      features: [
+        { key: "feat_100analyses", included: true },
+        { key: "feat_5contacts", included: true },
+        { key: "feat_basicIntel", included: true },
+        { key: "feat_emailSupport", included: true },
+        { key: "feat_1member", included: true },
+        { key: "feat_advancedAnalytics", included: false },
+        { key: "feat_apiAccess", included: false },
+        { key: "feat_customIntegrations", included: false },
+      ],
+    },
+    {
+      nameKey: "professional",
+      descKey: "professionalDesc",
+      price: 149,
+      icon: Rocket,
+      color: "emerald",
+      popular: true,
+      features: [
+        { key: "feat_unlimitedAnalyses", included: true },
+        { key: "feat_50contacts", included: true },
+        { key: "feat_advancedIntel", included: true },
+        { key: "feat_prioritySupport", included: true },
+        { key: "feat_5members", included: true },
+        { key: "feat_advancedAnalytics", included: true },
+        { key: "feat_apiAccess", included: true },
+        { key: "feat_customIntegrations", included: false },
+      ],
+    },
+    {
+      nameKey: "enterprise",
+      descKey: "enterpriseDesc",
+      price: null,
+      icon: Building2,
+      color: "amber",
+      popular: false,
+      features: [
+        { key: "feat_unlimitedEverything", included: true },
+        { key: "feat_unlimitedContacts", included: true },
+        { key: "feat_whiteLabel", included: true },
+        { key: "feat_dedicatedManager", included: true },
+        { key: "feat_unlimitedMembers", included: true },
+        { key: "feat_customModels", included: true },
+        { key: "feat_fullApi", included: true },
+        { key: "feat_customIntegrations", included: true },
+      ],
+    },
+  ];
+
+  const faqs = Array.from({ length: 6 }, (_, i) => ({
+    question: t(`pricingPage.faq${i + 1}q`),
+    answer: t(`pricingPage.faq${i + 1}a`),
+  }));
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -137,13 +115,13 @@ export default function PricingPage() {
               <Moon className="h-5 w-5 text-primary" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              AI That Works While You Sleep
+              {t("pricingPage.heroTitle")}
             </h1>
             <p className="text-xl text-muted-foreground mb-4">
-              Simple, transparent pricing for powerful AI-driven B2B intelligence.
+              {t("pricingPage.heroSubtitle")}
             </p>
             <p className="text-muted-foreground">
-              All plans include our 24/7 AI agents that never stop working for you.
+              {t("pricingPage.heroNote")}
             </p>
           </motion.div>
         </div>
@@ -155,7 +133,7 @@ export default function PricingPage() {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {plans.map((plan, index) => (
               <motion.div
-                key={plan.name}
+                key={plan.nameKey}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
@@ -163,7 +141,7 @@ export default function PricingPage() {
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                    <Badge className="bg-emerald-600 text-white">Most Popular</Badge>
+                    <Badge className="bg-emerald-600 text-white">{t("pricingPage.mostPopular")}</Badge>
                   </div>
                 )}
                 <Card className={`h-full ${plan.popular ? 'border-emerald-500 ring-2 ring-emerald-500/20' : ''}`}>
@@ -177,42 +155,40 @@ export default function PricingPage() {
                         plan.color === 'emerald' ? 'text-emerald-600' : 'text-amber-600'
                       }`} />
                     </div>
-                    <CardTitle className="text-xl">{plan.name}</CardTitle>
-                    <CardDescription className="text-sm">{plan.description}</CardDescription>
+                    <CardTitle className="text-xl">{t(`pricingPage.${plan.nameKey}`)}</CardTitle>
+                    <CardDescription className="text-sm">{t(`pricingPage.${plan.descKey}`)}</CardDescription>
                     <div className="pt-4">
                       {plan.price ? (
                         <div className="flex items-baseline justify-center gap-1">
                           <span className="text-4xl font-bold text-foreground">${plan.price}</span>
-                          <span className="text-muted-foreground">/{plan.period}</span>
+                          <span className="text-muted-foreground">/{t("pricingPage.month")}</span>
                         </div>
                       ) : (
-                        <div className="text-3xl font-bold text-foreground">Custom</div>
+                        <div className="text-3xl font-bold text-foreground">{t("pricingPage.custom")}</div>
                       )}
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <Button 
-                      className={`w-full ${
-                        plan.popular ? 'bg-emerald-600 hover:bg-emerald-700' : ''
-                      }`}
+                      className={`w-full ${plan.popular ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
                       variant={plan.popular ? 'default' : 'outline'}
                       asChild
                     >
                       <Link to="/signup">
-                        {plan.price ? 'Start Free Trial' : 'Contact Sales'}
+                        {plan.price ? t("pricingPage.startFreeTrial") : t("pricingPage.contactSales")}
                       </Link>
                     </Button>
 
                     <div className="pt-4 space-y-3">
                       {plan.features.map((feature) => (
-                        <div key={feature.name} className="flex items-center gap-3">
+                        <div key={feature.key} className="flex items-center gap-3">
                           {feature.included ? (
                             <Check className="h-4 w-4 text-emerald-600 flex-shrink-0" />
                           ) : (
                             <X className="h-4 w-4 text-muted-foreground/40 flex-shrink-0" />
                           )}
                           <span className={`text-sm ${feature.included ? 'text-foreground' : 'text-muted-foreground/60'}`}>
-                            {feature.name}
+                            {t(`pricingPage.${feature.key}`)}
                           </span>
                         </div>
                       ))}
@@ -230,52 +206,26 @@ export default function PricingPage() {
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="grid sm:grid-cols-3 gap-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="text-center p-6"
-              >
-                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Bot className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">24/7 AI Agents</h3>
-                <p className="text-sm text-muted-foreground">
-                  Our AI works around the clock, monitoring markets and finding opportunities while you sleep.
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="text-center p-6"
-              >
-                <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-                  <Shield className="h-6 w-6 text-emerald-600" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">Enterprise Security</h3>
-                <p className="text-sm text-muted-foreground">
-                  Bank-level encryption, SOC 2 compliance, and GDPR-ready data protection on all plans.
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="text-center p-6"
-              >
-                <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
-                  <Headphones className="h-6 w-6 text-amber-600" />
-                </div>
-                <h3 className="font-semibold text-foreground mb-2">World-Class Support</h3>
-                <p className="text-sm text-muted-foreground">
-                  Expert support team ready to help you succeed, with priority response for paid plans.
-                </p>
-              </motion.div>
+              {[
+                { icon: Bot, title: t("pricingPage.aiAgents"), desc: t("pricingPage.aiAgentsDesc"), bg: "bg-primary/10", color: "text-primary" },
+                { icon: Shield, title: t("pricingPage.enterpriseSecurity"), desc: t("pricingPage.enterpriseSecurityDesc"), bg: "bg-emerald-500/10", color: "text-emerald-600" },
+                { icon: Headphones, title: t("pricingPage.worldClassSupport"), desc: t("pricingPage.worldClassSupportDesc"), bg: "bg-amber-500/10", color: "text-amber-600" },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-center p-6"
+                >
+                  <div className={`h-12 w-12 rounded-xl ${item.bg} flex items-center justify-center mx-auto mb-4`}>
+                    <item.icon className={`h-6 w-6 ${item.color}`} />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </motion.div>
+              ))}
             </div>
           </div>
         </div>
@@ -291,11 +241,10 @@ export default function PricingPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              Frequently Asked Questions
+              {t("pricingPage.faqTitle")}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Have questions? We've got answers. If you can't find what you're looking for,
-              feel free to contact our support team.
+              {t("pricingPage.faqSubtitle")}
             </p>
           </motion.div>
 
@@ -337,20 +286,20 @@ export default function PricingPage() {
             className="text-center max-w-3xl mx-auto"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Start Your Free 14-Day Trial
+              {t("pricingPage.ctaTitle")}
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              No credit card required. Full access to all features. Cancel anytime.
+              {t("pricingPage.ctaSubtitle")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="gap-2">
                 <Link to="/signup">
-                  Get Started Free
+                  {t("pricingPage.getStartedFree")}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/login">Talk to Sales</Link>
+                <Link to="/login">{t("pricingPage.talkToSales")}</Link>
               </Button>
             </div>
           </motion.div>
