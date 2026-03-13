@@ -150,7 +150,7 @@ export default function OutreachHub() {
             </TabsTrigger>
             <TabsTrigger value="automation" className="gap-1.5">
               <Settings2 className="h-4 w-4" />
-              Automation
+              {t("pages.outreachHub.automation")}
             </TabsTrigger>
             <TabsTrigger value="history" className="gap-1.5">
               <History className="h-4 w-4" />
