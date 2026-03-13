@@ -27,6 +27,7 @@ import {
 } from "@/lib/market-intel-service";
 
 export default function MarketIntelligencePage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { 
     sellerResults, 
