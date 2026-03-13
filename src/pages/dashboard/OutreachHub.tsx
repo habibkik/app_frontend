@@ -246,10 +246,10 @@ export default function OutreachHub() {
           <TabsContent value="history" className="mt-6">
             {sentCampaigns.length === 0 ? (
               <div className="text-center py-16">
-                <History className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                <h3 className="text-lg font-semibold text-foreground">No history yet</h3>
+                 <History className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                <h3 className="text-lg font-semibold text-foreground">{t("pages.outreachHub.noHistoryYet")}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Approved and sent campaigns will appear here
+                  {t("pages.outreachHub.noHistoryDesc")}
                 </p>
               </div>
             ) : (
