@@ -217,7 +217,7 @@ export default function OrdersStockPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-lg font-bold text-foreground truncate">${aov.toFixed(2)}</p>
-                  <p className="text-[10px] text-muted-foreground">Avg Order Value</p>
+                  <p className="text-[10px] text-muted-foreground">{t("pages.ordersStock.avgOrderValue")}</p>
                 </div>
               </div>
             </CardContent>
