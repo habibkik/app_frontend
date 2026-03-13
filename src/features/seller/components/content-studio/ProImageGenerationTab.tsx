@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Loader2,
   Download,
@@ -28,6 +29,9 @@ import {
   Upload,
   Wand2,
   Settings2,
+  Plus,
+  X,
+  Palette,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -123,6 +127,26 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   const [marketingCountry, setMarketingCountry] = useState("saudi-arabia");
   const [marketingStyle, setMarketingStyle] = useState("cod-landing");
 
+  // Marketing colors state
+  const [useBrandKitColors, setUseBrandKitColors] = useState(true);
+  const [marketingColors, setMarketingColors] = useState<string[]>([]);
+  const [newMarketingColor, setNewMarketingColor] = useState("#6366f1");
+
+  const addMarketingColor = () => {
+    if (marketingColors.length >= 4) {
+      toast.error("Maximum 4 marketing colors");
+      return;
+    }
+    if (marketingColors.includes(newMarketingColor)) return;
+    setMarketingColors((prev) => [...prev, newMarketingColor]);
+  };
+
+  const removeMarketingColor = (color: string) => {
+    setMarketingColors((prev) => prev.filter((c) => c !== color));
+  };
+
+  const resolvedMarketingColors = useBrandKitColors ? (brandKit?.colors || []) : marketingColors;
+
   // Auto-populate reference from Market Intelligence on mount (resize it)
   useEffect(() => {
     if (currentImage && !store.referenceImageUrl) {
@@ -180,6 +204,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                 marketingCurrency,
                 marketingCountry,
                 marketingStyle,
+                marketingColors: resolvedMarketingColors,
               } : {}),
             },
           }
@@ -533,6 +558,72 @@ export const ProImageGenerationTab: React.FC<Props> = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Color Chooser / Brand Kit Toggle */}
+          <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Palette className="h-3 w-3 text-primary" />
+                Colors
+              </Label>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Use Brand Kit</span>
+                <Switch
+                  checked={useBrandKitColors}
+                  onCheckedChange={setUseBrandKitColors}
+                  className="scale-75"
+                />
+              </div>
+            </div>
+
+            {useBrandKitColors ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {brandKit?.colors && brandKit.colors.length > 0 ? (
+                  brandKit.colors.map((color) => (
+                    <div
+                      key={color}
+                      className="h-6 w-6 rounded-full border-2 border-background shadow-sm"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">No brand kit colors defined — go to Brand Identity Kit to add them.</p>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {marketingColors.map((color, i) => (
+                  <div key={color} className="flex flex-col items-center gap-0.5">
+                    <div
+                      className="group relative h-6 w-6 rounded-full border-2 border-background shadow-sm cursor-pointer transition-transform hover:scale-110"
+                      style={{ backgroundColor: color }}
+                      onClick={() => removeMarketingColor(color)}
+                      title={`${color} — click to remove`}
+                    >
+                      <X className="h-2.5 w-2.5 absolute inset-0 m-auto text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity" />
+                    </div>
+                    <span className="text-[9px] text-muted-foreground">
+                      {["Primary", "Secondary", "Accent", "Background"][i]}
+                    </span>
+                  </div>
+                ))}
+                {marketingColors.length < 4 && (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="color"
+                      value={newMarketingColor}
+                      onChange={(e) => setNewMarketingColor(e.target.value)}
+                      className="h-6 w-6 rounded cursor-pointer border-0 p-0"
+                    />
+                    <Button size="sm" variant="ghost" onClick={addMarketingColor} className="h-6 w-6 p-0">
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
