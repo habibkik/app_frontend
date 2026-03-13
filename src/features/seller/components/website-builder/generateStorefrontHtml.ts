@@ -394,9 +394,10 @@ function renderImageGallery(cfg: ImageGalleryBlockConfig, theme: LandingPageThem
       ${img.caption ? `<p style="padding:8px 12px;margin:0;font-size:.85rem;color:#6b7280;background:#fff;">${img.caption}</p>` : ""}
     </div>`).join("");
   const textColor = cfg.backgroundImageUrl ? "#fff" : theme.textColor;
+  const showTitle = cfg.showTitle !== false;
   const inner = `
   <div style="max-width:${maxW(theme)};margin:0 auto;">
-    <h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>
+    ${showTitle ? `<h2 style="font-family:${theme.headingFont};text-align:center;margin:0 0 32px;color:${textColor};">${cfg.heading}</h2>` : ""}
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:16px;">${imgs}</div>
   </div>`;
   return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
