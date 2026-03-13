@@ -312,7 +312,7 @@ export default function NegotiationIntelligencePage() {
                         <Input type="number" min={0} step={0.01} value={q.unitPrice || ""} onChange={(e) => updateQuote(q.id, "unitPrice", parseFloat(e.target.value) || 0)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Tooling ($)</Label>
+                        <Label className="text-xs">{t("pages.negotiation.toolingCost")}</Label>
                         <Input type="number" min={0} step={1} value={q.toolingCost || ""} onChange={(e) => updateQuote(q.id, "toolingCost", parseFloat(e.target.value) || 0)} className="h-7 text-sm" />
                       </div>
                       <div className="space-y-1">
