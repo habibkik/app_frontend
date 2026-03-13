@@ -366,7 +366,7 @@ export const ProImageGenerationTab: React.FC<Props> = ({
               </>
             ) : (
               <>
-                <Wand2 className="h-4 w-4 mr-2" /> Generate All 20 Images
+                <Wand2 className="h-4 w-4 mr-2" /> Generate All 30 Images
               </>
             )}
           </Button>
