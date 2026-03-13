@@ -70,19 +70,26 @@ function shadowValue(theme: LandingPageTheme) {
   }
 }
 
-function btnStyle(theme: LandingPageTheme, isPrimary = true) {
+function btnStyle(theme: LandingPageTheme, isPrimary = true, customColor?: string, customTextColor?: string) {
   const br = borderRadiusValue(theme.borderRadius);
-  const gradient = theme.gradientEnabled ? `linear-gradient(${theme.gradientAngle ?? 135}deg,${theme.gradientStart || theme.primaryColor},${theme.gradientEnd || theme.accentColor})` : theme.primaryColor;
+  const bg = customColor || theme.primaryColor;
+  const textCol = customTextColor || "#fff";
+  const gradient = theme.gradientEnabled ? `linear-gradient(${theme.gradientAngle ?? 135}deg,${customColor || theme.gradientStart || theme.primaryColor},${customColor ? bg : theme.gradientEnd || theme.accentColor})` : bg;
   switch (theme.buttonStyle) {
     case "outline":
-      return `padding:14px 32px;background:transparent;color:${theme.primaryColor};border:2px solid ${theme.primaryColor};border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:transparent;color:${customColor || theme.primaryColor};border:2px solid ${customColor || theme.primaryColor};border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
     case "pill":
-      return `padding:14px 32px;background:${isPrimary ? gradient : "transparent"};color:${isPrimary ? "#fff" : theme.primaryColor};border:${isPrimary ? "none" : `2px solid ${theme.primaryColor}`};border-radius:999px;text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:${isPrimary ? gradient : "transparent"};color:${isPrimary ? textCol : (customColor || theme.primaryColor)};border:${isPrimary ? "none" : `2px solid ${customColor || theme.primaryColor}`};border-radius:999px;text-decoration:none;font-weight:600;display:inline-block;`;
     case "gradient":
-      return `padding:14px 32px;background:${gradient};color:#fff;border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:${gradient};color:${textCol};border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
     default:
-      return `padding:14px 32px;background:${theme.primaryColor};color:#fff;border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
+      return `padding:14px 32px;background:${bg};color:${textCol};border:none;border-radius:${br};text-decoration:none;font-weight:600;display:inline-block;`;
   }
+}
+
+function wrapBtn(html: string, position?: string): string {
+  const align = position || "center";
+  return `<div style="text-align:${align};">${html}</div>`;
 }
 
 const NEON_GREEN = "#39d98a";
