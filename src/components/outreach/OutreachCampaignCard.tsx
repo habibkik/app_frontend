@@ -118,7 +118,7 @@ export function OutreachCampaignCard({
                   <button
                     className={`px-2 py-1 text-xs ${viewMode === "list" ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}
                     onClick={() => setViewMode("list")}
-                  >List</button>
+                  >{t("outreach.list")}</button>
                 </div>
               )}
               {draftCount > 0 && (
