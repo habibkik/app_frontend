@@ -117,6 +117,12 @@ export const ProImageGenerationTab: React.FC<Props> = ({
   });
   const [isGeneratingAll, setIsGeneratingAll] = useState(false);
 
+  // Marketing customization state
+  const [marketingLanguage, setMarketingLanguage] = useState("arabic");
+  const [marketingCurrency, setMarketingCurrency] = useState("SAR");
+  const [marketingCountry, setMarketingCountry] = useState("saudi-arabia");
+  const [marketingStyle, setMarketingStyle] = useState("cod-landing");
+
   // Auto-populate reference from Market Intelligence on mount (resize it)
   useEffect(() => {
     if (currentImage && !store.referenceImageUrl) {
