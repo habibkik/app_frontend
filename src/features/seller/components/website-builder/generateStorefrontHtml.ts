@@ -330,7 +330,7 @@ function renderFeaturesGrid(cfg: FeaturesGridBlockConfig, theme: LandingPageThem
     <p style="color:${cfg.backgroundImageUrl ? "rgba(255,255,255,.8)" : "#6b7280"};margin:0 0 40px;font-size:1.05rem;">${cfg.subtitle}</p>
     <div style="display:grid;grid-template-columns:repeat(${cfg.columns},1fr);gap:24px;">${cards}</div>
   </div>`;
-  return `<section style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
