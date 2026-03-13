@@ -455,10 +455,11 @@ function OrderFormConfig({ config, update }: { config: OrderFormBlockConfig; upd
   );
 }
 
-function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string; overlayOpacity?: number; bgImageWidth?: number; bgImageHeight?: number; fitToImage?: boolean }; update: (c: any) => void }) {
+function HeadingOnly({ config, update }: { config: { heading: string; backgroundImageUrl?: string; overlayOpacity?: number; bgImageWidth?: number; bgImageHeight?: number; fitToImage?: boolean; showTitle?: boolean }; update: (c: any) => void }) {
   return (
     <>
       <Field label="Heading"><Input value={config.heading} onChange={(e) => update({ heading: e.target.value })} className="text-xs h-8" /></Field>
+      <TextVisibilityFields config={config} update={update} />
       <BackgroundImageFields backgroundImageUrl={config.backgroundImageUrl} overlayOpacity={config.overlayOpacity} bgImageWidth={config.bgImageWidth} bgImageHeight={config.bgImageHeight} fitToImage={config.fitToImage} update={update} />
     </>
   );
