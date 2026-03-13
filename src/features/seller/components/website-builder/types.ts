@@ -80,7 +80,7 @@ export interface OrderFormBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface SocialProofBlockConfig {
+export interface SocialProofBlockConfig extends BgImageDimensions {
   heading: string;
   backgroundImageUrl?: string;
   overlayOpacity?: number;
