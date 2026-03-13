@@ -46,7 +46,7 @@ export function LanguageSelector({
               {lang.name}
             </span>
             {language === lang.code && (
-              <span className="ml-auto text-primary">✓</span>
+              <span className="ms-auto text-primary">✓</span>
             )}
           </DropdownMenuItem>
         ))}

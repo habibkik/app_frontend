@@ -194,14 +194,14 @@ export function ERPIntegrationSection() {
                               placeholder={field.placeholder}
                               value={credentials[sys.id]?.[field.key] || ""}
                               onChange={(e) => updateCredential(sys.id, field.key, e.target.value)}
-                              className="text-sm pr-9"
+                              className="text-sm pe-9"
                             />
                             {isPassword && (
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-0 top-0 h-full w-9"
+                                className="absolute end-0 top-0 h-full w-9"
                                 onClick={() => toggleFieldVisibility(fieldId)}
                               >
                                 {isVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}

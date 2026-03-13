@@ -182,7 +182,7 @@ export function SupplierRiskScoring({ supplier, compact = false }: SupplierRiskS
               <div key={cat.id} className={cn("flex items-center gap-1.5 rounded px-2 py-1 text-xs", getRiskBg(catLevel))}>
                 <cat.icon className={cn("h-3 w-3", getRiskColor(catLevel))} />
                 <span className="truncate">{cat.name}</span>
-                <span className={cn("ml-auto font-semibold", getRiskColor(catLevel))}>{catAvg}</span>
+                <span className={cn("ms-auto font-semibold", getRiskColor(catLevel))}>{catAvg}</span>
               </div>
             );
           })}
@@ -232,19 +232,19 @@ export function SupplierRiskScoring({ supplier, compact = false }: SupplierRiskS
                     <div className="flex items-center gap-2">
                       <cat.icon className={cn("h-4 w-4", getRiskColor(catLevel))} />
                       <span className="font-medium text-sm">{cat.name}</span>
-                      <Badge variant="outline" className="text-xs ml-1">{cat.weight}%</Badge>
+                      <Badge variant="outline" className="text-xs ms-1">{cat.weight}%</Badge>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-20">
                         <Progress value={catAvg} className={cn("h-1.5", getRiskProgressColor(catLevel))} />
                       </div>
-                      <span className={cn("text-sm font-semibold w-8 text-right", getRiskColor(catLevel))}>{catAvg}</span>
+                      <span className={cn("text-sm font-semibold w-8 text-end", getRiskColor(catLevel))}>{catAvg}</span>
                       {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </div>
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <div className="px-3 pb-3 pt-1 space-y-3 ml-6">
+                  <div className="px-3 pb-3 pt-1 space-y-3 ms-6">
                     {cat.factors.map((factor) => {
                       const fLevel = getRiskLevel(factor.score);
                       return (
