@@ -212,7 +212,7 @@ export default function NegotiationIntelligencePage() {
                     <Input type="number" min={0} step={0.01} value={targetPrice || ""} onChange={(e) => setTargetPrice(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-sm">Market Benchmark</Label>
+                    <Label className="text-sm">{t("pages.negotiation.marketBenchmark")}</Label>
                     <Input type="number" min={0} step={0.01} value={marketBenchmark || ""} onChange={(e) => setMarketBenchmark(parseFloat(e.target.value) || 0)} placeholder="$0.00" className="h-8 text-sm" />
                   </div>
                 </div>
