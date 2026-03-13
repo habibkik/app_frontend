@@ -42,7 +42,7 @@ export interface TextButtonCustomization {
   buttonTextColor?: string;
 }
 
-export interface HeroBlockConfig extends BgImageDimensions {
+export interface HeroBlockConfig extends BgImageDimensions, TextButtonCustomization {
   title: string;
   subtitle: string;
   ctaText: string;
