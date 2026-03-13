@@ -266,10 +266,10 @@ export default function OutreachHub() {
                         {c.product_name && <span className="text-xs text-muted-foreground">• {c.product_name}</span>}
                       </div>
                       <div className="flex items-center gap-2">
-                        {c.response_received ? (
-                          <Badge className="bg-emerald-500/10 text-emerald-600 text-xs">Responded</Badge>
+                         {c.response_received ? (
+                          <Badge className="bg-emerald-500/10 text-emerald-600 text-xs">{t("pages.outreachHub.responded")}</Badge>
                         ) : (
-                          <Badge className="bg-amber-500/10 text-amber-600 text-xs">Awaiting Response</Badge>
+                          <Badge className="bg-amber-500/10 text-amber-600 text-xs">{t("pages.outreachHub.awaitingResponse")}</Badge>
                         )}
                         {c.response_channel && (
                           <Badge variant="outline" className="text-xs">via {CHANNEL_LABELS[c.response_channel] || c.response_channel}</Badge>
