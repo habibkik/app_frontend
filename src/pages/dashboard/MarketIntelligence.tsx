@@ -266,8 +266,8 @@ export default function MarketIntelligencePage() {
                           <div className="flex flex-col items-center justify-center text-center">
                             <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
                             <p className="font-medium">Analyzing "{currentQuery}"</p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Gathering market data and generating insights...
+                             <p className="text-sm text-muted-foreground mt-1">
+                              {t("pages.marketIntelligence.gatheringData")}
                             </p>
                           </div>
                         </CardContent>
