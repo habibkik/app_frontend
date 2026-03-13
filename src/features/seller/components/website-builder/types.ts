@@ -63,13 +63,13 @@ export interface AboutBlockConfig {
   imageUrl: string;
 }
 
-export interface TestimonialsBlockConfig extends BgImageDimensions {
+export interface TestimonialsBlockConfig extends BgImageDimensions, TextButtonCustomization {
   items: { quote: string; author: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface FaqBlockConfig extends BgImageDimensions {
+export interface FaqBlockConfig extends BgImageDimensions, TextButtonCustomization {
   items: { question: string; answer: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
