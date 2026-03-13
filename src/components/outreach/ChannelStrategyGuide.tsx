@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Info, CheckCircle2, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const CHANNELS = [
   { name: "Email", bestFor: "Formal qualification, RFQ, documentation", avoid: "Long messages, multiple CTAs" },
@@ -25,6 +26,8 @@ const KEY_RULES = [
 ];
 
 export function ChannelStrategyGuide() {
+  const { t } = useTranslation();
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -34,15 +37,15 @@ export function ChannelStrategyGuide() {
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Channel Strategy Guide</DialogTitle>
+          <DialogTitle>{t("channelStrategy.title")}</DialogTitle>
         </DialogHeader>
 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Channel</TableHead>
-              <TableHead>Best For</TableHead>
-              <TableHead>Avoid</TableHead>
+              <TableHead>{t("channelStrategy.channel")}</TableHead>
+              <TableHead>{t("channelStrategy.bestFor")}</TableHead>
+              <TableHead>{t("channelStrategy.avoid")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -67,7 +70,7 @@ export function ChannelStrategyGuide() {
         </Table>
 
         <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-          <h4 className="text-sm font-medium mb-2">Key Rules</h4>
+          <h4 className="text-sm font-medium mb-2">{t("channelStrategy.keyRules")}</h4>
           <div className="flex flex-wrap gap-2">
             {KEY_RULES.map((rule) => (
               <Badge key={rule} variant="secondary" className="text-xs">{rule}</Badge>

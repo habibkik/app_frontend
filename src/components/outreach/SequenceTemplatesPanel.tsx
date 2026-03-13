@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { LayoutTemplate, Mail, Linkedin, Phone, Send, ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface SequenceTemplate {
   id: string;
@@ -15,11 +16,8 @@ export interface SequenceTemplate {
 
 const TEMPLATES: SequenceTemplate[] = [
   {
-    id: "supplier-sourcing",
-    name: "Supplier Sourcing",
-    description: "Identify, qualify, and shortlist new suppliers",
-    duration: "15–18 days",
-    touches: 6,
+    id: "supplier-sourcing", name: "Supplier Sourcing", description: "Identify, qualify, and shortlist new suppliers",
+    duration: "15–18 days", touches: 6,
     steps: [
       { day: 1, channel: "email", label: "Introduction Email" },
       { day: 3, channel: "linkedin", label: "LinkedIn Connection" },
@@ -30,11 +28,8 @@ const TEMPLATES: SequenceTemplate[] = [
     ],
   },
   {
-    id: "contract-renewal",
-    name: "Contract Renewal Leverage",
-    description: "Create competitive pressure before renegotiation",
-    duration: "10–14 days",
-    touches: 3,
+    id: "contract-renewal", name: "Contract Renewal Leverage", description: "Create competitive pressure before renegotiation",
+    duration: "10–14 days", touches: 3,
     steps: [
       { day: 1, channel: "email", label: "Soft Market Check" },
       { day: 5, channel: "email", label: "Competitor Benchmarking" },
@@ -42,11 +37,8 @@ const TEMPLATES: SequenceTemplate[] = [
     ],
   },
   {
-    id: "esg-compliance",
-    name: "ESG Compliance",
-    description: "Request updated certifications from suppliers",
-    duration: "12 days",
-    touches: 3,
+    id: "esg-compliance", name: "ESG Compliance", description: "Request updated certifications from suppliers",
+    duration: "12 days", touches: 3,
     steps: [
       { day: 1, channel: "email", label: "Certification Request" },
       { day: 5, channel: "email", label: "Reminder" },
@@ -54,11 +46,8 @@ const TEMPLATES: SequenceTemplate[] = [
     ],
   },
   {
-    id: "dual-sourcing",
-    name: "Dual Sourcing",
-    description: "Find and qualify backup supplier",
-    duration: "14 days",
-    touches: 4,
+    id: "dual-sourcing", name: "Dual Sourcing", description: "Find and qualify backup supplier",
+    duration: "14 days", touches: 4,
     steps: [
       { day: 1, channel: "email", label: "Capability Inquiry" },
       { day: 3, channel: "linkedin", label: "LinkedIn Connect" },
@@ -79,44 +68,46 @@ interface SequenceTemplatesPanelProps {
 }
 
 export function SequenceTemplatesPanel({ onApplyTemplate }: SequenceTemplatesPanelProps) {
+  const { t } = useTranslation();
+
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1.5">
           <LayoutTemplate className="h-3.5 w-3.5" />
-          Templates
+          {t("sequenceTemplates.templates")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Sequence Templates</DialogTitle>
+          <DialogTitle>{t("sequenceTemplates.title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 mt-2">
-          {TEMPLATES.map((t) => (
-            <Card key={t.id} className="p-4 border-border/50">
+          {TEMPLATES.map((tmpl) => (
+            <Card key={tmpl.id} className="p-4 border-border/50">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h4 className="font-medium text-sm">{t.name}</h4>
-                  <p className="text-xs text-muted-foreground">{t.description}</p>
+                  <h4 className="font-medium text-sm">{tmpl.name}</h4>
+                  <p className="text-xs text-muted-foreground">{tmpl.description}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">{t.touches} touches</Badge>
-                  <Badge variant="outline" className="text-xs">{t.duration}</Badge>
+                  <Badge variant="secondary" className="text-xs">{t("sequenceTemplates.touches", { count: tmpl.touches })}</Badge>
+                  <Badge variant="outline" className="text-xs">{tmpl.duration}</Badge>
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-wrap mb-3">
-                {t.steps.map((step, i) => (
+                {tmpl.steps.map((step, i) => (
                   <div key={i} className="flex items-center gap-1">
                     <div className="flex items-center gap-1 bg-muted/50 rounded px-2 py-1">
                       {CHANNEL_ICON[step.channel] || <Send className="h-3 w-3" />}
                       <span className="text-[10px]">D{step.day}</span>
                     </div>
-                    {i < t.steps.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
+                    {i < tmpl.steps.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
                   </div>
                 ))}
               </div>
-              <Button size="sm" variant="default" onClick={() => onApplyTemplate(t)} className="w-full">
-                Apply Template
+              <Button size="sm" variant="default" onClick={() => onApplyTemplate(tmpl)} className="w-full">
+                {t("sequenceTemplates.applyTemplate")}
               </Button>
             </Card>
           ))}

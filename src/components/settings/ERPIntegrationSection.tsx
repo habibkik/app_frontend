@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface CredentialField {
   key: string;
@@ -81,6 +82,7 @@ const ERP_SYSTEMS: ERPSystem[] = [
 ];
 
 export function ERPIntegrationSection() {
+  const { t } = useTranslation();
   const [systems, setSystems] = useState(ERP_SYSTEMS);
   const [syncing, setSyncing] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -130,8 +132,8 @@ export function ERPIntegrationSection() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold flex items-center gap-2"><Plug className="h-5 w-5" /> ERP Integrations</h3>
-        <p className="text-sm text-muted-foreground mt-1">Connect your ERP system for bi-directional data sync including POs, invoices, and inventory.</p>
+        <h3 className="text-lg font-semibold flex items-center gap-2"><Plug className="h-5 w-5" /> {t("erp.title")}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{t("erp.description")}</p>
       </div>
 
       <div className="grid gap-4">
@@ -146,16 +148,16 @@ export function ERPIntegrationSection() {
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-medium">{sys.name}</h4>
                     {sys.connected ? (
-                      <Badge className="text-xs bg-success/10 text-success border-success/30">Connected</Badge>
+                      <Badge className="text-xs bg-success/10 text-success border-success/30">{t("erp.connected")}</Badge>
                     ) : (
-                      <Badge variant="outline" className="text-xs">Not Connected</Badge>
+                      <Badge variant="outline" className="text-xs">{t("erp.notConnected")}</Badge>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">{sys.description}</p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {sys.modules.map((m) => <Badge key={m} variant="secondary" className="text-xs">{m}</Badge>)}
                   </div>
-                  {sys.lastSync && <p className="text-xs text-muted-foreground mt-2">Last sync: {sys.lastSync}</p>}
+                  {sys.lastSync && <p className="text-xs text-muted-foreground mt-2">{t("erp.lastSync", { time: sys.lastSync })}</p>}
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <Switch checked={sys.connected} onCheckedChange={() => toggleConnection(sys.id)} />
@@ -163,12 +165,12 @@ export function ERPIntegrationSection() {
                     {sys.connected && (
                       <Button variant="outline" size="sm" className="gap-1 text-xs" onClick={() => handleSync(sys.id)} disabled={syncing === sys.id}>
                         <RefreshCw className={`h-3 w-3 ${syncing === sys.id ? "animate-spin" : ""}`} />
-                        {syncing === sys.id ? "Syncing..." : "Sync"}
+                        {syncing === sys.id ? t("erp.syncing") : t("erp.sync")}
                       </Button>
                     )}
                     <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => setExpandedId(expandedId === sys.id ? null : sys.id)}>
                       {expandedId === sys.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                      Credentials
+                      {t("erp.credentials")}
                     </Button>
                   </div>
                 </div>
@@ -176,7 +178,7 @@ export function ERPIntegrationSection() {
 
               {expandedId === sys.id && (
                 <div className="mt-4 pt-4 border-t space-y-3">
-                  <p className="text-xs text-muted-foreground">Enter your {sys.name} credentials below. They are encrypted and stored securely.</p>
+                  <p className="text-xs text-muted-foreground">{t("erp.enterCredentials", { name: sys.name })}</p>
                   <div className="grid gap-3 sm:grid-cols-2">
                     {sys.credentialFields.map((field) => {
                       const fieldId = `${sys.id}-${field.key}`;
@@ -213,7 +215,7 @@ export function ERPIntegrationSection() {
                   <div className="flex justify-end pt-1">
                     <Button size="sm" className="gap-1.5" onClick={() => handleSaveCredentials(sys.id)} disabled={saving === sys.id}>
                       <Save className="h-3.5 w-3.5" />
-                      {saving === sys.id ? "Saving..." : "Save Credentials"}
+                      {saving === sys.id ? t("erp.saving") : t("erp.saveCredentials")}
                     </Button>
                   </div>
                 </div>
@@ -225,7 +227,7 @@ export function ERPIntegrationSection() {
 
       <Card className="bg-muted/50">
         <CardContent className="p-4 text-center">
-          <p className="text-sm text-muted-foreground">Need a different ERP? <Button variant="link" className="p-0 h-auto text-primary">Contact us</Button> to request an integration.</p>
+          <p className="text-sm text-muted-foreground">{t("erp.needDifferent")} <Button variant="link" className="p-0 h-auto text-primary">{t("erp.contactUs")}</Button> {t("erp.toRequest")}</p>
         </CardContent>
       </Card>
     </div>

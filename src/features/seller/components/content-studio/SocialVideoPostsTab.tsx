@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Video, Instagram, Facebook, Linkedin, Twitter } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const platforms = [
   { id: "instagram-reel", name: "Instagram Reel", icon: Instagram },
@@ -12,14 +13,16 @@ const platforms = [
 ];
 
 export const SocialVideoPostsTab: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <h3 className="text-lg font-semibold">Social Posts with Video</h3>
-        <Badge variant="secondary" className="bg-accent text-accent-foreground">Coming Soon</Badge>
+        <h3 className="text-lg font-semibold">{t("socialVideo.title")}</h3>
+        <Badge variant="secondary" className="bg-accent text-accent-foreground">{t("socialVideo.comingSoon")}</Badge>
       </div>
       <p className="text-sm text-muted-foreground">
-        5 video-based social media posts will be generated when video API becomes available.
+        {t("socialVideo.description")}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {platforms.map((p) => (
@@ -35,9 +38,9 @@ export const SocialVideoPostsTab: React.FC = () => {
                 <Video className="h-10 w-10 text-muted-foreground/50" />
               </div>
               <div className="space-y-1 text-xs text-muted-foreground">
-                <p>• Caption with hook & CTA</p>
-                <p>• Platform-optimized hashtags</p>
-                <p>• Attached generated video</p>
+                <p>• {t("socialVideo.captionWithHook")}</p>
+                <p>• {t("socialVideo.platformOptimized")}</p>
+                <p>• {t("socialVideo.attachedVideo")}</p>
               </div>
             </CardContent>
           </Card>

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTranslation } from "react-i18next";
 
 interface PersonalizationScoreProps {
   message: string | null;
@@ -9,17 +10,18 @@ interface PersonalizationScoreProps {
 
 function computeScore(message: string, supplierName: string, productName?: string | null) {
   const checks = [
-    { label: "Recipient/Company name", pass: message.toLowerCase().includes(supplierName.toLowerCase().split(" ")[0]) },
-    { label: "Product reference", pass: productName ? message.toLowerCase().includes(productName.toLowerCase().split(" ")[0]) : false },
-    { label: "Industry/category reference", pass: /industry|sector|category|manufacturing|production|supply/i.test(message) },
-    { label: "Specific detail", pass: /capacity|certification|ISO|expansion|region|volume|project/i.test(message) },
-    { label: "Single clear CTA", pass: /\?/.test(message) && (message.match(/\?/g) || []).length <= 2 },
+    { labelKey: "personalization.recipientName", pass: message.toLowerCase().includes(supplierName.toLowerCase().split(" ")[0]) },
+    { labelKey: "personalization.productReference", pass: productName ? message.toLowerCase().includes(productName.toLowerCase().split(" ")[0]) : false },
+    { labelKey: "personalization.industryReference", pass: /industry|sector|category|manufacturing|production|supply/i.test(message) },
+    { labelKey: "personalization.specificDetail", pass: /capacity|certification|ISO|expansion|region|volume|project/i.test(message) },
+    { labelKey: "personalization.singleCTA", pass: /\?/.test(message) && (message.match(/\?/g) || []).length <= 2 },
   ];
   const passed = checks.filter((c) => c.pass).length;
   return { score: Math.round((passed / checks.length) * 100), checks };
 }
 
 export function PersonalizationScore({ message, supplierName, productName }: PersonalizationScoreProps) {
+  const { t } = useTranslation();
   if (!message) return null;
   const { score, checks } = computeScore(message, supplierName, productName);
 
@@ -34,11 +36,11 @@ export function PersonalizationScore({ message, supplierName, productName }: Per
           </Badge>
         </TooltipTrigger>
         <TooltipContent side="left" className="max-w-xs">
-          <p className="text-xs font-medium mb-1">Personalization Score</p>
+          <p className="text-xs font-medium mb-1">{t("personalization.title")}</p>
           {checks.map((c) => (
-            <div key={c.label} className="flex items-center gap-1 text-xs">
+            <div key={c.labelKey} className="flex items-center gap-1 text-xs">
               <span>{c.pass ? "✅" : "❌"}</span>
-              <span>{c.label}</span>
+              <span>{t(c.labelKey)}</span>
             </div>
           ))}
         </TooltipContent>
