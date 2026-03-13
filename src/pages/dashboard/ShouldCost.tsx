@@ -280,7 +280,7 @@ export default function ShouldCostPage() {
                   <Slider value={[inputs.overheadPercent]} onValueChange={([v]) => set("overheadPercent", v)} min={0} max={50} step={1} />
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between"><Label className="text-sm">Scrap Rate</Label><Badge variant="secondary">{inputs.scrapPercent}%</Badge></div>
+                  <div className="flex items-center justify-between"><Label className="text-sm">{t("pages.shouldCost.scrapRate")}</Label><Badge variant="secondary">{inputs.scrapPercent}%</Badge></div>
                   <Slider value={[inputs.scrapPercent]} onValueChange={([v]) => set("scrapPercent", v)} min={0} max={20} step={0.5} />
                 </div>
                 <Separator />
