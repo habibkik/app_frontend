@@ -223,7 +223,7 @@ function renderOrderForm(cfg: OrderFormBlockConfig, theme: LandingPageTheme) {
       <button type="submit" style="${btnStyle(theme)}cursor:pointer;">Place Order</button>
     </form>
   </div>`;
-  return `<section id="order" style="padding:${sectionPad(theme)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl)}">
+  return `<section id="order" style="padding:${sectionPadFor(theme, cfg)};${bgStyle(theme.bgColor, cfg.backgroundImageUrl, ...bgFit(cfg))}">
   ${wrapWithOverlay(inner, cfg.backgroundImageUrl, cfg.overlayOpacity)}
 </section>`;
 }
