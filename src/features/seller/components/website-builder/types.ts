@@ -134,7 +134,7 @@ export interface OfferPricingBlockConfig extends BgImageDimensions, TextButtonCu
 
 // --- New Block Configs ---
 
-export interface FeaturesGridBlockConfig extends BgImageDimensions {
+export interface FeaturesGridBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   subtitle: string;
   items: { icon: string; title: string; description: string }[];
@@ -143,14 +143,14 @@ export interface FeaturesGridBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface PricingTableBlockConfig extends BgImageDimensions {
+export interface PricingTableBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   plans: { name: string; price: string; period: string; features: string[]; highlighted: boolean; ctaText: string }[];
   backgroundImageUrl?: string;
   overlayOpacity?: number;
 }
 
-export interface ImageGalleryBlockConfig extends BgImageDimensions {
+export interface ImageGalleryBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   images: { url: string; caption: string }[];
   columns: 2 | 3 | 4;
@@ -159,7 +159,7 @@ export interface ImageGalleryBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface VideoEmbedBlockConfig extends BgImageDimensions {
+export interface VideoEmbedBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   videoUrl: string;
   provider: "youtube" | "vimeo" | "custom";
@@ -168,7 +168,7 @@ export interface VideoEmbedBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface CountdownTimerBlockConfig extends BgImageDimensions {
+export interface CountdownTimerBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   subtitle: string;
   targetDate: string;
@@ -178,7 +178,7 @@ export interface CountdownTimerBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface NewsletterBlockConfig extends BgImageDimensions {
+export interface NewsletterBlockConfig extends BgImageDimensions, TextButtonCustomization {
   heading: string;
   subtitle: string;
   buttonText: string;
