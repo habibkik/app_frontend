@@ -229,6 +229,9 @@ serve(async (req) => {
         };
         mParts.push(styleMap[marketingStyle] || `Visual style: ${marketingStyle}.`);
       }
+      if (marketingColors && marketingColors.length > 0) {
+        mParts.push(`Use these specific colors for the design palette: ${marketingColors.join(", ")}. These should be the primary and accent colors in all visual elements, backgrounds, buttons, and decorative shapes.`);
+      }
       if (mParts.length > 0) {
         prompt += ` MARKETING CUSTOMIZATION: ${mParts.join(" ")}`;
       }

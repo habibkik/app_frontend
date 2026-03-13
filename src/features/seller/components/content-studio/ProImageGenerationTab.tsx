@@ -559,6 +559,72 @@ export const ProImageGenerationTab: React.FC<Props> = ({
               </Select>
             </div>
           </div>
+
+          {/* Color Chooser / Brand Kit Toggle */}
+          <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs flex items-center gap-1.5">
+                <Palette className="h-3 w-3 text-primary" />
+                Colors
+              </Label>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Use Brand Kit</span>
+                <Switch
+                  checked={useBrandKitColors}
+                  onCheckedChange={setUseBrandKitColors}
+                  className="scale-75"
+                />
+              </div>
+            </div>
+
+            {useBrandKitColors ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {brandKit?.colors && brandKit.colors.length > 0 ? (
+                  brandKit.colors.map((color) => (
+                    <div
+                      key={color}
+                      className="h-6 w-6 rounded-full border-2 border-background shadow-sm"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">No brand kit colors defined — go to Brand Identity Kit to add them.</p>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {marketingColors.map((color, i) => (
+                  <div key={color} className="flex flex-col items-center gap-0.5">
+                    <div
+                      className="group relative h-6 w-6 rounded-full border-2 border-background shadow-sm cursor-pointer transition-transform hover:scale-110"
+                      style={{ backgroundColor: color }}
+                      onClick={() => removeMarketingColor(color)}
+                      title={`${color} — click to remove`}
+                    >
+                      <X className="h-2.5 w-2.5 absolute inset-0 m-auto text-white opacity-0 group-hover:opacity-100 drop-shadow-md transition-opacity" />
+                    </div>
+                    <span className="text-[9px] text-muted-foreground">
+                      {["Primary", "Secondary", "Accent", "Background"][i]}
+                    </span>
+                  </div>
+                ))}
+                {marketingColors.length < 4 && (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="color"
+                      value={newMarketingColor}
+                      onChange={(e) => setNewMarketingColor(e.target.value)}
+                      className="h-6 w-6 rounded cursor-pointer border-0 p-0"
+                    />
+                    <Button size="sm" variant="ghost" onClick={addMarketingColor} className="h-6 w-6 p-0">
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
