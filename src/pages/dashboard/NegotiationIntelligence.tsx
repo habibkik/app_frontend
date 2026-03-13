@@ -290,8 +290,8 @@ export default function NegotiationIntelligencePage() {
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Supplier Quotes</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={addQuote}><Plus className="h-3.5 w-3.5 mr-1" /> Add</Button>
+                   <CardTitle className="text-base">{t("pages.negotiation.supplierQuotes")}</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={addQuote}><Plus className="h-3.5 w-3.5 mr-1" /> {t("pages.negotiation.add")}</Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
