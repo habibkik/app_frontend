@@ -149,7 +149,7 @@ export interface ImageGalleryBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface VideoEmbedBlockConfig {
+export interface VideoEmbedBlockConfig extends BgImageDimensions {
   heading: string;
   videoUrl: string;
   provider: "youtube" | "vimeo" | "custom";
