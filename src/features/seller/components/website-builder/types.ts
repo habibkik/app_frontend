@@ -73,7 +73,7 @@ export interface ContactBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface OrderFormBlockConfig {
+export interface OrderFormBlockConfig extends BgImageDimensions {
   heading: string;
   productName: string;
   backgroundImageUrl?: string;
