@@ -203,7 +203,7 @@ export default function NegotiationIntelligencePage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label className="text-sm">Product / Category</Label>
+                  <Label className="text-sm">{t("pages.negotiation.productCategory")}</Label>
                   <Input value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g. CNC Machined Housing" className="h-8 text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
