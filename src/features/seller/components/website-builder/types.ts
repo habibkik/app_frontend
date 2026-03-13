@@ -197,7 +197,7 @@ export interface ShoppingCartBlockConfig extends BgImageDimensions {
   overlayOpacity?: number;
 }
 
-export interface CheckoutFormBlockConfig {
+export interface CheckoutFormBlockConfig extends BgImageDimensions {
   heading: string;
   enabledPaymentMethods: ("stripe" | "paypal" | "cod")[];
   backgroundImageUrl?: string;
