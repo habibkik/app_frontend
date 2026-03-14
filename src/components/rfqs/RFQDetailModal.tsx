@@ -100,7 +100,8 @@ export function RFQDetailModal({ rfq, open, onOpenChange }: RFQDetailModalProps)
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="flex w-full flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
-            <TabsTrigger value="quotes" className="text-xs">Quotes ({quotes.length})</TabsTrigger>
+            <TabsTrigger value="compare" className="text-xs">Compare ({quotes.length})</TabsTrigger>
+            <TabsTrigger value="compliance" className="text-xs">Compliance</TabsTrigger>
             <TabsTrigger value="approvals" className="text-xs">Approvals</TabsTrigger>
             <TabsTrigger value="team" className="text-xs">Team</TabsTrigger>
             <TabsTrigger value="forecast" className="text-xs">Forecast</TabsTrigger>
