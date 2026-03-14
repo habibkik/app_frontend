@@ -17,6 +17,8 @@ import { ApprovalWorkflow } from "./ApprovalWorkflow";
 import { RFQTeamComments } from "./RFQTeamComments";
 import { PurchaseOrderGenerator } from "./PurchaseOrderGenerator";
 import { PriceForecastPanel } from "./PriceForecastPanel";
+import { QuoteComparisonEngine } from "./QuoteComparisonEngine";
+import { ComplianceRiskChecker } from "./ComplianceRiskChecker";
 
 interface RFQDetailModalProps {
   rfq: RFQItem | null;
@@ -98,7 +100,8 @@ export function RFQDetailModal({ rfq, open, onOpenChange }: RFQDetailModalProps)
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="flex w-full flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="details" className="text-xs">Details</TabsTrigger>
-            <TabsTrigger value="quotes" className="text-xs">Quotes ({quotes.length})</TabsTrigger>
+            <TabsTrigger value="compare" className="text-xs">Compare ({quotes.length})</TabsTrigger>
+            <TabsTrigger value="compliance" className="text-xs">Compliance</TabsTrigger>
             <TabsTrigger value="approvals" className="text-xs">Approvals</TabsTrigger>
             <TabsTrigger value="team" className="text-xs">Team</TabsTrigger>
             <TabsTrigger value="forecast" className="text-xs">Forecast</TabsTrigger>
@@ -172,93 +175,17 @@ export function RFQDetailModal({ rfq, open, onOpenChange }: RFQDetailModalProps)
             )}
           </TabsContent>
 
-          {/* QUOTES COMPARISON */}
-          <TabsContent value="quotes" className="space-y-4 mt-4">
-            {quotes.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Package className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                <p>No quotes received yet</p>
-              </div>
-            ) : (
-              <>
-                <div className="h-[220px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                      <XAxis dataKey="name" tick={{ fontSize: 10 }} className="text-muted-foreground" />
-                      <YAxis tick={{ fontSize: 10 }} domain={[0, 5]} className="text-muted-foreground" />
-                      <Tooltip />
-                      <Bar dataKey="score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+          {/* ENHANCED QUOTE COMPARISON */}
+          <TabsContent value="compare" className="mt-4">
+            <QuoteComparisonEngine rfq={rfq} quotes={quotes} />
+          </TabsContent>
 
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Supplier</TableHead>
-                        <TableHead className="text-right">Unit Price</TableHead>
-                        <TableHead className="text-right">Tooling</TableHead>
-                        <TableHead className="text-right">MOQ</TableHead>
-                        <TableHead className="text-right">Logistics</TableHead>
-                        <TableHead className="text-right">Lead Time</TableHead>
-                        <TableHead className="text-right">Score</TableHead>
-                        <TableHead className="w-[80px]"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {scoredQuotes.map((q, idx) => (
-                        <TableRow key={q.id} className={idx === 0 ? "bg-success/5" : ""}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium text-sm">{q.supplierName}</p>
-                              <p className="text-xs text-muted-foreground">{q.supplierCountry}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right font-medium">${q.unitPrice.toFixed(2)}</TableCell>
-                          <TableCell className="text-right">${q.toolingCost.toLocaleString()}</TableCell>
-                          <TableCell className="text-right">{q.moq.toLocaleString()}</TableCell>
-                          <TableCell className="text-right">${q.logisticsCost.toLocaleString()}</TableCell>
-                          <TableCell className="text-right">{q.leadTimeDays}d</TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant={idx === 0 ? "default" : "outline"}>{q.totalScore.toFixed(1)}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            {idx === 0 && rfq.status !== "awarded" && (
-                              <Button size="sm" variant="outline" className="h-7 text-xs gap-1"
-                                onClick={() => toast.success(`Awarded to ${q.supplierName}`)}>
-                                <Award className="h-3 w-3" /> Award
-                              </Button>
-                            )}
-                            {idx === 0 && rfq.status === "awarded" && (
-                              <Badge variant="default" className="text-xs">Winner</Badge>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Automated PO for awarded RFQs */}
-                {rfq.status === "awarded" && scoredQuotes.length > 0 && (
-                  <div className="mt-4">
-                    <PurchaseOrderGenerator
-                      rfqId={rfq.id}
-                      rfqTitle={rfq.title}
-                      supplierName={scoredQuotes[0].supplierName}
-                      unitPrice={scoredQuotes[0].unitPrice}
-                      quantity={rfq.quantity}
-                      unit={rfq.unit}
-                      toolingCost={scoredQuotes[0].toolingCost}
-                      logisticsCost={scoredQuotes[0].logisticsCost}
-                      leadTimeDays={scoredQuotes[0].leadTimeDays}
-                    />
-                  </div>
-                )}
-              </>
-            )}
+          {/* COMPLIANCE & RISK */}
+          <TabsContent value="compliance" className="mt-4">
+            <ComplianceRiskChecker
+              initialText={`${rfq.title}\n\n${rfq.description}\n\nCategory: ${rfq.category}\nIncoterm: ${rfq.incoterm || "N/A"}\nPayment Terms: ${rfq.paymentTerms || "N/A"}\nWarranty: ${rfq.warrantyTerms || "N/A"}\n${rfq.complianceNotes ? `\nCompliance Notes: ${rfq.complianceNotes}` : ""}\n${rfq.qualityStandards?.length ? `\nQuality Standards: ${rfq.qualityStandards.join(", ")}` : ""}\n${rfq.certificationsRequired?.length ? `\nCertifications: ${rfq.certificationsRequired.join(", ")}` : ""}`}
+              documentType="RFQ"
+            />
           </TabsContent>
 
           {/* APPROVALS */}

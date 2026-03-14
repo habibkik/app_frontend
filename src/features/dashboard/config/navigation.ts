@@ -53,6 +53,7 @@ const buyerNavigation: NavGroup[] = [
   {
     label: "Sourcing",
     items: [
+      { title: "RFx Copilot", url: "/dashboard/rfx-copilot", icon: Brain },
       { title: "Supplier Search", url: "/dashboard/suppliers", icon: Search },
       { title: "Outreach Hub", url: "/dashboard/outreach-hub", icon: Send },
       { title: "My RFQs", url: "/dashboard/rfqs", icon: FileText },
@@ -72,6 +73,7 @@ const buyerNavigation: NavGroup[] = [
   {
     label: "Insights",
     items: [
+      { title: "RFx Analytics", url: "/dashboard/rfx-analytics", icon: BarChart3 },
       { title: "Heat Map", url: "/dashboard/heatmap", icon: Map },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
     ],
