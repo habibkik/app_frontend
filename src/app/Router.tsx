@@ -82,7 +82,8 @@ export function Router() {
       <Route path="/dashboard/should-cost" element={<ProtectedRoute><ShouldCost /></ProtectedRoute>} />
       <Route path="/dashboard/negotiation" element={<ProtectedRoute><NegotiationIntelligence /></ProtectedRoute>} />
       <Route path="/dashboard/compare" element={<ProtectedRoute><SupplierComparison /></ProtectedRoute>} />
-      
+      <Route path="/dashboard/rfx-copilot" element={<ProtectedRoute><RFxCopilotPage /></ProtectedRoute>} />
+      <Route path="/dashboard/rfx-analytics" element={<ProtectedRoute><RFxAnalytics /></ProtectedRoute>} />
       
       {/* Producer mode pages */}
       <Route path="/dashboard/producer" element={<ProtectedRoute><ProducerDashboard /></ProtectedRoute>} />

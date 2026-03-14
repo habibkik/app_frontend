@@ -73,6 +73,7 @@ const buyerNavigation: NavGroup[] = [
   {
     label: "Insights",
     items: [
+      { title: "RFx Analytics", url: "/dashboard/rfx-analytics", icon: BarChart3 },
       { title: "Heat Map", url: "/dashboard/heatmap", icon: Map },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
     ],
