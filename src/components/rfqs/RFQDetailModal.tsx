@@ -17,6 +17,8 @@ import { ApprovalWorkflow } from "./ApprovalWorkflow";
 import { RFQTeamComments } from "./RFQTeamComments";
 import { PurchaseOrderGenerator } from "./PurchaseOrderGenerator";
 import { PriceForecastPanel } from "./PriceForecastPanel";
+import { QuoteComparisonEngine } from "./QuoteComparisonEngine";
+import { ComplianceRiskChecker } from "./ComplianceRiskChecker";
 
 interface RFQDetailModalProps {
   rfq: RFQItem | null;
