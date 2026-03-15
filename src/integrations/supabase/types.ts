@@ -1237,6 +1237,134 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_portal_invitations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          responded_at: string | null
+          rfq_budget_range: string | null
+          rfq_category: string | null
+          rfq_deadline: string | null
+          rfq_description: string | null
+          rfq_requirements: string | null
+          rfq_title: string
+          status: string
+          supplier_email: string
+          supplier_name: string | null
+          token: string
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          responded_at?: string | null
+          rfq_budget_range?: string | null
+          rfq_category?: string | null
+          rfq_deadline?: string | null
+          rfq_description?: string | null
+          rfq_requirements?: string | null
+          rfq_title: string
+          status?: string
+          supplier_email: string
+          supplier_name?: string | null
+          token?: string
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          responded_at?: string | null
+          rfq_budget_range?: string | null
+          rfq_category?: string | null
+          rfq_deadline?: string | null
+          rfq_description?: string | null
+          rfq_requirements?: string | null
+          rfq_title?: string
+          status?: string
+          supplier_email?: string
+          supplier_name?: string | null
+          token?: string
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
+      supplier_portal_responses: {
+        Row: {
+          created_at: string
+          documents_json: Json
+          id: string
+          invitation_id: string
+          lead_time: string | null
+          moq: number | null
+          proposal_text: string | null
+          quote_amount: number | null
+          quote_currency: string
+          quote_details_json: Json
+          quote_unit: string | null
+          status: string
+          submitted_at: string
+          supplier_company: string | null
+          supplier_email: string
+          supplier_name: string
+          supplier_phone: string | null
+          terms_accepted: boolean
+        }
+        Insert: {
+          created_at?: string
+          documents_json?: Json
+          id?: string
+          invitation_id: string
+          lead_time?: string | null
+          moq?: number | null
+          proposal_text?: string | null
+          quote_amount?: number | null
+          quote_currency?: string
+          quote_details_json?: Json
+          quote_unit?: string | null
+          status?: string
+          submitted_at?: string
+          supplier_company?: string | null
+          supplier_email: string
+          supplier_name: string
+          supplier_phone?: string | null
+          terms_accepted?: boolean
+        }
+        Update: {
+          created_at?: string
+          documents_json?: Json
+          id?: string
+          invitation_id?: string
+          lead_time?: string | null
+          moq?: number | null
+          proposal_text?: string | null
+          quote_amount?: number | null
+          quote_currency?: string
+          quote_details_json?: Json
+          quote_unit?: string | null
+          status?: string
+          submitted_at?: string
+          supplier_company?: string | null
+          supplier_email?: string
+          supplier_name?: string
+          supplier_phone?: string | null
+          terms_accepted?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_portal_responses_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_portal_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_social_credentials: {
         Row: {
           created_at: string
