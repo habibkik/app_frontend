@@ -57,6 +57,7 @@ const buyerNavigation: NavGroup[] = [
     items: [
       { title: "RFx Copilot", url: "/dashboard/rfx-copilot", icon: Brain },
       { title: "Doc Intelligence", url: "/dashboard/doc-intelligence", icon: FileScan },
+      { title: "Knowledge Brain", url: "/dashboard/knowledge-brain", icon: Library },
       { title: "Supplier Search", url: "/dashboard/suppliers", icon: Search },
       { title: "Outreach Hub", url: "/dashboard/outreach-hub", icon: Send },
       { title: "My RFQs", url: "/dashboard/rfqs", icon: FileText },

@@ -80,3 +80,6 @@ verify_jwt = false
 
 [functions.document-intelligence]
 verify_jwt = false
+
+[functions.procurement-knowledge]
+verify_jwt = false
