@@ -70,6 +70,7 @@ export function Router() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
       <Route path="/verify-email" element={<EmailVerificationPage />} />
+      <Route path="/supplier-portal/:token" element={<SupplierPortalPage />} />
       
       {/* Protected Dashboard routes */}
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
