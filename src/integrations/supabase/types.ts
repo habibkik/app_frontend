@@ -1061,6 +1061,45 @@ export type Database = {
           },
         ]
       }
+      procurement_knowledge: {
+        Row: {
+          content_summary: string
+          created_at: string
+          id: string
+          metadata_json: Json
+          source_id: string | null
+          tags: string[]
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_summary?: string
+          created_at?: string
+          id?: string
+          metadata_json?: Json
+          source_id?: string | null
+          tags?: string[]
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_summary?: string
+          created_at?: string
+          id?: string
+          metadata_json?: Json
+          source_id?: string | null
+          tags?: string[]
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null
