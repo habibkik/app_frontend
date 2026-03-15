@@ -53,6 +53,8 @@ import RFxCopilotPage from "@/pages/dashboard/RFxCopilotPage";
 import RFxAnalytics from "@/pages/dashboard/RFxAnalytics";
 import DocumentIntelligencePage from "@/pages/dashboard/DocumentIntelligencePage";
 import KnowledgeBrainPage from "@/pages/dashboard/KnowledgeBrainPage";
+import SupplierPortalPage from "@/pages/SupplierPortalPage";
+import SupplierPortalManagePage from "@/pages/dashboard/SupplierPortalManagePage";
 import NotFound from "@/pages/NotFound";
 import { MarketplaceSellerPage } from "@/features/marketplace";
 
@@ -68,6 +70,7 @@ export function Router() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
       <Route path="/verify-email" element={<EmailVerificationPage />} />
+      <Route path="/supplier-portal/:token" element={<SupplierPortalPage />} />
       
       {/* Protected Dashboard routes */}
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
@@ -88,6 +91,7 @@ export function Router() {
       <Route path="/dashboard/rfx-analytics" element={<ProtectedRoute><RFxAnalytics /></ProtectedRoute>} />
       <Route path="/dashboard/doc-intelligence" element={<ProtectedRoute><DocumentIntelligencePage /></ProtectedRoute>} />
       <Route path="/dashboard/knowledge-brain" element={<ProtectedRoute><KnowledgeBrainPage /></ProtectedRoute>} />
+      <Route path="/dashboard/supplier-portal" element={<ProtectedRoute><SupplierPortalManagePage /></ProtectedRoute>} />
       
       {/* Producer mode pages */}
       <Route path="/dashboard/producer" element={<ProtectedRoute><ProducerDashboard /></ProtectedRoute>} />
