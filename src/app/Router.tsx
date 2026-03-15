@@ -51,6 +51,7 @@ import SupplierComparison from "@/pages/dashboard/SupplierComparison";
 import OrdersStockPage from "@/pages/dashboard/OrdersStock";
 import RFxCopilotPage from "@/pages/dashboard/RFxCopilotPage";
 import RFxAnalytics from "@/pages/dashboard/RFxAnalytics";
+import DocumentIntelligencePage from "@/pages/dashboard/DocumentIntelligencePage";
 import NotFound from "@/pages/NotFound";
 import { MarketplaceSellerPage } from "@/features/marketplace";
 
