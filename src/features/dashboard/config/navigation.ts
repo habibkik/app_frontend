@@ -5,6 +5,7 @@ import {
   FileText,
   FileScan,
   Library,
+  Link,
   MessageSquare,
   Bookmark,
   BarChart3,
