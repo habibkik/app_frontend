@@ -4,6 +4,7 @@ import {
   Search,
   FileText,
   FileScan,
+  Library,
   MessageSquare,
   Bookmark,
   BarChart3,
