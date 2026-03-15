@@ -52,6 +52,7 @@ import OrdersStockPage from "@/pages/dashboard/OrdersStock";
 import RFxCopilotPage from "@/pages/dashboard/RFxCopilotPage";
 import RFxAnalytics from "@/pages/dashboard/RFxAnalytics";
 import DocumentIntelligencePage from "@/pages/dashboard/DocumentIntelligencePage";
+import KnowledgeBrainPage from "@/pages/dashboard/KnowledgeBrainPage";
 import NotFound from "@/pages/NotFound";
 import { MarketplaceSellerPage } from "@/features/marketplace";
 
@@ -86,6 +87,7 @@ export function Router() {
       <Route path="/dashboard/rfx-copilot" element={<ProtectedRoute><RFxCopilotPage /></ProtectedRoute>} />
       <Route path="/dashboard/rfx-analytics" element={<ProtectedRoute><RFxAnalytics /></ProtectedRoute>} />
       <Route path="/dashboard/doc-intelligence" element={<ProtectedRoute><DocumentIntelligencePage /></ProtectedRoute>} />
+      <Route path="/dashboard/knowledge-brain" element={<ProtectedRoute><KnowledgeBrainPage /></ProtectedRoute>} />
       
       {/* Producer mode pages */}
       <Route path="/dashboard/producer" element={<ProtectedRoute><ProducerDashboard /></ProtectedRoute>} />
