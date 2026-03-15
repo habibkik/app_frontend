@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Search,
   FileText,
+  FileScan,
   MessageSquare,
   Bookmark,
   BarChart3,
