@@ -66,6 +66,7 @@ const buyerNavigation: NavGroup[] = [
       { title: "Conversations", url: "/dashboard/conversations", icon: MessageSquare },
       { title: "Saved Suppliers", url: "/dashboard/saved", icon: Bookmark },
       { title: "Compare Suppliers", url: "/dashboard/compare", icon: GitCompareArrows },
+      { title: "Supplier Portal", url: "/dashboard/supplier-portal", icon: Link },
     ],
   },
   {
