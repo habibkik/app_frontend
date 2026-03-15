@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.compliance-checker]
 verify_jwt = false
+
+[functions.document-intelligence]
+verify_jwt = false
