@@ -53,6 +53,8 @@ import RFxCopilotPage from "@/pages/dashboard/RFxCopilotPage";
 import RFxAnalytics from "@/pages/dashboard/RFxAnalytics";
 import DocumentIntelligencePage from "@/pages/dashboard/DocumentIntelligencePage";
 import KnowledgeBrainPage from "@/pages/dashboard/KnowledgeBrainPage";
+import SupplierPortalPage from "@/pages/SupplierPortalPage";
+import SupplierPortalManagePage from "@/pages/dashboard/SupplierPortalManagePage";
 import NotFound from "@/pages/NotFound";
 import { MarketplaceSellerPage } from "@/features/marketplace";
 
