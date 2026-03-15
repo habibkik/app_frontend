@@ -91,6 +91,7 @@ export function Router() {
       <Route path="/dashboard/rfx-analytics" element={<ProtectedRoute><RFxAnalytics /></ProtectedRoute>} />
       <Route path="/dashboard/doc-intelligence" element={<ProtectedRoute><DocumentIntelligencePage /></ProtectedRoute>} />
       <Route path="/dashboard/knowledge-brain" element={<ProtectedRoute><KnowledgeBrainPage /></ProtectedRoute>} />
+      <Route path="/dashboard/supplier-portal" element={<ProtectedRoute><SupplierPortalManagePage /></ProtectedRoute>} />
       
       {/* Producer mode pages */}
       <Route path="/dashboard/producer" element={<ProtectedRoute><ProducerDashboard /></ProtectedRoute>} />
